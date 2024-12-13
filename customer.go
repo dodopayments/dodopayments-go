@@ -48,7 +48,7 @@ func (r *CustomerService) Get(ctx context.Context, customerID string, opts ...op
 	return
 }
 
-func (r *CustomerService) List(ctx context.Context, query CustomerListParams, opts ...option.RequestOption) (res *pagination.PageNumberPage[Customer], err error) {
+func (r *CustomerService) List(ctx context.Context, query CustomerListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[Customer], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
@@ -65,8 +65,8 @@ func (r *CustomerService) List(ctx context.Context, query CustomerListParams, op
 	return res, nil
 }
 
-func (r *CustomerService) ListAutoPaging(ctx context.Context, query CustomerListParams, opts ...option.RequestOption) *pagination.PageNumberPageAutoPager[Customer] {
-	return pagination.NewPageNumberPageAutoPager(r.List(ctx, query, opts...))
+func (r *CustomerService) ListAutoPaging(ctx context.Context, query CustomerListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[Customer] {
+	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
 type Customer struct {

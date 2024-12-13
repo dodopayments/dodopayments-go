@@ -55,7 +55,7 @@ func (r *RefundService) Get(ctx context.Context, refundID string, opts ...option
 	return
 }
 
-func (r *RefundService) List(ctx context.Context, query RefundListParams, opts ...option.RequestOption) (res *pagination.PageNumberPage[Refund], err error) {
+func (r *RefundService) List(ctx context.Context, query RefundListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[Refund], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
@@ -72,8 +72,8 @@ func (r *RefundService) List(ctx context.Context, query RefundListParams, opts .
 	return res, nil
 }
 
-func (r *RefundService) ListAutoPaging(ctx context.Context, query RefundListParams, opts ...option.RequestOption) *pagination.PageNumberPageAutoPager[Refund] {
-	return pagination.NewPageNumberPageAutoPager(r.List(ctx, query, opts...))
+func (r *RefundService) ListAutoPaging(ctx context.Context, query RefundListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[Refund] {
+	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
 type Refund struct {
