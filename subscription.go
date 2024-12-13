@@ -66,7 +66,7 @@ func (r *SubscriptionService) Update(ctx context.Context, subscriptionID string,
 	return
 }
 
-func (r *SubscriptionService) List(ctx context.Context, query SubscriptionListParams, opts ...option.RequestOption) (res *pagination.PageNumberPage[Subscription], err error) {
+func (r *SubscriptionService) List(ctx context.Context, query SubscriptionListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[Subscription], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
@@ -83,8 +83,8 @@ func (r *SubscriptionService) List(ctx context.Context, query SubscriptionListPa
 	return res, nil
 }
 
-func (r *SubscriptionService) ListAutoPaging(ctx context.Context, query SubscriptionListParams, opts ...option.RequestOption) *pagination.PageNumberPageAutoPager[Subscription] {
-	return pagination.NewPageNumberPageAutoPager(r.List(ctx, query, opts...))
+func (r *SubscriptionService) ListAutoPaging(ctx context.Context, query SubscriptionListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[Subscription] {
+	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
 type Subscription struct {

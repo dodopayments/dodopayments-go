@@ -12,32 +12,33 @@ import (
 	"github.com/stainless-sdks/dodo-payments-go/internal/requestconfig"
 )
 
-type PageNumberPage[T any] struct {
-	Items []T                `json:"items"`
-	JSON  pageNumberPageJSON `json:"-"`
+type DefaultPageNumberPagination[T any] struct {
+	Items []T                             `json:"items"`
+	JSON  defaultPageNumberPaginationJSON `json:"-"`
 	cfg   *requestconfig.RequestConfig
 	res   *http.Response
 }
 
-// pageNumberPageJSON contains the JSON metadata for the struct [PageNumberPage[T]]
-type pageNumberPageJSON struct {
+// defaultPageNumberPaginationJSON contains the JSON metadata for the struct
+// [DefaultPageNumberPagination[T]]
+type defaultPageNumberPaginationJSON struct {
 	Items       apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *PageNumberPage[T]) UnmarshalJSON(data []byte) (err error) {
+func (r *DefaultPageNumberPagination[T]) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r pageNumberPageJSON) RawJSON() string {
+func (r defaultPageNumberPaginationJSON) RawJSON() string {
 	return r.raw
 }
 
 // GetNextPage returns the next page as defined by this pagination style. When
 // there is no next page, this function will return a 'nil' for the page value, but
 // will not return an error
-func (r *PageNumberPage[T]) GetNextPage() (res *PageNumberPage[T], err error) {
+func (r *DefaultPageNumberPagination[T]) GetNextPage() (res *DefaultPageNumberPagination[T], err error) {
 	u := r.cfg.Request.URL
 	currentPage, err := strconv.Atoi(u.Query().Get("page_number"))
 	if err != nil {
@@ -58,30 +59,30 @@ func (r *PageNumberPage[T]) GetNextPage() (res *PageNumberPage[T], err error) {
 	return res, nil
 }
 
-func (r *PageNumberPage[T]) SetPageConfig(cfg *requestconfig.RequestConfig, res *http.Response) {
+func (r *DefaultPageNumberPagination[T]) SetPageConfig(cfg *requestconfig.RequestConfig, res *http.Response) {
 	if r == nil {
-		r = &PageNumberPage[T]{}
+		r = &DefaultPageNumberPagination[T]{}
 	}
 	r.cfg = cfg
 	r.res = res
 }
 
-type PageNumberPageAutoPager[T any] struct {
-	page *PageNumberPage[T]
+type DefaultPageNumberPaginationAutoPager[T any] struct {
+	page *DefaultPageNumberPagination[T]
 	cur  T
 	idx  int
 	run  int
 	err  error
 }
 
-func NewPageNumberPageAutoPager[T any](page *PageNumberPage[T], err error) *PageNumberPageAutoPager[T] {
-	return &PageNumberPageAutoPager[T]{
+func NewDefaultPageNumberPaginationAutoPager[T any](page *DefaultPageNumberPagination[T], err error) *DefaultPageNumberPaginationAutoPager[T] {
+	return &DefaultPageNumberPaginationAutoPager[T]{
 		page: page,
 		err:  err,
 	}
 }
 
-func (r *PageNumberPageAutoPager[T]) Next() bool {
+func (r *DefaultPageNumberPaginationAutoPager[T]) Next() bool {
 	if r.page == nil || len(r.page.Items) == 0 {
 		return false
 	}
@@ -98,14 +99,14 @@ func (r *PageNumberPageAutoPager[T]) Next() bool {
 	return true
 }
 
-func (r *PageNumberPageAutoPager[T]) Current() T {
+func (r *DefaultPageNumberPaginationAutoPager[T]) Current() T {
 	return r.cur
 }
 
-func (r *PageNumberPageAutoPager[T]) Err() error {
+func (r *DefaultPageNumberPaginationAutoPager[T]) Err() error {
 	return r.err
 }
 
-func (r *PageNumberPageAutoPager[T]) Index() int {
+func (r *DefaultPageNumberPaginationAutoPager[T]) Index() int {
 	return r.run
 }

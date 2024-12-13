@@ -35,7 +35,7 @@ func NewPayoutService(opts ...option.RequestOption) (r *PayoutService) {
 	return
 }
 
-func (r *PayoutService) List(ctx context.Context, query PayoutListParams, opts ...option.RequestOption) (res *pagination.PageNumberPage[PayoutListResponse], err error) {
+func (r *PayoutService) List(ctx context.Context, query PayoutListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[PayoutListResponse], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
@@ -52,8 +52,8 @@ func (r *PayoutService) List(ctx context.Context, query PayoutListParams, opts .
 	return res, nil
 }
 
-func (r *PayoutService) ListAutoPaging(ctx context.Context, query PayoutListParams, opts ...option.RequestOption) *pagination.PageNumberPageAutoPager[PayoutListResponse] {
-	return pagination.NewPageNumberPageAutoPager(r.List(ctx, query, opts...))
+func (r *PayoutService) ListAutoPaging(ctx context.Context, query PayoutListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[PayoutListResponse] {
+	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
 type PayoutListResponse struct {

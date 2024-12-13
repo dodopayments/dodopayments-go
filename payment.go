@@ -55,7 +55,7 @@ func (r *PaymentService) Get(ctx context.Context, paymentID string, opts ...opti
 	return
 }
 
-func (r *PaymentService) List(ctx context.Context, query PaymentListParams, opts ...option.RequestOption) (res *pagination.PageNumberPage[PaymentListResponse], err error) {
+func (r *PaymentService) List(ctx context.Context, query PaymentListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[PaymentListResponse], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
@@ -72,8 +72,8 @@ func (r *PaymentService) List(ctx context.Context, query PaymentListParams, opts
 	return res, nil
 }
 
-func (r *PaymentService) ListAutoPaging(ctx context.Context, query PaymentListParams, opts ...option.RequestOption) *pagination.PageNumberPageAutoPager[PaymentListResponse] {
-	return pagination.NewPageNumberPageAutoPager(r.List(ctx, query, opts...))
+func (r *PaymentService) ListAutoPaging(ctx context.Context, query PaymentListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[PaymentListResponse] {
+	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
 type Payment struct {
