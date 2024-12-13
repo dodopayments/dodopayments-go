@@ -24,7 +24,7 @@ func TestWebhookEventGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.WebhookEvents.Get(context.TODO(), "webhook_event_id")
 	if err != nil {
@@ -46,7 +46,7 @@ func TestWebhookEventListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.WebhookEvents.List(context.TODO(), dodopayments.WebhookEventListParams{
 		CreatedAtGte: dodopayments.F(time.Now()),

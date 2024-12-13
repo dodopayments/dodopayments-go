@@ -28,13 +28,13 @@ type Client struct {
 }
 
 // NewClient generates a new client with the default option read from the
-// environment (DODO_PAYMENTS_API_KEY). The option passed in as arguments are
+// environment (DOOD_PAYMENTS_API_KEY). The option passed in as arguments are
 // applied after these default arguments, and all option will be passed down to the
 // services and requests that this client makes.
 func NewClient(opts ...option.RequestOption) (r *Client) {
 	defaults := []option.RequestOption{option.WithEnvironmentLiveMode()}
-	if o, ok := os.LookupEnv("DODO_PAYMENTS_API_KEY"); ok {
-		defaults = append(defaults, option.WithAPIKey(o))
+	if o, ok := os.LookupEnv("DOOD_PAYMENTS_API_KEY"); ok {
+		defaults = append(defaults, option.WithBearerToken(o))
 	}
 	opts = append(defaults, opts...)
 

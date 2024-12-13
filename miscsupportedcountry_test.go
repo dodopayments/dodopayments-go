@@ -23,7 +23,7 @@ func TestMiscSupportedCountryList(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Misc.SupportedCountries.List(context.TODO())
 	if err != nil {
