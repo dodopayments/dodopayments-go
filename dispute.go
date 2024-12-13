@@ -124,21 +124,6 @@ func (r DisputeDisputeStatus) IsKnown() bool {
 	return false
 }
 
-type DisputeParam struct {
-	Amount        param.Field[string]               `json:"amount,required"`
-	BusinessID    param.Field[string]               `json:"business_id,required"`
-	CreatedAt     param.Field[time.Time]            `json:"created_at,required" format:"date-time"`
-	Currency      param.Field[string]               `json:"currency,required"`
-	DisputeID     param.Field[string]               `json:"dispute_id,required"`
-	DisputeStage  param.Field[DisputeDisputeStage]  `json:"dispute_stage,required"`
-	DisputeStatus param.Field[DisputeDisputeStatus] `json:"dispute_status,required"`
-	PaymentID     param.Field[string]               `json:"payment_id,required"`
-}
-
-func (r DisputeParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 type DisputeListResponse struct {
 	Items []Dispute               `json:"items,required"`
 	JSON  disputeListResponseJSON `json:"-"`

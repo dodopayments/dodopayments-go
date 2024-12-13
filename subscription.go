@@ -355,37 +355,6 @@ func (r SubscriptionSubscriptionPeriodInterval) IsKnown() bool {
 	return false
 }
 
-type SubscriptionParam struct {
-	CreatedAt                  param.Field[time.Time]                              `json:"created_at,required" format:"date-time"`
-	Currency                   param.Field[SubscriptionCurrency]                   `json:"currency,required"`
-	Customer                   param.Field[SubscriptionCustomerParam]              `json:"customer,required"`
-	NextBillingDate            param.Field[time.Time]                              `json:"next_billing_date,required" format:"date-time"`
-	PaymentFrequencyCount      param.Field[int64]                                  `json:"payment_frequency_count,required"`
-	PaymentFrequencyInterval   param.Field[SubscriptionPaymentFrequencyInterval]   `json:"payment_frequency_interval,required"`
-	ProductID                  param.Field[string]                                 `json:"product_id,required"`
-	Quantity                   param.Field[int64]                                  `json:"quantity,required"`
-	RecurringPreTaxAmount      param.Field[int64]                                  `json:"recurring_pre_tax_amount,required"`
-	Status                     param.Field[SubscriptionStatus]                     `json:"status,required"`
-	SubscriptionID             param.Field[string]                                 `json:"subscription_id,required"`
-	SubscriptionPeriodCount    param.Field[int64]                                  `json:"subscription_period_count,required"`
-	SubscriptionPeriodInterval param.Field[SubscriptionSubscriptionPeriodInterval] `json:"subscription_period_interval,required"`
-	TrialPeriodDays            param.Field[int64]                                  `json:"trial_period_days,required"`
-}
-
-func (r SubscriptionParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type SubscriptionCustomerParam struct {
-	CustomerID param.Field[string] `json:"customer_id,required"`
-	Email      param.Field[string] `json:"email,required"`
-	Name       param.Field[string] `json:"name,required"`
-}
-
-func (r SubscriptionCustomerParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 type SubscriptionNewResponse struct {
 	Customer              SubscriptionNewResponseCustomer `json:"customer,required"`
 	RecurringPreTaxAmount int64                           `json:"recurring_pre_tax_amount,required"`

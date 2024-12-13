@@ -344,52 +344,6 @@ func (r PaymentStatus) IsKnown() bool {
 	return false
 }
 
-type PaymentParam struct {
-	BusinessID param.Field[string]               `json:"business_id,required"`
-	CreatedAt  param.Field[time.Time]            `json:"created_at,required" format:"date-time"`
-	Currency   param.Field[PaymentCurrency]      `json:"currency,required"`
-	Customer   param.Field[PaymentCustomerParam] `json:"customer,required"`
-	Disputes   param.Field[[]DisputeParam]       `json:"disputes,required"`
-	PaymentID  param.Field[string]               `json:"payment_id,required"`
-	Refunds    param.Field[[]RefundParam]        `json:"refunds,required"`
-	// Total amount taken from the customer including tax
-	TotalAmount       param.Field[int64]  `json:"total_amount,required"`
-	PaymentLink       param.Field[string] `json:"payment_link"`
-	PaymentMethod     param.Field[string] `json:"payment_method"`
-	PaymentMethodType param.Field[string] `json:"payment_method_type"`
-	// Product Cart of One time payment. In case of subscription/recurring payment
-	// product id and quantity are available in Get Subscription Api
-	ProductCart    param.Field[[]PaymentProductCartParam] `json:"product_cart"`
-	Status         param.Field[PaymentStatus]             `json:"status"`
-	SubscriptionID param.Field[string]                    `json:"subscription_id"`
-	// Tax collected in this transaction
-	Tax       param.Field[int64]     `json:"tax"`
-	UpdatedAt param.Field[time.Time] `json:"updated_at" format:"date-time"`
-}
-
-func (r PaymentParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type PaymentCustomerParam struct {
-	CustomerID param.Field[string] `json:"customer_id,required"`
-	Email      param.Field[string] `json:"email,required"`
-	Name       param.Field[string] `json:"name,required"`
-}
-
-func (r PaymentCustomerParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type PaymentProductCartParam struct {
-	ProductID param.Field[string] `json:"product_id,required"`
-	Quantity  param.Field[int64]  `json:"quantity,required"`
-}
-
-func (r PaymentProductCartParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 type PaymentNewResponse struct {
 	ClientSecret string                          `json:"client_secret,required"`
 	Customer     PaymentNewResponseCustomer      `json:"customer,required"`

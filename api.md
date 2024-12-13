@@ -28,10 +28,6 @@ Methods:
 
 # Disputes
 
-Params Types:
-
-- <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#DisputeParam">DisputeParam</a>
-
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#Dispute">Dispute</a>
@@ -43,10 +39,6 @@ Methods:
 - <code title="get /disputes">client.Disputes.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#DisputeService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#DisputeListParams">DisputeListParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#DisputeListResponse">DisputeListResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Payments
-
-Params Types:
-
-- <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#PaymentParam">PaymentParam</a>
 
 Response Types:
 
@@ -74,14 +66,14 @@ Methods:
 
 Response Types:
 
-- <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#Product">Product</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductNewResponse">ProductNewResponse</a>
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductGetResponse">ProductGetResponse</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductListResponse">ProductListResponse</a>
 
 Methods:
 
 - <code title="post /products">client.Products.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductNewParams">ProductNewParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductNewResponse">ProductNewResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /products/{id}">client.Products.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#Product">Product</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /products/{id}">client.Products.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductGetResponse">ProductGetResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="patch /products/{id}">client.Products.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductUpdateParams">ProductUpdateParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
 - <code title="get /products">client.Products.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductListParams">ProductListParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#ProductListResponse">ProductListResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
@@ -97,10 +89,6 @@ Methods:
 
 # Refunds
 
-Params Types:
-
-- <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#RefundParam">RefundParam</a>
-
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#Refund">Refund</a>
@@ -113,10 +101,6 @@ Methods:
 - <code title="get /refunds">client.Refunds.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#RefundService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#RefundListParams">RefundListParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#RefundListResponse">RefundListResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Subscriptions
-
-Params Types:
-
-- <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#SubscriptionParam">SubscriptionParam</a>
 
 Response Types:
 
@@ -142,9 +126,3 @@ Methods:
 
 - <code title="get /webhook_events/{webhook_event_id}">client.WebhookEvents.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#WebhookEventService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, webhookEventID <a href="https://pkg.go.dev/builtin#string">string</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#WebhookEventLog">WebhookEventLog</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="get /webhook_events">client.WebhookEvents.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#WebhookEventService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#WebhookEventListParams">WebhookEventListParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#WebhookEventListResponse">WebhookEventListResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-
-# OutgoingWebhooks
-
-Methods:
-
-- <code title="post /your-webhook-url">client.OutgoingWebhooks.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#OutgoingWebhookService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go#OutgoingWebhookNewParams">OutgoingWebhookNewParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>

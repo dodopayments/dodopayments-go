@@ -15,26 +15,25 @@ import (
 // interacting with the dodopayments API. You should not instantiate this client
 // directly, and instead use the [NewClient] method instead.
 type Client struct {
-	Options          []option.RequestOption
-	Checkout         *CheckoutService
-	Customers        *CustomerService
-	Disputes         *DisputeService
-	Payments         *PaymentService
-	Payouts          *PayoutService
-	Products         *ProductService
-	Refunds          *RefundService
-	Subscriptions    *SubscriptionService
-	WebhookEvents    *WebhookEventService
-	OutgoingWebhooks *OutgoingWebhookService
+	Options       []option.RequestOption
+	Checkout      *CheckoutService
+	Customers     *CustomerService
+	Disputes      *DisputeService
+	Payments      *PaymentService
+	Payouts       *PayoutService
+	Products      *ProductService
+	Refunds       *RefundService
+	Subscriptions *SubscriptionService
+	WebhookEvents *WebhookEventService
 }
 
 // NewClient generates a new client with the default option read from the
-// environment (API_KEY). The option passed in as arguments are applied after these
-// default arguments, and all option will be passed down to the services and
-// requests that this client makes.
+// environment (DODO_PAYMENTS_API_KEY). The option passed in as arguments are
+// applied after these default arguments, and all option will be passed down to the
+// services and requests that this client makes.
 func NewClient(opts ...option.RequestOption) (r *Client) {
-	defaults := []option.RequestOption{option.WithEnvironmentTestMode()}
-	if o, ok := os.LookupEnv("API_KEY"); ok {
+	defaults := []option.RequestOption{option.WithEnvironmentLiveMode()}
+	if o, ok := os.LookupEnv("DODO_PAYMENTS_API_KEY"); ok {
 		defaults = append(defaults, option.WithAPIKey(o))
 	}
 	opts = append(defaults, opts...)
@@ -50,7 +49,6 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Refunds = NewRefundService(opts...)
 	r.Subscriptions = NewSubscriptionService(opts...)
 	r.WebhookEvents = NewWebhookEventService(opts...)
-	r.OutgoingWebhooks = NewOutgoingWebhookService(opts...)
 
 	return
 }

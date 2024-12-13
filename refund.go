@@ -270,21 +270,6 @@ func (r RefundCurrency) IsKnown() bool {
 	return false
 }
 
-type RefundParam struct {
-	BusinessID param.Field[string]         `json:"business_id,required"`
-	CreatedAt  param.Field[time.Time]      `json:"created_at,required" format:"date-time"`
-	PaymentID  param.Field[string]         `json:"payment_id,required"`
-	RefundID   param.Field[string]         `json:"refund_id,required"`
-	Status     param.Field[RefundStatus]   `json:"status,required"`
-	Amount     param.Field[int64]          `json:"amount"`
-	Currency   param.Field[RefundCurrency] `json:"currency"`
-	Reason     param.Field[string]         `json:"reason"`
-}
-
-func (r RefundParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 type RefundListResponse struct {
 	Items []Refund               `json:"items,required"`
 	JSON  refundListResponseJSON `json:"-"`
