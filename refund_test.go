@@ -23,7 +23,7 @@ func TestRefundNewWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Refunds.New(context.TODO(), dodopayments.RefundNewParams{
 		PaymentID: dodopayments.F("payment_id"),
@@ -49,7 +49,7 @@ func TestRefundGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Refunds.Get(context.TODO(), "refund_id")
 	if err != nil {
@@ -71,7 +71,7 @@ func TestRefundListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Refunds.List(context.TODO(), dodopayments.RefundListParams{
 		PageNumber: dodopayments.F(int64(0)),

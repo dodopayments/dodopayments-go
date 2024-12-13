@@ -23,7 +23,7 @@ func TestCustomerGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Customers.Get(context.TODO(), "customer_id")
 	if err != nil {
@@ -45,7 +45,7 @@ func TestCustomerListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Customers.List(context.TODO(), dodopayments.CustomerListParams{
 		PageNumber: dodopayments.F(int64(0)),

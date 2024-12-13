@@ -42,8 +42,8 @@ import (
 
 func main() {
 	client := dodopayments.NewClient(
-		option.WithAPIKey("My API Key"),  // defaults to os.LookupEnv("DODO_PAYMENTS_API_KEY")
-		option.WithEnvironmentTestMode(), // defaults to option.WithEnvironmentLiveMode()
+		option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("DOOD_PAYMENTS_API_KEY")
+		option.WithEnvironmentTestMode(),          // defaults to option.WithEnvironmentLiveMode()
 	)
 	payment, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
