@@ -47,7 +47,7 @@ func (r *ProductService) New(ctx context.Context, body ProductNewParams, opts ..
 	return
 }
 
-func (r *ProductService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *ProductGetResponse, err error) {
+func (r *ProductService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *Product, err error) {
 	opts = append(r.Options[:], opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
@@ -77,6 +77,802 @@ func (r *ProductService) List(ctx context.Context, query ProductListParams, opts
 	return
 }
 
+type Product struct {
+	BusinessID  string       `json:"business_id,required"`
+	CreatedAt   time.Time    `json:"created_at,required" format:"date-time"`
+	IsRecurring bool         `json:"is_recurring,required"`
+	Price       ProductPrice `json:"price,required"`
+	ProductID   string       `json:"product_id,required"`
+	// Represents the different categories of taxation applicable to various products
+	// and services.
+	TaxCategory ProductTaxCategory `json:"tax_category,required"`
+	UpdatedAt   time.Time          `json:"updated_at,required" format:"date-time"`
+	Description string             `json:"description,nullable"`
+	Image       string             `json:"image,nullable"`
+	Name        string             `json:"name,nullable"`
+	JSON        productJSON        `json:"-"`
+}
+
+// productJSON contains the JSON metadata for the struct [Product]
+type productJSON struct {
+	BusinessID  apijson.Field
+	CreatedAt   apijson.Field
+	IsRecurring apijson.Field
+	Price       apijson.Field
+	ProductID   apijson.Field
+	TaxCategory apijson.Field
+	UpdatedAt   apijson.Field
+	Description apijson.Field
+	Image       apijson.Field
+	Name        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *Product) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productJSON) RawJSON() string {
+	return r.raw
+}
+
+type ProductPrice struct {
+	Currency ProductPriceCurrency `json:"currency,required"`
+	Discount float64              `json:"discount,required"`
+	// The payment amount. Amount for the payment in the lowest denomination of the
+	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
+	Price                      int64                                  `json:"price,required"`
+	PurchasingPowerParity      bool                                   `json:"purchasing_power_parity,required"`
+	Type                       ProductPriceType                       `json:"type,required"`
+	PaymentFrequencyCount      int64                                  `json:"payment_frequency_count"`
+	PaymentFrequencyInterval   ProductPricePaymentFrequencyInterval   `json:"payment_frequency_interval"`
+	SubscriptionPeriodCount    int64                                  `json:"subscription_period_count"`
+	SubscriptionPeriodInterval ProductPriceSubscriptionPeriodInterval `json:"subscription_period_interval"`
+	TrialPeriodDays            int64                                  `json:"trial_period_days"`
+	JSON                       productPriceJSON                       `json:"-"`
+	union                      ProductPriceUnion
+}
+
+// productPriceJSON contains the JSON metadata for the struct [ProductPrice]
+type productPriceJSON struct {
+	Currency                   apijson.Field
+	Discount                   apijson.Field
+	Price                      apijson.Field
+	PurchasingPowerParity      apijson.Field
+	Type                       apijson.Field
+	PaymentFrequencyCount      apijson.Field
+	PaymentFrequencyInterval   apijson.Field
+	SubscriptionPeriodCount    apijson.Field
+	SubscriptionPeriodInterval apijson.Field
+	TrialPeriodDays            apijson.Field
+	raw                        string
+	ExtraFields                map[string]apijson.Field
+}
+
+func (r productPriceJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r *ProductPrice) UnmarshalJSON(data []byte) (err error) {
+	*r = ProductPrice{}
+	err = apijson.UnmarshalRoot(data, &r.union)
+	if err != nil {
+		return err
+	}
+	return apijson.Port(r.union, &r)
+}
+
+// AsUnion returns a [ProductPriceUnion] interface which you can cast to the
+// specific types for more type safety.
+//
+// Possible runtime types of the union are [ProductPriceOneTimePrice],
+// [ProductPriceRecurringPrice].
+func (r ProductPrice) AsUnion() ProductPriceUnion {
+	return r.union
+}
+
+// Union satisfied by [ProductPriceOneTimePrice] or [ProductPriceRecurringPrice].
+type ProductPriceUnion interface {
+	implementsProductPrice()
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*ProductPriceUnion)(nil)).Elem(),
+		"type",
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(ProductPriceOneTimePrice{}),
+			DiscriminatorValue: "one_time_price",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(ProductPriceRecurringPrice{}),
+			DiscriminatorValue: "recurring_price",
+		},
+	)
+}
+
+type ProductPriceOneTimePrice struct {
+	Currency ProductPriceOneTimePriceCurrency `json:"currency,required"`
+	Discount float64                          `json:"discount,required"`
+	// The payment amount. Amount for the payment in the lowest denomination of the
+	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
+	Price                 int64                        `json:"price,required"`
+	PurchasingPowerParity bool                         `json:"purchasing_power_parity,required"`
+	Type                  ProductPriceOneTimePriceType `json:"type,required"`
+	JSON                  productPriceOneTimePriceJSON `json:"-"`
+}
+
+// productPriceOneTimePriceJSON contains the JSON metadata for the struct
+// [ProductPriceOneTimePrice]
+type productPriceOneTimePriceJSON struct {
+	Currency              apijson.Field
+	Discount              apijson.Field
+	Price                 apijson.Field
+	PurchasingPowerParity apijson.Field
+	Type                  apijson.Field
+	raw                   string
+	ExtraFields           map[string]apijson.Field
+}
+
+func (r *ProductPriceOneTimePrice) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productPriceOneTimePriceJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductPriceOneTimePrice) implementsProductPrice() {}
+
+type ProductPriceOneTimePriceCurrency string
+
+const (
+	ProductPriceOneTimePriceCurrencyAed ProductPriceOneTimePriceCurrency = "AED"
+	ProductPriceOneTimePriceCurrencyAll ProductPriceOneTimePriceCurrency = "ALL"
+	ProductPriceOneTimePriceCurrencyAmd ProductPriceOneTimePriceCurrency = "AMD"
+	ProductPriceOneTimePriceCurrencyAng ProductPriceOneTimePriceCurrency = "ANG"
+	ProductPriceOneTimePriceCurrencyAoa ProductPriceOneTimePriceCurrency = "AOA"
+	ProductPriceOneTimePriceCurrencyArs ProductPriceOneTimePriceCurrency = "ARS"
+	ProductPriceOneTimePriceCurrencyAud ProductPriceOneTimePriceCurrency = "AUD"
+	ProductPriceOneTimePriceCurrencyAwg ProductPriceOneTimePriceCurrency = "AWG"
+	ProductPriceOneTimePriceCurrencyAzn ProductPriceOneTimePriceCurrency = "AZN"
+	ProductPriceOneTimePriceCurrencyBam ProductPriceOneTimePriceCurrency = "BAM"
+	ProductPriceOneTimePriceCurrencyBbd ProductPriceOneTimePriceCurrency = "BBD"
+	ProductPriceOneTimePriceCurrencyBdt ProductPriceOneTimePriceCurrency = "BDT"
+	ProductPriceOneTimePriceCurrencyBgn ProductPriceOneTimePriceCurrency = "BGN"
+	ProductPriceOneTimePriceCurrencyBhd ProductPriceOneTimePriceCurrency = "BHD"
+	ProductPriceOneTimePriceCurrencyBif ProductPriceOneTimePriceCurrency = "BIF"
+	ProductPriceOneTimePriceCurrencyBmd ProductPriceOneTimePriceCurrency = "BMD"
+	ProductPriceOneTimePriceCurrencyBnd ProductPriceOneTimePriceCurrency = "BND"
+	ProductPriceOneTimePriceCurrencyBob ProductPriceOneTimePriceCurrency = "BOB"
+	ProductPriceOneTimePriceCurrencyBrl ProductPriceOneTimePriceCurrency = "BRL"
+	ProductPriceOneTimePriceCurrencyBsd ProductPriceOneTimePriceCurrency = "BSD"
+	ProductPriceOneTimePriceCurrencyBwp ProductPriceOneTimePriceCurrency = "BWP"
+	ProductPriceOneTimePriceCurrencyByn ProductPriceOneTimePriceCurrency = "BYN"
+	ProductPriceOneTimePriceCurrencyBzd ProductPriceOneTimePriceCurrency = "BZD"
+	ProductPriceOneTimePriceCurrencyCad ProductPriceOneTimePriceCurrency = "CAD"
+	ProductPriceOneTimePriceCurrencyChf ProductPriceOneTimePriceCurrency = "CHF"
+	ProductPriceOneTimePriceCurrencyClp ProductPriceOneTimePriceCurrency = "CLP"
+	ProductPriceOneTimePriceCurrencyCny ProductPriceOneTimePriceCurrency = "CNY"
+	ProductPriceOneTimePriceCurrencyCop ProductPriceOneTimePriceCurrency = "COP"
+	ProductPriceOneTimePriceCurrencyCrc ProductPriceOneTimePriceCurrency = "CRC"
+	ProductPriceOneTimePriceCurrencyCup ProductPriceOneTimePriceCurrency = "CUP"
+	ProductPriceOneTimePriceCurrencyCve ProductPriceOneTimePriceCurrency = "CVE"
+	ProductPriceOneTimePriceCurrencyCzk ProductPriceOneTimePriceCurrency = "CZK"
+	ProductPriceOneTimePriceCurrencyDjf ProductPriceOneTimePriceCurrency = "DJF"
+	ProductPriceOneTimePriceCurrencyDkk ProductPriceOneTimePriceCurrency = "DKK"
+	ProductPriceOneTimePriceCurrencyDop ProductPriceOneTimePriceCurrency = "DOP"
+	ProductPriceOneTimePriceCurrencyDzd ProductPriceOneTimePriceCurrency = "DZD"
+	ProductPriceOneTimePriceCurrencyEgp ProductPriceOneTimePriceCurrency = "EGP"
+	ProductPriceOneTimePriceCurrencyEtb ProductPriceOneTimePriceCurrency = "ETB"
+	ProductPriceOneTimePriceCurrencyEur ProductPriceOneTimePriceCurrency = "EUR"
+	ProductPriceOneTimePriceCurrencyFjd ProductPriceOneTimePriceCurrency = "FJD"
+	ProductPriceOneTimePriceCurrencyFkp ProductPriceOneTimePriceCurrency = "FKP"
+	ProductPriceOneTimePriceCurrencyGbp ProductPriceOneTimePriceCurrency = "GBP"
+	ProductPriceOneTimePriceCurrencyGel ProductPriceOneTimePriceCurrency = "GEL"
+	ProductPriceOneTimePriceCurrencyGhs ProductPriceOneTimePriceCurrency = "GHS"
+	ProductPriceOneTimePriceCurrencyGip ProductPriceOneTimePriceCurrency = "GIP"
+	ProductPriceOneTimePriceCurrencyGmd ProductPriceOneTimePriceCurrency = "GMD"
+	ProductPriceOneTimePriceCurrencyGnf ProductPriceOneTimePriceCurrency = "GNF"
+	ProductPriceOneTimePriceCurrencyGtq ProductPriceOneTimePriceCurrency = "GTQ"
+	ProductPriceOneTimePriceCurrencyGyd ProductPriceOneTimePriceCurrency = "GYD"
+	ProductPriceOneTimePriceCurrencyHkd ProductPriceOneTimePriceCurrency = "HKD"
+	ProductPriceOneTimePriceCurrencyHnl ProductPriceOneTimePriceCurrency = "HNL"
+	ProductPriceOneTimePriceCurrencyHrk ProductPriceOneTimePriceCurrency = "HRK"
+	ProductPriceOneTimePriceCurrencyHtg ProductPriceOneTimePriceCurrency = "HTG"
+	ProductPriceOneTimePriceCurrencyHuf ProductPriceOneTimePriceCurrency = "HUF"
+	ProductPriceOneTimePriceCurrencyIdr ProductPriceOneTimePriceCurrency = "IDR"
+	ProductPriceOneTimePriceCurrencyIls ProductPriceOneTimePriceCurrency = "ILS"
+	ProductPriceOneTimePriceCurrencyInr ProductPriceOneTimePriceCurrency = "INR"
+	ProductPriceOneTimePriceCurrencyIqd ProductPriceOneTimePriceCurrency = "IQD"
+	ProductPriceOneTimePriceCurrencyJmd ProductPriceOneTimePriceCurrency = "JMD"
+	ProductPriceOneTimePriceCurrencyJod ProductPriceOneTimePriceCurrency = "JOD"
+	ProductPriceOneTimePriceCurrencyJpy ProductPriceOneTimePriceCurrency = "JPY"
+	ProductPriceOneTimePriceCurrencyKes ProductPriceOneTimePriceCurrency = "KES"
+	ProductPriceOneTimePriceCurrencyKgs ProductPriceOneTimePriceCurrency = "KGS"
+	ProductPriceOneTimePriceCurrencyKhr ProductPriceOneTimePriceCurrency = "KHR"
+	ProductPriceOneTimePriceCurrencyKmf ProductPriceOneTimePriceCurrency = "KMF"
+	ProductPriceOneTimePriceCurrencyKrw ProductPriceOneTimePriceCurrency = "KRW"
+	ProductPriceOneTimePriceCurrencyKwd ProductPriceOneTimePriceCurrency = "KWD"
+	ProductPriceOneTimePriceCurrencyKyd ProductPriceOneTimePriceCurrency = "KYD"
+	ProductPriceOneTimePriceCurrencyKzt ProductPriceOneTimePriceCurrency = "KZT"
+	ProductPriceOneTimePriceCurrencyLak ProductPriceOneTimePriceCurrency = "LAK"
+	ProductPriceOneTimePriceCurrencyLbp ProductPriceOneTimePriceCurrency = "LBP"
+	ProductPriceOneTimePriceCurrencyLkr ProductPriceOneTimePriceCurrency = "LKR"
+	ProductPriceOneTimePriceCurrencyLrd ProductPriceOneTimePriceCurrency = "LRD"
+	ProductPriceOneTimePriceCurrencyLsl ProductPriceOneTimePriceCurrency = "LSL"
+	ProductPriceOneTimePriceCurrencyLyd ProductPriceOneTimePriceCurrency = "LYD"
+	ProductPriceOneTimePriceCurrencyMad ProductPriceOneTimePriceCurrency = "MAD"
+	ProductPriceOneTimePriceCurrencyMdl ProductPriceOneTimePriceCurrency = "MDL"
+	ProductPriceOneTimePriceCurrencyMga ProductPriceOneTimePriceCurrency = "MGA"
+	ProductPriceOneTimePriceCurrencyMkd ProductPriceOneTimePriceCurrency = "MKD"
+	ProductPriceOneTimePriceCurrencyMmk ProductPriceOneTimePriceCurrency = "MMK"
+	ProductPriceOneTimePriceCurrencyMnt ProductPriceOneTimePriceCurrency = "MNT"
+	ProductPriceOneTimePriceCurrencyMop ProductPriceOneTimePriceCurrency = "MOP"
+	ProductPriceOneTimePriceCurrencyMru ProductPriceOneTimePriceCurrency = "MRU"
+	ProductPriceOneTimePriceCurrencyMur ProductPriceOneTimePriceCurrency = "MUR"
+	ProductPriceOneTimePriceCurrencyMvr ProductPriceOneTimePriceCurrency = "MVR"
+	ProductPriceOneTimePriceCurrencyMwk ProductPriceOneTimePriceCurrency = "MWK"
+	ProductPriceOneTimePriceCurrencyMxn ProductPriceOneTimePriceCurrency = "MXN"
+	ProductPriceOneTimePriceCurrencyMyr ProductPriceOneTimePriceCurrency = "MYR"
+	ProductPriceOneTimePriceCurrencyMzn ProductPriceOneTimePriceCurrency = "MZN"
+	ProductPriceOneTimePriceCurrencyNad ProductPriceOneTimePriceCurrency = "NAD"
+	ProductPriceOneTimePriceCurrencyNgn ProductPriceOneTimePriceCurrency = "NGN"
+	ProductPriceOneTimePriceCurrencyNio ProductPriceOneTimePriceCurrency = "NIO"
+	ProductPriceOneTimePriceCurrencyNok ProductPriceOneTimePriceCurrency = "NOK"
+	ProductPriceOneTimePriceCurrencyNpr ProductPriceOneTimePriceCurrency = "NPR"
+	ProductPriceOneTimePriceCurrencyNzd ProductPriceOneTimePriceCurrency = "NZD"
+	ProductPriceOneTimePriceCurrencyOmr ProductPriceOneTimePriceCurrency = "OMR"
+	ProductPriceOneTimePriceCurrencyPab ProductPriceOneTimePriceCurrency = "PAB"
+	ProductPriceOneTimePriceCurrencyPen ProductPriceOneTimePriceCurrency = "PEN"
+	ProductPriceOneTimePriceCurrencyPgk ProductPriceOneTimePriceCurrency = "PGK"
+	ProductPriceOneTimePriceCurrencyPhp ProductPriceOneTimePriceCurrency = "PHP"
+	ProductPriceOneTimePriceCurrencyPkr ProductPriceOneTimePriceCurrency = "PKR"
+	ProductPriceOneTimePriceCurrencyPln ProductPriceOneTimePriceCurrency = "PLN"
+	ProductPriceOneTimePriceCurrencyPyg ProductPriceOneTimePriceCurrency = "PYG"
+	ProductPriceOneTimePriceCurrencyQar ProductPriceOneTimePriceCurrency = "QAR"
+	ProductPriceOneTimePriceCurrencyRon ProductPriceOneTimePriceCurrency = "RON"
+	ProductPriceOneTimePriceCurrencyRsd ProductPriceOneTimePriceCurrency = "RSD"
+	ProductPriceOneTimePriceCurrencyRub ProductPriceOneTimePriceCurrency = "RUB"
+	ProductPriceOneTimePriceCurrencyRwf ProductPriceOneTimePriceCurrency = "RWF"
+	ProductPriceOneTimePriceCurrencySar ProductPriceOneTimePriceCurrency = "SAR"
+	ProductPriceOneTimePriceCurrencySbd ProductPriceOneTimePriceCurrency = "SBD"
+	ProductPriceOneTimePriceCurrencyScr ProductPriceOneTimePriceCurrency = "SCR"
+	ProductPriceOneTimePriceCurrencySek ProductPriceOneTimePriceCurrency = "SEK"
+	ProductPriceOneTimePriceCurrencySgd ProductPriceOneTimePriceCurrency = "SGD"
+	ProductPriceOneTimePriceCurrencyShp ProductPriceOneTimePriceCurrency = "SHP"
+	ProductPriceOneTimePriceCurrencySle ProductPriceOneTimePriceCurrency = "SLE"
+	ProductPriceOneTimePriceCurrencySll ProductPriceOneTimePriceCurrency = "SLL"
+	ProductPriceOneTimePriceCurrencySos ProductPriceOneTimePriceCurrency = "SOS"
+	ProductPriceOneTimePriceCurrencySrd ProductPriceOneTimePriceCurrency = "SRD"
+	ProductPriceOneTimePriceCurrencySsp ProductPriceOneTimePriceCurrency = "SSP"
+	ProductPriceOneTimePriceCurrencyStn ProductPriceOneTimePriceCurrency = "STN"
+	ProductPriceOneTimePriceCurrencySvc ProductPriceOneTimePriceCurrency = "SVC"
+	ProductPriceOneTimePriceCurrencySzl ProductPriceOneTimePriceCurrency = "SZL"
+	ProductPriceOneTimePriceCurrencyThb ProductPriceOneTimePriceCurrency = "THB"
+	ProductPriceOneTimePriceCurrencyTnd ProductPriceOneTimePriceCurrency = "TND"
+	ProductPriceOneTimePriceCurrencyTop ProductPriceOneTimePriceCurrency = "TOP"
+	ProductPriceOneTimePriceCurrencyTry ProductPriceOneTimePriceCurrency = "TRY"
+	ProductPriceOneTimePriceCurrencyTtd ProductPriceOneTimePriceCurrency = "TTD"
+	ProductPriceOneTimePriceCurrencyTwd ProductPriceOneTimePriceCurrency = "TWD"
+	ProductPriceOneTimePriceCurrencyTzs ProductPriceOneTimePriceCurrency = "TZS"
+	ProductPriceOneTimePriceCurrencyUah ProductPriceOneTimePriceCurrency = "UAH"
+	ProductPriceOneTimePriceCurrencyUgx ProductPriceOneTimePriceCurrency = "UGX"
+	ProductPriceOneTimePriceCurrencyUsd ProductPriceOneTimePriceCurrency = "USD"
+	ProductPriceOneTimePriceCurrencyUyu ProductPriceOneTimePriceCurrency = "UYU"
+	ProductPriceOneTimePriceCurrencyUzs ProductPriceOneTimePriceCurrency = "UZS"
+	ProductPriceOneTimePriceCurrencyVes ProductPriceOneTimePriceCurrency = "VES"
+	ProductPriceOneTimePriceCurrencyVnd ProductPriceOneTimePriceCurrency = "VND"
+	ProductPriceOneTimePriceCurrencyVuv ProductPriceOneTimePriceCurrency = "VUV"
+	ProductPriceOneTimePriceCurrencyWst ProductPriceOneTimePriceCurrency = "WST"
+	ProductPriceOneTimePriceCurrencyXaf ProductPriceOneTimePriceCurrency = "XAF"
+	ProductPriceOneTimePriceCurrencyXcd ProductPriceOneTimePriceCurrency = "XCD"
+	ProductPriceOneTimePriceCurrencyXof ProductPriceOneTimePriceCurrency = "XOF"
+	ProductPriceOneTimePriceCurrencyXpf ProductPriceOneTimePriceCurrency = "XPF"
+	ProductPriceOneTimePriceCurrencyYer ProductPriceOneTimePriceCurrency = "YER"
+	ProductPriceOneTimePriceCurrencyZar ProductPriceOneTimePriceCurrency = "ZAR"
+	ProductPriceOneTimePriceCurrencyZmw ProductPriceOneTimePriceCurrency = "ZMW"
+)
+
+func (r ProductPriceOneTimePriceCurrency) IsKnown() bool {
+	switch r {
+	case ProductPriceOneTimePriceCurrencyAed, ProductPriceOneTimePriceCurrencyAll, ProductPriceOneTimePriceCurrencyAmd, ProductPriceOneTimePriceCurrencyAng, ProductPriceOneTimePriceCurrencyAoa, ProductPriceOneTimePriceCurrencyArs, ProductPriceOneTimePriceCurrencyAud, ProductPriceOneTimePriceCurrencyAwg, ProductPriceOneTimePriceCurrencyAzn, ProductPriceOneTimePriceCurrencyBam, ProductPriceOneTimePriceCurrencyBbd, ProductPriceOneTimePriceCurrencyBdt, ProductPriceOneTimePriceCurrencyBgn, ProductPriceOneTimePriceCurrencyBhd, ProductPriceOneTimePriceCurrencyBif, ProductPriceOneTimePriceCurrencyBmd, ProductPriceOneTimePriceCurrencyBnd, ProductPriceOneTimePriceCurrencyBob, ProductPriceOneTimePriceCurrencyBrl, ProductPriceOneTimePriceCurrencyBsd, ProductPriceOneTimePriceCurrencyBwp, ProductPriceOneTimePriceCurrencyByn, ProductPriceOneTimePriceCurrencyBzd, ProductPriceOneTimePriceCurrencyCad, ProductPriceOneTimePriceCurrencyChf, ProductPriceOneTimePriceCurrencyClp, ProductPriceOneTimePriceCurrencyCny, ProductPriceOneTimePriceCurrencyCop, ProductPriceOneTimePriceCurrencyCrc, ProductPriceOneTimePriceCurrencyCup, ProductPriceOneTimePriceCurrencyCve, ProductPriceOneTimePriceCurrencyCzk, ProductPriceOneTimePriceCurrencyDjf, ProductPriceOneTimePriceCurrencyDkk, ProductPriceOneTimePriceCurrencyDop, ProductPriceOneTimePriceCurrencyDzd, ProductPriceOneTimePriceCurrencyEgp, ProductPriceOneTimePriceCurrencyEtb, ProductPriceOneTimePriceCurrencyEur, ProductPriceOneTimePriceCurrencyFjd, ProductPriceOneTimePriceCurrencyFkp, ProductPriceOneTimePriceCurrencyGbp, ProductPriceOneTimePriceCurrencyGel, ProductPriceOneTimePriceCurrencyGhs, ProductPriceOneTimePriceCurrencyGip, ProductPriceOneTimePriceCurrencyGmd, ProductPriceOneTimePriceCurrencyGnf, ProductPriceOneTimePriceCurrencyGtq, ProductPriceOneTimePriceCurrencyGyd, ProductPriceOneTimePriceCurrencyHkd, ProductPriceOneTimePriceCurrencyHnl, ProductPriceOneTimePriceCurrencyHrk, ProductPriceOneTimePriceCurrencyHtg, ProductPriceOneTimePriceCurrencyHuf, ProductPriceOneTimePriceCurrencyIdr, ProductPriceOneTimePriceCurrencyIls, ProductPriceOneTimePriceCurrencyInr, ProductPriceOneTimePriceCurrencyIqd, ProductPriceOneTimePriceCurrencyJmd, ProductPriceOneTimePriceCurrencyJod, ProductPriceOneTimePriceCurrencyJpy, ProductPriceOneTimePriceCurrencyKes, ProductPriceOneTimePriceCurrencyKgs, ProductPriceOneTimePriceCurrencyKhr, ProductPriceOneTimePriceCurrencyKmf, ProductPriceOneTimePriceCurrencyKrw, ProductPriceOneTimePriceCurrencyKwd, ProductPriceOneTimePriceCurrencyKyd, ProductPriceOneTimePriceCurrencyKzt, ProductPriceOneTimePriceCurrencyLak, ProductPriceOneTimePriceCurrencyLbp, ProductPriceOneTimePriceCurrencyLkr, ProductPriceOneTimePriceCurrencyLrd, ProductPriceOneTimePriceCurrencyLsl, ProductPriceOneTimePriceCurrencyLyd, ProductPriceOneTimePriceCurrencyMad, ProductPriceOneTimePriceCurrencyMdl, ProductPriceOneTimePriceCurrencyMga, ProductPriceOneTimePriceCurrencyMkd, ProductPriceOneTimePriceCurrencyMmk, ProductPriceOneTimePriceCurrencyMnt, ProductPriceOneTimePriceCurrencyMop, ProductPriceOneTimePriceCurrencyMru, ProductPriceOneTimePriceCurrencyMur, ProductPriceOneTimePriceCurrencyMvr, ProductPriceOneTimePriceCurrencyMwk, ProductPriceOneTimePriceCurrencyMxn, ProductPriceOneTimePriceCurrencyMyr, ProductPriceOneTimePriceCurrencyMzn, ProductPriceOneTimePriceCurrencyNad, ProductPriceOneTimePriceCurrencyNgn, ProductPriceOneTimePriceCurrencyNio, ProductPriceOneTimePriceCurrencyNok, ProductPriceOneTimePriceCurrencyNpr, ProductPriceOneTimePriceCurrencyNzd, ProductPriceOneTimePriceCurrencyOmr, ProductPriceOneTimePriceCurrencyPab, ProductPriceOneTimePriceCurrencyPen, ProductPriceOneTimePriceCurrencyPgk, ProductPriceOneTimePriceCurrencyPhp, ProductPriceOneTimePriceCurrencyPkr, ProductPriceOneTimePriceCurrencyPln, ProductPriceOneTimePriceCurrencyPyg, ProductPriceOneTimePriceCurrencyQar, ProductPriceOneTimePriceCurrencyRon, ProductPriceOneTimePriceCurrencyRsd, ProductPriceOneTimePriceCurrencyRub, ProductPriceOneTimePriceCurrencyRwf, ProductPriceOneTimePriceCurrencySar, ProductPriceOneTimePriceCurrencySbd, ProductPriceOneTimePriceCurrencyScr, ProductPriceOneTimePriceCurrencySek, ProductPriceOneTimePriceCurrencySgd, ProductPriceOneTimePriceCurrencyShp, ProductPriceOneTimePriceCurrencySle, ProductPriceOneTimePriceCurrencySll, ProductPriceOneTimePriceCurrencySos, ProductPriceOneTimePriceCurrencySrd, ProductPriceOneTimePriceCurrencySsp, ProductPriceOneTimePriceCurrencyStn, ProductPriceOneTimePriceCurrencySvc, ProductPriceOneTimePriceCurrencySzl, ProductPriceOneTimePriceCurrencyThb, ProductPriceOneTimePriceCurrencyTnd, ProductPriceOneTimePriceCurrencyTop, ProductPriceOneTimePriceCurrencyTry, ProductPriceOneTimePriceCurrencyTtd, ProductPriceOneTimePriceCurrencyTwd, ProductPriceOneTimePriceCurrencyTzs, ProductPriceOneTimePriceCurrencyUah, ProductPriceOneTimePriceCurrencyUgx, ProductPriceOneTimePriceCurrencyUsd, ProductPriceOneTimePriceCurrencyUyu, ProductPriceOneTimePriceCurrencyUzs, ProductPriceOneTimePriceCurrencyVes, ProductPriceOneTimePriceCurrencyVnd, ProductPriceOneTimePriceCurrencyVuv, ProductPriceOneTimePriceCurrencyWst, ProductPriceOneTimePriceCurrencyXaf, ProductPriceOneTimePriceCurrencyXcd, ProductPriceOneTimePriceCurrencyXof, ProductPriceOneTimePriceCurrencyXpf, ProductPriceOneTimePriceCurrencyYer, ProductPriceOneTimePriceCurrencyZar, ProductPriceOneTimePriceCurrencyZmw:
+		return true
+	}
+	return false
+}
+
+type ProductPriceOneTimePriceType string
+
+const (
+	ProductPriceOneTimePriceTypeOneTimePrice ProductPriceOneTimePriceType = "one_time_price"
+)
+
+func (r ProductPriceOneTimePriceType) IsKnown() bool {
+	switch r {
+	case ProductPriceOneTimePriceTypeOneTimePrice:
+		return true
+	}
+	return false
+}
+
+type ProductPriceRecurringPrice struct {
+	Currency                 ProductPriceRecurringPriceCurrency                 `json:"currency,required"`
+	Discount                 float64                                            `json:"discount,required"`
+	PaymentFrequencyCount    int64                                              `json:"payment_frequency_count,required"`
+	PaymentFrequencyInterval ProductPriceRecurringPricePaymentFrequencyInterval `json:"payment_frequency_interval,required"`
+	// The payment amount. Amount for the payment in the lowest denomination of the
+	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
+	Price                      int64                                                `json:"price,required"`
+	PurchasingPowerParity      bool                                                 `json:"purchasing_power_parity,required"`
+	SubscriptionPeriodCount    int64                                                `json:"subscription_period_count,required"`
+	SubscriptionPeriodInterval ProductPriceRecurringPriceSubscriptionPeriodInterval `json:"subscription_period_interval,required"`
+	TrialPeriodDays            int64                                                `json:"trial_period_days,required"`
+	Type                       ProductPriceRecurringPriceType                       `json:"type,required"`
+	JSON                       productPriceRecurringPriceJSON                       `json:"-"`
+}
+
+// productPriceRecurringPriceJSON contains the JSON metadata for the struct
+// [ProductPriceRecurringPrice]
+type productPriceRecurringPriceJSON struct {
+	Currency                   apijson.Field
+	Discount                   apijson.Field
+	PaymentFrequencyCount      apijson.Field
+	PaymentFrequencyInterval   apijson.Field
+	Price                      apijson.Field
+	PurchasingPowerParity      apijson.Field
+	SubscriptionPeriodCount    apijson.Field
+	SubscriptionPeriodInterval apijson.Field
+	TrialPeriodDays            apijson.Field
+	Type                       apijson.Field
+	raw                        string
+	ExtraFields                map[string]apijson.Field
+}
+
+func (r *ProductPriceRecurringPrice) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productPriceRecurringPriceJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductPriceRecurringPrice) implementsProductPrice() {}
+
+type ProductPriceRecurringPriceCurrency string
+
+const (
+	ProductPriceRecurringPriceCurrencyAed ProductPriceRecurringPriceCurrency = "AED"
+	ProductPriceRecurringPriceCurrencyAll ProductPriceRecurringPriceCurrency = "ALL"
+	ProductPriceRecurringPriceCurrencyAmd ProductPriceRecurringPriceCurrency = "AMD"
+	ProductPriceRecurringPriceCurrencyAng ProductPriceRecurringPriceCurrency = "ANG"
+	ProductPriceRecurringPriceCurrencyAoa ProductPriceRecurringPriceCurrency = "AOA"
+	ProductPriceRecurringPriceCurrencyArs ProductPriceRecurringPriceCurrency = "ARS"
+	ProductPriceRecurringPriceCurrencyAud ProductPriceRecurringPriceCurrency = "AUD"
+	ProductPriceRecurringPriceCurrencyAwg ProductPriceRecurringPriceCurrency = "AWG"
+	ProductPriceRecurringPriceCurrencyAzn ProductPriceRecurringPriceCurrency = "AZN"
+	ProductPriceRecurringPriceCurrencyBam ProductPriceRecurringPriceCurrency = "BAM"
+	ProductPriceRecurringPriceCurrencyBbd ProductPriceRecurringPriceCurrency = "BBD"
+	ProductPriceRecurringPriceCurrencyBdt ProductPriceRecurringPriceCurrency = "BDT"
+	ProductPriceRecurringPriceCurrencyBgn ProductPriceRecurringPriceCurrency = "BGN"
+	ProductPriceRecurringPriceCurrencyBhd ProductPriceRecurringPriceCurrency = "BHD"
+	ProductPriceRecurringPriceCurrencyBif ProductPriceRecurringPriceCurrency = "BIF"
+	ProductPriceRecurringPriceCurrencyBmd ProductPriceRecurringPriceCurrency = "BMD"
+	ProductPriceRecurringPriceCurrencyBnd ProductPriceRecurringPriceCurrency = "BND"
+	ProductPriceRecurringPriceCurrencyBob ProductPriceRecurringPriceCurrency = "BOB"
+	ProductPriceRecurringPriceCurrencyBrl ProductPriceRecurringPriceCurrency = "BRL"
+	ProductPriceRecurringPriceCurrencyBsd ProductPriceRecurringPriceCurrency = "BSD"
+	ProductPriceRecurringPriceCurrencyBwp ProductPriceRecurringPriceCurrency = "BWP"
+	ProductPriceRecurringPriceCurrencyByn ProductPriceRecurringPriceCurrency = "BYN"
+	ProductPriceRecurringPriceCurrencyBzd ProductPriceRecurringPriceCurrency = "BZD"
+	ProductPriceRecurringPriceCurrencyCad ProductPriceRecurringPriceCurrency = "CAD"
+	ProductPriceRecurringPriceCurrencyChf ProductPriceRecurringPriceCurrency = "CHF"
+	ProductPriceRecurringPriceCurrencyClp ProductPriceRecurringPriceCurrency = "CLP"
+	ProductPriceRecurringPriceCurrencyCny ProductPriceRecurringPriceCurrency = "CNY"
+	ProductPriceRecurringPriceCurrencyCop ProductPriceRecurringPriceCurrency = "COP"
+	ProductPriceRecurringPriceCurrencyCrc ProductPriceRecurringPriceCurrency = "CRC"
+	ProductPriceRecurringPriceCurrencyCup ProductPriceRecurringPriceCurrency = "CUP"
+	ProductPriceRecurringPriceCurrencyCve ProductPriceRecurringPriceCurrency = "CVE"
+	ProductPriceRecurringPriceCurrencyCzk ProductPriceRecurringPriceCurrency = "CZK"
+	ProductPriceRecurringPriceCurrencyDjf ProductPriceRecurringPriceCurrency = "DJF"
+	ProductPriceRecurringPriceCurrencyDkk ProductPriceRecurringPriceCurrency = "DKK"
+	ProductPriceRecurringPriceCurrencyDop ProductPriceRecurringPriceCurrency = "DOP"
+	ProductPriceRecurringPriceCurrencyDzd ProductPriceRecurringPriceCurrency = "DZD"
+	ProductPriceRecurringPriceCurrencyEgp ProductPriceRecurringPriceCurrency = "EGP"
+	ProductPriceRecurringPriceCurrencyEtb ProductPriceRecurringPriceCurrency = "ETB"
+	ProductPriceRecurringPriceCurrencyEur ProductPriceRecurringPriceCurrency = "EUR"
+	ProductPriceRecurringPriceCurrencyFjd ProductPriceRecurringPriceCurrency = "FJD"
+	ProductPriceRecurringPriceCurrencyFkp ProductPriceRecurringPriceCurrency = "FKP"
+	ProductPriceRecurringPriceCurrencyGbp ProductPriceRecurringPriceCurrency = "GBP"
+	ProductPriceRecurringPriceCurrencyGel ProductPriceRecurringPriceCurrency = "GEL"
+	ProductPriceRecurringPriceCurrencyGhs ProductPriceRecurringPriceCurrency = "GHS"
+	ProductPriceRecurringPriceCurrencyGip ProductPriceRecurringPriceCurrency = "GIP"
+	ProductPriceRecurringPriceCurrencyGmd ProductPriceRecurringPriceCurrency = "GMD"
+	ProductPriceRecurringPriceCurrencyGnf ProductPriceRecurringPriceCurrency = "GNF"
+	ProductPriceRecurringPriceCurrencyGtq ProductPriceRecurringPriceCurrency = "GTQ"
+	ProductPriceRecurringPriceCurrencyGyd ProductPriceRecurringPriceCurrency = "GYD"
+	ProductPriceRecurringPriceCurrencyHkd ProductPriceRecurringPriceCurrency = "HKD"
+	ProductPriceRecurringPriceCurrencyHnl ProductPriceRecurringPriceCurrency = "HNL"
+	ProductPriceRecurringPriceCurrencyHrk ProductPriceRecurringPriceCurrency = "HRK"
+	ProductPriceRecurringPriceCurrencyHtg ProductPriceRecurringPriceCurrency = "HTG"
+	ProductPriceRecurringPriceCurrencyHuf ProductPriceRecurringPriceCurrency = "HUF"
+	ProductPriceRecurringPriceCurrencyIdr ProductPriceRecurringPriceCurrency = "IDR"
+	ProductPriceRecurringPriceCurrencyIls ProductPriceRecurringPriceCurrency = "ILS"
+	ProductPriceRecurringPriceCurrencyInr ProductPriceRecurringPriceCurrency = "INR"
+	ProductPriceRecurringPriceCurrencyIqd ProductPriceRecurringPriceCurrency = "IQD"
+	ProductPriceRecurringPriceCurrencyJmd ProductPriceRecurringPriceCurrency = "JMD"
+	ProductPriceRecurringPriceCurrencyJod ProductPriceRecurringPriceCurrency = "JOD"
+	ProductPriceRecurringPriceCurrencyJpy ProductPriceRecurringPriceCurrency = "JPY"
+	ProductPriceRecurringPriceCurrencyKes ProductPriceRecurringPriceCurrency = "KES"
+	ProductPriceRecurringPriceCurrencyKgs ProductPriceRecurringPriceCurrency = "KGS"
+	ProductPriceRecurringPriceCurrencyKhr ProductPriceRecurringPriceCurrency = "KHR"
+	ProductPriceRecurringPriceCurrencyKmf ProductPriceRecurringPriceCurrency = "KMF"
+	ProductPriceRecurringPriceCurrencyKrw ProductPriceRecurringPriceCurrency = "KRW"
+	ProductPriceRecurringPriceCurrencyKwd ProductPriceRecurringPriceCurrency = "KWD"
+	ProductPriceRecurringPriceCurrencyKyd ProductPriceRecurringPriceCurrency = "KYD"
+	ProductPriceRecurringPriceCurrencyKzt ProductPriceRecurringPriceCurrency = "KZT"
+	ProductPriceRecurringPriceCurrencyLak ProductPriceRecurringPriceCurrency = "LAK"
+	ProductPriceRecurringPriceCurrencyLbp ProductPriceRecurringPriceCurrency = "LBP"
+	ProductPriceRecurringPriceCurrencyLkr ProductPriceRecurringPriceCurrency = "LKR"
+	ProductPriceRecurringPriceCurrencyLrd ProductPriceRecurringPriceCurrency = "LRD"
+	ProductPriceRecurringPriceCurrencyLsl ProductPriceRecurringPriceCurrency = "LSL"
+	ProductPriceRecurringPriceCurrencyLyd ProductPriceRecurringPriceCurrency = "LYD"
+	ProductPriceRecurringPriceCurrencyMad ProductPriceRecurringPriceCurrency = "MAD"
+	ProductPriceRecurringPriceCurrencyMdl ProductPriceRecurringPriceCurrency = "MDL"
+	ProductPriceRecurringPriceCurrencyMga ProductPriceRecurringPriceCurrency = "MGA"
+	ProductPriceRecurringPriceCurrencyMkd ProductPriceRecurringPriceCurrency = "MKD"
+	ProductPriceRecurringPriceCurrencyMmk ProductPriceRecurringPriceCurrency = "MMK"
+	ProductPriceRecurringPriceCurrencyMnt ProductPriceRecurringPriceCurrency = "MNT"
+	ProductPriceRecurringPriceCurrencyMop ProductPriceRecurringPriceCurrency = "MOP"
+	ProductPriceRecurringPriceCurrencyMru ProductPriceRecurringPriceCurrency = "MRU"
+	ProductPriceRecurringPriceCurrencyMur ProductPriceRecurringPriceCurrency = "MUR"
+	ProductPriceRecurringPriceCurrencyMvr ProductPriceRecurringPriceCurrency = "MVR"
+	ProductPriceRecurringPriceCurrencyMwk ProductPriceRecurringPriceCurrency = "MWK"
+	ProductPriceRecurringPriceCurrencyMxn ProductPriceRecurringPriceCurrency = "MXN"
+	ProductPriceRecurringPriceCurrencyMyr ProductPriceRecurringPriceCurrency = "MYR"
+	ProductPriceRecurringPriceCurrencyMzn ProductPriceRecurringPriceCurrency = "MZN"
+	ProductPriceRecurringPriceCurrencyNad ProductPriceRecurringPriceCurrency = "NAD"
+	ProductPriceRecurringPriceCurrencyNgn ProductPriceRecurringPriceCurrency = "NGN"
+	ProductPriceRecurringPriceCurrencyNio ProductPriceRecurringPriceCurrency = "NIO"
+	ProductPriceRecurringPriceCurrencyNok ProductPriceRecurringPriceCurrency = "NOK"
+	ProductPriceRecurringPriceCurrencyNpr ProductPriceRecurringPriceCurrency = "NPR"
+	ProductPriceRecurringPriceCurrencyNzd ProductPriceRecurringPriceCurrency = "NZD"
+	ProductPriceRecurringPriceCurrencyOmr ProductPriceRecurringPriceCurrency = "OMR"
+	ProductPriceRecurringPriceCurrencyPab ProductPriceRecurringPriceCurrency = "PAB"
+	ProductPriceRecurringPriceCurrencyPen ProductPriceRecurringPriceCurrency = "PEN"
+	ProductPriceRecurringPriceCurrencyPgk ProductPriceRecurringPriceCurrency = "PGK"
+	ProductPriceRecurringPriceCurrencyPhp ProductPriceRecurringPriceCurrency = "PHP"
+	ProductPriceRecurringPriceCurrencyPkr ProductPriceRecurringPriceCurrency = "PKR"
+	ProductPriceRecurringPriceCurrencyPln ProductPriceRecurringPriceCurrency = "PLN"
+	ProductPriceRecurringPriceCurrencyPyg ProductPriceRecurringPriceCurrency = "PYG"
+	ProductPriceRecurringPriceCurrencyQar ProductPriceRecurringPriceCurrency = "QAR"
+	ProductPriceRecurringPriceCurrencyRon ProductPriceRecurringPriceCurrency = "RON"
+	ProductPriceRecurringPriceCurrencyRsd ProductPriceRecurringPriceCurrency = "RSD"
+	ProductPriceRecurringPriceCurrencyRub ProductPriceRecurringPriceCurrency = "RUB"
+	ProductPriceRecurringPriceCurrencyRwf ProductPriceRecurringPriceCurrency = "RWF"
+	ProductPriceRecurringPriceCurrencySar ProductPriceRecurringPriceCurrency = "SAR"
+	ProductPriceRecurringPriceCurrencySbd ProductPriceRecurringPriceCurrency = "SBD"
+	ProductPriceRecurringPriceCurrencyScr ProductPriceRecurringPriceCurrency = "SCR"
+	ProductPriceRecurringPriceCurrencySek ProductPriceRecurringPriceCurrency = "SEK"
+	ProductPriceRecurringPriceCurrencySgd ProductPriceRecurringPriceCurrency = "SGD"
+	ProductPriceRecurringPriceCurrencyShp ProductPriceRecurringPriceCurrency = "SHP"
+	ProductPriceRecurringPriceCurrencySle ProductPriceRecurringPriceCurrency = "SLE"
+	ProductPriceRecurringPriceCurrencySll ProductPriceRecurringPriceCurrency = "SLL"
+	ProductPriceRecurringPriceCurrencySos ProductPriceRecurringPriceCurrency = "SOS"
+	ProductPriceRecurringPriceCurrencySrd ProductPriceRecurringPriceCurrency = "SRD"
+	ProductPriceRecurringPriceCurrencySsp ProductPriceRecurringPriceCurrency = "SSP"
+	ProductPriceRecurringPriceCurrencyStn ProductPriceRecurringPriceCurrency = "STN"
+	ProductPriceRecurringPriceCurrencySvc ProductPriceRecurringPriceCurrency = "SVC"
+	ProductPriceRecurringPriceCurrencySzl ProductPriceRecurringPriceCurrency = "SZL"
+	ProductPriceRecurringPriceCurrencyThb ProductPriceRecurringPriceCurrency = "THB"
+	ProductPriceRecurringPriceCurrencyTnd ProductPriceRecurringPriceCurrency = "TND"
+	ProductPriceRecurringPriceCurrencyTop ProductPriceRecurringPriceCurrency = "TOP"
+	ProductPriceRecurringPriceCurrencyTry ProductPriceRecurringPriceCurrency = "TRY"
+	ProductPriceRecurringPriceCurrencyTtd ProductPriceRecurringPriceCurrency = "TTD"
+	ProductPriceRecurringPriceCurrencyTwd ProductPriceRecurringPriceCurrency = "TWD"
+	ProductPriceRecurringPriceCurrencyTzs ProductPriceRecurringPriceCurrency = "TZS"
+	ProductPriceRecurringPriceCurrencyUah ProductPriceRecurringPriceCurrency = "UAH"
+	ProductPriceRecurringPriceCurrencyUgx ProductPriceRecurringPriceCurrency = "UGX"
+	ProductPriceRecurringPriceCurrencyUsd ProductPriceRecurringPriceCurrency = "USD"
+	ProductPriceRecurringPriceCurrencyUyu ProductPriceRecurringPriceCurrency = "UYU"
+	ProductPriceRecurringPriceCurrencyUzs ProductPriceRecurringPriceCurrency = "UZS"
+	ProductPriceRecurringPriceCurrencyVes ProductPriceRecurringPriceCurrency = "VES"
+	ProductPriceRecurringPriceCurrencyVnd ProductPriceRecurringPriceCurrency = "VND"
+	ProductPriceRecurringPriceCurrencyVuv ProductPriceRecurringPriceCurrency = "VUV"
+	ProductPriceRecurringPriceCurrencyWst ProductPriceRecurringPriceCurrency = "WST"
+	ProductPriceRecurringPriceCurrencyXaf ProductPriceRecurringPriceCurrency = "XAF"
+	ProductPriceRecurringPriceCurrencyXcd ProductPriceRecurringPriceCurrency = "XCD"
+	ProductPriceRecurringPriceCurrencyXof ProductPriceRecurringPriceCurrency = "XOF"
+	ProductPriceRecurringPriceCurrencyXpf ProductPriceRecurringPriceCurrency = "XPF"
+	ProductPriceRecurringPriceCurrencyYer ProductPriceRecurringPriceCurrency = "YER"
+	ProductPriceRecurringPriceCurrencyZar ProductPriceRecurringPriceCurrency = "ZAR"
+	ProductPriceRecurringPriceCurrencyZmw ProductPriceRecurringPriceCurrency = "ZMW"
+)
+
+func (r ProductPriceRecurringPriceCurrency) IsKnown() bool {
+	switch r {
+	case ProductPriceRecurringPriceCurrencyAed, ProductPriceRecurringPriceCurrencyAll, ProductPriceRecurringPriceCurrencyAmd, ProductPriceRecurringPriceCurrencyAng, ProductPriceRecurringPriceCurrencyAoa, ProductPriceRecurringPriceCurrencyArs, ProductPriceRecurringPriceCurrencyAud, ProductPriceRecurringPriceCurrencyAwg, ProductPriceRecurringPriceCurrencyAzn, ProductPriceRecurringPriceCurrencyBam, ProductPriceRecurringPriceCurrencyBbd, ProductPriceRecurringPriceCurrencyBdt, ProductPriceRecurringPriceCurrencyBgn, ProductPriceRecurringPriceCurrencyBhd, ProductPriceRecurringPriceCurrencyBif, ProductPriceRecurringPriceCurrencyBmd, ProductPriceRecurringPriceCurrencyBnd, ProductPriceRecurringPriceCurrencyBob, ProductPriceRecurringPriceCurrencyBrl, ProductPriceRecurringPriceCurrencyBsd, ProductPriceRecurringPriceCurrencyBwp, ProductPriceRecurringPriceCurrencyByn, ProductPriceRecurringPriceCurrencyBzd, ProductPriceRecurringPriceCurrencyCad, ProductPriceRecurringPriceCurrencyChf, ProductPriceRecurringPriceCurrencyClp, ProductPriceRecurringPriceCurrencyCny, ProductPriceRecurringPriceCurrencyCop, ProductPriceRecurringPriceCurrencyCrc, ProductPriceRecurringPriceCurrencyCup, ProductPriceRecurringPriceCurrencyCve, ProductPriceRecurringPriceCurrencyCzk, ProductPriceRecurringPriceCurrencyDjf, ProductPriceRecurringPriceCurrencyDkk, ProductPriceRecurringPriceCurrencyDop, ProductPriceRecurringPriceCurrencyDzd, ProductPriceRecurringPriceCurrencyEgp, ProductPriceRecurringPriceCurrencyEtb, ProductPriceRecurringPriceCurrencyEur, ProductPriceRecurringPriceCurrencyFjd, ProductPriceRecurringPriceCurrencyFkp, ProductPriceRecurringPriceCurrencyGbp, ProductPriceRecurringPriceCurrencyGel, ProductPriceRecurringPriceCurrencyGhs, ProductPriceRecurringPriceCurrencyGip, ProductPriceRecurringPriceCurrencyGmd, ProductPriceRecurringPriceCurrencyGnf, ProductPriceRecurringPriceCurrencyGtq, ProductPriceRecurringPriceCurrencyGyd, ProductPriceRecurringPriceCurrencyHkd, ProductPriceRecurringPriceCurrencyHnl, ProductPriceRecurringPriceCurrencyHrk, ProductPriceRecurringPriceCurrencyHtg, ProductPriceRecurringPriceCurrencyHuf, ProductPriceRecurringPriceCurrencyIdr, ProductPriceRecurringPriceCurrencyIls, ProductPriceRecurringPriceCurrencyInr, ProductPriceRecurringPriceCurrencyIqd, ProductPriceRecurringPriceCurrencyJmd, ProductPriceRecurringPriceCurrencyJod, ProductPriceRecurringPriceCurrencyJpy, ProductPriceRecurringPriceCurrencyKes, ProductPriceRecurringPriceCurrencyKgs, ProductPriceRecurringPriceCurrencyKhr, ProductPriceRecurringPriceCurrencyKmf, ProductPriceRecurringPriceCurrencyKrw, ProductPriceRecurringPriceCurrencyKwd, ProductPriceRecurringPriceCurrencyKyd, ProductPriceRecurringPriceCurrencyKzt, ProductPriceRecurringPriceCurrencyLak, ProductPriceRecurringPriceCurrencyLbp, ProductPriceRecurringPriceCurrencyLkr, ProductPriceRecurringPriceCurrencyLrd, ProductPriceRecurringPriceCurrencyLsl, ProductPriceRecurringPriceCurrencyLyd, ProductPriceRecurringPriceCurrencyMad, ProductPriceRecurringPriceCurrencyMdl, ProductPriceRecurringPriceCurrencyMga, ProductPriceRecurringPriceCurrencyMkd, ProductPriceRecurringPriceCurrencyMmk, ProductPriceRecurringPriceCurrencyMnt, ProductPriceRecurringPriceCurrencyMop, ProductPriceRecurringPriceCurrencyMru, ProductPriceRecurringPriceCurrencyMur, ProductPriceRecurringPriceCurrencyMvr, ProductPriceRecurringPriceCurrencyMwk, ProductPriceRecurringPriceCurrencyMxn, ProductPriceRecurringPriceCurrencyMyr, ProductPriceRecurringPriceCurrencyMzn, ProductPriceRecurringPriceCurrencyNad, ProductPriceRecurringPriceCurrencyNgn, ProductPriceRecurringPriceCurrencyNio, ProductPriceRecurringPriceCurrencyNok, ProductPriceRecurringPriceCurrencyNpr, ProductPriceRecurringPriceCurrencyNzd, ProductPriceRecurringPriceCurrencyOmr, ProductPriceRecurringPriceCurrencyPab, ProductPriceRecurringPriceCurrencyPen, ProductPriceRecurringPriceCurrencyPgk, ProductPriceRecurringPriceCurrencyPhp, ProductPriceRecurringPriceCurrencyPkr, ProductPriceRecurringPriceCurrencyPln, ProductPriceRecurringPriceCurrencyPyg, ProductPriceRecurringPriceCurrencyQar, ProductPriceRecurringPriceCurrencyRon, ProductPriceRecurringPriceCurrencyRsd, ProductPriceRecurringPriceCurrencyRub, ProductPriceRecurringPriceCurrencyRwf, ProductPriceRecurringPriceCurrencySar, ProductPriceRecurringPriceCurrencySbd, ProductPriceRecurringPriceCurrencyScr, ProductPriceRecurringPriceCurrencySek, ProductPriceRecurringPriceCurrencySgd, ProductPriceRecurringPriceCurrencyShp, ProductPriceRecurringPriceCurrencySle, ProductPriceRecurringPriceCurrencySll, ProductPriceRecurringPriceCurrencySos, ProductPriceRecurringPriceCurrencySrd, ProductPriceRecurringPriceCurrencySsp, ProductPriceRecurringPriceCurrencyStn, ProductPriceRecurringPriceCurrencySvc, ProductPriceRecurringPriceCurrencySzl, ProductPriceRecurringPriceCurrencyThb, ProductPriceRecurringPriceCurrencyTnd, ProductPriceRecurringPriceCurrencyTop, ProductPriceRecurringPriceCurrencyTry, ProductPriceRecurringPriceCurrencyTtd, ProductPriceRecurringPriceCurrencyTwd, ProductPriceRecurringPriceCurrencyTzs, ProductPriceRecurringPriceCurrencyUah, ProductPriceRecurringPriceCurrencyUgx, ProductPriceRecurringPriceCurrencyUsd, ProductPriceRecurringPriceCurrencyUyu, ProductPriceRecurringPriceCurrencyUzs, ProductPriceRecurringPriceCurrencyVes, ProductPriceRecurringPriceCurrencyVnd, ProductPriceRecurringPriceCurrencyVuv, ProductPriceRecurringPriceCurrencyWst, ProductPriceRecurringPriceCurrencyXaf, ProductPriceRecurringPriceCurrencyXcd, ProductPriceRecurringPriceCurrencyXof, ProductPriceRecurringPriceCurrencyXpf, ProductPriceRecurringPriceCurrencyYer, ProductPriceRecurringPriceCurrencyZar, ProductPriceRecurringPriceCurrencyZmw:
+		return true
+	}
+	return false
+}
+
+type ProductPriceRecurringPricePaymentFrequencyInterval string
+
+const (
+	ProductPriceRecurringPricePaymentFrequencyIntervalDay   ProductPriceRecurringPricePaymentFrequencyInterval = "Day"
+	ProductPriceRecurringPricePaymentFrequencyIntervalWeek  ProductPriceRecurringPricePaymentFrequencyInterval = "Week"
+	ProductPriceRecurringPricePaymentFrequencyIntervalMonth ProductPriceRecurringPricePaymentFrequencyInterval = "Month"
+	ProductPriceRecurringPricePaymentFrequencyIntervalYear  ProductPriceRecurringPricePaymentFrequencyInterval = "Year"
+)
+
+func (r ProductPriceRecurringPricePaymentFrequencyInterval) IsKnown() bool {
+	switch r {
+	case ProductPriceRecurringPricePaymentFrequencyIntervalDay, ProductPriceRecurringPricePaymentFrequencyIntervalWeek, ProductPriceRecurringPricePaymentFrequencyIntervalMonth, ProductPriceRecurringPricePaymentFrequencyIntervalYear:
+		return true
+	}
+	return false
+}
+
+type ProductPriceRecurringPriceSubscriptionPeriodInterval string
+
+const (
+	ProductPriceRecurringPriceSubscriptionPeriodIntervalDay   ProductPriceRecurringPriceSubscriptionPeriodInterval = "Day"
+	ProductPriceRecurringPriceSubscriptionPeriodIntervalWeek  ProductPriceRecurringPriceSubscriptionPeriodInterval = "Week"
+	ProductPriceRecurringPriceSubscriptionPeriodIntervalMonth ProductPriceRecurringPriceSubscriptionPeriodInterval = "Month"
+	ProductPriceRecurringPriceSubscriptionPeriodIntervalYear  ProductPriceRecurringPriceSubscriptionPeriodInterval = "Year"
+)
+
+func (r ProductPriceRecurringPriceSubscriptionPeriodInterval) IsKnown() bool {
+	switch r {
+	case ProductPriceRecurringPriceSubscriptionPeriodIntervalDay, ProductPriceRecurringPriceSubscriptionPeriodIntervalWeek, ProductPriceRecurringPriceSubscriptionPeriodIntervalMonth, ProductPriceRecurringPriceSubscriptionPeriodIntervalYear:
+		return true
+	}
+	return false
+}
+
+type ProductPriceRecurringPriceType string
+
+const (
+	ProductPriceRecurringPriceTypeRecurringPrice ProductPriceRecurringPriceType = "recurring_price"
+)
+
+func (r ProductPriceRecurringPriceType) IsKnown() bool {
+	switch r {
+	case ProductPriceRecurringPriceTypeRecurringPrice:
+		return true
+	}
+	return false
+}
+
+type ProductPriceCurrency string
+
+const (
+	ProductPriceCurrencyAed ProductPriceCurrency = "AED"
+	ProductPriceCurrencyAll ProductPriceCurrency = "ALL"
+	ProductPriceCurrencyAmd ProductPriceCurrency = "AMD"
+	ProductPriceCurrencyAng ProductPriceCurrency = "ANG"
+	ProductPriceCurrencyAoa ProductPriceCurrency = "AOA"
+	ProductPriceCurrencyArs ProductPriceCurrency = "ARS"
+	ProductPriceCurrencyAud ProductPriceCurrency = "AUD"
+	ProductPriceCurrencyAwg ProductPriceCurrency = "AWG"
+	ProductPriceCurrencyAzn ProductPriceCurrency = "AZN"
+	ProductPriceCurrencyBam ProductPriceCurrency = "BAM"
+	ProductPriceCurrencyBbd ProductPriceCurrency = "BBD"
+	ProductPriceCurrencyBdt ProductPriceCurrency = "BDT"
+	ProductPriceCurrencyBgn ProductPriceCurrency = "BGN"
+	ProductPriceCurrencyBhd ProductPriceCurrency = "BHD"
+	ProductPriceCurrencyBif ProductPriceCurrency = "BIF"
+	ProductPriceCurrencyBmd ProductPriceCurrency = "BMD"
+	ProductPriceCurrencyBnd ProductPriceCurrency = "BND"
+	ProductPriceCurrencyBob ProductPriceCurrency = "BOB"
+	ProductPriceCurrencyBrl ProductPriceCurrency = "BRL"
+	ProductPriceCurrencyBsd ProductPriceCurrency = "BSD"
+	ProductPriceCurrencyBwp ProductPriceCurrency = "BWP"
+	ProductPriceCurrencyByn ProductPriceCurrency = "BYN"
+	ProductPriceCurrencyBzd ProductPriceCurrency = "BZD"
+	ProductPriceCurrencyCad ProductPriceCurrency = "CAD"
+	ProductPriceCurrencyChf ProductPriceCurrency = "CHF"
+	ProductPriceCurrencyClp ProductPriceCurrency = "CLP"
+	ProductPriceCurrencyCny ProductPriceCurrency = "CNY"
+	ProductPriceCurrencyCop ProductPriceCurrency = "COP"
+	ProductPriceCurrencyCrc ProductPriceCurrency = "CRC"
+	ProductPriceCurrencyCup ProductPriceCurrency = "CUP"
+	ProductPriceCurrencyCve ProductPriceCurrency = "CVE"
+	ProductPriceCurrencyCzk ProductPriceCurrency = "CZK"
+	ProductPriceCurrencyDjf ProductPriceCurrency = "DJF"
+	ProductPriceCurrencyDkk ProductPriceCurrency = "DKK"
+	ProductPriceCurrencyDop ProductPriceCurrency = "DOP"
+	ProductPriceCurrencyDzd ProductPriceCurrency = "DZD"
+	ProductPriceCurrencyEgp ProductPriceCurrency = "EGP"
+	ProductPriceCurrencyEtb ProductPriceCurrency = "ETB"
+	ProductPriceCurrencyEur ProductPriceCurrency = "EUR"
+	ProductPriceCurrencyFjd ProductPriceCurrency = "FJD"
+	ProductPriceCurrencyFkp ProductPriceCurrency = "FKP"
+	ProductPriceCurrencyGbp ProductPriceCurrency = "GBP"
+	ProductPriceCurrencyGel ProductPriceCurrency = "GEL"
+	ProductPriceCurrencyGhs ProductPriceCurrency = "GHS"
+	ProductPriceCurrencyGip ProductPriceCurrency = "GIP"
+	ProductPriceCurrencyGmd ProductPriceCurrency = "GMD"
+	ProductPriceCurrencyGnf ProductPriceCurrency = "GNF"
+	ProductPriceCurrencyGtq ProductPriceCurrency = "GTQ"
+	ProductPriceCurrencyGyd ProductPriceCurrency = "GYD"
+	ProductPriceCurrencyHkd ProductPriceCurrency = "HKD"
+	ProductPriceCurrencyHnl ProductPriceCurrency = "HNL"
+	ProductPriceCurrencyHrk ProductPriceCurrency = "HRK"
+	ProductPriceCurrencyHtg ProductPriceCurrency = "HTG"
+	ProductPriceCurrencyHuf ProductPriceCurrency = "HUF"
+	ProductPriceCurrencyIdr ProductPriceCurrency = "IDR"
+	ProductPriceCurrencyIls ProductPriceCurrency = "ILS"
+	ProductPriceCurrencyInr ProductPriceCurrency = "INR"
+	ProductPriceCurrencyIqd ProductPriceCurrency = "IQD"
+	ProductPriceCurrencyJmd ProductPriceCurrency = "JMD"
+	ProductPriceCurrencyJod ProductPriceCurrency = "JOD"
+	ProductPriceCurrencyJpy ProductPriceCurrency = "JPY"
+	ProductPriceCurrencyKes ProductPriceCurrency = "KES"
+	ProductPriceCurrencyKgs ProductPriceCurrency = "KGS"
+	ProductPriceCurrencyKhr ProductPriceCurrency = "KHR"
+	ProductPriceCurrencyKmf ProductPriceCurrency = "KMF"
+	ProductPriceCurrencyKrw ProductPriceCurrency = "KRW"
+	ProductPriceCurrencyKwd ProductPriceCurrency = "KWD"
+	ProductPriceCurrencyKyd ProductPriceCurrency = "KYD"
+	ProductPriceCurrencyKzt ProductPriceCurrency = "KZT"
+	ProductPriceCurrencyLak ProductPriceCurrency = "LAK"
+	ProductPriceCurrencyLbp ProductPriceCurrency = "LBP"
+	ProductPriceCurrencyLkr ProductPriceCurrency = "LKR"
+	ProductPriceCurrencyLrd ProductPriceCurrency = "LRD"
+	ProductPriceCurrencyLsl ProductPriceCurrency = "LSL"
+	ProductPriceCurrencyLyd ProductPriceCurrency = "LYD"
+	ProductPriceCurrencyMad ProductPriceCurrency = "MAD"
+	ProductPriceCurrencyMdl ProductPriceCurrency = "MDL"
+	ProductPriceCurrencyMga ProductPriceCurrency = "MGA"
+	ProductPriceCurrencyMkd ProductPriceCurrency = "MKD"
+	ProductPriceCurrencyMmk ProductPriceCurrency = "MMK"
+	ProductPriceCurrencyMnt ProductPriceCurrency = "MNT"
+	ProductPriceCurrencyMop ProductPriceCurrency = "MOP"
+	ProductPriceCurrencyMru ProductPriceCurrency = "MRU"
+	ProductPriceCurrencyMur ProductPriceCurrency = "MUR"
+	ProductPriceCurrencyMvr ProductPriceCurrency = "MVR"
+	ProductPriceCurrencyMwk ProductPriceCurrency = "MWK"
+	ProductPriceCurrencyMxn ProductPriceCurrency = "MXN"
+	ProductPriceCurrencyMyr ProductPriceCurrency = "MYR"
+	ProductPriceCurrencyMzn ProductPriceCurrency = "MZN"
+	ProductPriceCurrencyNad ProductPriceCurrency = "NAD"
+	ProductPriceCurrencyNgn ProductPriceCurrency = "NGN"
+	ProductPriceCurrencyNio ProductPriceCurrency = "NIO"
+	ProductPriceCurrencyNok ProductPriceCurrency = "NOK"
+	ProductPriceCurrencyNpr ProductPriceCurrency = "NPR"
+	ProductPriceCurrencyNzd ProductPriceCurrency = "NZD"
+	ProductPriceCurrencyOmr ProductPriceCurrency = "OMR"
+	ProductPriceCurrencyPab ProductPriceCurrency = "PAB"
+	ProductPriceCurrencyPen ProductPriceCurrency = "PEN"
+	ProductPriceCurrencyPgk ProductPriceCurrency = "PGK"
+	ProductPriceCurrencyPhp ProductPriceCurrency = "PHP"
+	ProductPriceCurrencyPkr ProductPriceCurrency = "PKR"
+	ProductPriceCurrencyPln ProductPriceCurrency = "PLN"
+	ProductPriceCurrencyPyg ProductPriceCurrency = "PYG"
+	ProductPriceCurrencyQar ProductPriceCurrency = "QAR"
+	ProductPriceCurrencyRon ProductPriceCurrency = "RON"
+	ProductPriceCurrencyRsd ProductPriceCurrency = "RSD"
+	ProductPriceCurrencyRub ProductPriceCurrency = "RUB"
+	ProductPriceCurrencyRwf ProductPriceCurrency = "RWF"
+	ProductPriceCurrencySar ProductPriceCurrency = "SAR"
+	ProductPriceCurrencySbd ProductPriceCurrency = "SBD"
+	ProductPriceCurrencyScr ProductPriceCurrency = "SCR"
+	ProductPriceCurrencySek ProductPriceCurrency = "SEK"
+	ProductPriceCurrencySgd ProductPriceCurrency = "SGD"
+	ProductPriceCurrencyShp ProductPriceCurrency = "SHP"
+	ProductPriceCurrencySle ProductPriceCurrency = "SLE"
+	ProductPriceCurrencySll ProductPriceCurrency = "SLL"
+	ProductPriceCurrencySos ProductPriceCurrency = "SOS"
+	ProductPriceCurrencySrd ProductPriceCurrency = "SRD"
+	ProductPriceCurrencySsp ProductPriceCurrency = "SSP"
+	ProductPriceCurrencyStn ProductPriceCurrency = "STN"
+	ProductPriceCurrencySvc ProductPriceCurrency = "SVC"
+	ProductPriceCurrencySzl ProductPriceCurrency = "SZL"
+	ProductPriceCurrencyThb ProductPriceCurrency = "THB"
+	ProductPriceCurrencyTnd ProductPriceCurrency = "TND"
+	ProductPriceCurrencyTop ProductPriceCurrency = "TOP"
+	ProductPriceCurrencyTry ProductPriceCurrency = "TRY"
+	ProductPriceCurrencyTtd ProductPriceCurrency = "TTD"
+	ProductPriceCurrencyTwd ProductPriceCurrency = "TWD"
+	ProductPriceCurrencyTzs ProductPriceCurrency = "TZS"
+	ProductPriceCurrencyUah ProductPriceCurrency = "UAH"
+	ProductPriceCurrencyUgx ProductPriceCurrency = "UGX"
+	ProductPriceCurrencyUsd ProductPriceCurrency = "USD"
+	ProductPriceCurrencyUyu ProductPriceCurrency = "UYU"
+	ProductPriceCurrencyUzs ProductPriceCurrency = "UZS"
+	ProductPriceCurrencyVes ProductPriceCurrency = "VES"
+	ProductPriceCurrencyVnd ProductPriceCurrency = "VND"
+	ProductPriceCurrencyVuv ProductPriceCurrency = "VUV"
+	ProductPriceCurrencyWst ProductPriceCurrency = "WST"
+	ProductPriceCurrencyXaf ProductPriceCurrency = "XAF"
+	ProductPriceCurrencyXcd ProductPriceCurrency = "XCD"
+	ProductPriceCurrencyXof ProductPriceCurrency = "XOF"
+	ProductPriceCurrencyXpf ProductPriceCurrency = "XPF"
+	ProductPriceCurrencyYer ProductPriceCurrency = "YER"
+	ProductPriceCurrencyZar ProductPriceCurrency = "ZAR"
+	ProductPriceCurrencyZmw ProductPriceCurrency = "ZMW"
+)
+
+func (r ProductPriceCurrency) IsKnown() bool {
+	switch r {
+	case ProductPriceCurrencyAed, ProductPriceCurrencyAll, ProductPriceCurrencyAmd, ProductPriceCurrencyAng, ProductPriceCurrencyAoa, ProductPriceCurrencyArs, ProductPriceCurrencyAud, ProductPriceCurrencyAwg, ProductPriceCurrencyAzn, ProductPriceCurrencyBam, ProductPriceCurrencyBbd, ProductPriceCurrencyBdt, ProductPriceCurrencyBgn, ProductPriceCurrencyBhd, ProductPriceCurrencyBif, ProductPriceCurrencyBmd, ProductPriceCurrencyBnd, ProductPriceCurrencyBob, ProductPriceCurrencyBrl, ProductPriceCurrencyBsd, ProductPriceCurrencyBwp, ProductPriceCurrencyByn, ProductPriceCurrencyBzd, ProductPriceCurrencyCad, ProductPriceCurrencyChf, ProductPriceCurrencyClp, ProductPriceCurrencyCny, ProductPriceCurrencyCop, ProductPriceCurrencyCrc, ProductPriceCurrencyCup, ProductPriceCurrencyCve, ProductPriceCurrencyCzk, ProductPriceCurrencyDjf, ProductPriceCurrencyDkk, ProductPriceCurrencyDop, ProductPriceCurrencyDzd, ProductPriceCurrencyEgp, ProductPriceCurrencyEtb, ProductPriceCurrencyEur, ProductPriceCurrencyFjd, ProductPriceCurrencyFkp, ProductPriceCurrencyGbp, ProductPriceCurrencyGel, ProductPriceCurrencyGhs, ProductPriceCurrencyGip, ProductPriceCurrencyGmd, ProductPriceCurrencyGnf, ProductPriceCurrencyGtq, ProductPriceCurrencyGyd, ProductPriceCurrencyHkd, ProductPriceCurrencyHnl, ProductPriceCurrencyHrk, ProductPriceCurrencyHtg, ProductPriceCurrencyHuf, ProductPriceCurrencyIdr, ProductPriceCurrencyIls, ProductPriceCurrencyInr, ProductPriceCurrencyIqd, ProductPriceCurrencyJmd, ProductPriceCurrencyJod, ProductPriceCurrencyJpy, ProductPriceCurrencyKes, ProductPriceCurrencyKgs, ProductPriceCurrencyKhr, ProductPriceCurrencyKmf, ProductPriceCurrencyKrw, ProductPriceCurrencyKwd, ProductPriceCurrencyKyd, ProductPriceCurrencyKzt, ProductPriceCurrencyLak, ProductPriceCurrencyLbp, ProductPriceCurrencyLkr, ProductPriceCurrencyLrd, ProductPriceCurrencyLsl, ProductPriceCurrencyLyd, ProductPriceCurrencyMad, ProductPriceCurrencyMdl, ProductPriceCurrencyMga, ProductPriceCurrencyMkd, ProductPriceCurrencyMmk, ProductPriceCurrencyMnt, ProductPriceCurrencyMop, ProductPriceCurrencyMru, ProductPriceCurrencyMur, ProductPriceCurrencyMvr, ProductPriceCurrencyMwk, ProductPriceCurrencyMxn, ProductPriceCurrencyMyr, ProductPriceCurrencyMzn, ProductPriceCurrencyNad, ProductPriceCurrencyNgn, ProductPriceCurrencyNio, ProductPriceCurrencyNok, ProductPriceCurrencyNpr, ProductPriceCurrencyNzd, ProductPriceCurrencyOmr, ProductPriceCurrencyPab, ProductPriceCurrencyPen, ProductPriceCurrencyPgk, ProductPriceCurrencyPhp, ProductPriceCurrencyPkr, ProductPriceCurrencyPln, ProductPriceCurrencyPyg, ProductPriceCurrencyQar, ProductPriceCurrencyRon, ProductPriceCurrencyRsd, ProductPriceCurrencyRub, ProductPriceCurrencyRwf, ProductPriceCurrencySar, ProductPriceCurrencySbd, ProductPriceCurrencyScr, ProductPriceCurrencySek, ProductPriceCurrencySgd, ProductPriceCurrencyShp, ProductPriceCurrencySle, ProductPriceCurrencySll, ProductPriceCurrencySos, ProductPriceCurrencySrd, ProductPriceCurrencySsp, ProductPriceCurrencyStn, ProductPriceCurrencySvc, ProductPriceCurrencySzl, ProductPriceCurrencyThb, ProductPriceCurrencyTnd, ProductPriceCurrencyTop, ProductPriceCurrencyTry, ProductPriceCurrencyTtd, ProductPriceCurrencyTwd, ProductPriceCurrencyTzs, ProductPriceCurrencyUah, ProductPriceCurrencyUgx, ProductPriceCurrencyUsd, ProductPriceCurrencyUyu, ProductPriceCurrencyUzs, ProductPriceCurrencyVes, ProductPriceCurrencyVnd, ProductPriceCurrencyVuv, ProductPriceCurrencyWst, ProductPriceCurrencyXaf, ProductPriceCurrencyXcd, ProductPriceCurrencyXof, ProductPriceCurrencyXpf, ProductPriceCurrencyYer, ProductPriceCurrencyZar, ProductPriceCurrencyZmw:
+		return true
+	}
+	return false
+}
+
+type ProductPriceType string
+
+const (
+	ProductPriceTypeOneTimePrice   ProductPriceType = "one_time_price"
+	ProductPriceTypeRecurringPrice ProductPriceType = "recurring_price"
+)
+
+func (r ProductPriceType) IsKnown() bool {
+	switch r {
+	case ProductPriceTypeOneTimePrice, ProductPriceTypeRecurringPrice:
+		return true
+	}
+	return false
+}
+
+type ProductPricePaymentFrequencyInterval string
+
+const (
+	ProductPricePaymentFrequencyIntervalDay   ProductPricePaymentFrequencyInterval = "Day"
+	ProductPricePaymentFrequencyIntervalWeek  ProductPricePaymentFrequencyInterval = "Week"
+	ProductPricePaymentFrequencyIntervalMonth ProductPricePaymentFrequencyInterval = "Month"
+	ProductPricePaymentFrequencyIntervalYear  ProductPricePaymentFrequencyInterval = "Year"
+)
+
+func (r ProductPricePaymentFrequencyInterval) IsKnown() bool {
+	switch r {
+	case ProductPricePaymentFrequencyIntervalDay, ProductPricePaymentFrequencyIntervalWeek, ProductPricePaymentFrequencyIntervalMonth, ProductPricePaymentFrequencyIntervalYear:
+		return true
+	}
+	return false
+}
+
+type ProductPriceSubscriptionPeriodInterval string
+
+const (
+	ProductPriceSubscriptionPeriodIntervalDay   ProductPriceSubscriptionPeriodInterval = "Day"
+	ProductPriceSubscriptionPeriodIntervalWeek  ProductPriceSubscriptionPeriodInterval = "Week"
+	ProductPriceSubscriptionPeriodIntervalMonth ProductPriceSubscriptionPeriodInterval = "Month"
+	ProductPriceSubscriptionPeriodIntervalYear  ProductPriceSubscriptionPeriodInterval = "Year"
+)
+
+func (r ProductPriceSubscriptionPeriodInterval) IsKnown() bool {
+	switch r {
+	case ProductPriceSubscriptionPeriodIntervalDay, ProductPriceSubscriptionPeriodIntervalWeek, ProductPriceSubscriptionPeriodIntervalMonth, ProductPriceSubscriptionPeriodIntervalYear:
+		return true
+	}
+	return false
+}
+
+// Represents the different categories of taxation applicable to various products
+// and services.
+type ProductTaxCategory string
+
+const (
+	ProductTaxCategoryDigitalProducts ProductTaxCategory = "digital_products"
+	ProductTaxCategorySaas            ProductTaxCategory = "saas"
+	ProductTaxCategoryEBook           ProductTaxCategory = "e_book"
+)
+
+func (r ProductTaxCategory) IsKnown() bool {
+	switch r {
+	case ProductTaxCategoryDigitalProducts, ProductTaxCategorySaas, ProductTaxCategoryEBook:
+		return true
+	}
+	return false
+}
+
 type ProductNewResponse struct {
 	ProductID string                 `json:"product_id,required"`
 	JSON      productNewResponseJSON `json:"-"`
@@ -96,805 +892,6 @@ func (r *ProductNewResponse) UnmarshalJSON(data []byte) (err error) {
 
 func (r productNewResponseJSON) RawJSON() string {
 	return r.raw
-}
-
-type ProductGetResponse struct {
-	BusinessID  string                  `json:"business_id,required"`
-	CreatedAt   time.Time               `json:"created_at,required" format:"date-time"`
-	IsRecurring bool                    `json:"is_recurring,required"`
-	Price       ProductGetResponsePrice `json:"price,required"`
-	ProductID   string                  `json:"product_id,required"`
-	// Represents the different categories of taxation applicable to various products
-	// and services.
-	TaxCategory ProductGetResponseTaxCategory `json:"tax_category,required"`
-	UpdatedAt   time.Time                     `json:"updated_at,required" format:"date-time"`
-	Description string                        `json:"description,nullable"`
-	Image       string                        `json:"image,nullable"`
-	Name        string                        `json:"name,nullable"`
-	JSON        productGetResponseJSON        `json:"-"`
-}
-
-// productGetResponseJSON contains the JSON metadata for the struct
-// [ProductGetResponse]
-type productGetResponseJSON struct {
-	BusinessID  apijson.Field
-	CreatedAt   apijson.Field
-	IsRecurring apijson.Field
-	Price       apijson.Field
-	ProductID   apijson.Field
-	TaxCategory apijson.Field
-	UpdatedAt   apijson.Field
-	Description apijson.Field
-	Image       apijson.Field
-	Name        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductGetResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productGetResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type ProductGetResponsePrice struct {
-	Currency ProductGetResponsePriceCurrency `json:"currency,required"`
-	Discount float64                         `json:"discount,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                      int64                                             `json:"price,required"`
-	PurchasingPowerParity      bool                                              `json:"purchasing_power_parity,required"`
-	Type                       ProductGetResponsePriceType                       `json:"type,required"`
-	PaymentFrequencyCount      int64                                             `json:"payment_frequency_count"`
-	PaymentFrequencyInterval   ProductGetResponsePricePaymentFrequencyInterval   `json:"payment_frequency_interval"`
-	SubscriptionPeriodCount    int64                                             `json:"subscription_period_count"`
-	SubscriptionPeriodInterval ProductGetResponsePriceSubscriptionPeriodInterval `json:"subscription_period_interval"`
-	TrialPeriodDays            int64                                             `json:"trial_period_days"`
-	JSON                       productGetResponsePriceJSON                       `json:"-"`
-	union                      ProductGetResponsePriceUnion
-}
-
-// productGetResponsePriceJSON contains the JSON metadata for the struct
-// [ProductGetResponsePrice]
-type productGetResponsePriceJSON struct {
-	Currency                   apijson.Field
-	Discount                   apijson.Field
-	Price                      apijson.Field
-	PurchasingPowerParity      apijson.Field
-	Type                       apijson.Field
-	PaymentFrequencyCount      apijson.Field
-	PaymentFrequencyInterval   apijson.Field
-	SubscriptionPeriodCount    apijson.Field
-	SubscriptionPeriodInterval apijson.Field
-	TrialPeriodDays            apijson.Field
-	raw                        string
-	ExtraFields                map[string]apijson.Field
-}
-
-func (r productGetResponsePriceJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r *ProductGetResponsePrice) UnmarshalJSON(data []byte) (err error) {
-	*r = ProductGetResponsePrice{}
-	err = apijson.UnmarshalRoot(data, &r.union)
-	if err != nil {
-		return err
-	}
-	return apijson.Port(r.union, &r)
-}
-
-// AsUnion returns a [ProductGetResponsePriceUnion] interface which you can cast to
-// the specific types for more type safety.
-//
-// Possible runtime types of the union are [ProductGetResponsePriceOneTimePrice],
-// [ProductGetResponsePriceRecurringPrice].
-func (r ProductGetResponsePrice) AsUnion() ProductGetResponsePriceUnion {
-	return r.union
-}
-
-// Union satisfied by [ProductGetResponsePriceOneTimePrice] or
-// [ProductGetResponsePriceRecurringPrice].
-type ProductGetResponsePriceUnion interface {
-	implementsProductGetResponsePrice()
-}
-
-func init() {
-	apijson.RegisterUnion(
-		reflect.TypeOf((*ProductGetResponsePriceUnion)(nil)).Elem(),
-		"type",
-		apijson.UnionVariant{
-			TypeFilter:         gjson.JSON,
-			Type:               reflect.TypeOf(ProductGetResponsePriceOneTimePrice{}),
-			DiscriminatorValue: "one_time_price",
-		},
-		apijson.UnionVariant{
-			TypeFilter:         gjson.JSON,
-			Type:               reflect.TypeOf(ProductGetResponsePriceRecurringPrice{}),
-			DiscriminatorValue: "recurring_price",
-		},
-	)
-}
-
-type ProductGetResponsePriceOneTimePrice struct {
-	Currency ProductGetResponsePriceOneTimePriceCurrency `json:"currency,required"`
-	Discount float64                                     `json:"discount,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                 int64                                   `json:"price,required"`
-	PurchasingPowerParity bool                                    `json:"purchasing_power_parity,required"`
-	Type                  ProductGetResponsePriceOneTimePriceType `json:"type,required"`
-	JSON                  productGetResponsePriceOneTimePriceJSON `json:"-"`
-}
-
-// productGetResponsePriceOneTimePriceJSON contains the JSON metadata for the
-// struct [ProductGetResponsePriceOneTimePrice]
-type productGetResponsePriceOneTimePriceJSON struct {
-	Currency              apijson.Field
-	Discount              apijson.Field
-	Price                 apijson.Field
-	PurchasingPowerParity apijson.Field
-	Type                  apijson.Field
-	raw                   string
-	ExtraFields           map[string]apijson.Field
-}
-
-func (r *ProductGetResponsePriceOneTimePrice) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productGetResponsePriceOneTimePriceJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductGetResponsePriceOneTimePrice) implementsProductGetResponsePrice() {}
-
-type ProductGetResponsePriceOneTimePriceCurrency string
-
-const (
-	ProductGetResponsePriceOneTimePriceCurrencyAed ProductGetResponsePriceOneTimePriceCurrency = "AED"
-	ProductGetResponsePriceOneTimePriceCurrencyAll ProductGetResponsePriceOneTimePriceCurrency = "ALL"
-	ProductGetResponsePriceOneTimePriceCurrencyAmd ProductGetResponsePriceOneTimePriceCurrency = "AMD"
-	ProductGetResponsePriceOneTimePriceCurrencyAng ProductGetResponsePriceOneTimePriceCurrency = "ANG"
-	ProductGetResponsePriceOneTimePriceCurrencyAoa ProductGetResponsePriceOneTimePriceCurrency = "AOA"
-	ProductGetResponsePriceOneTimePriceCurrencyArs ProductGetResponsePriceOneTimePriceCurrency = "ARS"
-	ProductGetResponsePriceOneTimePriceCurrencyAud ProductGetResponsePriceOneTimePriceCurrency = "AUD"
-	ProductGetResponsePriceOneTimePriceCurrencyAwg ProductGetResponsePriceOneTimePriceCurrency = "AWG"
-	ProductGetResponsePriceOneTimePriceCurrencyAzn ProductGetResponsePriceOneTimePriceCurrency = "AZN"
-	ProductGetResponsePriceOneTimePriceCurrencyBam ProductGetResponsePriceOneTimePriceCurrency = "BAM"
-	ProductGetResponsePriceOneTimePriceCurrencyBbd ProductGetResponsePriceOneTimePriceCurrency = "BBD"
-	ProductGetResponsePriceOneTimePriceCurrencyBdt ProductGetResponsePriceOneTimePriceCurrency = "BDT"
-	ProductGetResponsePriceOneTimePriceCurrencyBgn ProductGetResponsePriceOneTimePriceCurrency = "BGN"
-	ProductGetResponsePriceOneTimePriceCurrencyBhd ProductGetResponsePriceOneTimePriceCurrency = "BHD"
-	ProductGetResponsePriceOneTimePriceCurrencyBif ProductGetResponsePriceOneTimePriceCurrency = "BIF"
-	ProductGetResponsePriceOneTimePriceCurrencyBmd ProductGetResponsePriceOneTimePriceCurrency = "BMD"
-	ProductGetResponsePriceOneTimePriceCurrencyBnd ProductGetResponsePriceOneTimePriceCurrency = "BND"
-	ProductGetResponsePriceOneTimePriceCurrencyBob ProductGetResponsePriceOneTimePriceCurrency = "BOB"
-	ProductGetResponsePriceOneTimePriceCurrencyBrl ProductGetResponsePriceOneTimePriceCurrency = "BRL"
-	ProductGetResponsePriceOneTimePriceCurrencyBsd ProductGetResponsePriceOneTimePriceCurrency = "BSD"
-	ProductGetResponsePriceOneTimePriceCurrencyBwp ProductGetResponsePriceOneTimePriceCurrency = "BWP"
-	ProductGetResponsePriceOneTimePriceCurrencyByn ProductGetResponsePriceOneTimePriceCurrency = "BYN"
-	ProductGetResponsePriceOneTimePriceCurrencyBzd ProductGetResponsePriceOneTimePriceCurrency = "BZD"
-	ProductGetResponsePriceOneTimePriceCurrencyCad ProductGetResponsePriceOneTimePriceCurrency = "CAD"
-	ProductGetResponsePriceOneTimePriceCurrencyChf ProductGetResponsePriceOneTimePriceCurrency = "CHF"
-	ProductGetResponsePriceOneTimePriceCurrencyClp ProductGetResponsePriceOneTimePriceCurrency = "CLP"
-	ProductGetResponsePriceOneTimePriceCurrencyCny ProductGetResponsePriceOneTimePriceCurrency = "CNY"
-	ProductGetResponsePriceOneTimePriceCurrencyCop ProductGetResponsePriceOneTimePriceCurrency = "COP"
-	ProductGetResponsePriceOneTimePriceCurrencyCrc ProductGetResponsePriceOneTimePriceCurrency = "CRC"
-	ProductGetResponsePriceOneTimePriceCurrencyCup ProductGetResponsePriceOneTimePriceCurrency = "CUP"
-	ProductGetResponsePriceOneTimePriceCurrencyCve ProductGetResponsePriceOneTimePriceCurrency = "CVE"
-	ProductGetResponsePriceOneTimePriceCurrencyCzk ProductGetResponsePriceOneTimePriceCurrency = "CZK"
-	ProductGetResponsePriceOneTimePriceCurrencyDjf ProductGetResponsePriceOneTimePriceCurrency = "DJF"
-	ProductGetResponsePriceOneTimePriceCurrencyDkk ProductGetResponsePriceOneTimePriceCurrency = "DKK"
-	ProductGetResponsePriceOneTimePriceCurrencyDop ProductGetResponsePriceOneTimePriceCurrency = "DOP"
-	ProductGetResponsePriceOneTimePriceCurrencyDzd ProductGetResponsePriceOneTimePriceCurrency = "DZD"
-	ProductGetResponsePriceOneTimePriceCurrencyEgp ProductGetResponsePriceOneTimePriceCurrency = "EGP"
-	ProductGetResponsePriceOneTimePriceCurrencyEtb ProductGetResponsePriceOneTimePriceCurrency = "ETB"
-	ProductGetResponsePriceOneTimePriceCurrencyEur ProductGetResponsePriceOneTimePriceCurrency = "EUR"
-	ProductGetResponsePriceOneTimePriceCurrencyFjd ProductGetResponsePriceOneTimePriceCurrency = "FJD"
-	ProductGetResponsePriceOneTimePriceCurrencyFkp ProductGetResponsePriceOneTimePriceCurrency = "FKP"
-	ProductGetResponsePriceOneTimePriceCurrencyGbp ProductGetResponsePriceOneTimePriceCurrency = "GBP"
-	ProductGetResponsePriceOneTimePriceCurrencyGel ProductGetResponsePriceOneTimePriceCurrency = "GEL"
-	ProductGetResponsePriceOneTimePriceCurrencyGhs ProductGetResponsePriceOneTimePriceCurrency = "GHS"
-	ProductGetResponsePriceOneTimePriceCurrencyGip ProductGetResponsePriceOneTimePriceCurrency = "GIP"
-	ProductGetResponsePriceOneTimePriceCurrencyGmd ProductGetResponsePriceOneTimePriceCurrency = "GMD"
-	ProductGetResponsePriceOneTimePriceCurrencyGnf ProductGetResponsePriceOneTimePriceCurrency = "GNF"
-	ProductGetResponsePriceOneTimePriceCurrencyGtq ProductGetResponsePriceOneTimePriceCurrency = "GTQ"
-	ProductGetResponsePriceOneTimePriceCurrencyGyd ProductGetResponsePriceOneTimePriceCurrency = "GYD"
-	ProductGetResponsePriceOneTimePriceCurrencyHkd ProductGetResponsePriceOneTimePriceCurrency = "HKD"
-	ProductGetResponsePriceOneTimePriceCurrencyHnl ProductGetResponsePriceOneTimePriceCurrency = "HNL"
-	ProductGetResponsePriceOneTimePriceCurrencyHrk ProductGetResponsePriceOneTimePriceCurrency = "HRK"
-	ProductGetResponsePriceOneTimePriceCurrencyHtg ProductGetResponsePriceOneTimePriceCurrency = "HTG"
-	ProductGetResponsePriceOneTimePriceCurrencyHuf ProductGetResponsePriceOneTimePriceCurrency = "HUF"
-	ProductGetResponsePriceOneTimePriceCurrencyIdr ProductGetResponsePriceOneTimePriceCurrency = "IDR"
-	ProductGetResponsePriceOneTimePriceCurrencyIls ProductGetResponsePriceOneTimePriceCurrency = "ILS"
-	ProductGetResponsePriceOneTimePriceCurrencyInr ProductGetResponsePriceOneTimePriceCurrency = "INR"
-	ProductGetResponsePriceOneTimePriceCurrencyIqd ProductGetResponsePriceOneTimePriceCurrency = "IQD"
-	ProductGetResponsePriceOneTimePriceCurrencyJmd ProductGetResponsePriceOneTimePriceCurrency = "JMD"
-	ProductGetResponsePriceOneTimePriceCurrencyJod ProductGetResponsePriceOneTimePriceCurrency = "JOD"
-	ProductGetResponsePriceOneTimePriceCurrencyJpy ProductGetResponsePriceOneTimePriceCurrency = "JPY"
-	ProductGetResponsePriceOneTimePriceCurrencyKes ProductGetResponsePriceOneTimePriceCurrency = "KES"
-	ProductGetResponsePriceOneTimePriceCurrencyKgs ProductGetResponsePriceOneTimePriceCurrency = "KGS"
-	ProductGetResponsePriceOneTimePriceCurrencyKhr ProductGetResponsePriceOneTimePriceCurrency = "KHR"
-	ProductGetResponsePriceOneTimePriceCurrencyKmf ProductGetResponsePriceOneTimePriceCurrency = "KMF"
-	ProductGetResponsePriceOneTimePriceCurrencyKrw ProductGetResponsePriceOneTimePriceCurrency = "KRW"
-	ProductGetResponsePriceOneTimePriceCurrencyKwd ProductGetResponsePriceOneTimePriceCurrency = "KWD"
-	ProductGetResponsePriceOneTimePriceCurrencyKyd ProductGetResponsePriceOneTimePriceCurrency = "KYD"
-	ProductGetResponsePriceOneTimePriceCurrencyKzt ProductGetResponsePriceOneTimePriceCurrency = "KZT"
-	ProductGetResponsePriceOneTimePriceCurrencyLak ProductGetResponsePriceOneTimePriceCurrency = "LAK"
-	ProductGetResponsePriceOneTimePriceCurrencyLbp ProductGetResponsePriceOneTimePriceCurrency = "LBP"
-	ProductGetResponsePriceOneTimePriceCurrencyLkr ProductGetResponsePriceOneTimePriceCurrency = "LKR"
-	ProductGetResponsePriceOneTimePriceCurrencyLrd ProductGetResponsePriceOneTimePriceCurrency = "LRD"
-	ProductGetResponsePriceOneTimePriceCurrencyLsl ProductGetResponsePriceOneTimePriceCurrency = "LSL"
-	ProductGetResponsePriceOneTimePriceCurrencyLyd ProductGetResponsePriceOneTimePriceCurrency = "LYD"
-	ProductGetResponsePriceOneTimePriceCurrencyMad ProductGetResponsePriceOneTimePriceCurrency = "MAD"
-	ProductGetResponsePriceOneTimePriceCurrencyMdl ProductGetResponsePriceOneTimePriceCurrency = "MDL"
-	ProductGetResponsePriceOneTimePriceCurrencyMga ProductGetResponsePriceOneTimePriceCurrency = "MGA"
-	ProductGetResponsePriceOneTimePriceCurrencyMkd ProductGetResponsePriceOneTimePriceCurrency = "MKD"
-	ProductGetResponsePriceOneTimePriceCurrencyMmk ProductGetResponsePriceOneTimePriceCurrency = "MMK"
-	ProductGetResponsePriceOneTimePriceCurrencyMnt ProductGetResponsePriceOneTimePriceCurrency = "MNT"
-	ProductGetResponsePriceOneTimePriceCurrencyMop ProductGetResponsePriceOneTimePriceCurrency = "MOP"
-	ProductGetResponsePriceOneTimePriceCurrencyMru ProductGetResponsePriceOneTimePriceCurrency = "MRU"
-	ProductGetResponsePriceOneTimePriceCurrencyMur ProductGetResponsePriceOneTimePriceCurrency = "MUR"
-	ProductGetResponsePriceOneTimePriceCurrencyMvr ProductGetResponsePriceOneTimePriceCurrency = "MVR"
-	ProductGetResponsePriceOneTimePriceCurrencyMwk ProductGetResponsePriceOneTimePriceCurrency = "MWK"
-	ProductGetResponsePriceOneTimePriceCurrencyMxn ProductGetResponsePriceOneTimePriceCurrency = "MXN"
-	ProductGetResponsePriceOneTimePriceCurrencyMyr ProductGetResponsePriceOneTimePriceCurrency = "MYR"
-	ProductGetResponsePriceOneTimePriceCurrencyMzn ProductGetResponsePriceOneTimePriceCurrency = "MZN"
-	ProductGetResponsePriceOneTimePriceCurrencyNad ProductGetResponsePriceOneTimePriceCurrency = "NAD"
-	ProductGetResponsePriceOneTimePriceCurrencyNgn ProductGetResponsePriceOneTimePriceCurrency = "NGN"
-	ProductGetResponsePriceOneTimePriceCurrencyNio ProductGetResponsePriceOneTimePriceCurrency = "NIO"
-	ProductGetResponsePriceOneTimePriceCurrencyNok ProductGetResponsePriceOneTimePriceCurrency = "NOK"
-	ProductGetResponsePriceOneTimePriceCurrencyNpr ProductGetResponsePriceOneTimePriceCurrency = "NPR"
-	ProductGetResponsePriceOneTimePriceCurrencyNzd ProductGetResponsePriceOneTimePriceCurrency = "NZD"
-	ProductGetResponsePriceOneTimePriceCurrencyOmr ProductGetResponsePriceOneTimePriceCurrency = "OMR"
-	ProductGetResponsePriceOneTimePriceCurrencyPab ProductGetResponsePriceOneTimePriceCurrency = "PAB"
-	ProductGetResponsePriceOneTimePriceCurrencyPen ProductGetResponsePriceOneTimePriceCurrency = "PEN"
-	ProductGetResponsePriceOneTimePriceCurrencyPgk ProductGetResponsePriceOneTimePriceCurrency = "PGK"
-	ProductGetResponsePriceOneTimePriceCurrencyPhp ProductGetResponsePriceOneTimePriceCurrency = "PHP"
-	ProductGetResponsePriceOneTimePriceCurrencyPkr ProductGetResponsePriceOneTimePriceCurrency = "PKR"
-	ProductGetResponsePriceOneTimePriceCurrencyPln ProductGetResponsePriceOneTimePriceCurrency = "PLN"
-	ProductGetResponsePriceOneTimePriceCurrencyPyg ProductGetResponsePriceOneTimePriceCurrency = "PYG"
-	ProductGetResponsePriceOneTimePriceCurrencyQar ProductGetResponsePriceOneTimePriceCurrency = "QAR"
-	ProductGetResponsePriceOneTimePriceCurrencyRon ProductGetResponsePriceOneTimePriceCurrency = "RON"
-	ProductGetResponsePriceOneTimePriceCurrencyRsd ProductGetResponsePriceOneTimePriceCurrency = "RSD"
-	ProductGetResponsePriceOneTimePriceCurrencyRub ProductGetResponsePriceOneTimePriceCurrency = "RUB"
-	ProductGetResponsePriceOneTimePriceCurrencyRwf ProductGetResponsePriceOneTimePriceCurrency = "RWF"
-	ProductGetResponsePriceOneTimePriceCurrencySar ProductGetResponsePriceOneTimePriceCurrency = "SAR"
-	ProductGetResponsePriceOneTimePriceCurrencySbd ProductGetResponsePriceOneTimePriceCurrency = "SBD"
-	ProductGetResponsePriceOneTimePriceCurrencyScr ProductGetResponsePriceOneTimePriceCurrency = "SCR"
-	ProductGetResponsePriceOneTimePriceCurrencySek ProductGetResponsePriceOneTimePriceCurrency = "SEK"
-	ProductGetResponsePriceOneTimePriceCurrencySgd ProductGetResponsePriceOneTimePriceCurrency = "SGD"
-	ProductGetResponsePriceOneTimePriceCurrencyShp ProductGetResponsePriceOneTimePriceCurrency = "SHP"
-	ProductGetResponsePriceOneTimePriceCurrencySle ProductGetResponsePriceOneTimePriceCurrency = "SLE"
-	ProductGetResponsePriceOneTimePriceCurrencySll ProductGetResponsePriceOneTimePriceCurrency = "SLL"
-	ProductGetResponsePriceOneTimePriceCurrencySos ProductGetResponsePriceOneTimePriceCurrency = "SOS"
-	ProductGetResponsePriceOneTimePriceCurrencySrd ProductGetResponsePriceOneTimePriceCurrency = "SRD"
-	ProductGetResponsePriceOneTimePriceCurrencySsp ProductGetResponsePriceOneTimePriceCurrency = "SSP"
-	ProductGetResponsePriceOneTimePriceCurrencyStn ProductGetResponsePriceOneTimePriceCurrency = "STN"
-	ProductGetResponsePriceOneTimePriceCurrencySvc ProductGetResponsePriceOneTimePriceCurrency = "SVC"
-	ProductGetResponsePriceOneTimePriceCurrencySzl ProductGetResponsePriceOneTimePriceCurrency = "SZL"
-	ProductGetResponsePriceOneTimePriceCurrencyThb ProductGetResponsePriceOneTimePriceCurrency = "THB"
-	ProductGetResponsePriceOneTimePriceCurrencyTnd ProductGetResponsePriceOneTimePriceCurrency = "TND"
-	ProductGetResponsePriceOneTimePriceCurrencyTop ProductGetResponsePriceOneTimePriceCurrency = "TOP"
-	ProductGetResponsePriceOneTimePriceCurrencyTry ProductGetResponsePriceOneTimePriceCurrency = "TRY"
-	ProductGetResponsePriceOneTimePriceCurrencyTtd ProductGetResponsePriceOneTimePriceCurrency = "TTD"
-	ProductGetResponsePriceOneTimePriceCurrencyTwd ProductGetResponsePriceOneTimePriceCurrency = "TWD"
-	ProductGetResponsePriceOneTimePriceCurrencyTzs ProductGetResponsePriceOneTimePriceCurrency = "TZS"
-	ProductGetResponsePriceOneTimePriceCurrencyUah ProductGetResponsePriceOneTimePriceCurrency = "UAH"
-	ProductGetResponsePriceOneTimePriceCurrencyUgx ProductGetResponsePriceOneTimePriceCurrency = "UGX"
-	ProductGetResponsePriceOneTimePriceCurrencyUsd ProductGetResponsePriceOneTimePriceCurrency = "USD"
-	ProductGetResponsePriceOneTimePriceCurrencyUyu ProductGetResponsePriceOneTimePriceCurrency = "UYU"
-	ProductGetResponsePriceOneTimePriceCurrencyUzs ProductGetResponsePriceOneTimePriceCurrency = "UZS"
-	ProductGetResponsePriceOneTimePriceCurrencyVes ProductGetResponsePriceOneTimePriceCurrency = "VES"
-	ProductGetResponsePriceOneTimePriceCurrencyVnd ProductGetResponsePriceOneTimePriceCurrency = "VND"
-	ProductGetResponsePriceOneTimePriceCurrencyVuv ProductGetResponsePriceOneTimePriceCurrency = "VUV"
-	ProductGetResponsePriceOneTimePriceCurrencyWst ProductGetResponsePriceOneTimePriceCurrency = "WST"
-	ProductGetResponsePriceOneTimePriceCurrencyXaf ProductGetResponsePriceOneTimePriceCurrency = "XAF"
-	ProductGetResponsePriceOneTimePriceCurrencyXcd ProductGetResponsePriceOneTimePriceCurrency = "XCD"
-	ProductGetResponsePriceOneTimePriceCurrencyXof ProductGetResponsePriceOneTimePriceCurrency = "XOF"
-	ProductGetResponsePriceOneTimePriceCurrencyXpf ProductGetResponsePriceOneTimePriceCurrency = "XPF"
-	ProductGetResponsePriceOneTimePriceCurrencyYer ProductGetResponsePriceOneTimePriceCurrency = "YER"
-	ProductGetResponsePriceOneTimePriceCurrencyZar ProductGetResponsePriceOneTimePriceCurrency = "ZAR"
-	ProductGetResponsePriceOneTimePriceCurrencyZmw ProductGetResponsePriceOneTimePriceCurrency = "ZMW"
-)
-
-func (r ProductGetResponsePriceOneTimePriceCurrency) IsKnown() bool {
-	switch r {
-	case ProductGetResponsePriceOneTimePriceCurrencyAed, ProductGetResponsePriceOneTimePriceCurrencyAll, ProductGetResponsePriceOneTimePriceCurrencyAmd, ProductGetResponsePriceOneTimePriceCurrencyAng, ProductGetResponsePriceOneTimePriceCurrencyAoa, ProductGetResponsePriceOneTimePriceCurrencyArs, ProductGetResponsePriceOneTimePriceCurrencyAud, ProductGetResponsePriceOneTimePriceCurrencyAwg, ProductGetResponsePriceOneTimePriceCurrencyAzn, ProductGetResponsePriceOneTimePriceCurrencyBam, ProductGetResponsePriceOneTimePriceCurrencyBbd, ProductGetResponsePriceOneTimePriceCurrencyBdt, ProductGetResponsePriceOneTimePriceCurrencyBgn, ProductGetResponsePriceOneTimePriceCurrencyBhd, ProductGetResponsePriceOneTimePriceCurrencyBif, ProductGetResponsePriceOneTimePriceCurrencyBmd, ProductGetResponsePriceOneTimePriceCurrencyBnd, ProductGetResponsePriceOneTimePriceCurrencyBob, ProductGetResponsePriceOneTimePriceCurrencyBrl, ProductGetResponsePriceOneTimePriceCurrencyBsd, ProductGetResponsePriceOneTimePriceCurrencyBwp, ProductGetResponsePriceOneTimePriceCurrencyByn, ProductGetResponsePriceOneTimePriceCurrencyBzd, ProductGetResponsePriceOneTimePriceCurrencyCad, ProductGetResponsePriceOneTimePriceCurrencyChf, ProductGetResponsePriceOneTimePriceCurrencyClp, ProductGetResponsePriceOneTimePriceCurrencyCny, ProductGetResponsePriceOneTimePriceCurrencyCop, ProductGetResponsePriceOneTimePriceCurrencyCrc, ProductGetResponsePriceOneTimePriceCurrencyCup, ProductGetResponsePriceOneTimePriceCurrencyCve, ProductGetResponsePriceOneTimePriceCurrencyCzk, ProductGetResponsePriceOneTimePriceCurrencyDjf, ProductGetResponsePriceOneTimePriceCurrencyDkk, ProductGetResponsePriceOneTimePriceCurrencyDop, ProductGetResponsePriceOneTimePriceCurrencyDzd, ProductGetResponsePriceOneTimePriceCurrencyEgp, ProductGetResponsePriceOneTimePriceCurrencyEtb, ProductGetResponsePriceOneTimePriceCurrencyEur, ProductGetResponsePriceOneTimePriceCurrencyFjd, ProductGetResponsePriceOneTimePriceCurrencyFkp, ProductGetResponsePriceOneTimePriceCurrencyGbp, ProductGetResponsePriceOneTimePriceCurrencyGel, ProductGetResponsePriceOneTimePriceCurrencyGhs, ProductGetResponsePriceOneTimePriceCurrencyGip, ProductGetResponsePriceOneTimePriceCurrencyGmd, ProductGetResponsePriceOneTimePriceCurrencyGnf, ProductGetResponsePriceOneTimePriceCurrencyGtq, ProductGetResponsePriceOneTimePriceCurrencyGyd, ProductGetResponsePriceOneTimePriceCurrencyHkd, ProductGetResponsePriceOneTimePriceCurrencyHnl, ProductGetResponsePriceOneTimePriceCurrencyHrk, ProductGetResponsePriceOneTimePriceCurrencyHtg, ProductGetResponsePriceOneTimePriceCurrencyHuf, ProductGetResponsePriceOneTimePriceCurrencyIdr, ProductGetResponsePriceOneTimePriceCurrencyIls, ProductGetResponsePriceOneTimePriceCurrencyInr, ProductGetResponsePriceOneTimePriceCurrencyIqd, ProductGetResponsePriceOneTimePriceCurrencyJmd, ProductGetResponsePriceOneTimePriceCurrencyJod, ProductGetResponsePriceOneTimePriceCurrencyJpy, ProductGetResponsePriceOneTimePriceCurrencyKes, ProductGetResponsePriceOneTimePriceCurrencyKgs, ProductGetResponsePriceOneTimePriceCurrencyKhr, ProductGetResponsePriceOneTimePriceCurrencyKmf, ProductGetResponsePriceOneTimePriceCurrencyKrw, ProductGetResponsePriceOneTimePriceCurrencyKwd, ProductGetResponsePriceOneTimePriceCurrencyKyd, ProductGetResponsePriceOneTimePriceCurrencyKzt, ProductGetResponsePriceOneTimePriceCurrencyLak, ProductGetResponsePriceOneTimePriceCurrencyLbp, ProductGetResponsePriceOneTimePriceCurrencyLkr, ProductGetResponsePriceOneTimePriceCurrencyLrd, ProductGetResponsePriceOneTimePriceCurrencyLsl, ProductGetResponsePriceOneTimePriceCurrencyLyd, ProductGetResponsePriceOneTimePriceCurrencyMad, ProductGetResponsePriceOneTimePriceCurrencyMdl, ProductGetResponsePriceOneTimePriceCurrencyMga, ProductGetResponsePriceOneTimePriceCurrencyMkd, ProductGetResponsePriceOneTimePriceCurrencyMmk, ProductGetResponsePriceOneTimePriceCurrencyMnt, ProductGetResponsePriceOneTimePriceCurrencyMop, ProductGetResponsePriceOneTimePriceCurrencyMru, ProductGetResponsePriceOneTimePriceCurrencyMur, ProductGetResponsePriceOneTimePriceCurrencyMvr, ProductGetResponsePriceOneTimePriceCurrencyMwk, ProductGetResponsePriceOneTimePriceCurrencyMxn, ProductGetResponsePriceOneTimePriceCurrencyMyr, ProductGetResponsePriceOneTimePriceCurrencyMzn, ProductGetResponsePriceOneTimePriceCurrencyNad, ProductGetResponsePriceOneTimePriceCurrencyNgn, ProductGetResponsePriceOneTimePriceCurrencyNio, ProductGetResponsePriceOneTimePriceCurrencyNok, ProductGetResponsePriceOneTimePriceCurrencyNpr, ProductGetResponsePriceOneTimePriceCurrencyNzd, ProductGetResponsePriceOneTimePriceCurrencyOmr, ProductGetResponsePriceOneTimePriceCurrencyPab, ProductGetResponsePriceOneTimePriceCurrencyPen, ProductGetResponsePriceOneTimePriceCurrencyPgk, ProductGetResponsePriceOneTimePriceCurrencyPhp, ProductGetResponsePriceOneTimePriceCurrencyPkr, ProductGetResponsePriceOneTimePriceCurrencyPln, ProductGetResponsePriceOneTimePriceCurrencyPyg, ProductGetResponsePriceOneTimePriceCurrencyQar, ProductGetResponsePriceOneTimePriceCurrencyRon, ProductGetResponsePriceOneTimePriceCurrencyRsd, ProductGetResponsePriceOneTimePriceCurrencyRub, ProductGetResponsePriceOneTimePriceCurrencyRwf, ProductGetResponsePriceOneTimePriceCurrencySar, ProductGetResponsePriceOneTimePriceCurrencySbd, ProductGetResponsePriceOneTimePriceCurrencyScr, ProductGetResponsePriceOneTimePriceCurrencySek, ProductGetResponsePriceOneTimePriceCurrencySgd, ProductGetResponsePriceOneTimePriceCurrencyShp, ProductGetResponsePriceOneTimePriceCurrencySle, ProductGetResponsePriceOneTimePriceCurrencySll, ProductGetResponsePriceOneTimePriceCurrencySos, ProductGetResponsePriceOneTimePriceCurrencySrd, ProductGetResponsePriceOneTimePriceCurrencySsp, ProductGetResponsePriceOneTimePriceCurrencyStn, ProductGetResponsePriceOneTimePriceCurrencySvc, ProductGetResponsePriceOneTimePriceCurrencySzl, ProductGetResponsePriceOneTimePriceCurrencyThb, ProductGetResponsePriceOneTimePriceCurrencyTnd, ProductGetResponsePriceOneTimePriceCurrencyTop, ProductGetResponsePriceOneTimePriceCurrencyTry, ProductGetResponsePriceOneTimePriceCurrencyTtd, ProductGetResponsePriceOneTimePriceCurrencyTwd, ProductGetResponsePriceOneTimePriceCurrencyTzs, ProductGetResponsePriceOneTimePriceCurrencyUah, ProductGetResponsePriceOneTimePriceCurrencyUgx, ProductGetResponsePriceOneTimePriceCurrencyUsd, ProductGetResponsePriceOneTimePriceCurrencyUyu, ProductGetResponsePriceOneTimePriceCurrencyUzs, ProductGetResponsePriceOneTimePriceCurrencyVes, ProductGetResponsePriceOneTimePriceCurrencyVnd, ProductGetResponsePriceOneTimePriceCurrencyVuv, ProductGetResponsePriceOneTimePriceCurrencyWst, ProductGetResponsePriceOneTimePriceCurrencyXaf, ProductGetResponsePriceOneTimePriceCurrencyXcd, ProductGetResponsePriceOneTimePriceCurrencyXof, ProductGetResponsePriceOneTimePriceCurrencyXpf, ProductGetResponsePriceOneTimePriceCurrencyYer, ProductGetResponsePriceOneTimePriceCurrencyZar, ProductGetResponsePriceOneTimePriceCurrencyZmw:
-		return true
-	}
-	return false
-}
-
-type ProductGetResponsePriceOneTimePriceType string
-
-const (
-	ProductGetResponsePriceOneTimePriceTypeOneTimePrice ProductGetResponsePriceOneTimePriceType = "one_time_price"
-)
-
-func (r ProductGetResponsePriceOneTimePriceType) IsKnown() bool {
-	switch r {
-	case ProductGetResponsePriceOneTimePriceTypeOneTimePrice:
-		return true
-	}
-	return false
-}
-
-type ProductGetResponsePriceRecurringPrice struct {
-	Currency                 ProductGetResponsePriceRecurringPriceCurrency                 `json:"currency,required"`
-	Discount                 float64                                                       `json:"discount,required"`
-	PaymentFrequencyCount    int64                                                         `json:"payment_frequency_count,required"`
-	PaymentFrequencyInterval ProductGetResponsePriceRecurringPricePaymentFrequencyInterval `json:"payment_frequency_interval,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                      int64                                                           `json:"price,required"`
-	PurchasingPowerParity      bool                                                            `json:"purchasing_power_parity,required"`
-	SubscriptionPeriodCount    int64                                                           `json:"subscription_period_count,required"`
-	SubscriptionPeriodInterval ProductGetResponsePriceRecurringPriceSubscriptionPeriodInterval `json:"subscription_period_interval,required"`
-	TrialPeriodDays            int64                                                           `json:"trial_period_days,required"`
-	Type                       ProductGetResponsePriceRecurringPriceType                       `json:"type,required"`
-	JSON                       productGetResponsePriceRecurringPriceJSON                       `json:"-"`
-}
-
-// productGetResponsePriceRecurringPriceJSON contains the JSON metadata for the
-// struct [ProductGetResponsePriceRecurringPrice]
-type productGetResponsePriceRecurringPriceJSON struct {
-	Currency                   apijson.Field
-	Discount                   apijson.Field
-	PaymentFrequencyCount      apijson.Field
-	PaymentFrequencyInterval   apijson.Field
-	Price                      apijson.Field
-	PurchasingPowerParity      apijson.Field
-	SubscriptionPeriodCount    apijson.Field
-	SubscriptionPeriodInterval apijson.Field
-	TrialPeriodDays            apijson.Field
-	Type                       apijson.Field
-	raw                        string
-	ExtraFields                map[string]apijson.Field
-}
-
-func (r *ProductGetResponsePriceRecurringPrice) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productGetResponsePriceRecurringPriceJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductGetResponsePriceRecurringPrice) implementsProductGetResponsePrice() {}
-
-type ProductGetResponsePriceRecurringPriceCurrency string
-
-const (
-	ProductGetResponsePriceRecurringPriceCurrencyAed ProductGetResponsePriceRecurringPriceCurrency = "AED"
-	ProductGetResponsePriceRecurringPriceCurrencyAll ProductGetResponsePriceRecurringPriceCurrency = "ALL"
-	ProductGetResponsePriceRecurringPriceCurrencyAmd ProductGetResponsePriceRecurringPriceCurrency = "AMD"
-	ProductGetResponsePriceRecurringPriceCurrencyAng ProductGetResponsePriceRecurringPriceCurrency = "ANG"
-	ProductGetResponsePriceRecurringPriceCurrencyAoa ProductGetResponsePriceRecurringPriceCurrency = "AOA"
-	ProductGetResponsePriceRecurringPriceCurrencyArs ProductGetResponsePriceRecurringPriceCurrency = "ARS"
-	ProductGetResponsePriceRecurringPriceCurrencyAud ProductGetResponsePriceRecurringPriceCurrency = "AUD"
-	ProductGetResponsePriceRecurringPriceCurrencyAwg ProductGetResponsePriceRecurringPriceCurrency = "AWG"
-	ProductGetResponsePriceRecurringPriceCurrencyAzn ProductGetResponsePriceRecurringPriceCurrency = "AZN"
-	ProductGetResponsePriceRecurringPriceCurrencyBam ProductGetResponsePriceRecurringPriceCurrency = "BAM"
-	ProductGetResponsePriceRecurringPriceCurrencyBbd ProductGetResponsePriceRecurringPriceCurrency = "BBD"
-	ProductGetResponsePriceRecurringPriceCurrencyBdt ProductGetResponsePriceRecurringPriceCurrency = "BDT"
-	ProductGetResponsePriceRecurringPriceCurrencyBgn ProductGetResponsePriceRecurringPriceCurrency = "BGN"
-	ProductGetResponsePriceRecurringPriceCurrencyBhd ProductGetResponsePriceRecurringPriceCurrency = "BHD"
-	ProductGetResponsePriceRecurringPriceCurrencyBif ProductGetResponsePriceRecurringPriceCurrency = "BIF"
-	ProductGetResponsePriceRecurringPriceCurrencyBmd ProductGetResponsePriceRecurringPriceCurrency = "BMD"
-	ProductGetResponsePriceRecurringPriceCurrencyBnd ProductGetResponsePriceRecurringPriceCurrency = "BND"
-	ProductGetResponsePriceRecurringPriceCurrencyBob ProductGetResponsePriceRecurringPriceCurrency = "BOB"
-	ProductGetResponsePriceRecurringPriceCurrencyBrl ProductGetResponsePriceRecurringPriceCurrency = "BRL"
-	ProductGetResponsePriceRecurringPriceCurrencyBsd ProductGetResponsePriceRecurringPriceCurrency = "BSD"
-	ProductGetResponsePriceRecurringPriceCurrencyBwp ProductGetResponsePriceRecurringPriceCurrency = "BWP"
-	ProductGetResponsePriceRecurringPriceCurrencyByn ProductGetResponsePriceRecurringPriceCurrency = "BYN"
-	ProductGetResponsePriceRecurringPriceCurrencyBzd ProductGetResponsePriceRecurringPriceCurrency = "BZD"
-	ProductGetResponsePriceRecurringPriceCurrencyCad ProductGetResponsePriceRecurringPriceCurrency = "CAD"
-	ProductGetResponsePriceRecurringPriceCurrencyChf ProductGetResponsePriceRecurringPriceCurrency = "CHF"
-	ProductGetResponsePriceRecurringPriceCurrencyClp ProductGetResponsePriceRecurringPriceCurrency = "CLP"
-	ProductGetResponsePriceRecurringPriceCurrencyCny ProductGetResponsePriceRecurringPriceCurrency = "CNY"
-	ProductGetResponsePriceRecurringPriceCurrencyCop ProductGetResponsePriceRecurringPriceCurrency = "COP"
-	ProductGetResponsePriceRecurringPriceCurrencyCrc ProductGetResponsePriceRecurringPriceCurrency = "CRC"
-	ProductGetResponsePriceRecurringPriceCurrencyCup ProductGetResponsePriceRecurringPriceCurrency = "CUP"
-	ProductGetResponsePriceRecurringPriceCurrencyCve ProductGetResponsePriceRecurringPriceCurrency = "CVE"
-	ProductGetResponsePriceRecurringPriceCurrencyCzk ProductGetResponsePriceRecurringPriceCurrency = "CZK"
-	ProductGetResponsePriceRecurringPriceCurrencyDjf ProductGetResponsePriceRecurringPriceCurrency = "DJF"
-	ProductGetResponsePriceRecurringPriceCurrencyDkk ProductGetResponsePriceRecurringPriceCurrency = "DKK"
-	ProductGetResponsePriceRecurringPriceCurrencyDop ProductGetResponsePriceRecurringPriceCurrency = "DOP"
-	ProductGetResponsePriceRecurringPriceCurrencyDzd ProductGetResponsePriceRecurringPriceCurrency = "DZD"
-	ProductGetResponsePriceRecurringPriceCurrencyEgp ProductGetResponsePriceRecurringPriceCurrency = "EGP"
-	ProductGetResponsePriceRecurringPriceCurrencyEtb ProductGetResponsePriceRecurringPriceCurrency = "ETB"
-	ProductGetResponsePriceRecurringPriceCurrencyEur ProductGetResponsePriceRecurringPriceCurrency = "EUR"
-	ProductGetResponsePriceRecurringPriceCurrencyFjd ProductGetResponsePriceRecurringPriceCurrency = "FJD"
-	ProductGetResponsePriceRecurringPriceCurrencyFkp ProductGetResponsePriceRecurringPriceCurrency = "FKP"
-	ProductGetResponsePriceRecurringPriceCurrencyGbp ProductGetResponsePriceRecurringPriceCurrency = "GBP"
-	ProductGetResponsePriceRecurringPriceCurrencyGel ProductGetResponsePriceRecurringPriceCurrency = "GEL"
-	ProductGetResponsePriceRecurringPriceCurrencyGhs ProductGetResponsePriceRecurringPriceCurrency = "GHS"
-	ProductGetResponsePriceRecurringPriceCurrencyGip ProductGetResponsePriceRecurringPriceCurrency = "GIP"
-	ProductGetResponsePriceRecurringPriceCurrencyGmd ProductGetResponsePriceRecurringPriceCurrency = "GMD"
-	ProductGetResponsePriceRecurringPriceCurrencyGnf ProductGetResponsePriceRecurringPriceCurrency = "GNF"
-	ProductGetResponsePriceRecurringPriceCurrencyGtq ProductGetResponsePriceRecurringPriceCurrency = "GTQ"
-	ProductGetResponsePriceRecurringPriceCurrencyGyd ProductGetResponsePriceRecurringPriceCurrency = "GYD"
-	ProductGetResponsePriceRecurringPriceCurrencyHkd ProductGetResponsePriceRecurringPriceCurrency = "HKD"
-	ProductGetResponsePriceRecurringPriceCurrencyHnl ProductGetResponsePriceRecurringPriceCurrency = "HNL"
-	ProductGetResponsePriceRecurringPriceCurrencyHrk ProductGetResponsePriceRecurringPriceCurrency = "HRK"
-	ProductGetResponsePriceRecurringPriceCurrencyHtg ProductGetResponsePriceRecurringPriceCurrency = "HTG"
-	ProductGetResponsePriceRecurringPriceCurrencyHuf ProductGetResponsePriceRecurringPriceCurrency = "HUF"
-	ProductGetResponsePriceRecurringPriceCurrencyIdr ProductGetResponsePriceRecurringPriceCurrency = "IDR"
-	ProductGetResponsePriceRecurringPriceCurrencyIls ProductGetResponsePriceRecurringPriceCurrency = "ILS"
-	ProductGetResponsePriceRecurringPriceCurrencyInr ProductGetResponsePriceRecurringPriceCurrency = "INR"
-	ProductGetResponsePriceRecurringPriceCurrencyIqd ProductGetResponsePriceRecurringPriceCurrency = "IQD"
-	ProductGetResponsePriceRecurringPriceCurrencyJmd ProductGetResponsePriceRecurringPriceCurrency = "JMD"
-	ProductGetResponsePriceRecurringPriceCurrencyJod ProductGetResponsePriceRecurringPriceCurrency = "JOD"
-	ProductGetResponsePriceRecurringPriceCurrencyJpy ProductGetResponsePriceRecurringPriceCurrency = "JPY"
-	ProductGetResponsePriceRecurringPriceCurrencyKes ProductGetResponsePriceRecurringPriceCurrency = "KES"
-	ProductGetResponsePriceRecurringPriceCurrencyKgs ProductGetResponsePriceRecurringPriceCurrency = "KGS"
-	ProductGetResponsePriceRecurringPriceCurrencyKhr ProductGetResponsePriceRecurringPriceCurrency = "KHR"
-	ProductGetResponsePriceRecurringPriceCurrencyKmf ProductGetResponsePriceRecurringPriceCurrency = "KMF"
-	ProductGetResponsePriceRecurringPriceCurrencyKrw ProductGetResponsePriceRecurringPriceCurrency = "KRW"
-	ProductGetResponsePriceRecurringPriceCurrencyKwd ProductGetResponsePriceRecurringPriceCurrency = "KWD"
-	ProductGetResponsePriceRecurringPriceCurrencyKyd ProductGetResponsePriceRecurringPriceCurrency = "KYD"
-	ProductGetResponsePriceRecurringPriceCurrencyKzt ProductGetResponsePriceRecurringPriceCurrency = "KZT"
-	ProductGetResponsePriceRecurringPriceCurrencyLak ProductGetResponsePriceRecurringPriceCurrency = "LAK"
-	ProductGetResponsePriceRecurringPriceCurrencyLbp ProductGetResponsePriceRecurringPriceCurrency = "LBP"
-	ProductGetResponsePriceRecurringPriceCurrencyLkr ProductGetResponsePriceRecurringPriceCurrency = "LKR"
-	ProductGetResponsePriceRecurringPriceCurrencyLrd ProductGetResponsePriceRecurringPriceCurrency = "LRD"
-	ProductGetResponsePriceRecurringPriceCurrencyLsl ProductGetResponsePriceRecurringPriceCurrency = "LSL"
-	ProductGetResponsePriceRecurringPriceCurrencyLyd ProductGetResponsePriceRecurringPriceCurrency = "LYD"
-	ProductGetResponsePriceRecurringPriceCurrencyMad ProductGetResponsePriceRecurringPriceCurrency = "MAD"
-	ProductGetResponsePriceRecurringPriceCurrencyMdl ProductGetResponsePriceRecurringPriceCurrency = "MDL"
-	ProductGetResponsePriceRecurringPriceCurrencyMga ProductGetResponsePriceRecurringPriceCurrency = "MGA"
-	ProductGetResponsePriceRecurringPriceCurrencyMkd ProductGetResponsePriceRecurringPriceCurrency = "MKD"
-	ProductGetResponsePriceRecurringPriceCurrencyMmk ProductGetResponsePriceRecurringPriceCurrency = "MMK"
-	ProductGetResponsePriceRecurringPriceCurrencyMnt ProductGetResponsePriceRecurringPriceCurrency = "MNT"
-	ProductGetResponsePriceRecurringPriceCurrencyMop ProductGetResponsePriceRecurringPriceCurrency = "MOP"
-	ProductGetResponsePriceRecurringPriceCurrencyMru ProductGetResponsePriceRecurringPriceCurrency = "MRU"
-	ProductGetResponsePriceRecurringPriceCurrencyMur ProductGetResponsePriceRecurringPriceCurrency = "MUR"
-	ProductGetResponsePriceRecurringPriceCurrencyMvr ProductGetResponsePriceRecurringPriceCurrency = "MVR"
-	ProductGetResponsePriceRecurringPriceCurrencyMwk ProductGetResponsePriceRecurringPriceCurrency = "MWK"
-	ProductGetResponsePriceRecurringPriceCurrencyMxn ProductGetResponsePriceRecurringPriceCurrency = "MXN"
-	ProductGetResponsePriceRecurringPriceCurrencyMyr ProductGetResponsePriceRecurringPriceCurrency = "MYR"
-	ProductGetResponsePriceRecurringPriceCurrencyMzn ProductGetResponsePriceRecurringPriceCurrency = "MZN"
-	ProductGetResponsePriceRecurringPriceCurrencyNad ProductGetResponsePriceRecurringPriceCurrency = "NAD"
-	ProductGetResponsePriceRecurringPriceCurrencyNgn ProductGetResponsePriceRecurringPriceCurrency = "NGN"
-	ProductGetResponsePriceRecurringPriceCurrencyNio ProductGetResponsePriceRecurringPriceCurrency = "NIO"
-	ProductGetResponsePriceRecurringPriceCurrencyNok ProductGetResponsePriceRecurringPriceCurrency = "NOK"
-	ProductGetResponsePriceRecurringPriceCurrencyNpr ProductGetResponsePriceRecurringPriceCurrency = "NPR"
-	ProductGetResponsePriceRecurringPriceCurrencyNzd ProductGetResponsePriceRecurringPriceCurrency = "NZD"
-	ProductGetResponsePriceRecurringPriceCurrencyOmr ProductGetResponsePriceRecurringPriceCurrency = "OMR"
-	ProductGetResponsePriceRecurringPriceCurrencyPab ProductGetResponsePriceRecurringPriceCurrency = "PAB"
-	ProductGetResponsePriceRecurringPriceCurrencyPen ProductGetResponsePriceRecurringPriceCurrency = "PEN"
-	ProductGetResponsePriceRecurringPriceCurrencyPgk ProductGetResponsePriceRecurringPriceCurrency = "PGK"
-	ProductGetResponsePriceRecurringPriceCurrencyPhp ProductGetResponsePriceRecurringPriceCurrency = "PHP"
-	ProductGetResponsePriceRecurringPriceCurrencyPkr ProductGetResponsePriceRecurringPriceCurrency = "PKR"
-	ProductGetResponsePriceRecurringPriceCurrencyPln ProductGetResponsePriceRecurringPriceCurrency = "PLN"
-	ProductGetResponsePriceRecurringPriceCurrencyPyg ProductGetResponsePriceRecurringPriceCurrency = "PYG"
-	ProductGetResponsePriceRecurringPriceCurrencyQar ProductGetResponsePriceRecurringPriceCurrency = "QAR"
-	ProductGetResponsePriceRecurringPriceCurrencyRon ProductGetResponsePriceRecurringPriceCurrency = "RON"
-	ProductGetResponsePriceRecurringPriceCurrencyRsd ProductGetResponsePriceRecurringPriceCurrency = "RSD"
-	ProductGetResponsePriceRecurringPriceCurrencyRub ProductGetResponsePriceRecurringPriceCurrency = "RUB"
-	ProductGetResponsePriceRecurringPriceCurrencyRwf ProductGetResponsePriceRecurringPriceCurrency = "RWF"
-	ProductGetResponsePriceRecurringPriceCurrencySar ProductGetResponsePriceRecurringPriceCurrency = "SAR"
-	ProductGetResponsePriceRecurringPriceCurrencySbd ProductGetResponsePriceRecurringPriceCurrency = "SBD"
-	ProductGetResponsePriceRecurringPriceCurrencyScr ProductGetResponsePriceRecurringPriceCurrency = "SCR"
-	ProductGetResponsePriceRecurringPriceCurrencySek ProductGetResponsePriceRecurringPriceCurrency = "SEK"
-	ProductGetResponsePriceRecurringPriceCurrencySgd ProductGetResponsePriceRecurringPriceCurrency = "SGD"
-	ProductGetResponsePriceRecurringPriceCurrencyShp ProductGetResponsePriceRecurringPriceCurrency = "SHP"
-	ProductGetResponsePriceRecurringPriceCurrencySle ProductGetResponsePriceRecurringPriceCurrency = "SLE"
-	ProductGetResponsePriceRecurringPriceCurrencySll ProductGetResponsePriceRecurringPriceCurrency = "SLL"
-	ProductGetResponsePriceRecurringPriceCurrencySos ProductGetResponsePriceRecurringPriceCurrency = "SOS"
-	ProductGetResponsePriceRecurringPriceCurrencySrd ProductGetResponsePriceRecurringPriceCurrency = "SRD"
-	ProductGetResponsePriceRecurringPriceCurrencySsp ProductGetResponsePriceRecurringPriceCurrency = "SSP"
-	ProductGetResponsePriceRecurringPriceCurrencyStn ProductGetResponsePriceRecurringPriceCurrency = "STN"
-	ProductGetResponsePriceRecurringPriceCurrencySvc ProductGetResponsePriceRecurringPriceCurrency = "SVC"
-	ProductGetResponsePriceRecurringPriceCurrencySzl ProductGetResponsePriceRecurringPriceCurrency = "SZL"
-	ProductGetResponsePriceRecurringPriceCurrencyThb ProductGetResponsePriceRecurringPriceCurrency = "THB"
-	ProductGetResponsePriceRecurringPriceCurrencyTnd ProductGetResponsePriceRecurringPriceCurrency = "TND"
-	ProductGetResponsePriceRecurringPriceCurrencyTop ProductGetResponsePriceRecurringPriceCurrency = "TOP"
-	ProductGetResponsePriceRecurringPriceCurrencyTry ProductGetResponsePriceRecurringPriceCurrency = "TRY"
-	ProductGetResponsePriceRecurringPriceCurrencyTtd ProductGetResponsePriceRecurringPriceCurrency = "TTD"
-	ProductGetResponsePriceRecurringPriceCurrencyTwd ProductGetResponsePriceRecurringPriceCurrency = "TWD"
-	ProductGetResponsePriceRecurringPriceCurrencyTzs ProductGetResponsePriceRecurringPriceCurrency = "TZS"
-	ProductGetResponsePriceRecurringPriceCurrencyUah ProductGetResponsePriceRecurringPriceCurrency = "UAH"
-	ProductGetResponsePriceRecurringPriceCurrencyUgx ProductGetResponsePriceRecurringPriceCurrency = "UGX"
-	ProductGetResponsePriceRecurringPriceCurrencyUsd ProductGetResponsePriceRecurringPriceCurrency = "USD"
-	ProductGetResponsePriceRecurringPriceCurrencyUyu ProductGetResponsePriceRecurringPriceCurrency = "UYU"
-	ProductGetResponsePriceRecurringPriceCurrencyUzs ProductGetResponsePriceRecurringPriceCurrency = "UZS"
-	ProductGetResponsePriceRecurringPriceCurrencyVes ProductGetResponsePriceRecurringPriceCurrency = "VES"
-	ProductGetResponsePriceRecurringPriceCurrencyVnd ProductGetResponsePriceRecurringPriceCurrency = "VND"
-	ProductGetResponsePriceRecurringPriceCurrencyVuv ProductGetResponsePriceRecurringPriceCurrency = "VUV"
-	ProductGetResponsePriceRecurringPriceCurrencyWst ProductGetResponsePriceRecurringPriceCurrency = "WST"
-	ProductGetResponsePriceRecurringPriceCurrencyXaf ProductGetResponsePriceRecurringPriceCurrency = "XAF"
-	ProductGetResponsePriceRecurringPriceCurrencyXcd ProductGetResponsePriceRecurringPriceCurrency = "XCD"
-	ProductGetResponsePriceRecurringPriceCurrencyXof ProductGetResponsePriceRecurringPriceCurrency = "XOF"
-	ProductGetResponsePriceRecurringPriceCurrencyXpf ProductGetResponsePriceRecurringPriceCurrency = "XPF"
-	ProductGetResponsePriceRecurringPriceCurrencyYer ProductGetResponsePriceRecurringPriceCurrency = "YER"
-	ProductGetResponsePriceRecurringPriceCurrencyZar ProductGetResponsePriceRecurringPriceCurrency = "ZAR"
-	ProductGetResponsePriceRecurringPriceCurrencyZmw ProductGetResponsePriceRecurringPriceCurrency = "ZMW"
-)
-
-func (r ProductGetResponsePriceRecurringPriceCurrency) IsKnown() bool {
-	switch r {
-	case ProductGetResponsePriceRecurringPriceCurrencyAed, ProductGetResponsePriceRecurringPriceCurrencyAll, ProductGetResponsePriceRecurringPriceCurrencyAmd, ProductGetResponsePriceRecurringPriceCurrencyAng, ProductGetResponsePriceRecurringPriceCurrencyAoa, ProductGetResponsePriceRecurringPriceCurrencyArs, ProductGetResponsePriceRecurringPriceCurrencyAud, ProductGetResponsePriceRecurringPriceCurrencyAwg, ProductGetResponsePriceRecurringPriceCurrencyAzn, ProductGetResponsePriceRecurringPriceCurrencyBam, ProductGetResponsePriceRecurringPriceCurrencyBbd, ProductGetResponsePriceRecurringPriceCurrencyBdt, ProductGetResponsePriceRecurringPriceCurrencyBgn, ProductGetResponsePriceRecurringPriceCurrencyBhd, ProductGetResponsePriceRecurringPriceCurrencyBif, ProductGetResponsePriceRecurringPriceCurrencyBmd, ProductGetResponsePriceRecurringPriceCurrencyBnd, ProductGetResponsePriceRecurringPriceCurrencyBob, ProductGetResponsePriceRecurringPriceCurrencyBrl, ProductGetResponsePriceRecurringPriceCurrencyBsd, ProductGetResponsePriceRecurringPriceCurrencyBwp, ProductGetResponsePriceRecurringPriceCurrencyByn, ProductGetResponsePriceRecurringPriceCurrencyBzd, ProductGetResponsePriceRecurringPriceCurrencyCad, ProductGetResponsePriceRecurringPriceCurrencyChf, ProductGetResponsePriceRecurringPriceCurrencyClp, ProductGetResponsePriceRecurringPriceCurrencyCny, ProductGetResponsePriceRecurringPriceCurrencyCop, ProductGetResponsePriceRecurringPriceCurrencyCrc, ProductGetResponsePriceRecurringPriceCurrencyCup, ProductGetResponsePriceRecurringPriceCurrencyCve, ProductGetResponsePriceRecurringPriceCurrencyCzk, ProductGetResponsePriceRecurringPriceCurrencyDjf, ProductGetResponsePriceRecurringPriceCurrencyDkk, ProductGetResponsePriceRecurringPriceCurrencyDop, ProductGetResponsePriceRecurringPriceCurrencyDzd, ProductGetResponsePriceRecurringPriceCurrencyEgp, ProductGetResponsePriceRecurringPriceCurrencyEtb, ProductGetResponsePriceRecurringPriceCurrencyEur, ProductGetResponsePriceRecurringPriceCurrencyFjd, ProductGetResponsePriceRecurringPriceCurrencyFkp, ProductGetResponsePriceRecurringPriceCurrencyGbp, ProductGetResponsePriceRecurringPriceCurrencyGel, ProductGetResponsePriceRecurringPriceCurrencyGhs, ProductGetResponsePriceRecurringPriceCurrencyGip, ProductGetResponsePriceRecurringPriceCurrencyGmd, ProductGetResponsePriceRecurringPriceCurrencyGnf, ProductGetResponsePriceRecurringPriceCurrencyGtq, ProductGetResponsePriceRecurringPriceCurrencyGyd, ProductGetResponsePriceRecurringPriceCurrencyHkd, ProductGetResponsePriceRecurringPriceCurrencyHnl, ProductGetResponsePriceRecurringPriceCurrencyHrk, ProductGetResponsePriceRecurringPriceCurrencyHtg, ProductGetResponsePriceRecurringPriceCurrencyHuf, ProductGetResponsePriceRecurringPriceCurrencyIdr, ProductGetResponsePriceRecurringPriceCurrencyIls, ProductGetResponsePriceRecurringPriceCurrencyInr, ProductGetResponsePriceRecurringPriceCurrencyIqd, ProductGetResponsePriceRecurringPriceCurrencyJmd, ProductGetResponsePriceRecurringPriceCurrencyJod, ProductGetResponsePriceRecurringPriceCurrencyJpy, ProductGetResponsePriceRecurringPriceCurrencyKes, ProductGetResponsePriceRecurringPriceCurrencyKgs, ProductGetResponsePriceRecurringPriceCurrencyKhr, ProductGetResponsePriceRecurringPriceCurrencyKmf, ProductGetResponsePriceRecurringPriceCurrencyKrw, ProductGetResponsePriceRecurringPriceCurrencyKwd, ProductGetResponsePriceRecurringPriceCurrencyKyd, ProductGetResponsePriceRecurringPriceCurrencyKzt, ProductGetResponsePriceRecurringPriceCurrencyLak, ProductGetResponsePriceRecurringPriceCurrencyLbp, ProductGetResponsePriceRecurringPriceCurrencyLkr, ProductGetResponsePriceRecurringPriceCurrencyLrd, ProductGetResponsePriceRecurringPriceCurrencyLsl, ProductGetResponsePriceRecurringPriceCurrencyLyd, ProductGetResponsePriceRecurringPriceCurrencyMad, ProductGetResponsePriceRecurringPriceCurrencyMdl, ProductGetResponsePriceRecurringPriceCurrencyMga, ProductGetResponsePriceRecurringPriceCurrencyMkd, ProductGetResponsePriceRecurringPriceCurrencyMmk, ProductGetResponsePriceRecurringPriceCurrencyMnt, ProductGetResponsePriceRecurringPriceCurrencyMop, ProductGetResponsePriceRecurringPriceCurrencyMru, ProductGetResponsePriceRecurringPriceCurrencyMur, ProductGetResponsePriceRecurringPriceCurrencyMvr, ProductGetResponsePriceRecurringPriceCurrencyMwk, ProductGetResponsePriceRecurringPriceCurrencyMxn, ProductGetResponsePriceRecurringPriceCurrencyMyr, ProductGetResponsePriceRecurringPriceCurrencyMzn, ProductGetResponsePriceRecurringPriceCurrencyNad, ProductGetResponsePriceRecurringPriceCurrencyNgn, ProductGetResponsePriceRecurringPriceCurrencyNio, ProductGetResponsePriceRecurringPriceCurrencyNok, ProductGetResponsePriceRecurringPriceCurrencyNpr, ProductGetResponsePriceRecurringPriceCurrencyNzd, ProductGetResponsePriceRecurringPriceCurrencyOmr, ProductGetResponsePriceRecurringPriceCurrencyPab, ProductGetResponsePriceRecurringPriceCurrencyPen, ProductGetResponsePriceRecurringPriceCurrencyPgk, ProductGetResponsePriceRecurringPriceCurrencyPhp, ProductGetResponsePriceRecurringPriceCurrencyPkr, ProductGetResponsePriceRecurringPriceCurrencyPln, ProductGetResponsePriceRecurringPriceCurrencyPyg, ProductGetResponsePriceRecurringPriceCurrencyQar, ProductGetResponsePriceRecurringPriceCurrencyRon, ProductGetResponsePriceRecurringPriceCurrencyRsd, ProductGetResponsePriceRecurringPriceCurrencyRub, ProductGetResponsePriceRecurringPriceCurrencyRwf, ProductGetResponsePriceRecurringPriceCurrencySar, ProductGetResponsePriceRecurringPriceCurrencySbd, ProductGetResponsePriceRecurringPriceCurrencyScr, ProductGetResponsePriceRecurringPriceCurrencySek, ProductGetResponsePriceRecurringPriceCurrencySgd, ProductGetResponsePriceRecurringPriceCurrencyShp, ProductGetResponsePriceRecurringPriceCurrencySle, ProductGetResponsePriceRecurringPriceCurrencySll, ProductGetResponsePriceRecurringPriceCurrencySos, ProductGetResponsePriceRecurringPriceCurrencySrd, ProductGetResponsePriceRecurringPriceCurrencySsp, ProductGetResponsePriceRecurringPriceCurrencyStn, ProductGetResponsePriceRecurringPriceCurrencySvc, ProductGetResponsePriceRecurringPriceCurrencySzl, ProductGetResponsePriceRecurringPriceCurrencyThb, ProductGetResponsePriceRecurringPriceCurrencyTnd, ProductGetResponsePriceRecurringPriceCurrencyTop, ProductGetResponsePriceRecurringPriceCurrencyTry, ProductGetResponsePriceRecurringPriceCurrencyTtd, ProductGetResponsePriceRecurringPriceCurrencyTwd, ProductGetResponsePriceRecurringPriceCurrencyTzs, ProductGetResponsePriceRecurringPriceCurrencyUah, ProductGetResponsePriceRecurringPriceCurrencyUgx, ProductGetResponsePriceRecurringPriceCurrencyUsd, ProductGetResponsePriceRecurringPriceCurrencyUyu, ProductGetResponsePriceRecurringPriceCurrencyUzs, ProductGetResponsePriceRecurringPriceCurrencyVes, ProductGetResponsePriceRecurringPriceCurrencyVnd, ProductGetResponsePriceRecurringPriceCurrencyVuv, ProductGetResponsePriceRecurringPriceCurrencyWst, ProductGetResponsePriceRecurringPriceCurrencyXaf, ProductGetResponsePriceRecurringPriceCurrencyXcd, ProductGetResponsePriceRecurringPriceCurrencyXof, ProductGetResponsePriceRecurringPriceCurrencyXpf, ProductGetResponsePriceRecurringPriceCurrencyYer, ProductGetResponsePriceRecurringPriceCurrencyZar, ProductGetResponsePriceRecurringPriceCurrencyZmw:
-		return true
-	}
-	return false
-}
-
-type ProductGetResponsePriceRecurringPricePaymentFrequencyInterval string
-
-const (
-	ProductGetResponsePriceRecurringPricePaymentFrequencyIntervalDay   ProductGetResponsePriceRecurringPricePaymentFrequencyInterval = "Day"
-	ProductGetResponsePriceRecurringPricePaymentFrequencyIntervalWeek  ProductGetResponsePriceRecurringPricePaymentFrequencyInterval = "Week"
-	ProductGetResponsePriceRecurringPricePaymentFrequencyIntervalMonth ProductGetResponsePriceRecurringPricePaymentFrequencyInterval = "Month"
-	ProductGetResponsePriceRecurringPricePaymentFrequencyIntervalYear  ProductGetResponsePriceRecurringPricePaymentFrequencyInterval = "Year"
-)
-
-func (r ProductGetResponsePriceRecurringPricePaymentFrequencyInterval) IsKnown() bool {
-	switch r {
-	case ProductGetResponsePriceRecurringPricePaymentFrequencyIntervalDay, ProductGetResponsePriceRecurringPricePaymentFrequencyIntervalWeek, ProductGetResponsePriceRecurringPricePaymentFrequencyIntervalMonth, ProductGetResponsePriceRecurringPricePaymentFrequencyIntervalYear:
-		return true
-	}
-	return false
-}
-
-type ProductGetResponsePriceRecurringPriceSubscriptionPeriodInterval string
-
-const (
-	ProductGetResponsePriceRecurringPriceSubscriptionPeriodIntervalDay   ProductGetResponsePriceRecurringPriceSubscriptionPeriodInterval = "Day"
-	ProductGetResponsePriceRecurringPriceSubscriptionPeriodIntervalWeek  ProductGetResponsePriceRecurringPriceSubscriptionPeriodInterval = "Week"
-	ProductGetResponsePriceRecurringPriceSubscriptionPeriodIntervalMonth ProductGetResponsePriceRecurringPriceSubscriptionPeriodInterval = "Month"
-	ProductGetResponsePriceRecurringPriceSubscriptionPeriodIntervalYear  ProductGetResponsePriceRecurringPriceSubscriptionPeriodInterval = "Year"
-)
-
-func (r ProductGetResponsePriceRecurringPriceSubscriptionPeriodInterval) IsKnown() bool {
-	switch r {
-	case ProductGetResponsePriceRecurringPriceSubscriptionPeriodIntervalDay, ProductGetResponsePriceRecurringPriceSubscriptionPeriodIntervalWeek, ProductGetResponsePriceRecurringPriceSubscriptionPeriodIntervalMonth, ProductGetResponsePriceRecurringPriceSubscriptionPeriodIntervalYear:
-		return true
-	}
-	return false
-}
-
-type ProductGetResponsePriceRecurringPriceType string
-
-const (
-	ProductGetResponsePriceRecurringPriceTypeRecurringPrice ProductGetResponsePriceRecurringPriceType = "recurring_price"
-)
-
-func (r ProductGetResponsePriceRecurringPriceType) IsKnown() bool {
-	switch r {
-	case ProductGetResponsePriceRecurringPriceTypeRecurringPrice:
-		return true
-	}
-	return false
-}
-
-type ProductGetResponsePriceCurrency string
-
-const (
-	ProductGetResponsePriceCurrencyAed ProductGetResponsePriceCurrency = "AED"
-	ProductGetResponsePriceCurrencyAll ProductGetResponsePriceCurrency = "ALL"
-	ProductGetResponsePriceCurrencyAmd ProductGetResponsePriceCurrency = "AMD"
-	ProductGetResponsePriceCurrencyAng ProductGetResponsePriceCurrency = "ANG"
-	ProductGetResponsePriceCurrencyAoa ProductGetResponsePriceCurrency = "AOA"
-	ProductGetResponsePriceCurrencyArs ProductGetResponsePriceCurrency = "ARS"
-	ProductGetResponsePriceCurrencyAud ProductGetResponsePriceCurrency = "AUD"
-	ProductGetResponsePriceCurrencyAwg ProductGetResponsePriceCurrency = "AWG"
-	ProductGetResponsePriceCurrencyAzn ProductGetResponsePriceCurrency = "AZN"
-	ProductGetResponsePriceCurrencyBam ProductGetResponsePriceCurrency = "BAM"
-	ProductGetResponsePriceCurrencyBbd ProductGetResponsePriceCurrency = "BBD"
-	ProductGetResponsePriceCurrencyBdt ProductGetResponsePriceCurrency = "BDT"
-	ProductGetResponsePriceCurrencyBgn ProductGetResponsePriceCurrency = "BGN"
-	ProductGetResponsePriceCurrencyBhd ProductGetResponsePriceCurrency = "BHD"
-	ProductGetResponsePriceCurrencyBif ProductGetResponsePriceCurrency = "BIF"
-	ProductGetResponsePriceCurrencyBmd ProductGetResponsePriceCurrency = "BMD"
-	ProductGetResponsePriceCurrencyBnd ProductGetResponsePriceCurrency = "BND"
-	ProductGetResponsePriceCurrencyBob ProductGetResponsePriceCurrency = "BOB"
-	ProductGetResponsePriceCurrencyBrl ProductGetResponsePriceCurrency = "BRL"
-	ProductGetResponsePriceCurrencyBsd ProductGetResponsePriceCurrency = "BSD"
-	ProductGetResponsePriceCurrencyBwp ProductGetResponsePriceCurrency = "BWP"
-	ProductGetResponsePriceCurrencyByn ProductGetResponsePriceCurrency = "BYN"
-	ProductGetResponsePriceCurrencyBzd ProductGetResponsePriceCurrency = "BZD"
-	ProductGetResponsePriceCurrencyCad ProductGetResponsePriceCurrency = "CAD"
-	ProductGetResponsePriceCurrencyChf ProductGetResponsePriceCurrency = "CHF"
-	ProductGetResponsePriceCurrencyClp ProductGetResponsePriceCurrency = "CLP"
-	ProductGetResponsePriceCurrencyCny ProductGetResponsePriceCurrency = "CNY"
-	ProductGetResponsePriceCurrencyCop ProductGetResponsePriceCurrency = "COP"
-	ProductGetResponsePriceCurrencyCrc ProductGetResponsePriceCurrency = "CRC"
-	ProductGetResponsePriceCurrencyCup ProductGetResponsePriceCurrency = "CUP"
-	ProductGetResponsePriceCurrencyCve ProductGetResponsePriceCurrency = "CVE"
-	ProductGetResponsePriceCurrencyCzk ProductGetResponsePriceCurrency = "CZK"
-	ProductGetResponsePriceCurrencyDjf ProductGetResponsePriceCurrency = "DJF"
-	ProductGetResponsePriceCurrencyDkk ProductGetResponsePriceCurrency = "DKK"
-	ProductGetResponsePriceCurrencyDop ProductGetResponsePriceCurrency = "DOP"
-	ProductGetResponsePriceCurrencyDzd ProductGetResponsePriceCurrency = "DZD"
-	ProductGetResponsePriceCurrencyEgp ProductGetResponsePriceCurrency = "EGP"
-	ProductGetResponsePriceCurrencyEtb ProductGetResponsePriceCurrency = "ETB"
-	ProductGetResponsePriceCurrencyEur ProductGetResponsePriceCurrency = "EUR"
-	ProductGetResponsePriceCurrencyFjd ProductGetResponsePriceCurrency = "FJD"
-	ProductGetResponsePriceCurrencyFkp ProductGetResponsePriceCurrency = "FKP"
-	ProductGetResponsePriceCurrencyGbp ProductGetResponsePriceCurrency = "GBP"
-	ProductGetResponsePriceCurrencyGel ProductGetResponsePriceCurrency = "GEL"
-	ProductGetResponsePriceCurrencyGhs ProductGetResponsePriceCurrency = "GHS"
-	ProductGetResponsePriceCurrencyGip ProductGetResponsePriceCurrency = "GIP"
-	ProductGetResponsePriceCurrencyGmd ProductGetResponsePriceCurrency = "GMD"
-	ProductGetResponsePriceCurrencyGnf ProductGetResponsePriceCurrency = "GNF"
-	ProductGetResponsePriceCurrencyGtq ProductGetResponsePriceCurrency = "GTQ"
-	ProductGetResponsePriceCurrencyGyd ProductGetResponsePriceCurrency = "GYD"
-	ProductGetResponsePriceCurrencyHkd ProductGetResponsePriceCurrency = "HKD"
-	ProductGetResponsePriceCurrencyHnl ProductGetResponsePriceCurrency = "HNL"
-	ProductGetResponsePriceCurrencyHrk ProductGetResponsePriceCurrency = "HRK"
-	ProductGetResponsePriceCurrencyHtg ProductGetResponsePriceCurrency = "HTG"
-	ProductGetResponsePriceCurrencyHuf ProductGetResponsePriceCurrency = "HUF"
-	ProductGetResponsePriceCurrencyIdr ProductGetResponsePriceCurrency = "IDR"
-	ProductGetResponsePriceCurrencyIls ProductGetResponsePriceCurrency = "ILS"
-	ProductGetResponsePriceCurrencyInr ProductGetResponsePriceCurrency = "INR"
-	ProductGetResponsePriceCurrencyIqd ProductGetResponsePriceCurrency = "IQD"
-	ProductGetResponsePriceCurrencyJmd ProductGetResponsePriceCurrency = "JMD"
-	ProductGetResponsePriceCurrencyJod ProductGetResponsePriceCurrency = "JOD"
-	ProductGetResponsePriceCurrencyJpy ProductGetResponsePriceCurrency = "JPY"
-	ProductGetResponsePriceCurrencyKes ProductGetResponsePriceCurrency = "KES"
-	ProductGetResponsePriceCurrencyKgs ProductGetResponsePriceCurrency = "KGS"
-	ProductGetResponsePriceCurrencyKhr ProductGetResponsePriceCurrency = "KHR"
-	ProductGetResponsePriceCurrencyKmf ProductGetResponsePriceCurrency = "KMF"
-	ProductGetResponsePriceCurrencyKrw ProductGetResponsePriceCurrency = "KRW"
-	ProductGetResponsePriceCurrencyKwd ProductGetResponsePriceCurrency = "KWD"
-	ProductGetResponsePriceCurrencyKyd ProductGetResponsePriceCurrency = "KYD"
-	ProductGetResponsePriceCurrencyKzt ProductGetResponsePriceCurrency = "KZT"
-	ProductGetResponsePriceCurrencyLak ProductGetResponsePriceCurrency = "LAK"
-	ProductGetResponsePriceCurrencyLbp ProductGetResponsePriceCurrency = "LBP"
-	ProductGetResponsePriceCurrencyLkr ProductGetResponsePriceCurrency = "LKR"
-	ProductGetResponsePriceCurrencyLrd ProductGetResponsePriceCurrency = "LRD"
-	ProductGetResponsePriceCurrencyLsl ProductGetResponsePriceCurrency = "LSL"
-	ProductGetResponsePriceCurrencyLyd ProductGetResponsePriceCurrency = "LYD"
-	ProductGetResponsePriceCurrencyMad ProductGetResponsePriceCurrency = "MAD"
-	ProductGetResponsePriceCurrencyMdl ProductGetResponsePriceCurrency = "MDL"
-	ProductGetResponsePriceCurrencyMga ProductGetResponsePriceCurrency = "MGA"
-	ProductGetResponsePriceCurrencyMkd ProductGetResponsePriceCurrency = "MKD"
-	ProductGetResponsePriceCurrencyMmk ProductGetResponsePriceCurrency = "MMK"
-	ProductGetResponsePriceCurrencyMnt ProductGetResponsePriceCurrency = "MNT"
-	ProductGetResponsePriceCurrencyMop ProductGetResponsePriceCurrency = "MOP"
-	ProductGetResponsePriceCurrencyMru ProductGetResponsePriceCurrency = "MRU"
-	ProductGetResponsePriceCurrencyMur ProductGetResponsePriceCurrency = "MUR"
-	ProductGetResponsePriceCurrencyMvr ProductGetResponsePriceCurrency = "MVR"
-	ProductGetResponsePriceCurrencyMwk ProductGetResponsePriceCurrency = "MWK"
-	ProductGetResponsePriceCurrencyMxn ProductGetResponsePriceCurrency = "MXN"
-	ProductGetResponsePriceCurrencyMyr ProductGetResponsePriceCurrency = "MYR"
-	ProductGetResponsePriceCurrencyMzn ProductGetResponsePriceCurrency = "MZN"
-	ProductGetResponsePriceCurrencyNad ProductGetResponsePriceCurrency = "NAD"
-	ProductGetResponsePriceCurrencyNgn ProductGetResponsePriceCurrency = "NGN"
-	ProductGetResponsePriceCurrencyNio ProductGetResponsePriceCurrency = "NIO"
-	ProductGetResponsePriceCurrencyNok ProductGetResponsePriceCurrency = "NOK"
-	ProductGetResponsePriceCurrencyNpr ProductGetResponsePriceCurrency = "NPR"
-	ProductGetResponsePriceCurrencyNzd ProductGetResponsePriceCurrency = "NZD"
-	ProductGetResponsePriceCurrencyOmr ProductGetResponsePriceCurrency = "OMR"
-	ProductGetResponsePriceCurrencyPab ProductGetResponsePriceCurrency = "PAB"
-	ProductGetResponsePriceCurrencyPen ProductGetResponsePriceCurrency = "PEN"
-	ProductGetResponsePriceCurrencyPgk ProductGetResponsePriceCurrency = "PGK"
-	ProductGetResponsePriceCurrencyPhp ProductGetResponsePriceCurrency = "PHP"
-	ProductGetResponsePriceCurrencyPkr ProductGetResponsePriceCurrency = "PKR"
-	ProductGetResponsePriceCurrencyPln ProductGetResponsePriceCurrency = "PLN"
-	ProductGetResponsePriceCurrencyPyg ProductGetResponsePriceCurrency = "PYG"
-	ProductGetResponsePriceCurrencyQar ProductGetResponsePriceCurrency = "QAR"
-	ProductGetResponsePriceCurrencyRon ProductGetResponsePriceCurrency = "RON"
-	ProductGetResponsePriceCurrencyRsd ProductGetResponsePriceCurrency = "RSD"
-	ProductGetResponsePriceCurrencyRub ProductGetResponsePriceCurrency = "RUB"
-	ProductGetResponsePriceCurrencyRwf ProductGetResponsePriceCurrency = "RWF"
-	ProductGetResponsePriceCurrencySar ProductGetResponsePriceCurrency = "SAR"
-	ProductGetResponsePriceCurrencySbd ProductGetResponsePriceCurrency = "SBD"
-	ProductGetResponsePriceCurrencyScr ProductGetResponsePriceCurrency = "SCR"
-	ProductGetResponsePriceCurrencySek ProductGetResponsePriceCurrency = "SEK"
-	ProductGetResponsePriceCurrencySgd ProductGetResponsePriceCurrency = "SGD"
-	ProductGetResponsePriceCurrencyShp ProductGetResponsePriceCurrency = "SHP"
-	ProductGetResponsePriceCurrencySle ProductGetResponsePriceCurrency = "SLE"
-	ProductGetResponsePriceCurrencySll ProductGetResponsePriceCurrency = "SLL"
-	ProductGetResponsePriceCurrencySos ProductGetResponsePriceCurrency = "SOS"
-	ProductGetResponsePriceCurrencySrd ProductGetResponsePriceCurrency = "SRD"
-	ProductGetResponsePriceCurrencySsp ProductGetResponsePriceCurrency = "SSP"
-	ProductGetResponsePriceCurrencyStn ProductGetResponsePriceCurrency = "STN"
-	ProductGetResponsePriceCurrencySvc ProductGetResponsePriceCurrency = "SVC"
-	ProductGetResponsePriceCurrencySzl ProductGetResponsePriceCurrency = "SZL"
-	ProductGetResponsePriceCurrencyThb ProductGetResponsePriceCurrency = "THB"
-	ProductGetResponsePriceCurrencyTnd ProductGetResponsePriceCurrency = "TND"
-	ProductGetResponsePriceCurrencyTop ProductGetResponsePriceCurrency = "TOP"
-	ProductGetResponsePriceCurrencyTry ProductGetResponsePriceCurrency = "TRY"
-	ProductGetResponsePriceCurrencyTtd ProductGetResponsePriceCurrency = "TTD"
-	ProductGetResponsePriceCurrencyTwd ProductGetResponsePriceCurrency = "TWD"
-	ProductGetResponsePriceCurrencyTzs ProductGetResponsePriceCurrency = "TZS"
-	ProductGetResponsePriceCurrencyUah ProductGetResponsePriceCurrency = "UAH"
-	ProductGetResponsePriceCurrencyUgx ProductGetResponsePriceCurrency = "UGX"
-	ProductGetResponsePriceCurrencyUsd ProductGetResponsePriceCurrency = "USD"
-	ProductGetResponsePriceCurrencyUyu ProductGetResponsePriceCurrency = "UYU"
-	ProductGetResponsePriceCurrencyUzs ProductGetResponsePriceCurrency = "UZS"
-	ProductGetResponsePriceCurrencyVes ProductGetResponsePriceCurrency = "VES"
-	ProductGetResponsePriceCurrencyVnd ProductGetResponsePriceCurrency = "VND"
-	ProductGetResponsePriceCurrencyVuv ProductGetResponsePriceCurrency = "VUV"
-	ProductGetResponsePriceCurrencyWst ProductGetResponsePriceCurrency = "WST"
-	ProductGetResponsePriceCurrencyXaf ProductGetResponsePriceCurrency = "XAF"
-	ProductGetResponsePriceCurrencyXcd ProductGetResponsePriceCurrency = "XCD"
-	ProductGetResponsePriceCurrencyXof ProductGetResponsePriceCurrency = "XOF"
-	ProductGetResponsePriceCurrencyXpf ProductGetResponsePriceCurrency = "XPF"
-	ProductGetResponsePriceCurrencyYer ProductGetResponsePriceCurrency = "YER"
-	ProductGetResponsePriceCurrencyZar ProductGetResponsePriceCurrency = "ZAR"
-	ProductGetResponsePriceCurrencyZmw ProductGetResponsePriceCurrency = "ZMW"
-)
-
-func (r ProductGetResponsePriceCurrency) IsKnown() bool {
-	switch r {
-	case ProductGetResponsePriceCurrencyAed, ProductGetResponsePriceCurrencyAll, ProductGetResponsePriceCurrencyAmd, ProductGetResponsePriceCurrencyAng, ProductGetResponsePriceCurrencyAoa, ProductGetResponsePriceCurrencyArs, ProductGetResponsePriceCurrencyAud, ProductGetResponsePriceCurrencyAwg, ProductGetResponsePriceCurrencyAzn, ProductGetResponsePriceCurrencyBam, ProductGetResponsePriceCurrencyBbd, ProductGetResponsePriceCurrencyBdt, ProductGetResponsePriceCurrencyBgn, ProductGetResponsePriceCurrencyBhd, ProductGetResponsePriceCurrencyBif, ProductGetResponsePriceCurrencyBmd, ProductGetResponsePriceCurrencyBnd, ProductGetResponsePriceCurrencyBob, ProductGetResponsePriceCurrencyBrl, ProductGetResponsePriceCurrencyBsd, ProductGetResponsePriceCurrencyBwp, ProductGetResponsePriceCurrencyByn, ProductGetResponsePriceCurrencyBzd, ProductGetResponsePriceCurrencyCad, ProductGetResponsePriceCurrencyChf, ProductGetResponsePriceCurrencyClp, ProductGetResponsePriceCurrencyCny, ProductGetResponsePriceCurrencyCop, ProductGetResponsePriceCurrencyCrc, ProductGetResponsePriceCurrencyCup, ProductGetResponsePriceCurrencyCve, ProductGetResponsePriceCurrencyCzk, ProductGetResponsePriceCurrencyDjf, ProductGetResponsePriceCurrencyDkk, ProductGetResponsePriceCurrencyDop, ProductGetResponsePriceCurrencyDzd, ProductGetResponsePriceCurrencyEgp, ProductGetResponsePriceCurrencyEtb, ProductGetResponsePriceCurrencyEur, ProductGetResponsePriceCurrencyFjd, ProductGetResponsePriceCurrencyFkp, ProductGetResponsePriceCurrencyGbp, ProductGetResponsePriceCurrencyGel, ProductGetResponsePriceCurrencyGhs, ProductGetResponsePriceCurrencyGip, ProductGetResponsePriceCurrencyGmd, ProductGetResponsePriceCurrencyGnf, ProductGetResponsePriceCurrencyGtq, ProductGetResponsePriceCurrencyGyd, ProductGetResponsePriceCurrencyHkd, ProductGetResponsePriceCurrencyHnl, ProductGetResponsePriceCurrencyHrk, ProductGetResponsePriceCurrencyHtg, ProductGetResponsePriceCurrencyHuf, ProductGetResponsePriceCurrencyIdr, ProductGetResponsePriceCurrencyIls, ProductGetResponsePriceCurrencyInr, ProductGetResponsePriceCurrencyIqd, ProductGetResponsePriceCurrencyJmd, ProductGetResponsePriceCurrencyJod, ProductGetResponsePriceCurrencyJpy, ProductGetResponsePriceCurrencyKes, ProductGetResponsePriceCurrencyKgs, ProductGetResponsePriceCurrencyKhr, ProductGetResponsePriceCurrencyKmf, ProductGetResponsePriceCurrencyKrw, ProductGetResponsePriceCurrencyKwd, ProductGetResponsePriceCurrencyKyd, ProductGetResponsePriceCurrencyKzt, ProductGetResponsePriceCurrencyLak, ProductGetResponsePriceCurrencyLbp, ProductGetResponsePriceCurrencyLkr, ProductGetResponsePriceCurrencyLrd, ProductGetResponsePriceCurrencyLsl, ProductGetResponsePriceCurrencyLyd, ProductGetResponsePriceCurrencyMad, ProductGetResponsePriceCurrencyMdl, ProductGetResponsePriceCurrencyMga, ProductGetResponsePriceCurrencyMkd, ProductGetResponsePriceCurrencyMmk, ProductGetResponsePriceCurrencyMnt, ProductGetResponsePriceCurrencyMop, ProductGetResponsePriceCurrencyMru, ProductGetResponsePriceCurrencyMur, ProductGetResponsePriceCurrencyMvr, ProductGetResponsePriceCurrencyMwk, ProductGetResponsePriceCurrencyMxn, ProductGetResponsePriceCurrencyMyr, ProductGetResponsePriceCurrencyMzn, ProductGetResponsePriceCurrencyNad, ProductGetResponsePriceCurrencyNgn, ProductGetResponsePriceCurrencyNio, ProductGetResponsePriceCurrencyNok, ProductGetResponsePriceCurrencyNpr, ProductGetResponsePriceCurrencyNzd, ProductGetResponsePriceCurrencyOmr, ProductGetResponsePriceCurrencyPab, ProductGetResponsePriceCurrencyPen, ProductGetResponsePriceCurrencyPgk, ProductGetResponsePriceCurrencyPhp, ProductGetResponsePriceCurrencyPkr, ProductGetResponsePriceCurrencyPln, ProductGetResponsePriceCurrencyPyg, ProductGetResponsePriceCurrencyQar, ProductGetResponsePriceCurrencyRon, ProductGetResponsePriceCurrencyRsd, ProductGetResponsePriceCurrencyRub, ProductGetResponsePriceCurrencyRwf, ProductGetResponsePriceCurrencySar, ProductGetResponsePriceCurrencySbd, ProductGetResponsePriceCurrencyScr, ProductGetResponsePriceCurrencySek, ProductGetResponsePriceCurrencySgd, ProductGetResponsePriceCurrencyShp, ProductGetResponsePriceCurrencySle, ProductGetResponsePriceCurrencySll, ProductGetResponsePriceCurrencySos, ProductGetResponsePriceCurrencySrd, ProductGetResponsePriceCurrencySsp, ProductGetResponsePriceCurrencyStn, ProductGetResponsePriceCurrencySvc, ProductGetResponsePriceCurrencySzl, ProductGetResponsePriceCurrencyThb, ProductGetResponsePriceCurrencyTnd, ProductGetResponsePriceCurrencyTop, ProductGetResponsePriceCurrencyTry, ProductGetResponsePriceCurrencyTtd, ProductGetResponsePriceCurrencyTwd, ProductGetResponsePriceCurrencyTzs, ProductGetResponsePriceCurrencyUah, ProductGetResponsePriceCurrencyUgx, ProductGetResponsePriceCurrencyUsd, ProductGetResponsePriceCurrencyUyu, ProductGetResponsePriceCurrencyUzs, ProductGetResponsePriceCurrencyVes, ProductGetResponsePriceCurrencyVnd, ProductGetResponsePriceCurrencyVuv, ProductGetResponsePriceCurrencyWst, ProductGetResponsePriceCurrencyXaf, ProductGetResponsePriceCurrencyXcd, ProductGetResponsePriceCurrencyXof, ProductGetResponsePriceCurrencyXpf, ProductGetResponsePriceCurrencyYer, ProductGetResponsePriceCurrencyZar, ProductGetResponsePriceCurrencyZmw:
-		return true
-	}
-	return false
-}
-
-type ProductGetResponsePriceType string
-
-const (
-	ProductGetResponsePriceTypeOneTimePrice   ProductGetResponsePriceType = "one_time_price"
-	ProductGetResponsePriceTypeRecurringPrice ProductGetResponsePriceType = "recurring_price"
-)
-
-func (r ProductGetResponsePriceType) IsKnown() bool {
-	switch r {
-	case ProductGetResponsePriceTypeOneTimePrice, ProductGetResponsePriceTypeRecurringPrice:
-		return true
-	}
-	return false
-}
-
-type ProductGetResponsePricePaymentFrequencyInterval string
-
-const (
-	ProductGetResponsePricePaymentFrequencyIntervalDay   ProductGetResponsePricePaymentFrequencyInterval = "Day"
-	ProductGetResponsePricePaymentFrequencyIntervalWeek  ProductGetResponsePricePaymentFrequencyInterval = "Week"
-	ProductGetResponsePricePaymentFrequencyIntervalMonth ProductGetResponsePricePaymentFrequencyInterval = "Month"
-	ProductGetResponsePricePaymentFrequencyIntervalYear  ProductGetResponsePricePaymentFrequencyInterval = "Year"
-)
-
-func (r ProductGetResponsePricePaymentFrequencyInterval) IsKnown() bool {
-	switch r {
-	case ProductGetResponsePricePaymentFrequencyIntervalDay, ProductGetResponsePricePaymentFrequencyIntervalWeek, ProductGetResponsePricePaymentFrequencyIntervalMonth, ProductGetResponsePricePaymentFrequencyIntervalYear:
-		return true
-	}
-	return false
-}
-
-type ProductGetResponsePriceSubscriptionPeriodInterval string
-
-const (
-	ProductGetResponsePriceSubscriptionPeriodIntervalDay   ProductGetResponsePriceSubscriptionPeriodInterval = "Day"
-	ProductGetResponsePriceSubscriptionPeriodIntervalWeek  ProductGetResponsePriceSubscriptionPeriodInterval = "Week"
-	ProductGetResponsePriceSubscriptionPeriodIntervalMonth ProductGetResponsePriceSubscriptionPeriodInterval = "Month"
-	ProductGetResponsePriceSubscriptionPeriodIntervalYear  ProductGetResponsePriceSubscriptionPeriodInterval = "Year"
-)
-
-func (r ProductGetResponsePriceSubscriptionPeriodInterval) IsKnown() bool {
-	switch r {
-	case ProductGetResponsePriceSubscriptionPeriodIntervalDay, ProductGetResponsePriceSubscriptionPeriodIntervalWeek, ProductGetResponsePriceSubscriptionPeriodIntervalMonth, ProductGetResponsePriceSubscriptionPeriodIntervalYear:
-		return true
-	}
-	return false
-}
-
-// Represents the different categories of taxation applicable to various products
-// and services.
-type ProductGetResponseTaxCategory string
-
-const (
-	ProductGetResponseTaxCategoryDigitalProducts ProductGetResponseTaxCategory = "digital_products"
-	ProductGetResponseTaxCategorySaas            ProductGetResponseTaxCategory = "saas"
-	ProductGetResponseTaxCategoryEBook           ProductGetResponseTaxCategory = "e_book"
-)
-
-func (r ProductGetResponseTaxCategory) IsKnown() bool {
-	switch r {
-	case ProductGetResponseTaxCategoryDigitalProducts, ProductGetResponseTaxCategorySaas, ProductGetResponseTaxCategoryEBook:
-		return true
-	}
-	return false
 }
 
 type ProductListResponse struct {
