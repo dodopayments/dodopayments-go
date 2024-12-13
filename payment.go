@@ -15,6 +15,7 @@ import (
 	"github.com/stainless-sdks/dodo-payments-go/internal/param"
 	"github.com/stainless-sdks/dodo-payments-go/internal/requestconfig"
 	"github.com/stainless-sdks/dodo-payments-go/option"
+	"github.com/stainless-sdks/dodo-payments-go/packages/pagination"
 )
 
 // PaymentService contains methods and other services that help with interacting
@@ -54,11 +55,25 @@ func (r *PaymentService) Get(ctx context.Context, paymentID string, opts ...opti
 	return
 }
 
-func (r *PaymentService) List(ctx context.Context, query PaymentListParams, opts ...option.RequestOption) (res *PaymentListResponse, err error) {
+func (r *PaymentService) List(ctx context.Context, query PaymentListParams, opts ...option.RequestOption) (res *pagination.PageNumberPage[PaymentListResponse], err error) {
+	var raw *http.Response
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "payments"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+func (r *PaymentService) ListAutoPaging(ctx context.Context, query PaymentListParams, opts ...option.RequestOption) *pagination.PageNumberPageAutoPager[PaymentListResponse] {
+	return pagination.NewPageNumberPageAutoPager(r.List(ctx, query, opts...))
 }
 
 type Payment struct {
@@ -424,42 +439,21 @@ func (r paymentNewResponseProductCartJSON) RawJSON() string {
 }
 
 type PaymentListResponse struct {
-	Items []PaymentListResponseItem `json:"items,required"`
-	JSON  paymentListResponseJSON   `json:"-"`
+	CreatedAt         time.Time                   `json:"created_at,required" format:"date-time"`
+	Currency          PaymentListResponseCurrency `json:"currency,required"`
+	Customer          PaymentListResponseCustomer `json:"customer,required"`
+	PaymentID         string                      `json:"payment_id,required"`
+	TotalAmount       int64                       `json:"total_amount,required"`
+	PaymentMethod     string                      `json:"payment_method,nullable"`
+	PaymentMethodType string                      `json:"payment_method_type,nullable"`
+	Status            PaymentListResponseStatus   `json:"status,nullable"`
+	SubscriptionID    string                      `json:"subscription_id,nullable"`
+	JSON              paymentListResponseJSON     `json:"-"`
 }
 
 // paymentListResponseJSON contains the JSON metadata for the struct
 // [PaymentListResponse]
 type paymentListResponseJSON struct {
-	Items       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PaymentListResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentListResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type PaymentListResponseItem struct {
-	CreatedAt         time.Time                        `json:"created_at,required" format:"date-time"`
-	Currency          PaymentListResponseItemsCurrency `json:"currency,required"`
-	Customer          PaymentListResponseItemsCustomer `json:"customer,required"`
-	PaymentID         string                           `json:"payment_id,required"`
-	TotalAmount       int64                            `json:"total_amount,required"`
-	PaymentMethod     string                           `json:"payment_method,nullable"`
-	PaymentMethodType string                           `json:"payment_method_type,nullable"`
-	Status            PaymentListResponseItemsStatus   `json:"status,nullable"`
-	SubscriptionID    string                           `json:"subscription_id,nullable"`
-	JSON              paymentListResponseItemJSON      `json:"-"`
-}
-
-// paymentListResponseItemJSON contains the JSON metadata for the struct
-// [PaymentListResponseItem]
-type paymentListResponseItemJSON struct {
 	CreatedAt         apijson.Field
 	Currency          apijson.Field
 	Customer          apijson.Field
@@ -473,182 +467,182 @@ type paymentListResponseItemJSON struct {
 	ExtraFields       map[string]apijson.Field
 }
 
-func (r *PaymentListResponseItem) UnmarshalJSON(data []byte) (err error) {
+func (r *PaymentListResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r paymentListResponseItemJSON) RawJSON() string {
+func (r paymentListResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type PaymentListResponseItemsCurrency string
+type PaymentListResponseCurrency string
 
 const (
-	PaymentListResponseItemsCurrencyAed PaymentListResponseItemsCurrency = "AED"
-	PaymentListResponseItemsCurrencyAll PaymentListResponseItemsCurrency = "ALL"
-	PaymentListResponseItemsCurrencyAmd PaymentListResponseItemsCurrency = "AMD"
-	PaymentListResponseItemsCurrencyAng PaymentListResponseItemsCurrency = "ANG"
-	PaymentListResponseItemsCurrencyAoa PaymentListResponseItemsCurrency = "AOA"
-	PaymentListResponseItemsCurrencyArs PaymentListResponseItemsCurrency = "ARS"
-	PaymentListResponseItemsCurrencyAud PaymentListResponseItemsCurrency = "AUD"
-	PaymentListResponseItemsCurrencyAwg PaymentListResponseItemsCurrency = "AWG"
-	PaymentListResponseItemsCurrencyAzn PaymentListResponseItemsCurrency = "AZN"
-	PaymentListResponseItemsCurrencyBam PaymentListResponseItemsCurrency = "BAM"
-	PaymentListResponseItemsCurrencyBbd PaymentListResponseItemsCurrency = "BBD"
-	PaymentListResponseItemsCurrencyBdt PaymentListResponseItemsCurrency = "BDT"
-	PaymentListResponseItemsCurrencyBgn PaymentListResponseItemsCurrency = "BGN"
-	PaymentListResponseItemsCurrencyBhd PaymentListResponseItemsCurrency = "BHD"
-	PaymentListResponseItemsCurrencyBif PaymentListResponseItemsCurrency = "BIF"
-	PaymentListResponseItemsCurrencyBmd PaymentListResponseItemsCurrency = "BMD"
-	PaymentListResponseItemsCurrencyBnd PaymentListResponseItemsCurrency = "BND"
-	PaymentListResponseItemsCurrencyBob PaymentListResponseItemsCurrency = "BOB"
-	PaymentListResponseItemsCurrencyBrl PaymentListResponseItemsCurrency = "BRL"
-	PaymentListResponseItemsCurrencyBsd PaymentListResponseItemsCurrency = "BSD"
-	PaymentListResponseItemsCurrencyBwp PaymentListResponseItemsCurrency = "BWP"
-	PaymentListResponseItemsCurrencyByn PaymentListResponseItemsCurrency = "BYN"
-	PaymentListResponseItemsCurrencyBzd PaymentListResponseItemsCurrency = "BZD"
-	PaymentListResponseItemsCurrencyCad PaymentListResponseItemsCurrency = "CAD"
-	PaymentListResponseItemsCurrencyChf PaymentListResponseItemsCurrency = "CHF"
-	PaymentListResponseItemsCurrencyClp PaymentListResponseItemsCurrency = "CLP"
-	PaymentListResponseItemsCurrencyCny PaymentListResponseItemsCurrency = "CNY"
-	PaymentListResponseItemsCurrencyCop PaymentListResponseItemsCurrency = "COP"
-	PaymentListResponseItemsCurrencyCrc PaymentListResponseItemsCurrency = "CRC"
-	PaymentListResponseItemsCurrencyCup PaymentListResponseItemsCurrency = "CUP"
-	PaymentListResponseItemsCurrencyCve PaymentListResponseItemsCurrency = "CVE"
-	PaymentListResponseItemsCurrencyCzk PaymentListResponseItemsCurrency = "CZK"
-	PaymentListResponseItemsCurrencyDjf PaymentListResponseItemsCurrency = "DJF"
-	PaymentListResponseItemsCurrencyDkk PaymentListResponseItemsCurrency = "DKK"
-	PaymentListResponseItemsCurrencyDop PaymentListResponseItemsCurrency = "DOP"
-	PaymentListResponseItemsCurrencyDzd PaymentListResponseItemsCurrency = "DZD"
-	PaymentListResponseItemsCurrencyEgp PaymentListResponseItemsCurrency = "EGP"
-	PaymentListResponseItemsCurrencyEtb PaymentListResponseItemsCurrency = "ETB"
-	PaymentListResponseItemsCurrencyEur PaymentListResponseItemsCurrency = "EUR"
-	PaymentListResponseItemsCurrencyFjd PaymentListResponseItemsCurrency = "FJD"
-	PaymentListResponseItemsCurrencyFkp PaymentListResponseItemsCurrency = "FKP"
-	PaymentListResponseItemsCurrencyGbp PaymentListResponseItemsCurrency = "GBP"
-	PaymentListResponseItemsCurrencyGel PaymentListResponseItemsCurrency = "GEL"
-	PaymentListResponseItemsCurrencyGhs PaymentListResponseItemsCurrency = "GHS"
-	PaymentListResponseItemsCurrencyGip PaymentListResponseItemsCurrency = "GIP"
-	PaymentListResponseItemsCurrencyGmd PaymentListResponseItemsCurrency = "GMD"
-	PaymentListResponseItemsCurrencyGnf PaymentListResponseItemsCurrency = "GNF"
-	PaymentListResponseItemsCurrencyGtq PaymentListResponseItemsCurrency = "GTQ"
-	PaymentListResponseItemsCurrencyGyd PaymentListResponseItemsCurrency = "GYD"
-	PaymentListResponseItemsCurrencyHkd PaymentListResponseItemsCurrency = "HKD"
-	PaymentListResponseItemsCurrencyHnl PaymentListResponseItemsCurrency = "HNL"
-	PaymentListResponseItemsCurrencyHrk PaymentListResponseItemsCurrency = "HRK"
-	PaymentListResponseItemsCurrencyHtg PaymentListResponseItemsCurrency = "HTG"
-	PaymentListResponseItemsCurrencyHuf PaymentListResponseItemsCurrency = "HUF"
-	PaymentListResponseItemsCurrencyIdr PaymentListResponseItemsCurrency = "IDR"
-	PaymentListResponseItemsCurrencyIls PaymentListResponseItemsCurrency = "ILS"
-	PaymentListResponseItemsCurrencyInr PaymentListResponseItemsCurrency = "INR"
-	PaymentListResponseItemsCurrencyIqd PaymentListResponseItemsCurrency = "IQD"
-	PaymentListResponseItemsCurrencyJmd PaymentListResponseItemsCurrency = "JMD"
-	PaymentListResponseItemsCurrencyJod PaymentListResponseItemsCurrency = "JOD"
-	PaymentListResponseItemsCurrencyJpy PaymentListResponseItemsCurrency = "JPY"
-	PaymentListResponseItemsCurrencyKes PaymentListResponseItemsCurrency = "KES"
-	PaymentListResponseItemsCurrencyKgs PaymentListResponseItemsCurrency = "KGS"
-	PaymentListResponseItemsCurrencyKhr PaymentListResponseItemsCurrency = "KHR"
-	PaymentListResponseItemsCurrencyKmf PaymentListResponseItemsCurrency = "KMF"
-	PaymentListResponseItemsCurrencyKrw PaymentListResponseItemsCurrency = "KRW"
-	PaymentListResponseItemsCurrencyKwd PaymentListResponseItemsCurrency = "KWD"
-	PaymentListResponseItemsCurrencyKyd PaymentListResponseItemsCurrency = "KYD"
-	PaymentListResponseItemsCurrencyKzt PaymentListResponseItemsCurrency = "KZT"
-	PaymentListResponseItemsCurrencyLak PaymentListResponseItemsCurrency = "LAK"
-	PaymentListResponseItemsCurrencyLbp PaymentListResponseItemsCurrency = "LBP"
-	PaymentListResponseItemsCurrencyLkr PaymentListResponseItemsCurrency = "LKR"
-	PaymentListResponseItemsCurrencyLrd PaymentListResponseItemsCurrency = "LRD"
-	PaymentListResponseItemsCurrencyLsl PaymentListResponseItemsCurrency = "LSL"
-	PaymentListResponseItemsCurrencyLyd PaymentListResponseItemsCurrency = "LYD"
-	PaymentListResponseItemsCurrencyMad PaymentListResponseItemsCurrency = "MAD"
-	PaymentListResponseItemsCurrencyMdl PaymentListResponseItemsCurrency = "MDL"
-	PaymentListResponseItemsCurrencyMga PaymentListResponseItemsCurrency = "MGA"
-	PaymentListResponseItemsCurrencyMkd PaymentListResponseItemsCurrency = "MKD"
-	PaymentListResponseItemsCurrencyMmk PaymentListResponseItemsCurrency = "MMK"
-	PaymentListResponseItemsCurrencyMnt PaymentListResponseItemsCurrency = "MNT"
-	PaymentListResponseItemsCurrencyMop PaymentListResponseItemsCurrency = "MOP"
-	PaymentListResponseItemsCurrencyMru PaymentListResponseItemsCurrency = "MRU"
-	PaymentListResponseItemsCurrencyMur PaymentListResponseItemsCurrency = "MUR"
-	PaymentListResponseItemsCurrencyMvr PaymentListResponseItemsCurrency = "MVR"
-	PaymentListResponseItemsCurrencyMwk PaymentListResponseItemsCurrency = "MWK"
-	PaymentListResponseItemsCurrencyMxn PaymentListResponseItemsCurrency = "MXN"
-	PaymentListResponseItemsCurrencyMyr PaymentListResponseItemsCurrency = "MYR"
-	PaymentListResponseItemsCurrencyMzn PaymentListResponseItemsCurrency = "MZN"
-	PaymentListResponseItemsCurrencyNad PaymentListResponseItemsCurrency = "NAD"
-	PaymentListResponseItemsCurrencyNgn PaymentListResponseItemsCurrency = "NGN"
-	PaymentListResponseItemsCurrencyNio PaymentListResponseItemsCurrency = "NIO"
-	PaymentListResponseItemsCurrencyNok PaymentListResponseItemsCurrency = "NOK"
-	PaymentListResponseItemsCurrencyNpr PaymentListResponseItemsCurrency = "NPR"
-	PaymentListResponseItemsCurrencyNzd PaymentListResponseItemsCurrency = "NZD"
-	PaymentListResponseItemsCurrencyOmr PaymentListResponseItemsCurrency = "OMR"
-	PaymentListResponseItemsCurrencyPab PaymentListResponseItemsCurrency = "PAB"
-	PaymentListResponseItemsCurrencyPen PaymentListResponseItemsCurrency = "PEN"
-	PaymentListResponseItemsCurrencyPgk PaymentListResponseItemsCurrency = "PGK"
-	PaymentListResponseItemsCurrencyPhp PaymentListResponseItemsCurrency = "PHP"
-	PaymentListResponseItemsCurrencyPkr PaymentListResponseItemsCurrency = "PKR"
-	PaymentListResponseItemsCurrencyPln PaymentListResponseItemsCurrency = "PLN"
-	PaymentListResponseItemsCurrencyPyg PaymentListResponseItemsCurrency = "PYG"
-	PaymentListResponseItemsCurrencyQar PaymentListResponseItemsCurrency = "QAR"
-	PaymentListResponseItemsCurrencyRon PaymentListResponseItemsCurrency = "RON"
-	PaymentListResponseItemsCurrencyRsd PaymentListResponseItemsCurrency = "RSD"
-	PaymentListResponseItemsCurrencyRub PaymentListResponseItemsCurrency = "RUB"
-	PaymentListResponseItemsCurrencyRwf PaymentListResponseItemsCurrency = "RWF"
-	PaymentListResponseItemsCurrencySar PaymentListResponseItemsCurrency = "SAR"
-	PaymentListResponseItemsCurrencySbd PaymentListResponseItemsCurrency = "SBD"
-	PaymentListResponseItemsCurrencyScr PaymentListResponseItemsCurrency = "SCR"
-	PaymentListResponseItemsCurrencySek PaymentListResponseItemsCurrency = "SEK"
-	PaymentListResponseItemsCurrencySgd PaymentListResponseItemsCurrency = "SGD"
-	PaymentListResponseItemsCurrencyShp PaymentListResponseItemsCurrency = "SHP"
-	PaymentListResponseItemsCurrencySle PaymentListResponseItemsCurrency = "SLE"
-	PaymentListResponseItemsCurrencySll PaymentListResponseItemsCurrency = "SLL"
-	PaymentListResponseItemsCurrencySos PaymentListResponseItemsCurrency = "SOS"
-	PaymentListResponseItemsCurrencySrd PaymentListResponseItemsCurrency = "SRD"
-	PaymentListResponseItemsCurrencySsp PaymentListResponseItemsCurrency = "SSP"
-	PaymentListResponseItemsCurrencyStn PaymentListResponseItemsCurrency = "STN"
-	PaymentListResponseItemsCurrencySvc PaymentListResponseItemsCurrency = "SVC"
-	PaymentListResponseItemsCurrencySzl PaymentListResponseItemsCurrency = "SZL"
-	PaymentListResponseItemsCurrencyThb PaymentListResponseItemsCurrency = "THB"
-	PaymentListResponseItemsCurrencyTnd PaymentListResponseItemsCurrency = "TND"
-	PaymentListResponseItemsCurrencyTop PaymentListResponseItemsCurrency = "TOP"
-	PaymentListResponseItemsCurrencyTry PaymentListResponseItemsCurrency = "TRY"
-	PaymentListResponseItemsCurrencyTtd PaymentListResponseItemsCurrency = "TTD"
-	PaymentListResponseItemsCurrencyTwd PaymentListResponseItemsCurrency = "TWD"
-	PaymentListResponseItemsCurrencyTzs PaymentListResponseItemsCurrency = "TZS"
-	PaymentListResponseItemsCurrencyUah PaymentListResponseItemsCurrency = "UAH"
-	PaymentListResponseItemsCurrencyUgx PaymentListResponseItemsCurrency = "UGX"
-	PaymentListResponseItemsCurrencyUsd PaymentListResponseItemsCurrency = "USD"
-	PaymentListResponseItemsCurrencyUyu PaymentListResponseItemsCurrency = "UYU"
-	PaymentListResponseItemsCurrencyUzs PaymentListResponseItemsCurrency = "UZS"
-	PaymentListResponseItemsCurrencyVes PaymentListResponseItemsCurrency = "VES"
-	PaymentListResponseItemsCurrencyVnd PaymentListResponseItemsCurrency = "VND"
-	PaymentListResponseItemsCurrencyVuv PaymentListResponseItemsCurrency = "VUV"
-	PaymentListResponseItemsCurrencyWst PaymentListResponseItemsCurrency = "WST"
-	PaymentListResponseItemsCurrencyXaf PaymentListResponseItemsCurrency = "XAF"
-	PaymentListResponseItemsCurrencyXcd PaymentListResponseItemsCurrency = "XCD"
-	PaymentListResponseItemsCurrencyXof PaymentListResponseItemsCurrency = "XOF"
-	PaymentListResponseItemsCurrencyXpf PaymentListResponseItemsCurrency = "XPF"
-	PaymentListResponseItemsCurrencyYer PaymentListResponseItemsCurrency = "YER"
-	PaymentListResponseItemsCurrencyZar PaymentListResponseItemsCurrency = "ZAR"
-	PaymentListResponseItemsCurrencyZmw PaymentListResponseItemsCurrency = "ZMW"
+	PaymentListResponseCurrencyAed PaymentListResponseCurrency = "AED"
+	PaymentListResponseCurrencyAll PaymentListResponseCurrency = "ALL"
+	PaymentListResponseCurrencyAmd PaymentListResponseCurrency = "AMD"
+	PaymentListResponseCurrencyAng PaymentListResponseCurrency = "ANG"
+	PaymentListResponseCurrencyAoa PaymentListResponseCurrency = "AOA"
+	PaymentListResponseCurrencyArs PaymentListResponseCurrency = "ARS"
+	PaymentListResponseCurrencyAud PaymentListResponseCurrency = "AUD"
+	PaymentListResponseCurrencyAwg PaymentListResponseCurrency = "AWG"
+	PaymentListResponseCurrencyAzn PaymentListResponseCurrency = "AZN"
+	PaymentListResponseCurrencyBam PaymentListResponseCurrency = "BAM"
+	PaymentListResponseCurrencyBbd PaymentListResponseCurrency = "BBD"
+	PaymentListResponseCurrencyBdt PaymentListResponseCurrency = "BDT"
+	PaymentListResponseCurrencyBgn PaymentListResponseCurrency = "BGN"
+	PaymentListResponseCurrencyBhd PaymentListResponseCurrency = "BHD"
+	PaymentListResponseCurrencyBif PaymentListResponseCurrency = "BIF"
+	PaymentListResponseCurrencyBmd PaymentListResponseCurrency = "BMD"
+	PaymentListResponseCurrencyBnd PaymentListResponseCurrency = "BND"
+	PaymentListResponseCurrencyBob PaymentListResponseCurrency = "BOB"
+	PaymentListResponseCurrencyBrl PaymentListResponseCurrency = "BRL"
+	PaymentListResponseCurrencyBsd PaymentListResponseCurrency = "BSD"
+	PaymentListResponseCurrencyBwp PaymentListResponseCurrency = "BWP"
+	PaymentListResponseCurrencyByn PaymentListResponseCurrency = "BYN"
+	PaymentListResponseCurrencyBzd PaymentListResponseCurrency = "BZD"
+	PaymentListResponseCurrencyCad PaymentListResponseCurrency = "CAD"
+	PaymentListResponseCurrencyChf PaymentListResponseCurrency = "CHF"
+	PaymentListResponseCurrencyClp PaymentListResponseCurrency = "CLP"
+	PaymentListResponseCurrencyCny PaymentListResponseCurrency = "CNY"
+	PaymentListResponseCurrencyCop PaymentListResponseCurrency = "COP"
+	PaymentListResponseCurrencyCrc PaymentListResponseCurrency = "CRC"
+	PaymentListResponseCurrencyCup PaymentListResponseCurrency = "CUP"
+	PaymentListResponseCurrencyCve PaymentListResponseCurrency = "CVE"
+	PaymentListResponseCurrencyCzk PaymentListResponseCurrency = "CZK"
+	PaymentListResponseCurrencyDjf PaymentListResponseCurrency = "DJF"
+	PaymentListResponseCurrencyDkk PaymentListResponseCurrency = "DKK"
+	PaymentListResponseCurrencyDop PaymentListResponseCurrency = "DOP"
+	PaymentListResponseCurrencyDzd PaymentListResponseCurrency = "DZD"
+	PaymentListResponseCurrencyEgp PaymentListResponseCurrency = "EGP"
+	PaymentListResponseCurrencyEtb PaymentListResponseCurrency = "ETB"
+	PaymentListResponseCurrencyEur PaymentListResponseCurrency = "EUR"
+	PaymentListResponseCurrencyFjd PaymentListResponseCurrency = "FJD"
+	PaymentListResponseCurrencyFkp PaymentListResponseCurrency = "FKP"
+	PaymentListResponseCurrencyGbp PaymentListResponseCurrency = "GBP"
+	PaymentListResponseCurrencyGel PaymentListResponseCurrency = "GEL"
+	PaymentListResponseCurrencyGhs PaymentListResponseCurrency = "GHS"
+	PaymentListResponseCurrencyGip PaymentListResponseCurrency = "GIP"
+	PaymentListResponseCurrencyGmd PaymentListResponseCurrency = "GMD"
+	PaymentListResponseCurrencyGnf PaymentListResponseCurrency = "GNF"
+	PaymentListResponseCurrencyGtq PaymentListResponseCurrency = "GTQ"
+	PaymentListResponseCurrencyGyd PaymentListResponseCurrency = "GYD"
+	PaymentListResponseCurrencyHkd PaymentListResponseCurrency = "HKD"
+	PaymentListResponseCurrencyHnl PaymentListResponseCurrency = "HNL"
+	PaymentListResponseCurrencyHrk PaymentListResponseCurrency = "HRK"
+	PaymentListResponseCurrencyHtg PaymentListResponseCurrency = "HTG"
+	PaymentListResponseCurrencyHuf PaymentListResponseCurrency = "HUF"
+	PaymentListResponseCurrencyIdr PaymentListResponseCurrency = "IDR"
+	PaymentListResponseCurrencyIls PaymentListResponseCurrency = "ILS"
+	PaymentListResponseCurrencyInr PaymentListResponseCurrency = "INR"
+	PaymentListResponseCurrencyIqd PaymentListResponseCurrency = "IQD"
+	PaymentListResponseCurrencyJmd PaymentListResponseCurrency = "JMD"
+	PaymentListResponseCurrencyJod PaymentListResponseCurrency = "JOD"
+	PaymentListResponseCurrencyJpy PaymentListResponseCurrency = "JPY"
+	PaymentListResponseCurrencyKes PaymentListResponseCurrency = "KES"
+	PaymentListResponseCurrencyKgs PaymentListResponseCurrency = "KGS"
+	PaymentListResponseCurrencyKhr PaymentListResponseCurrency = "KHR"
+	PaymentListResponseCurrencyKmf PaymentListResponseCurrency = "KMF"
+	PaymentListResponseCurrencyKrw PaymentListResponseCurrency = "KRW"
+	PaymentListResponseCurrencyKwd PaymentListResponseCurrency = "KWD"
+	PaymentListResponseCurrencyKyd PaymentListResponseCurrency = "KYD"
+	PaymentListResponseCurrencyKzt PaymentListResponseCurrency = "KZT"
+	PaymentListResponseCurrencyLak PaymentListResponseCurrency = "LAK"
+	PaymentListResponseCurrencyLbp PaymentListResponseCurrency = "LBP"
+	PaymentListResponseCurrencyLkr PaymentListResponseCurrency = "LKR"
+	PaymentListResponseCurrencyLrd PaymentListResponseCurrency = "LRD"
+	PaymentListResponseCurrencyLsl PaymentListResponseCurrency = "LSL"
+	PaymentListResponseCurrencyLyd PaymentListResponseCurrency = "LYD"
+	PaymentListResponseCurrencyMad PaymentListResponseCurrency = "MAD"
+	PaymentListResponseCurrencyMdl PaymentListResponseCurrency = "MDL"
+	PaymentListResponseCurrencyMga PaymentListResponseCurrency = "MGA"
+	PaymentListResponseCurrencyMkd PaymentListResponseCurrency = "MKD"
+	PaymentListResponseCurrencyMmk PaymentListResponseCurrency = "MMK"
+	PaymentListResponseCurrencyMnt PaymentListResponseCurrency = "MNT"
+	PaymentListResponseCurrencyMop PaymentListResponseCurrency = "MOP"
+	PaymentListResponseCurrencyMru PaymentListResponseCurrency = "MRU"
+	PaymentListResponseCurrencyMur PaymentListResponseCurrency = "MUR"
+	PaymentListResponseCurrencyMvr PaymentListResponseCurrency = "MVR"
+	PaymentListResponseCurrencyMwk PaymentListResponseCurrency = "MWK"
+	PaymentListResponseCurrencyMxn PaymentListResponseCurrency = "MXN"
+	PaymentListResponseCurrencyMyr PaymentListResponseCurrency = "MYR"
+	PaymentListResponseCurrencyMzn PaymentListResponseCurrency = "MZN"
+	PaymentListResponseCurrencyNad PaymentListResponseCurrency = "NAD"
+	PaymentListResponseCurrencyNgn PaymentListResponseCurrency = "NGN"
+	PaymentListResponseCurrencyNio PaymentListResponseCurrency = "NIO"
+	PaymentListResponseCurrencyNok PaymentListResponseCurrency = "NOK"
+	PaymentListResponseCurrencyNpr PaymentListResponseCurrency = "NPR"
+	PaymentListResponseCurrencyNzd PaymentListResponseCurrency = "NZD"
+	PaymentListResponseCurrencyOmr PaymentListResponseCurrency = "OMR"
+	PaymentListResponseCurrencyPab PaymentListResponseCurrency = "PAB"
+	PaymentListResponseCurrencyPen PaymentListResponseCurrency = "PEN"
+	PaymentListResponseCurrencyPgk PaymentListResponseCurrency = "PGK"
+	PaymentListResponseCurrencyPhp PaymentListResponseCurrency = "PHP"
+	PaymentListResponseCurrencyPkr PaymentListResponseCurrency = "PKR"
+	PaymentListResponseCurrencyPln PaymentListResponseCurrency = "PLN"
+	PaymentListResponseCurrencyPyg PaymentListResponseCurrency = "PYG"
+	PaymentListResponseCurrencyQar PaymentListResponseCurrency = "QAR"
+	PaymentListResponseCurrencyRon PaymentListResponseCurrency = "RON"
+	PaymentListResponseCurrencyRsd PaymentListResponseCurrency = "RSD"
+	PaymentListResponseCurrencyRub PaymentListResponseCurrency = "RUB"
+	PaymentListResponseCurrencyRwf PaymentListResponseCurrency = "RWF"
+	PaymentListResponseCurrencySar PaymentListResponseCurrency = "SAR"
+	PaymentListResponseCurrencySbd PaymentListResponseCurrency = "SBD"
+	PaymentListResponseCurrencyScr PaymentListResponseCurrency = "SCR"
+	PaymentListResponseCurrencySek PaymentListResponseCurrency = "SEK"
+	PaymentListResponseCurrencySgd PaymentListResponseCurrency = "SGD"
+	PaymentListResponseCurrencyShp PaymentListResponseCurrency = "SHP"
+	PaymentListResponseCurrencySle PaymentListResponseCurrency = "SLE"
+	PaymentListResponseCurrencySll PaymentListResponseCurrency = "SLL"
+	PaymentListResponseCurrencySos PaymentListResponseCurrency = "SOS"
+	PaymentListResponseCurrencySrd PaymentListResponseCurrency = "SRD"
+	PaymentListResponseCurrencySsp PaymentListResponseCurrency = "SSP"
+	PaymentListResponseCurrencyStn PaymentListResponseCurrency = "STN"
+	PaymentListResponseCurrencySvc PaymentListResponseCurrency = "SVC"
+	PaymentListResponseCurrencySzl PaymentListResponseCurrency = "SZL"
+	PaymentListResponseCurrencyThb PaymentListResponseCurrency = "THB"
+	PaymentListResponseCurrencyTnd PaymentListResponseCurrency = "TND"
+	PaymentListResponseCurrencyTop PaymentListResponseCurrency = "TOP"
+	PaymentListResponseCurrencyTry PaymentListResponseCurrency = "TRY"
+	PaymentListResponseCurrencyTtd PaymentListResponseCurrency = "TTD"
+	PaymentListResponseCurrencyTwd PaymentListResponseCurrency = "TWD"
+	PaymentListResponseCurrencyTzs PaymentListResponseCurrency = "TZS"
+	PaymentListResponseCurrencyUah PaymentListResponseCurrency = "UAH"
+	PaymentListResponseCurrencyUgx PaymentListResponseCurrency = "UGX"
+	PaymentListResponseCurrencyUsd PaymentListResponseCurrency = "USD"
+	PaymentListResponseCurrencyUyu PaymentListResponseCurrency = "UYU"
+	PaymentListResponseCurrencyUzs PaymentListResponseCurrency = "UZS"
+	PaymentListResponseCurrencyVes PaymentListResponseCurrency = "VES"
+	PaymentListResponseCurrencyVnd PaymentListResponseCurrency = "VND"
+	PaymentListResponseCurrencyVuv PaymentListResponseCurrency = "VUV"
+	PaymentListResponseCurrencyWst PaymentListResponseCurrency = "WST"
+	PaymentListResponseCurrencyXaf PaymentListResponseCurrency = "XAF"
+	PaymentListResponseCurrencyXcd PaymentListResponseCurrency = "XCD"
+	PaymentListResponseCurrencyXof PaymentListResponseCurrency = "XOF"
+	PaymentListResponseCurrencyXpf PaymentListResponseCurrency = "XPF"
+	PaymentListResponseCurrencyYer PaymentListResponseCurrency = "YER"
+	PaymentListResponseCurrencyZar PaymentListResponseCurrency = "ZAR"
+	PaymentListResponseCurrencyZmw PaymentListResponseCurrency = "ZMW"
 )
 
-func (r PaymentListResponseItemsCurrency) IsKnown() bool {
+func (r PaymentListResponseCurrency) IsKnown() bool {
 	switch r {
-	case PaymentListResponseItemsCurrencyAed, PaymentListResponseItemsCurrencyAll, PaymentListResponseItemsCurrencyAmd, PaymentListResponseItemsCurrencyAng, PaymentListResponseItemsCurrencyAoa, PaymentListResponseItemsCurrencyArs, PaymentListResponseItemsCurrencyAud, PaymentListResponseItemsCurrencyAwg, PaymentListResponseItemsCurrencyAzn, PaymentListResponseItemsCurrencyBam, PaymentListResponseItemsCurrencyBbd, PaymentListResponseItemsCurrencyBdt, PaymentListResponseItemsCurrencyBgn, PaymentListResponseItemsCurrencyBhd, PaymentListResponseItemsCurrencyBif, PaymentListResponseItemsCurrencyBmd, PaymentListResponseItemsCurrencyBnd, PaymentListResponseItemsCurrencyBob, PaymentListResponseItemsCurrencyBrl, PaymentListResponseItemsCurrencyBsd, PaymentListResponseItemsCurrencyBwp, PaymentListResponseItemsCurrencyByn, PaymentListResponseItemsCurrencyBzd, PaymentListResponseItemsCurrencyCad, PaymentListResponseItemsCurrencyChf, PaymentListResponseItemsCurrencyClp, PaymentListResponseItemsCurrencyCny, PaymentListResponseItemsCurrencyCop, PaymentListResponseItemsCurrencyCrc, PaymentListResponseItemsCurrencyCup, PaymentListResponseItemsCurrencyCve, PaymentListResponseItemsCurrencyCzk, PaymentListResponseItemsCurrencyDjf, PaymentListResponseItemsCurrencyDkk, PaymentListResponseItemsCurrencyDop, PaymentListResponseItemsCurrencyDzd, PaymentListResponseItemsCurrencyEgp, PaymentListResponseItemsCurrencyEtb, PaymentListResponseItemsCurrencyEur, PaymentListResponseItemsCurrencyFjd, PaymentListResponseItemsCurrencyFkp, PaymentListResponseItemsCurrencyGbp, PaymentListResponseItemsCurrencyGel, PaymentListResponseItemsCurrencyGhs, PaymentListResponseItemsCurrencyGip, PaymentListResponseItemsCurrencyGmd, PaymentListResponseItemsCurrencyGnf, PaymentListResponseItemsCurrencyGtq, PaymentListResponseItemsCurrencyGyd, PaymentListResponseItemsCurrencyHkd, PaymentListResponseItemsCurrencyHnl, PaymentListResponseItemsCurrencyHrk, PaymentListResponseItemsCurrencyHtg, PaymentListResponseItemsCurrencyHuf, PaymentListResponseItemsCurrencyIdr, PaymentListResponseItemsCurrencyIls, PaymentListResponseItemsCurrencyInr, PaymentListResponseItemsCurrencyIqd, PaymentListResponseItemsCurrencyJmd, PaymentListResponseItemsCurrencyJod, PaymentListResponseItemsCurrencyJpy, PaymentListResponseItemsCurrencyKes, PaymentListResponseItemsCurrencyKgs, PaymentListResponseItemsCurrencyKhr, PaymentListResponseItemsCurrencyKmf, PaymentListResponseItemsCurrencyKrw, PaymentListResponseItemsCurrencyKwd, PaymentListResponseItemsCurrencyKyd, PaymentListResponseItemsCurrencyKzt, PaymentListResponseItemsCurrencyLak, PaymentListResponseItemsCurrencyLbp, PaymentListResponseItemsCurrencyLkr, PaymentListResponseItemsCurrencyLrd, PaymentListResponseItemsCurrencyLsl, PaymentListResponseItemsCurrencyLyd, PaymentListResponseItemsCurrencyMad, PaymentListResponseItemsCurrencyMdl, PaymentListResponseItemsCurrencyMga, PaymentListResponseItemsCurrencyMkd, PaymentListResponseItemsCurrencyMmk, PaymentListResponseItemsCurrencyMnt, PaymentListResponseItemsCurrencyMop, PaymentListResponseItemsCurrencyMru, PaymentListResponseItemsCurrencyMur, PaymentListResponseItemsCurrencyMvr, PaymentListResponseItemsCurrencyMwk, PaymentListResponseItemsCurrencyMxn, PaymentListResponseItemsCurrencyMyr, PaymentListResponseItemsCurrencyMzn, PaymentListResponseItemsCurrencyNad, PaymentListResponseItemsCurrencyNgn, PaymentListResponseItemsCurrencyNio, PaymentListResponseItemsCurrencyNok, PaymentListResponseItemsCurrencyNpr, PaymentListResponseItemsCurrencyNzd, PaymentListResponseItemsCurrencyOmr, PaymentListResponseItemsCurrencyPab, PaymentListResponseItemsCurrencyPen, PaymentListResponseItemsCurrencyPgk, PaymentListResponseItemsCurrencyPhp, PaymentListResponseItemsCurrencyPkr, PaymentListResponseItemsCurrencyPln, PaymentListResponseItemsCurrencyPyg, PaymentListResponseItemsCurrencyQar, PaymentListResponseItemsCurrencyRon, PaymentListResponseItemsCurrencyRsd, PaymentListResponseItemsCurrencyRub, PaymentListResponseItemsCurrencyRwf, PaymentListResponseItemsCurrencySar, PaymentListResponseItemsCurrencySbd, PaymentListResponseItemsCurrencyScr, PaymentListResponseItemsCurrencySek, PaymentListResponseItemsCurrencySgd, PaymentListResponseItemsCurrencyShp, PaymentListResponseItemsCurrencySle, PaymentListResponseItemsCurrencySll, PaymentListResponseItemsCurrencySos, PaymentListResponseItemsCurrencySrd, PaymentListResponseItemsCurrencySsp, PaymentListResponseItemsCurrencyStn, PaymentListResponseItemsCurrencySvc, PaymentListResponseItemsCurrencySzl, PaymentListResponseItemsCurrencyThb, PaymentListResponseItemsCurrencyTnd, PaymentListResponseItemsCurrencyTop, PaymentListResponseItemsCurrencyTry, PaymentListResponseItemsCurrencyTtd, PaymentListResponseItemsCurrencyTwd, PaymentListResponseItemsCurrencyTzs, PaymentListResponseItemsCurrencyUah, PaymentListResponseItemsCurrencyUgx, PaymentListResponseItemsCurrencyUsd, PaymentListResponseItemsCurrencyUyu, PaymentListResponseItemsCurrencyUzs, PaymentListResponseItemsCurrencyVes, PaymentListResponseItemsCurrencyVnd, PaymentListResponseItemsCurrencyVuv, PaymentListResponseItemsCurrencyWst, PaymentListResponseItemsCurrencyXaf, PaymentListResponseItemsCurrencyXcd, PaymentListResponseItemsCurrencyXof, PaymentListResponseItemsCurrencyXpf, PaymentListResponseItemsCurrencyYer, PaymentListResponseItemsCurrencyZar, PaymentListResponseItemsCurrencyZmw:
+	case PaymentListResponseCurrencyAed, PaymentListResponseCurrencyAll, PaymentListResponseCurrencyAmd, PaymentListResponseCurrencyAng, PaymentListResponseCurrencyAoa, PaymentListResponseCurrencyArs, PaymentListResponseCurrencyAud, PaymentListResponseCurrencyAwg, PaymentListResponseCurrencyAzn, PaymentListResponseCurrencyBam, PaymentListResponseCurrencyBbd, PaymentListResponseCurrencyBdt, PaymentListResponseCurrencyBgn, PaymentListResponseCurrencyBhd, PaymentListResponseCurrencyBif, PaymentListResponseCurrencyBmd, PaymentListResponseCurrencyBnd, PaymentListResponseCurrencyBob, PaymentListResponseCurrencyBrl, PaymentListResponseCurrencyBsd, PaymentListResponseCurrencyBwp, PaymentListResponseCurrencyByn, PaymentListResponseCurrencyBzd, PaymentListResponseCurrencyCad, PaymentListResponseCurrencyChf, PaymentListResponseCurrencyClp, PaymentListResponseCurrencyCny, PaymentListResponseCurrencyCop, PaymentListResponseCurrencyCrc, PaymentListResponseCurrencyCup, PaymentListResponseCurrencyCve, PaymentListResponseCurrencyCzk, PaymentListResponseCurrencyDjf, PaymentListResponseCurrencyDkk, PaymentListResponseCurrencyDop, PaymentListResponseCurrencyDzd, PaymentListResponseCurrencyEgp, PaymentListResponseCurrencyEtb, PaymentListResponseCurrencyEur, PaymentListResponseCurrencyFjd, PaymentListResponseCurrencyFkp, PaymentListResponseCurrencyGbp, PaymentListResponseCurrencyGel, PaymentListResponseCurrencyGhs, PaymentListResponseCurrencyGip, PaymentListResponseCurrencyGmd, PaymentListResponseCurrencyGnf, PaymentListResponseCurrencyGtq, PaymentListResponseCurrencyGyd, PaymentListResponseCurrencyHkd, PaymentListResponseCurrencyHnl, PaymentListResponseCurrencyHrk, PaymentListResponseCurrencyHtg, PaymentListResponseCurrencyHuf, PaymentListResponseCurrencyIdr, PaymentListResponseCurrencyIls, PaymentListResponseCurrencyInr, PaymentListResponseCurrencyIqd, PaymentListResponseCurrencyJmd, PaymentListResponseCurrencyJod, PaymentListResponseCurrencyJpy, PaymentListResponseCurrencyKes, PaymentListResponseCurrencyKgs, PaymentListResponseCurrencyKhr, PaymentListResponseCurrencyKmf, PaymentListResponseCurrencyKrw, PaymentListResponseCurrencyKwd, PaymentListResponseCurrencyKyd, PaymentListResponseCurrencyKzt, PaymentListResponseCurrencyLak, PaymentListResponseCurrencyLbp, PaymentListResponseCurrencyLkr, PaymentListResponseCurrencyLrd, PaymentListResponseCurrencyLsl, PaymentListResponseCurrencyLyd, PaymentListResponseCurrencyMad, PaymentListResponseCurrencyMdl, PaymentListResponseCurrencyMga, PaymentListResponseCurrencyMkd, PaymentListResponseCurrencyMmk, PaymentListResponseCurrencyMnt, PaymentListResponseCurrencyMop, PaymentListResponseCurrencyMru, PaymentListResponseCurrencyMur, PaymentListResponseCurrencyMvr, PaymentListResponseCurrencyMwk, PaymentListResponseCurrencyMxn, PaymentListResponseCurrencyMyr, PaymentListResponseCurrencyMzn, PaymentListResponseCurrencyNad, PaymentListResponseCurrencyNgn, PaymentListResponseCurrencyNio, PaymentListResponseCurrencyNok, PaymentListResponseCurrencyNpr, PaymentListResponseCurrencyNzd, PaymentListResponseCurrencyOmr, PaymentListResponseCurrencyPab, PaymentListResponseCurrencyPen, PaymentListResponseCurrencyPgk, PaymentListResponseCurrencyPhp, PaymentListResponseCurrencyPkr, PaymentListResponseCurrencyPln, PaymentListResponseCurrencyPyg, PaymentListResponseCurrencyQar, PaymentListResponseCurrencyRon, PaymentListResponseCurrencyRsd, PaymentListResponseCurrencyRub, PaymentListResponseCurrencyRwf, PaymentListResponseCurrencySar, PaymentListResponseCurrencySbd, PaymentListResponseCurrencyScr, PaymentListResponseCurrencySek, PaymentListResponseCurrencySgd, PaymentListResponseCurrencyShp, PaymentListResponseCurrencySle, PaymentListResponseCurrencySll, PaymentListResponseCurrencySos, PaymentListResponseCurrencySrd, PaymentListResponseCurrencySsp, PaymentListResponseCurrencyStn, PaymentListResponseCurrencySvc, PaymentListResponseCurrencySzl, PaymentListResponseCurrencyThb, PaymentListResponseCurrencyTnd, PaymentListResponseCurrencyTop, PaymentListResponseCurrencyTry, PaymentListResponseCurrencyTtd, PaymentListResponseCurrencyTwd, PaymentListResponseCurrencyTzs, PaymentListResponseCurrencyUah, PaymentListResponseCurrencyUgx, PaymentListResponseCurrencyUsd, PaymentListResponseCurrencyUyu, PaymentListResponseCurrencyUzs, PaymentListResponseCurrencyVes, PaymentListResponseCurrencyVnd, PaymentListResponseCurrencyVuv, PaymentListResponseCurrencyWst, PaymentListResponseCurrencyXaf, PaymentListResponseCurrencyXcd, PaymentListResponseCurrencyXof, PaymentListResponseCurrencyXpf, PaymentListResponseCurrencyYer, PaymentListResponseCurrencyZar, PaymentListResponseCurrencyZmw:
 		return true
 	}
 	return false
 }
 
-type PaymentListResponseItemsCustomer struct {
-	CustomerID string                               `json:"customer_id,required"`
-	Email      string                               `json:"email,required"`
-	Name       string                               `json:"name,required"`
-	JSON       paymentListResponseItemsCustomerJSON `json:"-"`
+type PaymentListResponseCustomer struct {
+	CustomerID string                          `json:"customer_id,required"`
+	Email      string                          `json:"email,required"`
+	Name       string                          `json:"name,required"`
+	JSON       paymentListResponseCustomerJSON `json:"-"`
 }
 
-// paymentListResponseItemsCustomerJSON contains the JSON metadata for the struct
-// [PaymentListResponseItemsCustomer]
-type paymentListResponseItemsCustomerJSON struct {
+// paymentListResponseCustomerJSON contains the JSON metadata for the struct
+// [PaymentListResponseCustomer]
+type paymentListResponseCustomerJSON struct {
 	CustomerID  apijson.Field
 	Email       apijson.Field
 	Name        apijson.Field
@@ -656,33 +650,33 @@ type paymentListResponseItemsCustomerJSON struct {
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *PaymentListResponseItemsCustomer) UnmarshalJSON(data []byte) (err error) {
+func (r *PaymentListResponseCustomer) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r paymentListResponseItemsCustomerJSON) RawJSON() string {
+func (r paymentListResponseCustomerJSON) RawJSON() string {
 	return r.raw
 }
 
-type PaymentListResponseItemsStatus string
+type PaymentListResponseStatus string
 
 const (
-	PaymentListResponseItemsStatusSucceeded                      PaymentListResponseItemsStatus = "succeeded"
-	PaymentListResponseItemsStatusFailed                         PaymentListResponseItemsStatus = "failed"
-	PaymentListResponseItemsStatusCancelled                      PaymentListResponseItemsStatus = "cancelled"
-	PaymentListResponseItemsStatusProcessing                     PaymentListResponseItemsStatus = "processing"
-	PaymentListResponseItemsStatusRequiresCustomerAction         PaymentListResponseItemsStatus = "requires_customer_action"
-	PaymentListResponseItemsStatusRequiresMerchantAction         PaymentListResponseItemsStatus = "requires_merchant_action"
-	PaymentListResponseItemsStatusRequiresPaymentMethod          PaymentListResponseItemsStatus = "requires_payment_method"
-	PaymentListResponseItemsStatusRequiresConfirmation           PaymentListResponseItemsStatus = "requires_confirmation"
-	PaymentListResponseItemsStatusRequiresCapture                PaymentListResponseItemsStatus = "requires_capture"
-	PaymentListResponseItemsStatusPartiallyCaptured              PaymentListResponseItemsStatus = "partially_captured"
-	PaymentListResponseItemsStatusPartiallyCapturedAndCapturable PaymentListResponseItemsStatus = "partially_captured_and_capturable"
+	PaymentListResponseStatusSucceeded                      PaymentListResponseStatus = "succeeded"
+	PaymentListResponseStatusFailed                         PaymentListResponseStatus = "failed"
+	PaymentListResponseStatusCancelled                      PaymentListResponseStatus = "cancelled"
+	PaymentListResponseStatusProcessing                     PaymentListResponseStatus = "processing"
+	PaymentListResponseStatusRequiresCustomerAction         PaymentListResponseStatus = "requires_customer_action"
+	PaymentListResponseStatusRequiresMerchantAction         PaymentListResponseStatus = "requires_merchant_action"
+	PaymentListResponseStatusRequiresPaymentMethod          PaymentListResponseStatus = "requires_payment_method"
+	PaymentListResponseStatusRequiresConfirmation           PaymentListResponseStatus = "requires_confirmation"
+	PaymentListResponseStatusRequiresCapture                PaymentListResponseStatus = "requires_capture"
+	PaymentListResponseStatusPartiallyCaptured              PaymentListResponseStatus = "partially_captured"
+	PaymentListResponseStatusPartiallyCapturedAndCapturable PaymentListResponseStatus = "partially_captured_and_capturable"
 )
 
-func (r PaymentListResponseItemsStatus) IsKnown() bool {
+func (r PaymentListResponseStatus) IsKnown() bool {
 	switch r {
-	case PaymentListResponseItemsStatusSucceeded, PaymentListResponseItemsStatusFailed, PaymentListResponseItemsStatusCancelled, PaymentListResponseItemsStatusProcessing, PaymentListResponseItemsStatusRequiresCustomerAction, PaymentListResponseItemsStatusRequiresMerchantAction, PaymentListResponseItemsStatusRequiresPaymentMethod, PaymentListResponseItemsStatusRequiresConfirmation, PaymentListResponseItemsStatusRequiresCapture, PaymentListResponseItemsStatusPartiallyCaptured, PaymentListResponseItemsStatusPartiallyCapturedAndCapturable:
+	case PaymentListResponseStatusSucceeded, PaymentListResponseStatusFailed, PaymentListResponseStatusCancelled, PaymentListResponseStatusProcessing, PaymentListResponseStatusRequiresCustomerAction, PaymentListResponseStatusRequiresMerchantAction, PaymentListResponseStatusRequiresPaymentMethod, PaymentListResponseStatusRequiresConfirmation, PaymentListResponseStatusRequiresCapture, PaymentListResponseStatusPartiallyCaptured, PaymentListResponseStatusPartiallyCapturedAndCapturable:
 		return true
 	}
 	return false

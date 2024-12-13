@@ -16,6 +16,7 @@ import (
 	"github.com/stainless-sdks/dodo-payments-go/internal/param"
 	"github.com/stainless-sdks/dodo-payments-go/internal/requestconfig"
 	"github.com/stainless-sdks/dodo-payments-go/option"
+	"github.com/stainless-sdks/dodo-payments-go/packages/pagination"
 	"github.com/tidwall/gjson"
 )
 
@@ -70,11 +71,25 @@ func (r *ProductService) Update(ctx context.Context, id string, body ProductUpda
 	return
 }
 
-func (r *ProductService) List(ctx context.Context, query ProductListParams, opts ...option.RequestOption) (res *ProductListResponse, err error) {
+func (r *ProductService) List(ctx context.Context, query ProductListParams, opts ...option.RequestOption) (res *pagination.PageNumberPage[ProductListResponse], err error) {
+	var raw *http.Response
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "products"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+func (r *ProductService) ListAutoPaging(ctx context.Context, query ProductListParams, opts ...option.RequestOption) *pagination.PageNumberPageAutoPager[ProductListResponse] {
+	return pagination.NewPageNumberPageAutoPager(r.List(ctx, query, opts...))
 }
 
 type Product struct {
@@ -895,45 +910,24 @@ func (r productNewResponseJSON) RawJSON() string {
 }
 
 type ProductListResponse struct {
-	Items []ProductListResponseItem `json:"items,required"`
-	JSON  productListResponseJSON   `json:"-"`
-}
-
-// productListResponseJSON contains the JSON metadata for the struct
-// [ProductListResponse]
-type productListResponseJSON struct {
-	Items       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductListResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type ProductListResponseItem struct {
 	BusinessID  string    `json:"business_id,required"`
 	CreatedAt   time.Time `json:"created_at,required" format:"date-time"`
 	IsRecurring bool      `json:"is_recurring,required"`
 	ProductID   string    `json:"product_id,required"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
-	TaxCategory ProductListResponseItemsTaxCategory `json:"tax_category,required"`
-	UpdatedAt   time.Time                           `json:"updated_at,required" format:"date-time"`
-	Description string                              `json:"description,nullable"`
-	Image       string                              `json:"image,nullable"`
-	Name        string                              `json:"name,nullable"`
-	Price       int64                               `json:"price,nullable"`
-	JSON        productListResponseItemJSON         `json:"-"`
+	TaxCategory ProductListResponseTaxCategory `json:"tax_category,required"`
+	UpdatedAt   time.Time                      `json:"updated_at,required" format:"date-time"`
+	Description string                         `json:"description,nullable"`
+	Image       string                         `json:"image,nullable"`
+	Name        string                         `json:"name,nullable"`
+	Price       int64                          `json:"price,nullable"`
+	JSON        productListResponseJSON        `json:"-"`
 }
 
-// productListResponseItemJSON contains the JSON metadata for the struct
-// [ProductListResponseItem]
-type productListResponseItemJSON struct {
+// productListResponseJSON contains the JSON metadata for the struct
+// [ProductListResponse]
+type productListResponseJSON struct {
 	BusinessID  apijson.Field
 	CreatedAt   apijson.Field
 	IsRecurring apijson.Field
@@ -948,27 +942,27 @@ type productListResponseItemJSON struct {
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *ProductListResponseItem) UnmarshalJSON(data []byte) (err error) {
+func (r *ProductListResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r productListResponseItemJSON) RawJSON() string {
+func (r productListResponseJSON) RawJSON() string {
 	return r.raw
 }
 
 // Represents the different categories of taxation applicable to various products
 // and services.
-type ProductListResponseItemsTaxCategory string
+type ProductListResponseTaxCategory string
 
 const (
-	ProductListResponseItemsTaxCategoryDigitalProducts ProductListResponseItemsTaxCategory = "digital_products"
-	ProductListResponseItemsTaxCategorySaas            ProductListResponseItemsTaxCategory = "saas"
-	ProductListResponseItemsTaxCategoryEBook           ProductListResponseItemsTaxCategory = "e_book"
+	ProductListResponseTaxCategoryDigitalProducts ProductListResponseTaxCategory = "digital_products"
+	ProductListResponseTaxCategorySaas            ProductListResponseTaxCategory = "saas"
+	ProductListResponseTaxCategoryEBook           ProductListResponseTaxCategory = "e_book"
 )
 
-func (r ProductListResponseItemsTaxCategory) IsKnown() bool {
+func (r ProductListResponseTaxCategory) IsKnown() bool {
 	switch r {
-	case ProductListResponseItemsTaxCategoryDigitalProducts, ProductListResponseItemsTaxCategorySaas, ProductListResponseItemsTaxCategoryEBook:
+	case ProductListResponseTaxCategoryDigitalProducts, ProductListResponseTaxCategorySaas, ProductListResponseTaxCategoryEBook:
 		return true
 	}
 	return false

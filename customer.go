@@ -15,6 +15,7 @@ import (
 	"github.com/stainless-sdks/dodo-payments-go/internal/param"
 	"github.com/stainless-sdks/dodo-payments-go/internal/requestconfig"
 	"github.com/stainless-sdks/dodo-payments-go/option"
+	"github.com/stainless-sdks/dodo-payments-go/packages/pagination"
 )
 
 // CustomerService contains methods and other services that help with interacting
@@ -47,11 +48,25 @@ func (r *CustomerService) Get(ctx context.Context, customerID string, opts ...op
 	return
 }
 
-func (r *CustomerService) List(ctx context.Context, query CustomerListParams, opts ...option.RequestOption) (res *CustomerListResponse, err error) {
+func (r *CustomerService) List(ctx context.Context, query CustomerListParams, opts ...option.RequestOption) (res *pagination.PageNumberPage[Customer], err error) {
+	var raw *http.Response
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "customers"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+func (r *CustomerService) ListAutoPaging(ctx context.Context, query CustomerListParams, opts ...option.RequestOption) *pagination.PageNumberPageAutoPager[Customer] {
+	return pagination.NewPageNumberPageAutoPager(r.List(ctx, query, opts...))
 }
 
 type Customer struct {
@@ -81,27 +96,6 @@ func (r *Customer) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r customerJSON) RawJSON() string {
-	return r.raw
-}
-
-type CustomerListResponse struct {
-	Items []Customer               `json:"items,required"`
-	JSON  customerListResponseJSON `json:"-"`
-}
-
-// customerListResponseJSON contains the JSON metadata for the struct
-// [CustomerListResponse]
-type customerListResponseJSON struct {
-	Items       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *CustomerListResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r customerListResponseJSON) RawJSON() string {
 	return r.raw
 }
 

@@ -15,6 +15,7 @@ import (
 	"github.com/stainless-sdks/dodo-payments-go/internal/param"
 	"github.com/stainless-sdks/dodo-payments-go/internal/requestconfig"
 	"github.com/stainless-sdks/dodo-payments-go/option"
+	"github.com/stainless-sdks/dodo-payments-go/packages/pagination"
 )
 
 // DisputeService contains methods and other services that help with interacting
@@ -47,11 +48,25 @@ func (r *DisputeService) Get(ctx context.Context, disputeID string, opts ...opti
 	return
 }
 
-func (r *DisputeService) List(ctx context.Context, query DisputeListParams, opts ...option.RequestOption) (res *DisputeListResponse, err error) {
+func (r *DisputeService) List(ctx context.Context, query DisputeListParams, opts ...option.RequestOption) (res *pagination.PageNumberPage[Dispute], err error) {
+	var raw *http.Response
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "disputes"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+func (r *DisputeService) ListAutoPaging(ctx context.Context, query DisputeListParams, opts ...option.RequestOption) *pagination.PageNumberPageAutoPager[Dispute] {
+	return pagination.NewPageNumberPageAutoPager(r.List(ctx, query, opts...))
 }
 
 type Dispute struct {
@@ -122,27 +137,6 @@ func (r DisputeDisputeStatus) IsKnown() bool {
 		return true
 	}
 	return false
-}
-
-type DisputeListResponse struct {
-	Items []Dispute               `json:"items,required"`
-	JSON  disputeListResponseJSON `json:"-"`
-}
-
-// disputeListResponseJSON contains the JSON metadata for the struct
-// [DisputeListResponse]
-type disputeListResponseJSON struct {
-	Items       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *DisputeListResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r disputeListResponseJSON) RawJSON() string {
-	return r.raw
 }
 
 type DisputeListParams struct {

@@ -13,15 +13,15 @@ import (
 )
 
 type PageNumberPage[T any] struct {
-	Data []T                `json:"data"`
-	JSON pageNumberPageJSON `json:"-"`
-	cfg  *requestconfig.RequestConfig
-	res  *http.Response
+	Items []T                `json:"items"`
+	JSON  pageNumberPageJSON `json:"-"`
+	cfg   *requestconfig.RequestConfig
+	res   *http.Response
 }
 
 // pageNumberPageJSON contains the JSON metadata for the struct [PageNumberPage[T]]
 type pageNumberPageJSON struct {
-	Data        apijson.Field
+	Items       apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -82,17 +82,17 @@ func NewPageNumberPageAutoPager[T any](page *PageNumberPage[T], err error) *Page
 }
 
 func (r *PageNumberPageAutoPager[T]) Next() bool {
-	if r.page == nil || len(r.page.Data) == 0 {
+	if r.page == nil || len(r.page.Items) == 0 {
 		return false
 	}
-	if r.idx >= len(r.page.Data) {
+	if r.idx >= len(r.page.Items) {
 		r.idx = 0
 		r.page, r.err = r.page.GetNextPage()
-		if r.err != nil || r.page == nil || len(r.page.Data) == 0 {
+		if r.err != nil || r.page == nil || len(r.page.Items) == 0 {
 			return false
 		}
 	}
-	r.cur = r.page.Data[r.idx]
+	r.cur = r.page.Items[r.idx]
 	r.run += 1
 	r.idx += 1
 	return true
