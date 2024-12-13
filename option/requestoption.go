@@ -221,18 +221,18 @@ func WithRequestTimeout(dur time.Duration) RequestOption {
 	}
 }
 
-// WithEnvironmentTestMode returns a RequestOption that sets the current
-// environment to be the "test_mode" environment. An environment specifies which base URL
-// to use by default.
-func WithEnvironmentTestMode() RequestOption {
-	return WithBaseURL("https://test.dodopayments.com//")
-}
-
 // WithEnvironmentLiveMode returns a RequestOption that sets the current
 // environment to be the "live_mode" environment. An environment specifies which base URL
 // to use by default.
 func WithEnvironmentLiveMode() RequestOption {
 	return WithBaseURL("https://live.dodopayments.com//")
+}
+
+// WithEnvironmentTestMode returns a RequestOption that sets the current
+// environment to be the "test_mode" environment. An environment specifies which base URL
+// to use by default.
+func WithEnvironmentTestMode() RequestOption {
+	return WithBaseURL("https://test.dodopayments.com//")
 }
 
 // WithAPIKey returns a RequestOption that sets the client setting "api_key".
