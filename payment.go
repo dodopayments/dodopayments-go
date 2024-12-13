@@ -19,7 +19,7 @@ import (
 )
 
 // PaymentService contains methods and other services that help with interacting
-// with the dodopayments API.
+// with the Dodo Payments API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -697,10 +697,10 @@ func (r PaymentNewParams) MarshalJSON() (data []byte, err error) {
 type PaymentNewParamsBilling struct {
 	City param.Field[string] `json:"city,required"`
 	// ISO country code alpha2 variant
-	Country param.Field[CountryCodeAlpha2] `json:"country,required"`
-	State   param.Field[string]            `json:"state,required"`
-	Street  param.Field[string]            `json:"street,required"`
-	Zipcode param.Field[int64]             `json:"zipcode,required"`
+	Country param.Field[CountryCode] `json:"country,required"`
+	State   param.Field[string]      `json:"state,required"`
+	Street  param.Field[string]      `json:"street,required"`
+	Zipcode param.Field[int64]       `json:"zipcode,required"`
 }
 
 func (r PaymentNewParamsBilling) MarshalJSON() (data []byte, err error) {

@@ -28,7 +28,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 	_, err := client.Subscriptions.New(context.TODO(), dodopayments.SubscriptionNewParams{
 		Billing: dodopayments.F(dodopayments.SubscriptionNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),

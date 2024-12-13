@@ -12,19 +12,19 @@ import (
 )
 
 // Client creates a struct with services and top level methods that help with
-// interacting with the dodopayments API. You should not instantiate this client
+// interacting with the Dodo Payments API. You should not instantiate this client
 // directly, and instead use the [NewClient] method instead.
 type Client struct {
 	Options       []option.RequestOption
-	Checkout      *CheckoutService
-	Customers     *CustomerService
-	Disputes      *DisputeService
 	Payments      *PaymentService
-	Payouts       *PayoutService
-	Products      *ProductService
-	Refunds       *RefundService
 	Subscriptions *SubscriptionService
+	Customers     *CustomerService
+	Refunds       *RefundService
+	Disputes      *DisputeService
+	Payouts       *PayoutService
 	WebhookEvents *WebhookEventService
+	Products      *ProductService
+	Misc          *MiscService
 }
 
 // NewClient generates a new client with the default option read from the
@@ -40,15 +40,15 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 
 	r = &Client{Options: opts}
 
-	r.Checkout = NewCheckoutService(opts...)
-	r.Customers = NewCustomerService(opts...)
-	r.Disputes = NewDisputeService(opts...)
 	r.Payments = NewPaymentService(opts...)
-	r.Payouts = NewPayoutService(opts...)
-	r.Products = NewProductService(opts...)
-	r.Refunds = NewRefundService(opts...)
 	r.Subscriptions = NewSubscriptionService(opts...)
+	r.Customers = NewCustomerService(opts...)
+	r.Refunds = NewRefundService(opts...)
+	r.Disputes = NewDisputeService(opts...)
+	r.Payouts = NewPayoutService(opts...)
 	r.WebhookEvents = NewWebhookEventService(opts...)
+	r.Products = NewProductService(opts...)
+	r.Misc = NewMiscService(opts...)
 
 	return
 }

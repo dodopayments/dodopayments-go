@@ -18,7 +18,7 @@ import (
 )
 
 // WebhookEventService contains methods and other services that help with
-// interacting with the dodopayments API.
+// interacting with the Dodo Payments API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use
@@ -36,7 +36,7 @@ func NewWebhookEventService(opts ...option.RequestOption) (r *WebhookEventServic
 	return
 }
 
-func (r *WebhookEventService) Get(ctx context.Context, webhookEventID string, opts ...option.RequestOption) (res *WebhookEventLog, err error) {
+func (r *WebhookEventService) Get(ctx context.Context, webhookEventID string, opts ...option.RequestOption) (res *WebhookEvent, err error) {
 	opts = append(r.Options[:], opts...)
 	if webhookEventID == "" {
 		err = errors.New("missing required webhook_event_id parameter")
@@ -54,20 +54,20 @@ func (r *WebhookEventService) List(ctx context.Context, query WebhookEventListPa
 	return
 }
 
-type WebhookEventLog struct {
-	BusinessID        string              `json:"business_id,required"`
-	CreatedAt         time.Time           `json:"created_at,required" format:"date-time"`
-	EventID           string              `json:"event_id,required"`
-	EventType         string              `json:"event_type,required"`
-	ObjectID          string              `json:"object_id,required"`
-	LatestAttemptedAt time.Time           `json:"latest_attempted_at,nullable" format:"date-time"`
-	Request           string              `json:"request,nullable"`
-	Response          string              `json:"response,nullable"`
-	JSON              webhookEventLogJSON `json:"-"`
+type WebhookEvent struct {
+	BusinessID        string           `json:"business_id,required"`
+	CreatedAt         time.Time        `json:"created_at,required" format:"date-time"`
+	EventID           string           `json:"event_id,required"`
+	EventType         string           `json:"event_type,required"`
+	ObjectID          string           `json:"object_id,required"`
+	LatestAttemptedAt time.Time        `json:"latest_attempted_at,nullable" format:"date-time"`
+	Request           string           `json:"request,nullable"`
+	Response          string           `json:"response,nullable"`
+	JSON              webhookEventJSON `json:"-"`
 }
 
-// webhookEventLogJSON contains the JSON metadata for the struct [WebhookEventLog]
-type webhookEventLogJSON struct {
+// webhookEventJSON contains the JSON metadata for the struct [WebhookEvent]
+type webhookEventJSON struct {
 	BusinessID        apijson.Field
 	CreatedAt         apijson.Field
 	EventID           apijson.Field
@@ -80,16 +80,16 @@ type webhookEventLogJSON struct {
 	ExtraFields       map[string]apijson.Field
 }
 
-func (r *WebhookEventLog) UnmarshalJSON(data []byte) (err error) {
+func (r *WebhookEvent) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r webhookEventLogJSON) RawJSON() string {
+func (r webhookEventJSON) RawJSON() string {
 	return r.raw
 }
 
 type WebhookEventListResponse struct {
-	Items []WebhookEventLog            `json:"items,required"`
+	Items []WebhookEvent               `json:"items,required"`
 	JSON  webhookEventListResponseJSON `json:"-"`
 }
 

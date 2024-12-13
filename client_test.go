@@ -40,7 +40,7 @@ func TestUserAgentHeader(t *testing.T) {
 	client.Payments.New(context.Background(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
@@ -54,7 +54,7 @@ func TestUserAgentHeader(t *testing.T) {
 			Quantity:  dodopayments.F(int64(0)),
 		}}),
 	})
-	if userAgent != fmt.Sprintf("Dodopayments/Go %s", internal.PackageVersion) {
+	if userAgent != fmt.Sprintf("DodoPayments/Go %s", internal.PackageVersion) {
 		t.Errorf("Expected User-Agent to be correct, but got: %#v", userAgent)
 	}
 }
@@ -79,7 +79,7 @@ func TestRetryAfter(t *testing.T) {
 	res, err := client.Payments.New(context.Background(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
@@ -129,7 +129,7 @@ func TestDeleteRetryCountHeader(t *testing.T) {
 	res, err := client.Payments.New(context.Background(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
@@ -174,7 +174,7 @@ func TestOverwriteRetryCountHeader(t *testing.T) {
 	res, err := client.Payments.New(context.Background(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
@@ -218,7 +218,7 @@ func TestRetryAfterMs(t *testing.T) {
 	res, err := client.Payments.New(context.Background(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
@@ -256,7 +256,7 @@ func TestContextCancel(t *testing.T) {
 	res, err := client.Payments.New(cancelCtx, dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
@@ -291,7 +291,7 @@ func TestContextCancelDelay(t *testing.T) {
 	res, err := client.Payments.New(cancelCtx, dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
@@ -332,7 +332,7 @@ func TestContextDeadline(t *testing.T) {
 		res, err := client.Payments.New(deadlineCtx, dodopayments.PaymentNewParams{
 			Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 				City:    dodopayments.F("city"),
-				Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+				Country: dodopayments.F(dodopayments.CountryCodeAf),
 				State:   dodopayments.F("state"),
 				Street:  dodopayments.F("street"),
 				Zipcode: dodopayments.F(int64(0)),

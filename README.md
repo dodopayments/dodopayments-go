@@ -1,8 +1,8 @@
-# Dodopayments Go API Library
+# Dodo Payments Go API Library
 
 <a href="https://pkg.go.dev/github.com/stainless-sdks/dodo-payments-go"><img src="https://pkg.go.dev/badge/github.com/stainless-sdks/dodo-payments-go.svg" alt="Go Reference"></a>
 
-The Dodopayments Go library provides convenient access to [the Dodopayments REST
+The Dodo Payments Go library provides convenient access to [the Dodo Payments REST
 API](https://docs.dodopayments.com) from applications written in Go. The full API of this library can be found in [api.md](api.md).
 
 It is generated with [Stainless](https://www.stainlessapi.com/).
@@ -48,7 +48,7 @@ func main() {
 	payment, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
@@ -211,7 +211,7 @@ To handle errors, we recommend that you use the `errors.As` pattern:
 _, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
 	Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 		City:    dodopayments.F("city"),
-		Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+		Country: dodopayments.F(dodopayments.CountryCodeAf),
 		State:   dodopayments.F("state"),
 		Street:  dodopayments.F("street"),
 		Zipcode: dodopayments.F(int64(0)),
@@ -254,7 +254,7 @@ client.Payments.New(
 	dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
@@ -306,7 +306,7 @@ client.Payments.New(
 	dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
