@@ -15,6 +15,7 @@ import (
 	"github.com/stainless-sdks/dodo-payments-go/internal/param"
 	"github.com/stainless-sdks/dodo-payments-go/internal/requestconfig"
 	"github.com/stainless-sdks/dodo-payments-go/option"
+	"github.com/stainless-sdks/dodo-payments-go/packages/pagination"
 )
 
 // RefundService contains methods and other services that help with interacting
@@ -54,11 +55,25 @@ func (r *RefundService) Get(ctx context.Context, refundID string, opts ...option
 	return
 }
 
-func (r *RefundService) List(ctx context.Context, query RefundListParams, opts ...option.RequestOption) (res *RefundListResponse, err error) {
+func (r *RefundService) List(ctx context.Context, query RefundListParams, opts ...option.RequestOption) (res *pagination.PageNumberPage[Refund], err error) {
+	var raw *http.Response
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "refunds"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+func (r *RefundService) ListAutoPaging(ctx context.Context, query RefundListParams, opts ...option.RequestOption) *pagination.PageNumberPageAutoPager[Refund] {
+	return pagination.NewPageNumberPageAutoPager(r.List(ctx, query, opts...))
 }
 
 type Refund struct {
@@ -268,27 +283,6 @@ func (r RefundCurrency) IsKnown() bool {
 		return true
 	}
 	return false
-}
-
-type RefundListResponse struct {
-	Items []Refund               `json:"items,required"`
-	JSON  refundListResponseJSON `json:"-"`
-}
-
-// refundListResponseJSON contains the JSON metadata for the struct
-// [RefundListResponse]
-type refundListResponseJSON struct {
-	Items       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *RefundListResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r refundListResponseJSON) RawJSON() string {
-	return r.raw
 }
 
 type RefundNewParams struct {
