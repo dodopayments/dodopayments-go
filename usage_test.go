@@ -27,7 +27,7 @@ func TestUsage(t *testing.T) {
 	payment, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
 			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAlpha2Af),
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),

@@ -13,7 +13,7 @@ import (
 	"github.com/stainless-sdks/dodo-payments-go/option"
 )
 
-func TestCheckoutSupportedCountryList(t *testing.T) {
+func TestMiscSupportedCountryList(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,7 +25,7 @@ func TestCheckoutSupportedCountryList(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Checkout.SupportedCountries.List(context.TODO())
+	_, err := client.Misc.SupportedCountries.List(context.TODO())
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
