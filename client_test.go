@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/dodo-payments-go"
-	"github.com/stainless-sdks/dodo-payments-go/internal"
-	"github.com/stainless-sdks/dodo-payments-go/option"
+	"github.com/dodopayments/dodopayments-go"
+	"github.com/dodopayments/dodopayments-go/internal"
+	"github.com/dodopayments/dodopayments-go/option"
 )
 
 type closureTransport struct {

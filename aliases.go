@@ -3,7 +3,7 @@
 package dodopayments
 
 import (
-	"github.com/stainless-sdks/dodo-payments-go/internal/apierror"
+	"github.com/dodopayments/dodopayments-go/internal/apierror"
 )
 
 type Error = apierror.Error

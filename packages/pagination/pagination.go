@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/stainless-sdks/dodo-payments-go/internal/apijson"
-	"github.com/stainless-sdks/dodo-payments-go/internal/requestconfig"
+	"github.com/dodopayments/dodopayments-go/internal/apijson"
+	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 )
 
 type DefaultPageNumberPagination[T any] struct {
