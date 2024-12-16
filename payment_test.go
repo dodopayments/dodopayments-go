@@ -33,15 +33,16 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
 		}),
-		Customer: dodopayments.F(dodopayments.PaymentNewParamsCustomer{
-			Email:       dodopayments.F("email"),
-			Name:        dodopayments.F("name"),
-			PhoneNumber: dodopayments.F("phone_number"),
+		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
+			CustomerID: dodopayments.F("customer_id"),
 		}),
 		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
 			Quantity:  dodopayments.F(int64(0)),
 		}}),
+		Metadata: dodopayments.F(map[string]string{
+			"foo": "string",
+		}),
 		PaymentLink: dodopayments.F(true),
 		ReturnURL:   dodopayments.F("return_url"),
 	})

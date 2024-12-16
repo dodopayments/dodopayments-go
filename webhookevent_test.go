@@ -50,8 +50,11 @@ func TestWebhookEventListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.WebhookEvents.List(context.TODO(), dodopayments.WebhookEventListParams{
 		CreatedAtGte: dodopayments.F(time.Now()),
+		CreatedAtLte: dodopayments.F(time.Now()),
 		Limit:        dodopayments.F(int64(0)),
 		ObjectID:     dodopayments.F("object_id"),
+		PageNumber:   dodopayments.F(int64(0)),
+		PageSize:     dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

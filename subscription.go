@@ -91,6 +91,7 @@ type Subscription struct {
 	CreatedAt                  time.Time                              `json:"created_at,required" format:"date-time"`
 	Currency                   SubscriptionCurrency                   `json:"currency,required"`
 	Customer                   SubscriptionCustomer                   `json:"customer,required"`
+	Metadata                   map[string]string                      `json:"metadata,required"`
 	NextBillingDate            time.Time                              `json:"next_billing_date,required" format:"date-time"`
 	PaymentFrequencyCount      int64                                  `json:"payment_frequency_count,required"`
 	PaymentFrequencyInterval   SubscriptionPaymentFrequencyInterval   `json:"payment_frequency_interval,required"`
@@ -110,6 +111,7 @@ type subscriptionJSON struct {
 	CreatedAt                  apijson.Field
 	Currency                   apijson.Field
 	Customer                   apijson.Field
+	Metadata                   apijson.Field
 	NextBillingDate            apijson.Field
 	PaymentFrequencyCount      apijson.Field
 	PaymentFrequencyInterval   apijson.Field
@@ -372,6 +374,7 @@ func (r SubscriptionSubscriptionPeriodInterval) IsKnown() bool {
 
 type SubscriptionNewResponse struct {
 	Customer              SubscriptionNewResponseCustomer `json:"customer,required"`
+	Metadata              map[string]string               `json:"metadata,required"`
 	RecurringPreTaxAmount int64                           `json:"recurring_pre_tax_amount,required"`
 	SubscriptionID        string                          `json:"subscription_id,required"`
 	ClientSecret          string                          `json:"client_secret,nullable"`
@@ -383,6 +386,7 @@ type SubscriptionNewResponse struct {
 // [SubscriptionNewResponse]
 type subscriptionNewResponseJSON struct {
 	Customer              apijson.Field
+	Metadata              apijson.Field
 	RecurringPreTaxAmount apijson.Field
 	SubscriptionID        apijson.Field
 	ClientSecret          apijson.Field
@@ -425,10 +429,11 @@ func (r subscriptionNewResponseCustomerJSON) RawJSON() string {
 }
 
 type SubscriptionNewParams struct {
-	Billing   param.Field[SubscriptionNewParamsBilling]  `json:"billing,required"`
-	Customer  param.Field[SubscriptionNewParamsCustomer] `json:"customer,required"`
-	ProductID param.Field[string]                        `json:"product_id,required"`
-	Quantity  param.Field[int64]                         `json:"quantity,required"`
+	Billing   param.Field[SubscriptionNewParamsBilling]       `json:"billing,required"`
+	Customer  param.Field[SubscriptionNewParamsCustomerUnion] `json:"customer,required"`
+	ProductID param.Field[string]                             `json:"product_id,required"`
+	Quantity  param.Field[int64]                              `json:"quantity,required"`
+	Metadata  param.Field[map[string]string]                  `json:"metadata"`
 	// False by default
 	PaymentLink param.Field[bool]   `json:"payment_link"`
 	ReturnURL   param.Field[string] `json:"return_url"`
@@ -452,8 +457,9 @@ func (r SubscriptionNewParamsBilling) MarshalJSON() (data []byte, err error) {
 }
 
 type SubscriptionNewParamsCustomer struct {
-	Email       param.Field[string] `json:"email,required"`
-	Name        param.Field[string] `json:"name,required"`
+	CustomerID  param.Field[string] `json:"customer_id"`
+	Email       param.Field[string] `json:"email"`
+	Name        param.Field[string] `json:"name"`
 	PhoneNumber param.Field[string] `json:"phone_number"`
 }
 
@@ -461,8 +467,42 @@ func (r SubscriptionNewParamsCustomer) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+func (r SubscriptionNewParamsCustomer) implementsSubscriptionNewParamsCustomerUnion() {}
+
+// Satisfied by [SubscriptionNewParamsCustomerAttachExistingCustomer],
+// [SubscriptionNewParamsCustomerCreateNewCustomer],
+// [SubscriptionNewParamsCustomer].
+type SubscriptionNewParamsCustomerUnion interface {
+	implementsSubscriptionNewParamsCustomerUnion()
+}
+
+type SubscriptionNewParamsCustomerAttachExistingCustomer struct {
+	CustomerID param.Field[string] `json:"customer_id,required"`
+}
+
+func (r SubscriptionNewParamsCustomerAttachExistingCustomer) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r SubscriptionNewParamsCustomerAttachExistingCustomer) implementsSubscriptionNewParamsCustomerUnion() {
+}
+
+type SubscriptionNewParamsCustomerCreateNewCustomer struct {
+	Email       param.Field[string] `json:"email,required"`
+	Name        param.Field[string] `json:"name,required"`
+	PhoneNumber param.Field[string] `json:"phone_number"`
+}
+
+func (r SubscriptionNewParamsCustomerCreateNewCustomer) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r SubscriptionNewParamsCustomerCreateNewCustomer) implementsSubscriptionNewParamsCustomerUnion() {
+}
+
 type SubscriptionUpdateParams struct {
-	Status param.Field[SubscriptionUpdateParamsStatus] `json:"status,required"`
+	Metadata param.Field[map[string]string]              `json:"metadata"`
+	Status   param.Field[SubscriptionUpdateParamsStatus] `json:"status"`
 }
 
 func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {

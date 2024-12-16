@@ -15,6 +15,7 @@ import (
 	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/packages/pagination"
 )
 
 // WebhookEventService contains methods and other services that help with
@@ -47,11 +48,25 @@ func (r *WebhookEventService) Get(ctx context.Context, webhookEventID string, op
 	return
 }
 
-func (r *WebhookEventService) List(ctx context.Context, query WebhookEventListParams, opts ...option.RequestOption) (res *WebhookEventListResponse, err error) {
+func (r *WebhookEventService) List(ctx context.Context, query WebhookEventListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[WebhookEvent], err error) {
+	var raw *http.Response
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "webhook_events"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+func (r *WebhookEventService) ListAutoPaging(ctx context.Context, query WebhookEventListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[WebhookEvent] {
+	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
 type WebhookEvent struct {
@@ -88,34 +103,19 @@ func (r webhookEventJSON) RawJSON() string {
 	return r.raw
 }
 
-type WebhookEventListResponse struct {
-	Items []WebhookEvent               `json:"items,required"`
-	JSON  webhookEventListResponseJSON `json:"-"`
-}
-
-// webhookEventListResponseJSON contains the JSON metadata for the struct
-// [WebhookEventListResponse]
-type webhookEventListResponseJSON struct {
-	Items       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *WebhookEventListResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r webhookEventListResponseJSON) RawJSON() string {
-	return r.raw
-}
-
 type WebhookEventListParams struct {
 	// Get events after this created time
 	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
+	// Get events created before this time
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
 	// Min : 1, Max : 100, default 10
 	Limit param.Field[int64] `query:"limit"`
 	// Get events history of a specific object like payment/subscription/refund/dispute
 	ObjectID param.Field[string] `query:"object_id"`
+	// Page number default is 0
+	PageNumber param.Field[int64] `query:"page_number"`
+	// Page size default is 10 max is 100
+	PageSize param.Field[int64] `query:"page_size"`
 }
 
 // URLQuery serializes [WebhookEventListParams]'s query parameters as `url.Values`.

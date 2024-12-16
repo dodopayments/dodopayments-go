@@ -33,13 +33,14 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
 		}),
-		Customer: dodopayments.F(dodopayments.SubscriptionNewParamsCustomer{
-			Email:       dodopayments.F("email"),
-			Name:        dodopayments.F("name"),
-			PhoneNumber: dodopayments.F("phone_number"),
+		Customer: dodopayments.F[dodopayments.SubscriptionNewParamsCustomerUnion](dodopayments.SubscriptionNewParamsCustomerAttachExistingCustomer{
+			CustomerID: dodopayments.F("customer_id"),
 		}),
-		ProductID:   dodopayments.F("product_id"),
-		Quantity:    dodopayments.F(int64(0)),
+		ProductID: dodopayments.F("product_id"),
+		Quantity:  dodopayments.F(int64(0)),
+		Metadata: dodopayments.F(map[string]string{
+			"foo": "string",
+		}),
 		PaymentLink: dodopayments.F(true),
 		ReturnURL:   dodopayments.F("return_url"),
 	})
@@ -74,7 +75,7 @@ func TestSubscriptionGet(t *testing.T) {
 	}
 }
 
-func TestSubscriptionUpdate(t *testing.T) {
+func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -90,6 +91,9 @@ func TestSubscriptionUpdate(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionUpdateParams{
+			Metadata: dodopayments.F(map[string]string{
+				"foo": "string",
+			}),
 			Status: dodopayments.F(dodopayments.SubscriptionUpdateParamsStatusPending),
 		},
 	)
