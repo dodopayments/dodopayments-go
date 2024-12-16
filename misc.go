@@ -3,7 +3,7 @@
 package dodopayments
 
 import (
-	"github.com/stainless-sdks/dodo-payments-go/option"
+	"github.com/dodopayments/dodopayments-go/option"
 )
 
 // MiscService contains methods and other services that help with interacting with
