@@ -45,9 +45,8 @@ func TestUserAgentHeader(t *testing.T) {
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
 		}),
-		Customer: dodopayments.F(dodopayments.PaymentNewParamsCustomer{
-			Email: dodopayments.F("email"),
-			Name:  dodopayments.F("name"),
+		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
+			CustomerID: dodopayments.F("customer_id"),
 		}),
 		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
@@ -84,9 +83,8 @@ func TestRetryAfter(t *testing.T) {
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
 		}),
-		Customer: dodopayments.F(dodopayments.PaymentNewParamsCustomer{
-			Email: dodopayments.F("email"),
-			Name:  dodopayments.F("name"),
+		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
+			CustomerID: dodopayments.F("customer_id"),
 		}),
 		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
@@ -134,9 +132,8 @@ func TestDeleteRetryCountHeader(t *testing.T) {
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
 		}),
-		Customer: dodopayments.F(dodopayments.PaymentNewParamsCustomer{
-			Email: dodopayments.F("email"),
-			Name:  dodopayments.F("name"),
+		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
+			CustomerID: dodopayments.F("customer_id"),
 		}),
 		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
@@ -179,9 +176,8 @@ func TestOverwriteRetryCountHeader(t *testing.T) {
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
 		}),
-		Customer: dodopayments.F(dodopayments.PaymentNewParamsCustomer{
-			Email: dodopayments.F("email"),
-			Name:  dodopayments.F("name"),
+		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
+			CustomerID: dodopayments.F("customer_id"),
 		}),
 		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
@@ -223,9 +219,8 @@ func TestRetryAfterMs(t *testing.T) {
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
 		}),
-		Customer: dodopayments.F(dodopayments.PaymentNewParamsCustomer{
-			Email: dodopayments.F("email"),
-			Name:  dodopayments.F("name"),
+		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
+			CustomerID: dodopayments.F("customer_id"),
 		}),
 		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
@@ -261,9 +256,8 @@ func TestContextCancel(t *testing.T) {
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
 		}),
-		Customer: dodopayments.F(dodopayments.PaymentNewParamsCustomer{
-			Email: dodopayments.F("email"),
-			Name:  dodopayments.F("name"),
+		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
+			CustomerID: dodopayments.F("customer_id"),
 		}),
 		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
@@ -296,9 +290,8 @@ func TestContextCancelDelay(t *testing.T) {
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
 		}),
-		Customer: dodopayments.F(dodopayments.PaymentNewParamsCustomer{
-			Email: dodopayments.F("email"),
-			Name:  dodopayments.F("name"),
+		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
+			CustomerID: dodopayments.F("customer_id"),
 		}),
 		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
@@ -337,9 +330,8 @@ func TestContextDeadline(t *testing.T) {
 				Street:  dodopayments.F("street"),
 				Zipcode: dodopayments.F(int64(0)),
 			}),
-			Customer: dodopayments.F(dodopayments.PaymentNewParamsCustomer{
-				Email: dodopayments.F("email"),
-				Name:  dodopayments.F("name"),
+			Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
+				CustomerID: dodopayments.F("customer_id"),
 			}),
 			ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 				ProductID: dodopayments.F("product_id"),
