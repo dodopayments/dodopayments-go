@@ -32,9 +32,8 @@ func TestUsage(t *testing.T) {
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F(int64(0)),
 		}),
-		Customer: dodopayments.F(dodopayments.PaymentNewParamsCustomer{
-			Email: dodopayments.F("email"),
-			Name:  dodopayments.F("name"),
+		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
+			CustomerID: dodopayments.F("customer_id"),
 		}),
 		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
