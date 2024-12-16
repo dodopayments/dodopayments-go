@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/dodo-payments-go"
-	"github.com/stainless-sdks/dodo-payments-go/internal/testutil"
-	"github.com/stainless-sdks/dodo-payments-go/option"
+	"github.com/dodopayments/dodopayments-go"
+	"github.com/dodopayments/dodopayments-go/internal/testutil"
+	"github.com/dodopayments/dodopayments-go/option"
 )
 
 func TestWebhookEventGet(t *testing.T) {

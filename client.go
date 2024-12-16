@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/stainless-sdks/dodo-payments-go/internal/requestconfig"
-	"github.com/stainless-sdks/dodo-payments-go/option"
+	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
+	"github.com/dodopayments/dodopayments-go/option"
 )
 
 // Client creates a struct with services and top level methods that help with

@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/stainless-sdks/dodo-payments-go/internal/param"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 )
 
 var encoders sync.Map // map[encoderEntry]encoderFunc

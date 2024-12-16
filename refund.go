@@ -10,12 +10,12 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/stainless-sdks/dodo-payments-go/internal/apijson"
-	"github.com/stainless-sdks/dodo-payments-go/internal/apiquery"
-	"github.com/stainless-sdks/dodo-payments-go/internal/param"
-	"github.com/stainless-sdks/dodo-payments-go/internal/requestconfig"
-	"github.com/stainless-sdks/dodo-payments-go/option"
-	"github.com/stainless-sdks/dodo-payments-go/packages/pagination"
+	"github.com/dodopayments/dodopayments-go/internal/apijson"
+	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
+	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
+	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/packages/pagination"
 )
 
 // RefundService contains methods and other services that help with interacting
