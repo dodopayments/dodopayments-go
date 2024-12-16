@@ -17,10 +17,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stainless-sdks/dodo-payments-go/internal"
-	"github.com/stainless-sdks/dodo-payments-go/internal/apierror"
-	"github.com/stainless-sdks/dodo-payments-go/internal/apiform"
-	"github.com/stainless-sdks/dodo-payments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal"
+	"github.com/dodopayments/dodopayments-go/internal/apierror"
+	"github.com/dodopayments/dodopayments-go/internal/apiform"
+	"github.com/dodopayments/dodopayments-go/internal/apiquery"
 )
 
 func getDefaultHeaders() map[string]string {

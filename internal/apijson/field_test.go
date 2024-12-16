@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/dodo-payments-go/internal/param"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 )
 
 type Struct struct {

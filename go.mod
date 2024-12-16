@@ -1,4 +1,4 @@
-module github.com/stainless-sdks/dodo-payments-go
+module github.com/dodopayments/dodopayments-go
 
 go 1.21
 
