@@ -77,13 +77,14 @@ func (r *PaymentService) ListAutoPaging(ctx context.Context, query PaymentListPa
 }
 
 type Payment struct {
-	BusinessID string          `json:"business_id,required"`
-	CreatedAt  time.Time       `json:"created_at,required" format:"date-time"`
-	Currency   PaymentCurrency `json:"currency,required"`
-	Customer   PaymentCustomer `json:"customer,required"`
-	Disputes   []Dispute       `json:"disputes,required"`
-	PaymentID  string          `json:"payment_id,required"`
-	Refunds    []Refund        `json:"refunds,required"`
+	BusinessID string            `json:"business_id,required"`
+	CreatedAt  time.Time         `json:"created_at,required" format:"date-time"`
+	Currency   PaymentCurrency   `json:"currency,required"`
+	Customer   PaymentCustomer   `json:"customer,required"`
+	Disputes   []Dispute         `json:"disputes,required"`
+	Metadata   map[string]string `json:"metadata,required"`
+	PaymentID  string            `json:"payment_id,required"`
+	Refunds    []Refund          `json:"refunds,required"`
 	// Total amount taken from the customer including tax
 	TotalAmount       int64  `json:"total_amount,required"`
 	PaymentLink       string `json:"payment_link,nullable"`
@@ -107,6 +108,7 @@ type paymentJSON struct {
 	Currency          apijson.Field
 	Customer          apijson.Field
 	Disputes          apijson.Field
+	Metadata          apijson.Field
 	PaymentID         apijson.Field
 	Refunds           apijson.Field
 	TotalAmount       apijson.Field
@@ -362,6 +364,7 @@ func (r PaymentStatus) IsKnown() bool {
 type PaymentNewResponse struct {
 	ClientSecret string                          `json:"client_secret,required"`
 	Customer     PaymentNewResponseCustomer      `json:"customer,required"`
+	Metadata     map[string]string               `json:"metadata,required"`
 	PaymentID    string                          `json:"payment_id,required"`
 	TotalAmount  int64                           `json:"total_amount,required"`
 	PaymentLink  string                          `json:"payment_link,nullable"`
@@ -374,6 +377,7 @@ type PaymentNewResponse struct {
 type paymentNewResponseJSON struct {
 	ClientSecret apijson.Field
 	Customer     apijson.Field
+	Metadata     apijson.Field
 	PaymentID    apijson.Field
 	TotalAmount  apijson.Field
 	PaymentLink  apijson.Field
@@ -442,6 +446,7 @@ type PaymentListResponse struct {
 	CreatedAt         time.Time                   `json:"created_at,required" format:"date-time"`
 	Currency          PaymentListResponseCurrency `json:"currency,required"`
 	Customer          PaymentListResponseCustomer `json:"customer,required"`
+	Metadata          map[string]string           `json:"metadata,required"`
 	PaymentID         string                      `json:"payment_id,required"`
 	TotalAmount       int64                       `json:"total_amount,required"`
 	PaymentMethod     string                      `json:"payment_method,nullable"`
@@ -457,6 +462,7 @@ type paymentListResponseJSON struct {
 	CreatedAt         apijson.Field
 	Currency          apijson.Field
 	Customer          apijson.Field
+	Metadata          apijson.Field
 	PaymentID         apijson.Field
 	TotalAmount       apijson.Field
 	PaymentMethod     apijson.Field
@@ -684,8 +690,9 @@ func (r PaymentListResponseStatus) IsKnown() bool {
 
 type PaymentNewParams struct {
 	Billing     param.Field[PaymentNewParamsBilling]       `json:"billing,required"`
-	Customer    param.Field[PaymentNewParamsCustomer]      `json:"customer,required"`
+	Customer    param.Field[PaymentNewParamsCustomerUnion] `json:"customer,required"`
 	ProductCart param.Field[[]PaymentNewParamsProductCart] `json:"product_cart,required"`
+	Metadata    param.Field[map[string]string]             `json:"metadata"`
 	PaymentLink param.Field[bool]                          `json:"payment_link"`
 	ReturnURL   param.Field[string]                        `json:"return_url"`
 }
@@ -708,14 +715,45 @@ func (r PaymentNewParamsBilling) MarshalJSON() (data []byte, err error) {
 }
 
 type PaymentNewParamsCustomer struct {
-	Email       param.Field[string] `json:"email,required"`
-	Name        param.Field[string] `json:"name,required"`
+	CustomerID  param.Field[string] `json:"customer_id"`
+	Email       param.Field[string] `json:"email"`
+	Name        param.Field[string] `json:"name"`
 	PhoneNumber param.Field[string] `json:"phone_number"`
 }
 
 func (r PaymentNewParamsCustomer) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
+
+func (r PaymentNewParamsCustomer) implementsPaymentNewParamsCustomerUnion() {}
+
+// Satisfied by [PaymentNewParamsCustomerAttachExistingCustomer],
+// [PaymentNewParamsCustomerCreateNewCustomer], [PaymentNewParamsCustomer].
+type PaymentNewParamsCustomerUnion interface {
+	implementsPaymentNewParamsCustomerUnion()
+}
+
+type PaymentNewParamsCustomerAttachExistingCustomer struct {
+	CustomerID param.Field[string] `json:"customer_id,required"`
+}
+
+func (r PaymentNewParamsCustomerAttachExistingCustomer) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r PaymentNewParamsCustomerAttachExistingCustomer) implementsPaymentNewParamsCustomerUnion() {}
+
+type PaymentNewParamsCustomerCreateNewCustomer struct {
+	Email       param.Field[string] `json:"email,required"`
+	Name        param.Field[string] `json:"name,required"`
+	PhoneNumber param.Field[string] `json:"phone_number"`
+}
+
+func (r PaymentNewParamsCustomerCreateNewCustomer) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r PaymentNewParamsCustomerCreateNewCustomer) implementsPaymentNewParamsCustomerUnion() {}
 
 type PaymentNewParamsProductCart struct {
 	ProductID param.Field[string] `json:"product_id,required"`
