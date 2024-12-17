@@ -37,6 +37,13 @@ func NewCustomerService(opts ...option.RequestOption) (r *CustomerService) {
 	return
 }
 
+func (r *CustomerService) New(ctx context.Context, body CustomerNewParams, opts ...option.RequestOption) (res *Customer, err error) {
+	opts = append(r.Options[:], opts...)
+	path := "customers"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return
+}
+
 func (r *CustomerService) Get(ctx context.Context, customerID string, opts ...option.RequestOption) (res *Customer, err error) {
 	opts = append(r.Options[:], opts...)
 	if customerID == "" {
@@ -45,6 +52,17 @@ func (r *CustomerService) Get(ctx context.Context, customerID string, opts ...op
 	}
 	path := fmt.Sprintf("customers/%s", customerID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
+func (r *CustomerService) Update(ctx context.Context, customerID string, body CustomerUpdateParams, opts ...option.RequestOption) (res *Customer, err error) {
+	opts = append(r.Options[:], opts...)
+	if customerID == "" {
+		err = errors.New("missing required customer_id parameter")
+		return
+	}
+	path := fmt.Sprintf("customers/%s", customerID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
 	return
 }
 
@@ -97,6 +115,25 @@ func (r *Customer) UnmarshalJSON(data []byte) (err error) {
 
 func (r customerJSON) RawJSON() string {
 	return r.raw
+}
+
+type CustomerNewParams struct {
+	Email       param.Field[string] `json:"email,required"`
+	Name        param.Field[string] `json:"name,required"`
+	PhoneNumber param.Field[string] `json:"phone_number"`
+}
+
+func (r CustomerNewParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type CustomerUpdateParams struct {
+	Name        param.Field[string] `json:"name"`
+	PhoneNumber param.Field[string] `json:"phone_number"`
+}
+
+func (r CustomerUpdateParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type CustomerListParams struct {
