@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.13.2 (2024-12-21)
+
+Full Changelog: [v0.12.0...v0.13.2](https://github.com/dodopayments/dodopayments-go/compare/v0.12.0...v0.13.2)
+
+### Chores
+
+* **internal:** codegen related update ([#8](https://github.com/dodopayments/dodopayments-go/issues/8)) ([a84732d](https://github.com/dodopayments/dodopayments-go/commit/a84732d9c90f3921c995cbe9f239ed1485f4ac69))
+
 ## 0.12.0 (2024-12-17)
 
 Full Changelog: [v0.11.1...v0.12.0](https://github.com/dodopayments/dodopayments-go/compare/v0.11.1...v0.12.0)
