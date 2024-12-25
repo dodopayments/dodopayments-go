@@ -33,9 +33,16 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 			PurchasingPowerParity: dodopayments.F(true),
 			Type:                  dodopayments.F(dodopayments.ProductNewParamsPriceOneTimePriceTypeOneTimePrice),
 		}),
-		TaxCategory: dodopayments.F(dodopayments.ProductNewParamsTaxCategoryDigitalProducts),
-		Description: dodopayments.F("description"),
-		Name:        dodopayments.F("name"),
+		TaxCategory:                 dodopayments.F(dodopayments.ProductNewParamsTaxCategoryDigitalProducts),
+		Description:                 dodopayments.F("description"),
+		LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
+		LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
+		LicenseKeyDuration: dodopayments.F(dodopayments.ProductNewParamsLicenseKeyDuration{
+			Count:    dodopayments.F(int64(0)),
+			Interval: dodopayments.F(dodopayments.ProductNewParamsLicenseKeyDurationIntervalDay),
+		}),
+		LicenseKeyEnabled: dodopayments.F(true),
+		Name:              dodopayments.F("name"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -84,8 +91,15 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.ProductUpdateParams{
-			Description: dodopayments.F("description"),
-			Name:        dodopayments.F("name"),
+			Description:                 dodopayments.F("description"),
+			LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
+			LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
+			LicenseKeyDuration: dodopayments.F(dodopayments.ProductUpdateParamsLicenseKeyDuration{
+				Count:    dodopayments.F(int64(0)),
+				Interval: dodopayments.F(dodopayments.ProductUpdateParamsLicenseKeyDurationIntervalDay),
+			}),
+			LicenseKeyEnabled: dodopayments.F(true),
+			Name:              dodopayments.F("name"),
 			Price: dodopayments.F[dodopayments.ProductUpdateParamsPriceUnion](dodopayments.ProductUpdateParamsPriceOneTimePrice{
 				Currency:              dodopayments.F(dodopayments.ProductUpdateParamsPriceOneTimePriceCurrencyAed),
 				Discount:              dodopayments.F(0.000000),
