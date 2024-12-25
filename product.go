@@ -41,7 +41,7 @@ func NewProductService(opts ...option.RequestOption) (r *ProductService) {
 	return
 }
 
-func (r *ProductService) New(ctx context.Context, body ProductNewParams, opts ...option.RequestOption) (res *ProductNewResponse, err error) {
+func (r *ProductService) New(ctx context.Context, body ProductNewParams, opts ...option.RequestOption) (res *Product, err error) {
 	opts = append(r.Options[:], opts...)
 	path := "products"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
@@ -93,35 +93,43 @@ func (r *ProductService) ListAutoPaging(ctx context.Context, query ProductListPa
 }
 
 type Product struct {
-	BusinessID  string       `json:"business_id,required"`
-	CreatedAt   time.Time    `json:"created_at,required" format:"date-time"`
-	IsRecurring bool         `json:"is_recurring,required"`
-	Price       ProductPrice `json:"price,required"`
-	ProductID   string       `json:"product_id,required"`
+	BusinessID        string       `json:"business_id,required"`
+	CreatedAt         time.Time    `json:"created_at,required" format:"date-time"`
+	IsRecurring       bool         `json:"is_recurring,required"`
+	LicenseKeyEnabled bool         `json:"license_key_enabled,required"`
+	Price             ProductPrice `json:"price,required"`
+	ProductID         string       `json:"product_id,required"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
-	TaxCategory ProductTaxCategory `json:"tax_category,required"`
-	UpdatedAt   time.Time          `json:"updated_at,required" format:"date-time"`
-	Description string             `json:"description,nullable"`
-	Image       string             `json:"image,nullable"`
-	Name        string             `json:"name,nullable"`
-	JSON        productJSON        `json:"-"`
+	TaxCategory                 ProductTaxCategory        `json:"tax_category,required"`
+	UpdatedAt                   time.Time                 `json:"updated_at,required" format:"date-time"`
+	Description                 string                    `json:"description,nullable"`
+	Image                       string                    `json:"image,nullable"`
+	LicenseKeyActivationMessage string                    `json:"license_key_activation_message,nullable"`
+	LicenseKeyActivationsLimit  int64                     `json:"license_key_activations_limit,nullable"`
+	LicenseKeyDuration          ProductLicenseKeyDuration `json:"license_key_duration,nullable"`
+	Name                        string                    `json:"name,nullable"`
+	JSON                        productJSON               `json:"-"`
 }
 
 // productJSON contains the JSON metadata for the struct [Product]
 type productJSON struct {
-	BusinessID  apijson.Field
-	CreatedAt   apijson.Field
-	IsRecurring apijson.Field
-	Price       apijson.Field
-	ProductID   apijson.Field
-	TaxCategory apijson.Field
-	UpdatedAt   apijson.Field
-	Description apijson.Field
-	Image       apijson.Field
-	Name        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	BusinessID                  apijson.Field
+	CreatedAt                   apijson.Field
+	IsRecurring                 apijson.Field
+	LicenseKeyEnabled           apijson.Field
+	Price                       apijson.Field
+	ProductID                   apijson.Field
+	TaxCategory                 apijson.Field
+	UpdatedAt                   apijson.Field
+	Description                 apijson.Field
+	Image                       apijson.Field
+	LicenseKeyActivationMessage apijson.Field
+	LicenseKeyActivationsLimit  apijson.Field
+	LicenseKeyDuration          apijson.Field
+	Name                        apijson.Field
+	raw                         string
+	ExtraFields                 map[string]apijson.Field
 }
 
 func (r *Product) UnmarshalJSON(data []byte) (err error) {
@@ -888,25 +896,44 @@ func (r ProductTaxCategory) IsKnown() bool {
 	return false
 }
 
-type ProductNewResponse struct {
-	ProductID string                 `json:"product_id,required"`
-	JSON      productNewResponseJSON `json:"-"`
+type ProductLicenseKeyDuration struct {
+	Count    int64                             `json:"count,required"`
+	Interval ProductLicenseKeyDurationInterval `json:"interval,required"`
+	JSON     productLicenseKeyDurationJSON     `json:"-"`
 }
 
-// productNewResponseJSON contains the JSON metadata for the struct
-// [ProductNewResponse]
-type productNewResponseJSON struct {
-	ProductID   apijson.Field
+// productLicenseKeyDurationJSON contains the JSON metadata for the struct
+// [ProductLicenseKeyDuration]
+type productLicenseKeyDurationJSON struct {
+	Count       apijson.Field
+	Interval    apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *ProductNewResponse) UnmarshalJSON(data []byte) (err error) {
+func (r *ProductLicenseKeyDuration) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r productNewResponseJSON) RawJSON() string {
+func (r productLicenseKeyDurationJSON) RawJSON() string {
 	return r.raw
+}
+
+type ProductLicenseKeyDurationInterval string
+
+const (
+	ProductLicenseKeyDurationIntervalDay   ProductLicenseKeyDurationInterval = "Day"
+	ProductLicenseKeyDurationIntervalWeek  ProductLicenseKeyDurationInterval = "Week"
+	ProductLicenseKeyDurationIntervalMonth ProductLicenseKeyDurationInterval = "Month"
+	ProductLicenseKeyDurationIntervalYear  ProductLicenseKeyDurationInterval = "Year"
+)
+
+func (r ProductLicenseKeyDurationInterval) IsKnown() bool {
+	switch r {
+	case ProductLicenseKeyDurationIntervalDay, ProductLicenseKeyDurationIntervalWeek, ProductLicenseKeyDurationIntervalMonth, ProductLicenseKeyDurationIntervalYear:
+		return true
+	}
+	return false
 }
 
 type ProductListResponse struct {
@@ -972,9 +999,15 @@ type ProductNewParams struct {
 	Price param.Field[ProductNewParamsPriceUnion] `json:"price,required"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
-	TaxCategory param.Field[ProductNewParamsTaxCategory] `json:"tax_category,required"`
-	Description param.Field[string]                      `json:"description"`
-	Name        param.Field[string]                      `json:"name"`
+	TaxCategory                 param.Field[ProductNewParamsTaxCategory] `json:"tax_category,required"`
+	Description                 param.Field[string]                      `json:"description"`
+	LicenseKeyActivationMessage param.Field[string]                      `json:"license_key_activation_message"`
+	// The number of times the license key can be activated
+	LicenseKeyActivationsLimit param.Field[int64]                              `json:"license_key_activations_limit"`
+	LicenseKeyDuration         param.Field[ProductNewParamsLicenseKeyDuration] `json:"license_key_duration"`
+	// Put true to generate and send license key to your customer. Default is false
+	LicenseKeyEnabled param.Field[bool]   `json:"license_key_enabled"`
+	Name              param.Field[string] `json:"name"`
 }
 
 func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
@@ -1648,10 +1681,40 @@ func (r ProductNewParamsTaxCategory) IsKnown() bool {
 	return false
 }
 
+type ProductNewParamsLicenseKeyDuration struct {
+	Count    param.Field[int64]                                      `json:"count,required"`
+	Interval param.Field[ProductNewParamsLicenseKeyDurationInterval] `json:"interval,required"`
+}
+
+func (r ProductNewParamsLicenseKeyDuration) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type ProductNewParamsLicenseKeyDurationInterval string
+
+const (
+	ProductNewParamsLicenseKeyDurationIntervalDay   ProductNewParamsLicenseKeyDurationInterval = "Day"
+	ProductNewParamsLicenseKeyDurationIntervalWeek  ProductNewParamsLicenseKeyDurationInterval = "Week"
+	ProductNewParamsLicenseKeyDurationIntervalMonth ProductNewParamsLicenseKeyDurationInterval = "Month"
+	ProductNewParamsLicenseKeyDurationIntervalYear  ProductNewParamsLicenseKeyDurationInterval = "Year"
+)
+
+func (r ProductNewParamsLicenseKeyDurationInterval) IsKnown() bool {
+	switch r {
+	case ProductNewParamsLicenseKeyDurationIntervalDay, ProductNewParamsLicenseKeyDurationIntervalWeek, ProductNewParamsLicenseKeyDurationIntervalMonth, ProductNewParamsLicenseKeyDurationIntervalYear:
+		return true
+	}
+	return false
+}
+
 type ProductUpdateParams struct {
-	Description param.Field[string]                        `json:"description"`
-	Name        param.Field[string]                        `json:"name"`
-	Price       param.Field[ProductUpdateParamsPriceUnion] `json:"price"`
+	Description                 param.Field[string]                                `json:"description"`
+	LicenseKeyActivationMessage param.Field[string]                                `json:"license_key_activation_message"`
+	LicenseKeyActivationsLimit  param.Field[int64]                                 `json:"license_key_activations_limit"`
+	LicenseKeyDuration          param.Field[ProductUpdateParamsLicenseKeyDuration] `json:"license_key_duration"`
+	LicenseKeyEnabled           param.Field[bool]                                  `json:"license_key_enabled"`
+	Name                        param.Field[string]                                `json:"name"`
+	Price                       param.Field[ProductUpdateParamsPriceUnion]         `json:"price"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
 	TaxCategory param.Field[ProductUpdateParamsTaxCategory] `json:"tax_category"`
@@ -1659,6 +1722,32 @@ type ProductUpdateParams struct {
 
 func (r ProductUpdateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+type ProductUpdateParamsLicenseKeyDuration struct {
+	Count    param.Field[int64]                                         `json:"count,required"`
+	Interval param.Field[ProductUpdateParamsLicenseKeyDurationInterval] `json:"interval,required"`
+}
+
+func (r ProductUpdateParamsLicenseKeyDuration) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type ProductUpdateParamsLicenseKeyDurationInterval string
+
+const (
+	ProductUpdateParamsLicenseKeyDurationIntervalDay   ProductUpdateParamsLicenseKeyDurationInterval = "Day"
+	ProductUpdateParamsLicenseKeyDurationIntervalWeek  ProductUpdateParamsLicenseKeyDurationInterval = "Week"
+	ProductUpdateParamsLicenseKeyDurationIntervalMonth ProductUpdateParamsLicenseKeyDurationInterval = "Month"
+	ProductUpdateParamsLicenseKeyDurationIntervalYear  ProductUpdateParamsLicenseKeyDurationInterval = "Year"
+)
+
+func (r ProductUpdateParamsLicenseKeyDurationInterval) IsKnown() bool {
+	switch r {
+	case ProductUpdateParamsLicenseKeyDurationIntervalDay, ProductUpdateParamsLicenseKeyDurationIntervalWeek, ProductUpdateParamsLicenseKeyDurationIntervalMonth, ProductUpdateParamsLicenseKeyDurationIntervalYear:
+		return true
+	}
+	return false
 }
 
 type ProductUpdateParamsPrice struct {
