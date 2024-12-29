@@ -50,7 +50,7 @@ import (
 
 func main() {
 	client := dodopayments.NewClient(
-		option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("DOOD_PAYMENTS_API_KEY")
+		option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("DODO_PAYMENTS_API_KEY")
 		option.WithEnvironmentTestMode(),          // defaults to option.WithEnvironmentLiveMode()
 	)
 	payment, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
