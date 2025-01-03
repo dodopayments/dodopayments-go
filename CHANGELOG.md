@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.15.1 (2025-01-03)
+
+Full Changelog: [v0.14.1...v0.15.1](https://github.com/dodopayments/dodopayments-go/compare/v0.14.1...v0.15.1)
+
+### Features
+
+* **api:** added invoice api and update openapi spec ([#19](https://github.com/dodopayments/dodopayments-go/issues/19)) ([d7ed6f9](https://github.com/dodopayments/dodopayments-go/commit/d7ed6f909937e21ba8b606b6c411502e18707d09))
+
+
+### Chores
+
+* **internal:** codegen related update ([#17](https://github.com/dodopayments/dodopayments-go/issues/17)) ([1dc57c4](https://github.com/dodopayments/dodopayments-go/commit/1dc57c46e58bb899a2b79aad047e7b4e9f857815))
+
 ## 0.14.1 (2024-12-29)
 
 Full Changelog: [v0.14.0...v0.14.1](https://github.com/dodopayments/dodopayments-go/compare/v0.14.0...v0.14.1)
