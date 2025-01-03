@@ -41,8 +41,9 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
 		}),
-		PaymentLink: dodopayments.F(true),
-		ReturnURL:   dodopayments.F("return_url"),
+		PaymentLink:     dodopayments.F(true),
+		ReturnURL:       dodopayments.F("return_url"),
+		TrialPeriodDays: dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

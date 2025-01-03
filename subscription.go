@@ -437,6 +437,9 @@ type SubscriptionNewParams struct {
 	// False by default
 	PaymentLink param.Field[bool]   `json:"payment_link"`
 	ReturnURL   param.Field[string] `json:"return_url"`
+	// If specified this will override the trial period days given in the products
+	// price
+	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
 
 func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
@@ -457,10 +460,13 @@ func (r SubscriptionNewParamsBilling) MarshalJSON() (data []byte, err error) {
 }
 
 type SubscriptionNewParamsCustomer struct {
-	CustomerID  param.Field[string] `json:"customer_id"`
-	Email       param.Field[string] `json:"email"`
-	Name        param.Field[string] `json:"name"`
-	PhoneNumber param.Field[string] `json:"phone_number"`
+	// When true, the most recently created customer object with the given email is
+	// used if exists. False by default
+	CreateNewCustomer param.Field[bool]   `json:"create_new_customer"`
+	CustomerID        param.Field[string] `json:"customer_id"`
+	Email             param.Field[string] `json:"email"`
+	Name              param.Field[string] `json:"name"`
+	PhoneNumber       param.Field[string] `json:"phone_number"`
 }
 
 func (r SubscriptionNewParamsCustomer) MarshalJSON() (data []byte, err error) {
@@ -488,9 +494,12 @@ func (r SubscriptionNewParamsCustomerAttachExistingCustomer) implementsSubscript
 }
 
 type SubscriptionNewParamsCustomerCreateNewCustomer struct {
-	Email       param.Field[string] `json:"email,required"`
-	Name        param.Field[string] `json:"name,required"`
-	PhoneNumber param.Field[string] `json:"phone_number"`
+	Email param.Field[string] `json:"email,required"`
+	Name  param.Field[string] `json:"name,required"`
+	// When true, the most recently created customer object with the given email is
+	// used if exists. False by default
+	CreateNewCustomer param.Field[bool]   `json:"create_new_customer"`
+	PhoneNumber       param.Field[string] `json:"phone_number"`
 }
 
 func (r SubscriptionNewParamsCustomerCreateNewCustomer) MarshalJSON() (data []byte, err error) {
