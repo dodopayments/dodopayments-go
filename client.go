@@ -18,6 +18,7 @@ type Client struct {
 	Options             []option.RequestOption
 	Payments            *PaymentService
 	Subscriptions       *SubscriptionService
+	Invoices            *InvoiceService
 	Licenses            *LicenseService
 	LicenseKeys         *LicenseKeyService
 	LicenseKeyInstances *LicenseKeyInstanceService
@@ -45,6 +46,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 
 	r.Payments = NewPaymentService(opts...)
 	r.Subscriptions = NewSubscriptionService(opts...)
+	r.Invoices = NewInvoiceService(opts...)
 	r.Licenses = NewLicenseService(opts...)
 	r.LicenseKeys = NewLicenseKeyService(opts...)
 	r.LicenseKeyInstances = NewLicenseKeyInstanceService(opts...)

@@ -715,10 +715,13 @@ func (r PaymentNewParamsBilling) MarshalJSON() (data []byte, err error) {
 }
 
 type PaymentNewParamsCustomer struct {
-	CustomerID  param.Field[string] `json:"customer_id"`
-	Email       param.Field[string] `json:"email"`
-	Name        param.Field[string] `json:"name"`
-	PhoneNumber param.Field[string] `json:"phone_number"`
+	// When true, the most recently created customer object with the given email is
+	// used if exists. False by default
+	CreateNewCustomer param.Field[bool]   `json:"create_new_customer"`
+	CustomerID        param.Field[string] `json:"customer_id"`
+	Email             param.Field[string] `json:"email"`
+	Name              param.Field[string] `json:"name"`
+	PhoneNumber       param.Field[string] `json:"phone_number"`
 }
 
 func (r PaymentNewParamsCustomer) MarshalJSON() (data []byte, err error) {
@@ -744,9 +747,12 @@ func (r PaymentNewParamsCustomerAttachExistingCustomer) MarshalJSON() (data []by
 func (r PaymentNewParamsCustomerAttachExistingCustomer) implementsPaymentNewParamsCustomerUnion() {}
 
 type PaymentNewParamsCustomerCreateNewCustomer struct {
-	Email       param.Field[string] `json:"email,required"`
-	Name        param.Field[string] `json:"name,required"`
-	PhoneNumber param.Field[string] `json:"phone_number"`
+	Email param.Field[string] `json:"email,required"`
+	Name  param.Field[string] `json:"name,required"`
+	// When true, the most recently created customer object with the given email is
+	// used if exists. False by default
+	CreateNewCustomer param.Field[bool]   `json:"create_new_customer"`
+	PhoneNumber       param.Field[string] `json:"phone_number"`
 }
 
 func (r PaymentNewParamsCustomerCreateNewCustomer) MarshalJSON() (data []byte, err error) {
