@@ -59,7 +59,7 @@ func main() {
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F(int64(0)),
+			Zipcode: dodopayments.F("zipcode"),
 		}),
 		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 			CustomerID: dodopayments.F("customer_id"),
@@ -221,7 +221,7 @@ _, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
 		Country: dodopayments.F(dodopayments.CountryCodeAf),
 		State:   dodopayments.F("state"),
 		Street:  dodopayments.F("street"),
-		Zipcode: dodopayments.F(int64(0)),
+		Zipcode: dodopayments.F("zipcode"),
 	}),
 	Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 		CustomerID: dodopayments.F("customer_id"),
@@ -263,7 +263,7 @@ client.Payments.New(
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F(int64(0)),
+			Zipcode: dodopayments.F("zipcode"),
 		}),
 		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 			CustomerID: dodopayments.F("customer_id"),
@@ -314,7 +314,7 @@ client.Payments.New(
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F(int64(0)),
+			Zipcode: dodopayments.F("zipcode"),
 		}),
 		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 			CustomerID: dodopayments.F("customer_id"),

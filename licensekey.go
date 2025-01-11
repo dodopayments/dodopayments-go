@@ -66,19 +66,31 @@ func (r *LicenseKeyService) List(ctx context.Context, query LicenseKeyListParams
 }
 
 type LicenseKey struct {
-	ID               string           `json:"id,required"`
-	BusinessID       string           `json:"business_id,required"`
-	CreatedAt        time.Time        `json:"created_at,required" format:"date-time"`
-	CustomerID       string           `json:"customer_id,required"`
-	InstancesCount   int64            `json:"instances_count,required"`
-	Key              string           `json:"key,required"`
-	PaymentID        string           `json:"payment_id,required"`
-	ProductID        string           `json:"product_id,required"`
-	Status           LicenseKeyStatus `json:"status,required"`
-	ActivationsLimit int64            `json:"activations_limit,nullable"`
-	ExpiresAt        time.Time        `json:"expires_at,nullable" format:"date-time"`
-	SubscriptionID   string           `json:"subscription_id,nullable"`
-	JSON             licenseKeyJSON   `json:"-"`
+	// The unique identifier of the license key.
+	ID string `json:"id,required"`
+	// The unique identifier of the business associated with the license key.
+	BusinessID string `json:"business_id,required"`
+	// The timestamp indicating when the license key was created, in UTC.
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// The unique identifier of the customer associated with the license key.
+	CustomerID string `json:"customer_id,required"`
+	// The current number of instances activated for this license key.
+	InstancesCount int64 `json:"instances_count,required"`
+	// The license key string.
+	Key string `json:"key,required"`
+	// The unique identifier of the payment associated with the license key.
+	PaymentID string `json:"payment_id,required"`
+	// The unique identifier of the product associated with the license key.
+	ProductID string           `json:"product_id,required"`
+	Status    LicenseKeyStatus `json:"status,required"`
+	// The maximum number of activations allowed for this license key.
+	ActivationsLimit int64 `json:"activations_limit,nullable"`
+	// The timestamp indicating when the license key expires, in UTC.
+	ExpiresAt time.Time `json:"expires_at,nullable" format:"date-time"`
+	// The unique identifier of the subscription associated with the license key, if
+	// any.
+	SubscriptionID string         `json:"subscription_id,nullable"`
+	JSON           licenseKeyJSON `json:"-"`
 }
 
 // licenseKeyJSON contains the JSON metadata for the struct [LicenseKey]
@@ -145,9 +157,15 @@ func (r licenseKeyListResponseJSON) RawJSON() string {
 }
 
 type LicenseKeyUpdateParams struct {
-	ActivationsLimit param.Field[int64]     `json:"activations_limit"`
-	Disabled         param.Field[bool]      `json:"disabled"`
-	ExpiresAt        param.Field[time.Time] `json:"expires_at" format:"date-time"`
+	// The updated activation limit for the license key. Use `null` to remove the
+	// limit, or omit this field to leave it unchanged.
+	ActivationsLimit param.Field[int64] `json:"activations_limit"`
+	// Indicates whether the license key should be disabled. A value of `true` disables
+	// the key, while `false` enables it. Omit this field to leave it unchanged.
+	Disabled param.Field[bool] `json:"disabled"`
+	// The updated expiration timestamp for the license key in UTC. Use `null` to
+	// remove the expiration date, or omit this field to leave it unchanged.
+	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
 }
 
 func (r LicenseKeyUpdateParams) MarshalJSON() (data []byte, err error) {
