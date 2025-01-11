@@ -77,26 +77,36 @@ func (r *PaymentService) ListAutoPaging(ctx context.Context, query PaymentListPa
 }
 
 type Payment struct {
-	BusinessID string            `json:"business_id,required"`
-	CreatedAt  time.Time         `json:"created_at,required" format:"date-time"`
-	Currency   PaymentCurrency   `json:"currency,required"`
-	Customer   PaymentCustomer   `json:"customer,required"`
-	Disputes   []Dispute         `json:"disputes,required"`
-	Metadata   map[string]string `json:"metadata,required"`
-	PaymentID  string            `json:"payment_id,required"`
-	Refunds    []Refund          `json:"refunds,required"`
-	// Total amount taken from the customer including tax
-	TotalAmount       int64  `json:"total_amount,required"`
-	PaymentLink       string `json:"payment_link,nullable"`
-	PaymentMethod     string `json:"payment_method,nullable"`
+	// Identifier of the business associated with the payment
+	BusinessID string `json:"business_id,required"`
+	// Timestamp when the payment was created
+	CreatedAt time.Time       `json:"created_at,required" format:"date-time"`
+	Currency  PaymentCurrency `json:"currency,required"`
+	Customer  PaymentCustomer `json:"customer,required"`
+	// List of disputes associated with this payment
+	Disputes []Dispute         `json:"disputes,required"`
+	Metadata map[string]string `json:"metadata,required"`
+	// Unique identifier for the payment
+	PaymentID string `json:"payment_id,required"`
+	// List of refunds issued for this payment
+	Refunds []Refund `json:"refunds,required"`
+	// Total amount charged to the customer including tax, in smallest currency unit
+	// (e.g. cents)
+	TotalAmount int64 `json:"total_amount,required"`
+	// Checkout URL
+	PaymentLink string `json:"payment_link,nullable"`
+	// Payment method used by customer (e.g. "card", "bank_transfer")
+	PaymentMethod string `json:"payment_method,nullable"`
+	// Specific type of payment method (e.g. "visa", "mastercard")
 	PaymentMethodType string `json:"payment_method_type,nullable"`
-	// Product Cart of One time payment. In case of subscription/recurring payment
-	// product id and quantity are available in Get Subscription Api
-	ProductCart    []PaymentProductCart `json:"product_cart,nullable"`
-	Status         PaymentStatus        `json:"status,nullable"`
-	SubscriptionID string               `json:"subscription_id,nullable"`
-	// Tax collected in this transaction
-	Tax       int64       `json:"tax,nullable"`
+	// List of products purchased in a one-time payment
+	ProductCart []PaymentProductCart `json:"product_cart,nullable"`
+	Status      PaymentStatus        `json:"status,nullable"`
+	// Identifier of the subscription if payment is part of a subscription
+	SubscriptionID string `json:"subscription_id,nullable"`
+	// Amount of tax collected in smallest currency unit (e.g. cents)
+	Tax int64 `json:"tax,nullable"`
+	// Timestamp when the payment was last updated
 	UpdatedAt time.Time   `json:"updated_at,nullable" format:"date-time"`
 	JSON      paymentJSON `json:"-"`
 }
@@ -291,10 +301,13 @@ func (r PaymentCurrency) IsKnown() bool {
 }
 
 type PaymentCustomer struct {
-	CustomerID string              `json:"customer_id,required"`
-	Email      string              `json:"email,required"`
-	Name       string              `json:"name,required"`
-	JSON       paymentCustomerJSON `json:"-"`
+	// Unique identifier for the customer
+	CustomerID string `json:"customer_id,required"`
+	// Email address of the customer
+	Email string `json:"email,required"`
+	// Full name of the customer
+	Name string              `json:"name,required"`
+	JSON paymentCustomerJSON `json:"-"`
 }
 
 // paymentCustomerJSON contains the JSON metadata for the struct [PaymentCustomer]
@@ -362,14 +375,20 @@ func (r PaymentStatus) IsKnown() bool {
 }
 
 type PaymentNewResponse struct {
-	ClientSecret string                          `json:"client_secret,required"`
-	Customer     PaymentNewResponseCustomer      `json:"customer,required"`
-	Metadata     map[string]string               `json:"metadata,required"`
-	PaymentID    string                          `json:"payment_id,required"`
-	TotalAmount  int64                           `json:"total_amount,required"`
-	PaymentLink  string                          `json:"payment_link,nullable"`
-	ProductCart  []PaymentNewResponseProductCart `json:"product_cart,nullable"`
-	JSON         paymentNewResponseJSON          `json:"-"`
+	// Client secret used to load Dodo checkout SDK NOTE : Dodo checkout SDK will be
+	// coming soon
+	ClientSecret string                     `json:"client_secret,required"`
+	Customer     PaymentNewResponseCustomer `json:"customer,required"`
+	Metadata     map[string]string          `json:"metadata,required"`
+	// Unique identifier for the payment
+	PaymentID string `json:"payment_id,required"`
+	// Total amount of the payment in smallest currency unit (e.g. cents)
+	TotalAmount int64 `json:"total_amount,required"`
+	// Optional URL to a hosted payment page
+	PaymentLink string `json:"payment_link,nullable"`
+	// Optional list of products included in the payment
+	ProductCart []PaymentNewResponseProductCart `json:"product_cart,nullable"`
+	JSON        paymentNewResponseJSON          `json:"-"`
 }
 
 // paymentNewResponseJSON contains the JSON metadata for the struct
@@ -395,10 +414,13 @@ func (r paymentNewResponseJSON) RawJSON() string {
 }
 
 type PaymentNewResponseCustomer struct {
-	CustomerID string                         `json:"customer_id,required"`
-	Email      string                         `json:"email,required"`
-	Name       string                         `json:"name,required"`
-	JSON       paymentNewResponseCustomerJSON `json:"-"`
+	// Unique identifier for the customer
+	CustomerID string `json:"customer_id,required"`
+	// Email address of the customer
+	Email string `json:"email,required"`
+	// Full name of the customer
+	Name string                         `json:"name,required"`
+	JSON paymentNewResponseCustomerJSON `json:"-"`
 }
 
 // paymentNewResponseCustomerJSON contains the JSON metadata for the struct
@@ -640,10 +662,13 @@ func (r PaymentListResponseCurrency) IsKnown() bool {
 }
 
 type PaymentListResponseCustomer struct {
-	CustomerID string                          `json:"customer_id,required"`
-	Email      string                          `json:"email,required"`
-	Name       string                          `json:"name,required"`
-	JSON       paymentListResponseCustomerJSON `json:"-"`
+	// Unique identifier for the customer
+	CustomerID string `json:"customer_id,required"`
+	// Email address of the customer
+	Email string `json:"email,required"`
+	// Full name of the customer
+	Name string                          `json:"name,required"`
+	JSON paymentListResponseCustomerJSON `json:"-"`
 }
 
 // paymentListResponseCustomerJSON contains the JSON metadata for the struct
@@ -689,12 +714,16 @@ func (r PaymentListResponseStatus) IsKnown() bool {
 }
 
 type PaymentNewParams struct {
-	Billing     param.Field[PaymentNewParamsBilling]       `json:"billing,required"`
-	Customer    param.Field[PaymentNewParamsCustomerUnion] `json:"customer,required"`
+	Billing  param.Field[PaymentNewParamsBilling]       `json:"billing,required"`
+	Customer param.Field[PaymentNewParamsCustomerUnion] `json:"customer,required"`
+	// List of products in the cart. Must contain at least 1 and at most 100 items.
 	ProductCart param.Field[[]PaymentNewParamsProductCart] `json:"product_cart,required"`
 	Metadata    param.Field[map[string]string]             `json:"metadata"`
-	PaymentLink param.Field[bool]                          `json:"payment_link"`
-	ReturnURL   param.Field[string]                        `json:"return_url"`
+	// Whether to generate a payment link. Defaults to false if not specified.
+	PaymentLink param.Field[bool] `json:"payment_link"`
+	// Optional URL to redirect the customer after payment. Must be a valid URL if
+	// provided.
+	ReturnURL param.Field[string] `json:"return_url"`
 }
 
 func (r PaymentNewParams) MarshalJSON() (data []byte, err error) {
@@ -702,12 +731,16 @@ func (r PaymentNewParams) MarshalJSON() (data []byte, err error) {
 }
 
 type PaymentNewParamsBilling struct {
+	// City name
 	City param.Field[string] `json:"city,required"`
 	// ISO country code alpha2 variant
 	Country param.Field[CountryCode] `json:"country,required"`
-	State   param.Field[string]      `json:"state,required"`
-	Street  param.Field[string]      `json:"street,required"`
-	Zipcode param.Field[int64]       `json:"zipcode,required"`
+	// State or province name
+	State param.Field[string] `json:"state,required"`
+	// Street address including house number and unit/apartment if applicable
+	Street param.Field[string] `json:"street,required"`
+	// Postal code or ZIP code
+	Zipcode param.Field[string] `json:"zipcode,required"`
 }
 
 func (r PaymentNewParamsBilling) MarshalJSON() (data []byte, err error) {

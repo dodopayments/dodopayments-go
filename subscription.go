@@ -87,23 +87,34 @@ func (r *SubscriptionService) ListAutoPaging(ctx context.Context, query Subscrip
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
+// Response struct representing subscription details
 type Subscription struct {
-	CreatedAt                  time.Time                              `json:"created_at,required" format:"date-time"`
-	Currency                   SubscriptionCurrency                   `json:"currency,required"`
-	Customer                   SubscriptionCustomer                   `json:"customer,required"`
-	Metadata                   map[string]string                      `json:"metadata,required"`
-	NextBillingDate            time.Time                              `json:"next_billing_date,required" format:"date-time"`
-	PaymentFrequencyCount      int64                                  `json:"payment_frequency_count,required"`
-	PaymentFrequencyInterval   SubscriptionPaymentFrequencyInterval   `json:"payment_frequency_interval,required"`
-	ProductID                  string                                 `json:"product_id,required"`
-	Quantity                   int64                                  `json:"quantity,required"`
-	RecurringPreTaxAmount      int64                                  `json:"recurring_pre_tax_amount,required"`
-	Status                     SubscriptionStatus                     `json:"status,required"`
-	SubscriptionID             string                                 `json:"subscription_id,required"`
+	// Timestamp when the subscription was created
+	CreatedAt time.Time            `json:"created_at,required" format:"date-time"`
+	Currency  SubscriptionCurrency `json:"currency,required"`
+	Customer  SubscriptionCustomer `json:"customer,required"`
+	Metadata  map[string]string    `json:"metadata,required"`
+	// Timestamp of the next scheduled billing
+	NextBillingDate time.Time `json:"next_billing_date,required" format:"date-time"`
+	// Number of payment frequency intervals
+	PaymentFrequencyCount    int64                                `json:"payment_frequency_count,required"`
+	PaymentFrequencyInterval SubscriptionPaymentFrequencyInterval `json:"payment_frequency_interval,required"`
+	// Identifier of the product associated with this subscription
+	ProductID string `json:"product_id,required"`
+	// Number of units/items included in the subscription
+	Quantity int64 `json:"quantity,required"`
+	// Amount charged before tax for each recurring payment in smallest currency unit
+	// (e.g. cents)
+	RecurringPreTaxAmount int64              `json:"recurring_pre_tax_amount,required"`
+	Status                SubscriptionStatus `json:"status,required"`
+	// Unique identifier for the subscription
+	SubscriptionID string `json:"subscription_id,required"`
+	// Number of subscription period intervals
 	SubscriptionPeriodCount    int64                                  `json:"subscription_period_count,required"`
 	SubscriptionPeriodInterval SubscriptionSubscriptionPeriodInterval `json:"subscription_period_interval,required"`
-	TrialPeriodDays            int64                                  `json:"trial_period_days,required"`
-	JSON                       subscriptionJSON                       `json:"-"`
+	// Number of days in the trial period (0 if no trial)
+	TrialPeriodDays int64            `json:"trial_period_days,required"`
+	JSON            subscriptionJSON `json:"-"`
 }
 
 // subscriptionJSON contains the JSON metadata for the struct [Subscription]
@@ -294,10 +305,13 @@ func (r SubscriptionCurrency) IsKnown() bool {
 }
 
 type SubscriptionCustomer struct {
-	CustomerID string                   `json:"customer_id,required"`
-	Email      string                   `json:"email,required"`
-	Name       string                   `json:"name,required"`
-	JSON       subscriptionCustomerJSON `json:"-"`
+	// Unique identifier for the customer
+	CustomerID string `json:"customer_id,required"`
+	// Email address of the customer
+	Email string `json:"email,required"`
+	// Full name of the customer
+	Name string                   `json:"name,required"`
+	JSON subscriptionCustomerJSON `json:"-"`
 }
 
 // subscriptionCustomerJSON contains the JSON metadata for the struct
@@ -373,13 +387,19 @@ func (r SubscriptionSubscriptionPeriodInterval) IsKnown() bool {
 }
 
 type SubscriptionNewResponse struct {
-	Customer              SubscriptionNewResponseCustomer `json:"customer,required"`
-	Metadata              map[string]string               `json:"metadata,required"`
-	RecurringPreTaxAmount int64                           `json:"recurring_pre_tax_amount,required"`
-	SubscriptionID        string                          `json:"subscription_id,required"`
-	ClientSecret          string                          `json:"client_secret,nullable"`
-	PaymentLink           string                          `json:"payment_link,nullable"`
-	JSON                  subscriptionNewResponseJSON     `json:"-"`
+	Customer SubscriptionNewResponseCustomer `json:"customer,required"`
+	Metadata map[string]string               `json:"metadata,required"`
+	// Tax will be added to the amount and charged to the customer on each billing
+	// cycle
+	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount,required"`
+	// Unique identifier for the subscription
+	SubscriptionID string `json:"subscription_id,required"`
+	// Client secret used to load Dodo checkout SDK NOTE : Dodo checkout SDK will be
+	// coming soon
+	ClientSecret string `json:"client_secret,nullable"`
+	// URL to checkout page
+	PaymentLink string                      `json:"payment_link,nullable"`
+	JSON        subscriptionNewResponseJSON `json:"-"`
 }
 
 // subscriptionNewResponseJSON contains the JSON metadata for the struct
@@ -404,10 +424,13 @@ func (r subscriptionNewResponseJSON) RawJSON() string {
 }
 
 type SubscriptionNewResponseCustomer struct {
-	CustomerID string                              `json:"customer_id,required"`
-	Email      string                              `json:"email,required"`
-	Name       string                              `json:"name,required"`
-	JSON       subscriptionNewResponseCustomerJSON `json:"-"`
+	// Unique identifier for the customer
+	CustomerID string `json:"customer_id,required"`
+	// Email address of the customer
+	Email string `json:"email,required"`
+	// Full name of the customer
+	Name string                              `json:"name,required"`
+	JSON subscriptionNewResponseCustomerJSON `json:"-"`
 }
 
 // subscriptionNewResponseCustomerJSON contains the JSON metadata for the struct
@@ -429,16 +452,19 @@ func (r subscriptionNewResponseCustomerJSON) RawJSON() string {
 }
 
 type SubscriptionNewParams struct {
-	Billing   param.Field[SubscriptionNewParamsBilling]       `json:"billing,required"`
-	Customer  param.Field[SubscriptionNewParamsCustomerUnion] `json:"customer,required"`
-	ProductID param.Field[string]                             `json:"product_id,required"`
-	Quantity  param.Field[int64]                              `json:"quantity,required"`
-	Metadata  param.Field[map[string]string]                  `json:"metadata"`
-	// False by default
-	PaymentLink param.Field[bool]   `json:"payment_link"`
-	ReturnURL   param.Field[string] `json:"return_url"`
-	// If specified this will override the trial period days given in the products
-	// price
+	Billing  param.Field[SubscriptionNewParamsBilling]       `json:"billing,required"`
+	Customer param.Field[SubscriptionNewParamsCustomerUnion] `json:"customer,required"`
+	// Unique identifier of the product to subscribe to
+	ProductID param.Field[string] `json:"product_id,required"`
+	// Number of units to subscribe for. Must be at least 1.
+	Quantity param.Field[int64]             `json:"quantity,required"`
+	Metadata param.Field[map[string]string] `json:"metadata"`
+	// If true, generates a payment link. Defaults to false if not specified.
+	PaymentLink param.Field[bool] `json:"payment_link"`
+	// Optional URL to redirect after successful subscription creation
+	ReturnURL param.Field[string] `json:"return_url"`
+	// Optional trial period in days If specified, this value overrides the trial
+	// period set in the product's price Must be between 0 and 10000 days
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
 
@@ -447,12 +473,16 @@ func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
 }
 
 type SubscriptionNewParamsBilling struct {
+	// City name
 	City param.Field[string] `json:"city,required"`
 	// ISO country code alpha2 variant
 	Country param.Field[CountryCode] `json:"country,required"`
-	State   param.Field[string]      `json:"state,required"`
-	Street  param.Field[string]      `json:"street,required"`
-	Zipcode param.Field[int64]       `json:"zipcode,required"`
+	// State or province name
+	State param.Field[string] `json:"state,required"`
+	// Street address including house number and unit/apartment if applicable
+	Street param.Field[string] `json:"street,required"`
+	// Postal code or ZIP code
+	Zipcode param.Field[string] `json:"zipcode,required"`
 }
 
 func (r SubscriptionNewParamsBilling) MarshalJSON() (data []byte, err error) {

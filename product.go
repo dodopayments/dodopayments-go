@@ -93,23 +93,34 @@ func (r *ProductService) ListAutoPaging(ctx context.Context, query ProductListPa
 }
 
 type Product struct {
-	BusinessID        string       `json:"business_id,required"`
-	CreatedAt         time.Time    `json:"created_at,required" format:"date-time"`
-	IsRecurring       bool         `json:"is_recurring,required"`
+	// Unique identifier for the business to which the product belongs.
+	BusinessID string `json:"business_id,required"`
+	// Timestamp when the product was created.
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// Indicates if the product is recurring (e.g., subscriptions).
+	IsRecurring bool `json:"is_recurring,required"`
+	// Indicates whether the product requires a license key.
 	LicenseKeyEnabled bool         `json:"license_key_enabled,required"`
 	Price             ProductPrice `json:"price,required"`
-	ProductID         string       `json:"product_id,required"`
+	// Unique identifier for the product.
+	ProductID string `json:"product_id,required"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
-	TaxCategory                 ProductTaxCategory        `json:"tax_category,required"`
-	UpdatedAt                   time.Time                 `json:"updated_at,required" format:"date-time"`
-	Description                 string                    `json:"description,nullable"`
-	Image                       string                    `json:"image,nullable"`
-	LicenseKeyActivationMessage string                    `json:"license_key_activation_message,nullable"`
-	LicenseKeyActivationsLimit  int64                     `json:"license_key_activations_limit,nullable"`
-	LicenseKeyDuration          ProductLicenseKeyDuration `json:"license_key_duration,nullable"`
-	Name                        string                    `json:"name,nullable"`
-	JSON                        productJSON               `json:"-"`
+	TaxCategory ProductTaxCategory `json:"tax_category,required"`
+	// Timestamp when the product was last updated.
+	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	// Description of the product, optional.
+	Description string `json:"description,nullable"`
+	// URL of the product image, optional.
+	Image string `json:"image,nullable"`
+	// Message sent upon license key activation, if applicable.
+	LicenseKeyActivationMessage string `json:"license_key_activation_message,nullable"`
+	// Limit on the number of activations for the license key, if enabled.
+	LicenseKeyActivationsLimit int64                     `json:"license_key_activations_limit,nullable"`
+	LicenseKeyDuration         ProductLicenseKeyDuration `json:"license_key_duration,nullable"`
+	// Name of the product, optional.
+	Name string      `json:"name,nullable"`
+	JSON productJSON `json:"-"`
 }
 
 // productJSON contains the JSON metadata for the struct [Product]
@@ -142,19 +153,27 @@ func (r productJSON) RawJSON() string {
 
 type ProductPrice struct {
 	Currency ProductPriceCurrency `json:"currency,required"`
-	Discount float64              `json:"discount,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                      int64                                  `json:"price,required"`
-	PurchasingPowerParity      bool                                   `json:"purchasing_power_parity,required"`
-	Type                       ProductPriceType                       `json:"type,required"`
-	PaymentFrequencyCount      int64                                  `json:"payment_frequency_count"`
-	PaymentFrequencyInterval   ProductPricePaymentFrequencyInterval   `json:"payment_frequency_interval"`
+	// Discount applied to the price, represented as a percentage (0 to 100).
+	Discount float64 `json:"discount,required"`
+	// The payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Price int64 `json:"price,required"`
+	// Indicates if purchasing power parity adjustments are applied to the price.
+	// Purchasing power parity feature is not available as of now
+	PurchasingPowerParity bool             `json:"purchasing_power_parity,required"`
+	Type                  ProductPriceType `json:"type,required"`
+	// Number of units for the payment frequency. For example, a value of `1` with a
+	// `payment_frequency_interval` of `month` represents monthly payments.
+	PaymentFrequencyCount    int64                                `json:"payment_frequency_count"`
+	PaymentFrequencyInterval ProductPricePaymentFrequencyInterval `json:"payment_frequency_interval"`
+	// Number of units for the subscription period. For example, a value of `12` with a
+	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    int64                                  `json:"subscription_period_count"`
 	SubscriptionPeriodInterval ProductPriceSubscriptionPeriodInterval `json:"subscription_period_interval"`
-	TrialPeriodDays            int64                                  `json:"trial_period_days"`
-	JSON                       productPriceJSON                       `json:"-"`
-	union                      ProductPriceUnion
+	// Number of days for the trial period. A value of `0` indicates no trial period.
+	TrialPeriodDays int64            `json:"trial_period_days"`
+	JSON            productPriceJSON `json:"-"`
+	union           ProductPriceUnion
 }
 
 // productPriceJSON contains the JSON metadata for the struct [ProductPrice]
@@ -219,10 +238,13 @@ func init() {
 
 type ProductPriceOneTimePrice struct {
 	Currency ProductPriceOneTimePriceCurrency `json:"currency,required"`
-	Discount float64                          `json:"discount,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                 int64                        `json:"price,required"`
+	// Discount applied to the price, represented as a percentage (0 to 100).
+	Discount float64 `json:"discount,required"`
+	// The payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Price int64 `json:"price,required"`
+	// Indicates if purchasing power parity adjustments are applied to the price.
+	// Purchasing power parity feature is not available as of now
 	PurchasingPowerParity bool                         `json:"purchasing_power_parity,required"`
 	Type                  ProductPriceOneTimePriceType `json:"type,required"`
 	JSON                  productPriceOneTimePriceJSON `json:"-"`
@@ -423,19 +445,27 @@ func (r ProductPriceOneTimePriceType) IsKnown() bool {
 }
 
 type ProductPriceRecurringPrice struct {
-	Currency                 ProductPriceRecurringPriceCurrency                 `json:"currency,required"`
-	Discount                 float64                                            `json:"discount,required"`
+	Currency ProductPriceRecurringPriceCurrency `json:"currency,required"`
+	// Discount applied to the price, represented as a percentage (0 to 100).
+	Discount float64 `json:"discount,required"`
+	// Number of units for the payment frequency. For example, a value of `1` with a
+	// `payment_frequency_interval` of `month` represents monthly payments.
 	PaymentFrequencyCount    int64                                              `json:"payment_frequency_count,required"`
 	PaymentFrequencyInterval ProductPriceRecurringPricePaymentFrequencyInterval `json:"payment_frequency_interval,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                      int64                                                `json:"price,required"`
-	PurchasingPowerParity      bool                                                 `json:"purchasing_power_parity,required"`
+	// The payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Price int64 `json:"price,required"`
+	// Indicates if purchasing power parity adjustments are applied to the price.
+	// Purchasing power parity feature is not available as of now
+	PurchasingPowerParity bool `json:"purchasing_power_parity,required"`
+	// Number of units for the subscription period. For example, a value of `12` with a
+	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    int64                                                `json:"subscription_period_count,required"`
 	SubscriptionPeriodInterval ProductPriceRecurringPriceSubscriptionPeriodInterval `json:"subscription_period_interval,required"`
-	TrialPeriodDays            int64                                                `json:"trial_period_days,required"`
 	Type                       ProductPriceRecurringPriceType                       `json:"type,required"`
-	JSON                       productPriceRecurringPriceJSON                       `json:"-"`
+	// Number of days for the trial period. A value of `0` indicates no trial period.
+	TrialPeriodDays int64                          `json:"trial_period_days"`
+	JSON            productPriceRecurringPriceJSON `json:"-"`
 }
 
 // productPriceRecurringPriceJSON contains the JSON metadata for the struct
@@ -449,8 +479,8 @@ type productPriceRecurringPriceJSON struct {
 	PurchasingPowerParity      apijson.Field
 	SubscriptionPeriodCount    apijson.Field
 	SubscriptionPeriodInterval apijson.Field
-	TrialPeriodDays            apijson.Field
 	Type                       apijson.Field
+	TrialPeriodDays            apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
 }
@@ -937,19 +967,37 @@ func (r ProductLicenseKeyDurationInterval) IsKnown() bool {
 }
 
 type ProductListResponse struct {
-	BusinessID  string    `json:"business_id,required"`
-	CreatedAt   time.Time `json:"created_at,required" format:"date-time"`
-	IsRecurring bool      `json:"is_recurring,required"`
-	ProductID   string    `json:"product_id,required"`
+	// Unique identifier for the business to which the product belongs.
+	BusinessID string `json:"business_id,required"`
+	// Timestamp when the product was created.
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// Indicates if the product is recurring (e.g., subscriptions).
+	IsRecurring bool `json:"is_recurring,required"`
+	// Unique identifier for the product.
+	ProductID string `json:"product_id,required"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
 	TaxCategory ProductListResponseTaxCategory `json:"tax_category,required"`
-	UpdatedAt   time.Time                      `json:"updated_at,required" format:"date-time"`
-	Description string                         `json:"description,nullable"`
-	Image       string                         `json:"image,nullable"`
-	Name        string                         `json:"name,nullable"`
-	Price       int64                          `json:"price,nullable"`
-	JSON        productListResponseJSON        `json:"-"`
+	// Timestamp when the product was last updated.
+	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	// Description of the product, optional.
+	Description string `json:"description,nullable"`
+	// URL of the product image, optional.
+	Image string `json:"image,nullable"`
+	// Name of the product, optional.
+	Name string `json:"name,nullable"`
+	// Price of the product, optional.
+	//
+	// The price is represented in the lowest denomination of the currency. For
+	// example:
+	//
+	// - In USD, a price of `$12.34` would be represented as `1234` (cents).
+	// - In JPY, a price of `¥1500` would be represented as `1500` (yen).
+	// - In INR, a price of `₹1234.56` would be represented as `123456` (paise).
+	//
+	// This ensures precision and avoids floating-point rounding errors.
+	Price int64                   `json:"price,nullable"`
+	JSON  productListResponseJSON `json:"-"`
 }
 
 // productListResponseJSON contains the JSON metadata for the struct
@@ -999,15 +1047,18 @@ type ProductNewParams struct {
 	Price param.Field[ProductNewParamsPriceUnion] `json:"price,required"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
-	TaxCategory                 param.Field[ProductNewParamsTaxCategory] `json:"tax_category,required"`
-	Description                 param.Field[string]                      `json:"description"`
-	LicenseKeyActivationMessage param.Field[string]                      `json:"license_key_activation_message"`
-	// The number of times the license key can be activated
+	TaxCategory param.Field[ProductNewParamsTaxCategory] `json:"tax_category,required"`
+	// Optional description of the product
+	Description param.Field[string] `json:"description"`
+	// Optional message displayed during license key activation
+	LicenseKeyActivationMessage param.Field[string] `json:"license_key_activation_message"`
+	// The number of times the license key can be activated. Must be 0 or greater
 	LicenseKeyActivationsLimit param.Field[int64]                              `json:"license_key_activations_limit"`
 	LicenseKeyDuration         param.Field[ProductNewParamsLicenseKeyDuration] `json:"license_key_duration"`
-	// Put true to generate and send license key to your customer. Default is false
-	LicenseKeyEnabled param.Field[bool]   `json:"license_key_enabled"`
-	Name              param.Field[string] `json:"name"`
+	// When true, generates and sends a license key to your customer. Defaults to false
+	LicenseKeyEnabled param.Field[bool] `json:"license_key_enabled"`
+	// Optional name of the product
+	Name param.Field[string] `json:"name"`
 }
 
 func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
@@ -1016,17 +1067,25 @@ func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
 
 type ProductNewParamsPrice struct {
 	Currency param.Field[ProductNewParamsPriceCurrency] `json:"currency,required"`
-	Discount param.Field[float64]                       `json:"discount,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                      param.Field[int64]                                           `json:"price,required"`
-	PurchasingPowerParity      param.Field[bool]                                            `json:"purchasing_power_parity,required"`
-	Type                       param.Field[ProductNewParamsPriceType]                       `json:"type,required"`
-	PaymentFrequencyCount      param.Field[int64]                                           `json:"payment_frequency_count"`
-	PaymentFrequencyInterval   param.Field[ProductNewParamsPricePaymentFrequencyInterval]   `json:"payment_frequency_interval"`
+	// Discount applied to the price, represented as a percentage (0 to 100).
+	Discount param.Field[float64] `json:"discount,required"`
+	// The payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Price param.Field[int64] `json:"price,required"`
+	// Indicates if purchasing power parity adjustments are applied to the price.
+	// Purchasing power parity feature is not available as of now
+	PurchasingPowerParity param.Field[bool]                      `json:"purchasing_power_parity,required"`
+	Type                  param.Field[ProductNewParamsPriceType] `json:"type,required"`
+	// Number of units for the payment frequency. For example, a value of `1` with a
+	// `payment_frequency_interval` of `month` represents monthly payments.
+	PaymentFrequencyCount    param.Field[int64]                                         `json:"payment_frequency_count"`
+	PaymentFrequencyInterval param.Field[ProductNewParamsPricePaymentFrequencyInterval] `json:"payment_frequency_interval"`
+	// Number of units for the subscription period. For example, a value of `12` with a
+	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    param.Field[int64]                                           `json:"subscription_period_count"`
 	SubscriptionPeriodInterval param.Field[ProductNewParamsPriceSubscriptionPeriodInterval] `json:"subscription_period_interval"`
-	TrialPeriodDays            param.Field[int64]                                           `json:"trial_period_days"`
+	// Number of days for the trial period. A value of `0` indicates no trial period.
+	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
 
 func (r ProductNewParamsPrice) MarshalJSON() (data []byte, err error) {
@@ -1043,10 +1102,13 @@ type ProductNewParamsPriceUnion interface {
 
 type ProductNewParamsPriceOneTimePrice struct {
 	Currency param.Field[ProductNewParamsPriceOneTimePriceCurrency] `json:"currency,required"`
-	Discount param.Field[float64]                                   `json:"discount,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                 param.Field[int64]                                 `json:"price,required"`
+	// Discount applied to the price, represented as a percentage (0 to 100).
+	Discount param.Field[float64] `json:"discount,required"`
+	// The payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Price param.Field[int64] `json:"price,required"`
+	// Indicates if purchasing power parity adjustments are applied to the price.
+	// Purchasing power parity feature is not available as of now
 	PurchasingPowerParity param.Field[bool]                                  `json:"purchasing_power_parity,required"`
 	Type                  param.Field[ProductNewParamsPriceOneTimePriceType] `json:"type,required"`
 }
@@ -1230,18 +1292,26 @@ func (r ProductNewParamsPriceOneTimePriceType) IsKnown() bool {
 }
 
 type ProductNewParamsPriceRecurringPrice struct {
-	Currency                 param.Field[ProductNewParamsPriceRecurringPriceCurrency]                 `json:"currency,required"`
-	Discount                 param.Field[float64]                                                     `json:"discount,required"`
+	Currency param.Field[ProductNewParamsPriceRecurringPriceCurrency] `json:"currency,required"`
+	// Discount applied to the price, represented as a percentage (0 to 100).
+	Discount param.Field[float64] `json:"discount,required"`
+	// Number of units for the payment frequency. For example, a value of `1` with a
+	// `payment_frequency_interval` of `month` represents monthly payments.
 	PaymentFrequencyCount    param.Field[int64]                                                       `json:"payment_frequency_count,required"`
 	PaymentFrequencyInterval param.Field[ProductNewParamsPriceRecurringPricePaymentFrequencyInterval] `json:"payment_frequency_interval,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                      param.Field[int64]                                                         `json:"price,required"`
-	PurchasingPowerParity      param.Field[bool]                                                          `json:"purchasing_power_parity,required"`
+	// The payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Price param.Field[int64] `json:"price,required"`
+	// Indicates if purchasing power parity adjustments are applied to the price.
+	// Purchasing power parity feature is not available as of now
+	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity,required"`
+	// Number of units for the subscription period. For example, a value of `12` with a
+	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    param.Field[int64]                                                         `json:"subscription_period_count,required"`
 	SubscriptionPeriodInterval param.Field[ProductNewParamsPriceRecurringPriceSubscriptionPeriodInterval] `json:"subscription_period_interval,required"`
-	TrialPeriodDays            param.Field[int64]                                                         `json:"trial_period_days,required"`
 	Type                       param.Field[ProductNewParamsPriceRecurringPriceType]                       `json:"type,required"`
+	// Number of days for the trial period. A value of `0` indicates no trial period.
+	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
 
 func (r ProductNewParamsPriceRecurringPrice) MarshalJSON() (data []byte, err error) {
@@ -1708,13 +1778,27 @@ func (r ProductNewParamsLicenseKeyDurationInterval) IsKnown() bool {
 }
 
 type ProductUpdateParams struct {
-	Description                 param.Field[string]                                `json:"description"`
-	LicenseKeyActivationMessage param.Field[string]                                `json:"license_key_activation_message"`
-	LicenseKeyActivationsLimit  param.Field[int64]                                 `json:"license_key_activations_limit"`
-	LicenseKeyDuration          param.Field[ProductUpdateParamsLicenseKeyDuration] `json:"license_key_duration"`
-	LicenseKeyEnabled           param.Field[bool]                                  `json:"license_key_enabled"`
-	Name                        param.Field[string]                                `json:"name"`
-	Price                       param.Field[ProductUpdateParamsPriceUnion]         `json:"price"`
+	// Description of the product, optional and must be at most 1000 characters.
+	Description param.Field[string] `json:"description"`
+	// Message sent to the customer upon license key activation.
+	//
+	// Only applicable if `license_key_enabled` is `true`. This message contains
+	// instructions for activating the license key.
+	LicenseKeyActivationMessage param.Field[string] `json:"license_key_activation_message"`
+	// Limit for the number of activations for the license key.
+	//
+	// Only applicable if `license_key_enabled` is `true`. Represents the maximum
+	// number of times the license key can be activated.
+	LicenseKeyActivationsLimit param.Field[int64]                                 `json:"license_key_activations_limit"`
+	LicenseKeyDuration         param.Field[ProductUpdateParamsLicenseKeyDuration] `json:"license_key_duration"`
+	// Whether the product requires a license key.
+	//
+	// If `true`, additional fields related to license key (duration, activations
+	// limit, activation message) become applicable.
+	LicenseKeyEnabled param.Field[bool] `json:"license_key_enabled"`
+	// Name of the product, optional and must be at most 100 characters.
+	Name  param.Field[string]                        `json:"name"`
+	Price param.Field[ProductUpdateParamsPriceUnion] `json:"price"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
 	TaxCategory param.Field[ProductUpdateParamsTaxCategory] `json:"tax_category"`
@@ -1752,17 +1836,25 @@ func (r ProductUpdateParamsLicenseKeyDurationInterval) IsKnown() bool {
 
 type ProductUpdateParamsPrice struct {
 	Currency param.Field[ProductUpdateParamsPriceCurrency] `json:"currency,required"`
-	Discount param.Field[float64]                          `json:"discount,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                      param.Field[int64]                                              `json:"price,required"`
-	PurchasingPowerParity      param.Field[bool]                                               `json:"purchasing_power_parity,required"`
-	Type                       param.Field[ProductUpdateParamsPriceType]                       `json:"type,required"`
-	PaymentFrequencyCount      param.Field[int64]                                              `json:"payment_frequency_count"`
-	PaymentFrequencyInterval   param.Field[ProductUpdateParamsPricePaymentFrequencyInterval]   `json:"payment_frequency_interval"`
+	// Discount applied to the price, represented as a percentage (0 to 100).
+	Discount param.Field[float64] `json:"discount,required"`
+	// The payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Price param.Field[int64] `json:"price,required"`
+	// Indicates if purchasing power parity adjustments are applied to the price.
+	// Purchasing power parity feature is not available as of now
+	PurchasingPowerParity param.Field[bool]                         `json:"purchasing_power_parity,required"`
+	Type                  param.Field[ProductUpdateParamsPriceType] `json:"type,required"`
+	// Number of units for the payment frequency. For example, a value of `1` with a
+	// `payment_frequency_interval` of `month` represents monthly payments.
+	PaymentFrequencyCount    param.Field[int64]                                            `json:"payment_frequency_count"`
+	PaymentFrequencyInterval param.Field[ProductUpdateParamsPricePaymentFrequencyInterval] `json:"payment_frequency_interval"`
+	// Number of units for the subscription period. For example, a value of `12` with a
+	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    param.Field[int64]                                              `json:"subscription_period_count"`
 	SubscriptionPeriodInterval param.Field[ProductUpdateParamsPriceSubscriptionPeriodInterval] `json:"subscription_period_interval"`
-	TrialPeriodDays            param.Field[int64]                                              `json:"trial_period_days"`
+	// Number of days for the trial period. A value of `0` indicates no trial period.
+	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
 
 func (r ProductUpdateParamsPrice) MarshalJSON() (data []byte, err error) {
@@ -1779,10 +1871,13 @@ type ProductUpdateParamsPriceUnion interface {
 
 type ProductUpdateParamsPriceOneTimePrice struct {
 	Currency param.Field[ProductUpdateParamsPriceOneTimePriceCurrency] `json:"currency,required"`
-	Discount param.Field[float64]                                      `json:"discount,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                 param.Field[int64]                                    `json:"price,required"`
+	// Discount applied to the price, represented as a percentage (0 to 100).
+	Discount param.Field[float64] `json:"discount,required"`
+	// The payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Price param.Field[int64] `json:"price,required"`
+	// Indicates if purchasing power parity adjustments are applied to the price.
+	// Purchasing power parity feature is not available as of now
 	PurchasingPowerParity param.Field[bool]                                     `json:"purchasing_power_parity,required"`
 	Type                  param.Field[ProductUpdateParamsPriceOneTimePriceType] `json:"type,required"`
 }
@@ -1966,18 +2061,26 @@ func (r ProductUpdateParamsPriceOneTimePriceType) IsKnown() bool {
 }
 
 type ProductUpdateParamsPriceRecurringPrice struct {
-	Currency                 param.Field[ProductUpdateParamsPriceRecurringPriceCurrency]                 `json:"currency,required"`
-	Discount                 param.Field[float64]                                                        `json:"discount,required"`
+	Currency param.Field[ProductUpdateParamsPriceRecurringPriceCurrency] `json:"currency,required"`
+	// Discount applied to the price, represented as a percentage (0 to 100).
+	Discount param.Field[float64] `json:"discount,required"`
+	// Number of units for the payment frequency. For example, a value of `1` with a
+	// `payment_frequency_interval` of `month` represents monthly payments.
 	PaymentFrequencyCount    param.Field[int64]                                                          `json:"payment_frequency_count,required"`
 	PaymentFrequencyInterval param.Field[ProductUpdateParamsPriceRecurringPricePaymentFrequencyInterval] `json:"payment_frequency_interval,required"`
-	// The payment amount. Amount for the payment in the lowest denomination of the
-	// currency, (i.e) in cents for USD denomination. E.g., Pass 100 to charge $1.00
-	Price                      param.Field[int64]                                                            `json:"price,required"`
-	PurchasingPowerParity      param.Field[bool]                                                             `json:"purchasing_power_parity,required"`
+	// The payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Price param.Field[int64] `json:"price,required"`
+	// Indicates if purchasing power parity adjustments are applied to the price.
+	// Purchasing power parity feature is not available as of now
+	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity,required"`
+	// Number of units for the subscription period. For example, a value of `12` with a
+	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    param.Field[int64]                                                            `json:"subscription_period_count,required"`
 	SubscriptionPeriodInterval param.Field[ProductUpdateParamsPriceRecurringPriceSubscriptionPeriodInterval] `json:"subscription_period_interval,required"`
-	TrialPeriodDays            param.Field[int64]                                                            `json:"trial_period_days,required"`
 	Type                       param.Field[ProductUpdateParamsPriceRecurringPriceType]                       `json:"type,required"`
+	// Number of days for the trial period. A value of `0` indicates no trial period.
+	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
 
 func (r ProductUpdateParamsPriceRecurringPrice) MarshalJSON() (data []byte, err error) {

@@ -77,15 +77,21 @@ func (r *RefundService) ListAutoPaging(ctx context.Context, query RefundListPara
 }
 
 type Refund struct {
-	BusinessID string         `json:"business_id,required"`
-	CreatedAt  time.Time      `json:"created_at,required" format:"date-time"`
-	PaymentID  string         `json:"payment_id,required"`
-	RefundID   string         `json:"refund_id,required"`
-	Status     RefundStatus   `json:"status,required"`
-	Amount     int64          `json:"amount,nullable"`
-	Currency   RefundCurrency `json:"currency,nullable"`
-	Reason     string         `json:"reason,nullable"`
-	JSON       refundJSON     `json:"-"`
+	// The unique identifier of the business issuing the refund.
+	BusinessID string `json:"business_id,required"`
+	// The timestamp of when the refund was created in UTC.
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// The unique identifier of the payment associated with the refund.
+	PaymentID string `json:"payment_id,required"`
+	// The unique identifier of the refund.
+	RefundID string       `json:"refund_id,required"`
+	Status   RefundStatus `json:"status,required"`
+	// The refunded amount.
+	Amount   int64          `json:"amount,nullable"`
+	Currency RefundCurrency `json:"currency,nullable"`
+	// The reason provided for the refund, if any. Optional.
+	Reason string     `json:"reason,nullable"`
+	JSON   refundJSON `json:"-"`
 }
 
 // refundJSON contains the JSON metadata for the struct [Refund]
@@ -286,9 +292,13 @@ func (r RefundCurrency) IsKnown() bool {
 }
 
 type RefundNewParams struct {
+	// The unique identifier of the payment to be refunded.
 	PaymentID param.Field[string] `json:"payment_id,required"`
-	Amount    param.Field[int64]  `json:"amount"`
-	Reason    param.Field[string] `json:"reason"`
+	// The amount to be refunded. Must be non-negative. Optional. Partial refunds are
+	// currently disabled.
+	Amount param.Field[int64] `json:"amount"`
+	// The reason for the refund, if any. Maximum length is 3000 characters. Optional.
+	Reason param.Field[string] `json:"reason"`
 }
 
 func (r RefundNewParams) MarshalJSON() (data []byte, err error) {
