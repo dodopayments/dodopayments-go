@@ -43,7 +43,7 @@ func TestUserAgentHeader(t *testing.T) {
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F(int64(0)),
+			Zipcode: dodopayments.F("zipcode"),
 		}),
 		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 			CustomerID: dodopayments.F("customer_id"),
@@ -81,7 +81,7 @@ func TestRetryAfter(t *testing.T) {
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F(int64(0)),
+			Zipcode: dodopayments.F("zipcode"),
 		}),
 		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 			CustomerID: dodopayments.F("customer_id"),
@@ -130,7 +130,7 @@ func TestDeleteRetryCountHeader(t *testing.T) {
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F(int64(0)),
+			Zipcode: dodopayments.F("zipcode"),
 		}),
 		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 			CustomerID: dodopayments.F("customer_id"),
@@ -174,7 +174,7 @@ func TestOverwriteRetryCountHeader(t *testing.T) {
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F(int64(0)),
+			Zipcode: dodopayments.F("zipcode"),
 		}),
 		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 			CustomerID: dodopayments.F("customer_id"),
@@ -217,7 +217,7 @@ func TestRetryAfterMs(t *testing.T) {
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F(int64(0)),
+			Zipcode: dodopayments.F("zipcode"),
 		}),
 		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 			CustomerID: dodopayments.F("customer_id"),
@@ -254,7 +254,7 @@ func TestContextCancel(t *testing.T) {
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F(int64(0)),
+			Zipcode: dodopayments.F("zipcode"),
 		}),
 		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 			CustomerID: dodopayments.F("customer_id"),
@@ -288,7 +288,7 @@ func TestContextCancelDelay(t *testing.T) {
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F(int64(0)),
+			Zipcode: dodopayments.F("zipcode"),
 		}),
 		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 			CustomerID: dodopayments.F("customer_id"),
@@ -328,7 +328,7 @@ func TestContextDeadline(t *testing.T) {
 				Country: dodopayments.F(dodopayments.CountryCodeAf),
 				State:   dodopayments.F("state"),
 				Street:  dodopayments.F("street"),
-				Zipcode: dodopayments.F(int64(0)),
+				Zipcode: dodopayments.F("zipcode"),
 			}),
 			Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
 				CustomerID: dodopayments.F("customer_id"),
