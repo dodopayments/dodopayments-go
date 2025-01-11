@@ -57,22 +57,35 @@ func (r *PayoutService) ListAutoPaging(ctx context.Context, query PayoutListPara
 }
 
 type PayoutListResponse struct {
-	Amount            int64                      `json:"amount,required"`
-	BusinessID        string                     `json:"business_id,required"`
-	Chargebacks       int64                      `json:"chargebacks,required"`
-	CreatedAt         time.Time                  `json:"created_at,required" format:"date-time"`
-	Currency          PayoutListResponseCurrency `json:"currency,required"`
-	Fee               int64                      `json:"fee,required"`
-	PaymentMethod     string                     `json:"payment_method,required"`
-	PayoutID          string                     `json:"payout_id,required"`
-	Refunds           int64                      `json:"refunds,required"`
-	Status            PayoutListResponseStatus   `json:"status,required"`
-	Tax               int64                      `json:"tax,required"`
-	UpdatedAt         time.Time                  `json:"updated_at,required" format:"date-time"`
-	Name              string                     `json:"name,nullable"`
-	PayoutDocumentURL string                     `json:"payout_document_url,nullable"`
-	Remarks           string                     `json:"remarks,nullable"`
-	JSON              payoutListResponseJSON     `json:"-"`
+	// The total amount of the payout.
+	Amount int64 `json:"amount,required"`
+	// The unique identifier of the business associated with the payout.
+	BusinessID string `json:"business_id,required"`
+	// The total value of chargebacks associated with the payout.
+	Chargebacks int64 `json:"chargebacks,required"`
+	// The timestamp when the payout was created, in UTC.
+	CreatedAt time.Time                  `json:"created_at,required" format:"date-time"`
+	Currency  PayoutListResponseCurrency `json:"currency,required"`
+	// The fee charged for processing the payout.
+	Fee int64 `json:"fee,required"`
+	// The payment method used for the payout (e.g., bank transfer, card, etc.).
+	PaymentMethod string `json:"payment_method,required"`
+	// The unique identifier of the payout.
+	PayoutID string `json:"payout_id,required"`
+	// The total value of refunds associated with the payout.
+	Refunds int64                    `json:"refunds,required"`
+	Status  PayoutListResponseStatus `json:"status,required"`
+	// The tax applied to the payout.
+	Tax int64 `json:"tax,required"`
+	// The timestamp when the payout was last updated, in UTC.
+	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	// The name of the payout recipient or purpose.
+	Name string `json:"name,nullable"`
+	// The URL of the document associated with the payout.
+	PayoutDocumentURL string `json:"payout_document_url,nullable"`
+	// Any additional remarks or notes associated with the payout.
+	Remarks string                 `json:"remarks,nullable"`
+	JSON    payoutListResponseJSON `json:"-"`
 }
 
 // payoutListResponseJSON contains the JSON metadata for the struct

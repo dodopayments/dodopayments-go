@@ -70,15 +70,22 @@ func (r *DisputeService) ListAutoPaging(ctx context.Context, query DisputeListPa
 }
 
 type Dispute struct {
-	Amount        string               `json:"amount,required"`
-	BusinessID    string               `json:"business_id,required"`
-	CreatedAt     time.Time            `json:"created_at,required" format:"date-time"`
-	Currency      string               `json:"currency,required"`
+	// The amount involved in the dispute, represented as a string to accommodate
+	// precision.
+	Amount string `json:"amount,required"`
+	// The unique identifier of the business involved in the dispute.
+	BusinessID string `json:"business_id,required"`
+	// The timestamp of when the dispute was created, in UTC.
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// The currency of the disputed amount, represented as an ISO 4217 currency code.
+	Currency string `json:"currency,required"`
+	// The unique identifier of the dispute.
 	DisputeID     string               `json:"dispute_id,required"`
 	DisputeStage  DisputeDisputeStage  `json:"dispute_stage,required"`
 	DisputeStatus DisputeDisputeStatus `json:"dispute_status,required"`
-	PaymentID     string               `json:"payment_id,required"`
-	JSON          disputeJSON          `json:"-"`
+	// The unique identifier of the payment associated with the dispute.
+	PaymentID string      `json:"payment_id,required"`
+	JSON      disputeJSON `json:"-"`
 }
 
 // disputeJSON contains the JSON metadata for the struct [Dispute]
