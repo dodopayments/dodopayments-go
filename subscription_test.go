@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
@@ -120,8 +121,12 @@ func TestSubscriptionListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.List(context.TODO(), dodopayments.SubscriptionListParams{
-		PageNumber: dodopayments.F(int64(0)),
-		PageSize:   dodopayments.F(int64(0)),
+		CreatedAtGte: dodopayments.F(time.Now()),
+		CreatedAtLte: dodopayments.F(time.Now()),
+		CustomerID:   dodopayments.F("customer_id"),
+		PageNumber:   dodopayments.F(int64(0)),
+		PageSize:     dodopayments.F(int64(0)),
+		Status:       dodopayments.F(dodopayments.SubscriptionListParamsStatusPending),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

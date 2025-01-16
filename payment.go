@@ -804,10 +804,18 @@ func (r PaymentNewParamsProductCart) MarshalJSON() (data []byte, err error) {
 }
 
 type PaymentListParams struct {
+	// Get events after this created time
+	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
+	// Get events created before this time
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
+	// Filter by customer id
+	CustomerID param.Field[string] `query:"customer_id"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
+	// Filter by status
+	Status param.Field[PaymentListParamsStatus] `query:"status"`
 }
 
 // URLQuery serializes [PaymentListParams]'s query parameters as `url.Values`.
@@ -816,4 +824,29 @@ func (r PaymentListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Filter by status
+type PaymentListParamsStatus string
+
+const (
+	PaymentListParamsStatusSucceeded                      PaymentListParamsStatus = "succeeded"
+	PaymentListParamsStatusFailed                         PaymentListParamsStatus = "failed"
+	PaymentListParamsStatusCancelled                      PaymentListParamsStatus = "cancelled"
+	PaymentListParamsStatusProcessing                     PaymentListParamsStatus = "processing"
+	PaymentListParamsStatusRequiresCustomerAction         PaymentListParamsStatus = "requires_customer_action"
+	PaymentListParamsStatusRequiresMerchantAction         PaymentListParamsStatus = "requires_merchant_action"
+	PaymentListParamsStatusRequiresPaymentMethod          PaymentListParamsStatus = "requires_payment_method"
+	PaymentListParamsStatusRequiresConfirmation           PaymentListParamsStatus = "requires_confirmation"
+	PaymentListParamsStatusRequiresCapture                PaymentListParamsStatus = "requires_capture"
+	PaymentListParamsStatusPartiallyCaptured              PaymentListParamsStatus = "partially_captured"
+	PaymentListParamsStatusPartiallyCapturedAndCapturable PaymentListParamsStatus = "partially_captured_and_capturable"
+)
+
+func (r PaymentListParamsStatus) IsKnown() bool {
+	switch r {
+	case PaymentListParamsStatusSucceeded, PaymentListParamsStatusFailed, PaymentListParamsStatusCancelled, PaymentListParamsStatusProcessing, PaymentListParamsStatusRequiresCustomerAction, PaymentListParamsStatusRequiresMerchantAction, PaymentListParamsStatusRequiresPaymentMethod, PaymentListParamsStatusRequiresConfirmation, PaymentListParamsStatusRequiresCapture, PaymentListParamsStatusPartiallyCaptured, PaymentListParamsStatusPartiallyCapturedAndCapturable:
+		return true
+	}
+	return false
 }
