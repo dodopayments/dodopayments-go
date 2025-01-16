@@ -569,10 +569,18 @@ func (r SubscriptionUpdateParamsStatus) IsKnown() bool {
 }
 
 type SubscriptionListParams struct {
+	// Get events after this created time
+	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
+	// Get events created before this time
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
+	// Filter by customer id
+	CustomerID param.Field[string] `query:"customer_id"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
+	// Filter by status
+	Status param.Field[SubscriptionListParamsStatus] `query:"status"`
 }
 
 // URLQuery serializes [SubscriptionListParams]'s query parameters as `url.Values`.
@@ -581,4 +589,25 @@ func (r SubscriptionListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Filter by status
+type SubscriptionListParamsStatus string
+
+const (
+	SubscriptionListParamsStatusPending   SubscriptionListParamsStatus = "pending"
+	SubscriptionListParamsStatusActive    SubscriptionListParamsStatus = "active"
+	SubscriptionListParamsStatusOnHold    SubscriptionListParamsStatus = "on_hold"
+	SubscriptionListParamsStatusPaused    SubscriptionListParamsStatus = "paused"
+	SubscriptionListParamsStatusCancelled SubscriptionListParamsStatus = "cancelled"
+	SubscriptionListParamsStatusFailed    SubscriptionListParamsStatus = "failed"
+	SubscriptionListParamsStatusExpired   SubscriptionListParamsStatus = "expired"
+)
+
+func (r SubscriptionListParamsStatus) IsKnown() bool {
+	switch r {
+	case SubscriptionListParamsStatusPending, SubscriptionListParamsStatusActive, SubscriptionListParamsStatusOnHold, SubscriptionListParamsStatusPaused, SubscriptionListParamsStatusCancelled, SubscriptionListParamsStatusFailed, SubscriptionListParamsStatusExpired:
+		return true
+	}
+	return false
 }
