@@ -306,10 +306,16 @@ func (r RefundNewParams) MarshalJSON() (data []byte, err error) {
 }
 
 type RefundListParams struct {
+	// Get events after this created time
+	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
+	// Get events created before this time
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
+	// Filter by status
+	Status param.Field[RefundListParamsStatus] `query:"status"`
 }
 
 // URLQuery serializes [RefundListParams]'s query parameters as `url.Values`.
@@ -318,4 +324,22 @@ func (r RefundListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Filter by status
+type RefundListParamsStatus string
+
+const (
+	RefundListParamsStatusSucceeded RefundListParamsStatus = "succeeded"
+	RefundListParamsStatusFailed    RefundListParamsStatus = "failed"
+	RefundListParamsStatusPending   RefundListParamsStatus = "pending"
+	RefundListParamsStatusReview    RefundListParamsStatus = "review"
+)
+
+func (r RefundListParamsStatus) IsKnown() bool {
+	switch r {
+	case RefundListParamsStatusSucceeded, RefundListParamsStatusFailed, RefundListParamsStatusPending, RefundListParamsStatusReview:
+		return true
+	}
+	return false
 }

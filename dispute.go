@@ -147,6 +147,14 @@ func (r DisputeDisputeStatus) IsKnown() bool {
 }
 
 type DisputeListParams struct {
+	// Get events after this created time
+	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
+	// Get events created before this time
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
+	// Filter by dispute stage
+	DisputeStage param.Field[DisputeListParamsDisputeStage] `query:"dispute_stage"`
+	// Filter by dispute status
+	DisputeStatus param.Field[DisputeListParamsDisputeStatus] `query:"dispute_status"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
@@ -159,4 +167,42 @@ func (r DisputeListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Filter by dispute stage
+type DisputeListParamsDisputeStage string
+
+const (
+	DisputeListParamsDisputeStagePreDispute     DisputeListParamsDisputeStage = "pre_dispute"
+	DisputeListParamsDisputeStageDispute        DisputeListParamsDisputeStage = "dispute"
+	DisputeListParamsDisputeStagePreArbitration DisputeListParamsDisputeStage = "pre_arbitration"
+)
+
+func (r DisputeListParamsDisputeStage) IsKnown() bool {
+	switch r {
+	case DisputeListParamsDisputeStagePreDispute, DisputeListParamsDisputeStageDispute, DisputeListParamsDisputeStagePreArbitration:
+		return true
+	}
+	return false
+}
+
+// Filter by dispute status
+type DisputeListParamsDisputeStatus string
+
+const (
+	DisputeListParamsDisputeStatusDisputeOpened     DisputeListParamsDisputeStatus = "dispute_opened"
+	DisputeListParamsDisputeStatusDisputeExpired    DisputeListParamsDisputeStatus = "dispute_expired"
+	DisputeListParamsDisputeStatusDisputeAccepted   DisputeListParamsDisputeStatus = "dispute_accepted"
+	DisputeListParamsDisputeStatusDisputeCancelled  DisputeListParamsDisputeStatus = "dispute_cancelled"
+	DisputeListParamsDisputeStatusDisputeChallenged DisputeListParamsDisputeStatus = "dispute_challenged"
+	DisputeListParamsDisputeStatusDisputeWon        DisputeListParamsDisputeStatus = "dispute_won"
+	DisputeListParamsDisputeStatusDisputeLost       DisputeListParamsDisputeStatus = "dispute_lost"
+)
+
+func (r DisputeListParamsDisputeStatus) IsKnown() bool {
+	switch r {
+	case DisputeListParamsDisputeStatusDisputeOpened, DisputeListParamsDisputeStatusDisputeExpired, DisputeListParamsDisputeStatusDisputeAccepted, DisputeListParamsDisputeStatusDisputeCancelled, DisputeListParamsDisputeStatusDisputeChallenged, DisputeListParamsDisputeStatusDisputeWon, DisputeListParamsDisputeStatusDisputeLost:
+		return true
+	}
+	return false
 }
