@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
@@ -74,8 +75,11 @@ func TestRefundListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Refunds.List(context.TODO(), dodopayments.RefundListParams{
-		PageNumber: dodopayments.F(int64(0)),
-		PageSize:   dodopayments.F(int64(0)),
+		CreatedAtGte: dodopayments.F(time.Now()),
+		CreatedAtLte: dodopayments.F(time.Now()),
+		PageNumber:   dodopayments.F(int64(0)),
+		PageSize:     dodopayments.F(int64(0)),
+		Status:       dodopayments.F(dodopayments.RefundListParamsStatusSucceeded),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
