@@ -170,6 +170,8 @@ type ProductPrice struct {
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    int64                                  `json:"subscription_period_count"`
 	SubscriptionPeriodInterval ProductPriceSubscriptionPeriodInterval `json:"subscription_period_interval"`
+	// Indicates if the price is tax inclusive
+	TaxInclusive bool `json:"tax_inclusive,nullable"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays int64            `json:"trial_period_days"`
 	JSON            productPriceJSON `json:"-"`
@@ -187,6 +189,7 @@ type productPriceJSON struct {
 	PaymentFrequencyInterval   apijson.Field
 	SubscriptionPeriodCount    apijson.Field
 	SubscriptionPeriodInterval apijson.Field
+	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
@@ -247,7 +250,9 @@ type ProductPriceOneTimePrice struct {
 	// Purchasing power parity feature is not available as of now
 	PurchasingPowerParity bool                         `json:"purchasing_power_parity,required"`
 	Type                  ProductPriceOneTimePriceType `json:"type,required"`
-	JSON                  productPriceOneTimePriceJSON `json:"-"`
+	// Indicates if the price is tax inclusive
+	TaxInclusive bool                         `json:"tax_inclusive,nullable"`
+	JSON         productPriceOneTimePriceJSON `json:"-"`
 }
 
 // productPriceOneTimePriceJSON contains the JSON metadata for the struct
@@ -258,6 +263,7 @@ type productPriceOneTimePriceJSON struct {
 	Price                 apijson.Field
 	PurchasingPowerParity apijson.Field
 	Type                  apijson.Field
+	TaxInclusive          apijson.Field
 	raw                   string
 	ExtraFields           map[string]apijson.Field
 }
@@ -463,6 +469,8 @@ type ProductPriceRecurringPrice struct {
 	SubscriptionPeriodCount    int64                                                `json:"subscription_period_count,required"`
 	SubscriptionPeriodInterval ProductPriceRecurringPriceSubscriptionPeriodInterval `json:"subscription_period_interval,required"`
 	Type                       ProductPriceRecurringPriceType                       `json:"type,required"`
+	// Indicates if the price is tax inclusive
+	TaxInclusive bool `json:"tax_inclusive,nullable"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays int64                          `json:"trial_period_days"`
 	JSON            productPriceRecurringPriceJSON `json:"-"`
@@ -480,6 +488,7 @@ type productPriceRecurringPriceJSON struct {
 	SubscriptionPeriodCount    apijson.Field
 	SubscriptionPeriodInterval apijson.Field
 	Type                       apijson.Field
+	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
@@ -979,7 +988,8 @@ type ProductListResponse struct {
 	// and services.
 	TaxCategory ProductListResponseTaxCategory `json:"tax_category,required"`
 	// Timestamp when the product was last updated.
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time                   `json:"updated_at,required" format:"date-time"`
+	Currency  ProductListResponseCurrency `json:"currency,nullable"`
 	// Description of the product, optional.
 	Description string `json:"description,nullable"`
 	// URL of the product image, optional.
@@ -996,25 +1006,28 @@ type ProductListResponse struct {
 	// - In INR, a price of `₹1234.56` would be represented as `123456` (paise).
 	//
 	// This ensures precision and avoids floating-point rounding errors.
-	Price int64                   `json:"price,nullable"`
-	JSON  productListResponseJSON `json:"-"`
+	Price        int64                   `json:"price,nullable"`
+	TaxInclusive bool                    `json:"tax_inclusive,nullable"`
+	JSON         productListResponseJSON `json:"-"`
 }
 
 // productListResponseJSON contains the JSON metadata for the struct
 // [ProductListResponse]
 type productListResponseJSON struct {
-	BusinessID  apijson.Field
-	CreatedAt   apijson.Field
-	IsRecurring apijson.Field
-	ProductID   apijson.Field
-	TaxCategory apijson.Field
-	UpdatedAt   apijson.Field
-	Description apijson.Field
-	Image       apijson.Field
-	Name        apijson.Field
-	Price       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	BusinessID   apijson.Field
+	CreatedAt    apijson.Field
+	IsRecurring  apijson.Field
+	ProductID    apijson.Field
+	TaxCategory  apijson.Field
+	UpdatedAt    apijson.Field
+	Currency     apijson.Field
+	Description  apijson.Field
+	Image        apijson.Field
+	Name         apijson.Field
+	Price        apijson.Field
+	TaxInclusive apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
 }
 
 func (r *ProductListResponse) UnmarshalJSON(data []byte) (err error) {
@@ -1038,6 +1051,164 @@ const (
 func (r ProductListResponseTaxCategory) IsKnown() bool {
 	switch r {
 	case ProductListResponseTaxCategoryDigitalProducts, ProductListResponseTaxCategorySaas, ProductListResponseTaxCategoryEBook:
+		return true
+	}
+	return false
+}
+
+type ProductListResponseCurrency string
+
+const (
+	ProductListResponseCurrencyAed ProductListResponseCurrency = "AED"
+	ProductListResponseCurrencyAll ProductListResponseCurrency = "ALL"
+	ProductListResponseCurrencyAmd ProductListResponseCurrency = "AMD"
+	ProductListResponseCurrencyAng ProductListResponseCurrency = "ANG"
+	ProductListResponseCurrencyAoa ProductListResponseCurrency = "AOA"
+	ProductListResponseCurrencyArs ProductListResponseCurrency = "ARS"
+	ProductListResponseCurrencyAud ProductListResponseCurrency = "AUD"
+	ProductListResponseCurrencyAwg ProductListResponseCurrency = "AWG"
+	ProductListResponseCurrencyAzn ProductListResponseCurrency = "AZN"
+	ProductListResponseCurrencyBam ProductListResponseCurrency = "BAM"
+	ProductListResponseCurrencyBbd ProductListResponseCurrency = "BBD"
+	ProductListResponseCurrencyBdt ProductListResponseCurrency = "BDT"
+	ProductListResponseCurrencyBgn ProductListResponseCurrency = "BGN"
+	ProductListResponseCurrencyBhd ProductListResponseCurrency = "BHD"
+	ProductListResponseCurrencyBif ProductListResponseCurrency = "BIF"
+	ProductListResponseCurrencyBmd ProductListResponseCurrency = "BMD"
+	ProductListResponseCurrencyBnd ProductListResponseCurrency = "BND"
+	ProductListResponseCurrencyBob ProductListResponseCurrency = "BOB"
+	ProductListResponseCurrencyBrl ProductListResponseCurrency = "BRL"
+	ProductListResponseCurrencyBsd ProductListResponseCurrency = "BSD"
+	ProductListResponseCurrencyBwp ProductListResponseCurrency = "BWP"
+	ProductListResponseCurrencyByn ProductListResponseCurrency = "BYN"
+	ProductListResponseCurrencyBzd ProductListResponseCurrency = "BZD"
+	ProductListResponseCurrencyCad ProductListResponseCurrency = "CAD"
+	ProductListResponseCurrencyChf ProductListResponseCurrency = "CHF"
+	ProductListResponseCurrencyClp ProductListResponseCurrency = "CLP"
+	ProductListResponseCurrencyCny ProductListResponseCurrency = "CNY"
+	ProductListResponseCurrencyCop ProductListResponseCurrency = "COP"
+	ProductListResponseCurrencyCrc ProductListResponseCurrency = "CRC"
+	ProductListResponseCurrencyCup ProductListResponseCurrency = "CUP"
+	ProductListResponseCurrencyCve ProductListResponseCurrency = "CVE"
+	ProductListResponseCurrencyCzk ProductListResponseCurrency = "CZK"
+	ProductListResponseCurrencyDjf ProductListResponseCurrency = "DJF"
+	ProductListResponseCurrencyDkk ProductListResponseCurrency = "DKK"
+	ProductListResponseCurrencyDop ProductListResponseCurrency = "DOP"
+	ProductListResponseCurrencyDzd ProductListResponseCurrency = "DZD"
+	ProductListResponseCurrencyEgp ProductListResponseCurrency = "EGP"
+	ProductListResponseCurrencyEtb ProductListResponseCurrency = "ETB"
+	ProductListResponseCurrencyEur ProductListResponseCurrency = "EUR"
+	ProductListResponseCurrencyFjd ProductListResponseCurrency = "FJD"
+	ProductListResponseCurrencyFkp ProductListResponseCurrency = "FKP"
+	ProductListResponseCurrencyGbp ProductListResponseCurrency = "GBP"
+	ProductListResponseCurrencyGel ProductListResponseCurrency = "GEL"
+	ProductListResponseCurrencyGhs ProductListResponseCurrency = "GHS"
+	ProductListResponseCurrencyGip ProductListResponseCurrency = "GIP"
+	ProductListResponseCurrencyGmd ProductListResponseCurrency = "GMD"
+	ProductListResponseCurrencyGnf ProductListResponseCurrency = "GNF"
+	ProductListResponseCurrencyGtq ProductListResponseCurrency = "GTQ"
+	ProductListResponseCurrencyGyd ProductListResponseCurrency = "GYD"
+	ProductListResponseCurrencyHkd ProductListResponseCurrency = "HKD"
+	ProductListResponseCurrencyHnl ProductListResponseCurrency = "HNL"
+	ProductListResponseCurrencyHrk ProductListResponseCurrency = "HRK"
+	ProductListResponseCurrencyHtg ProductListResponseCurrency = "HTG"
+	ProductListResponseCurrencyHuf ProductListResponseCurrency = "HUF"
+	ProductListResponseCurrencyIdr ProductListResponseCurrency = "IDR"
+	ProductListResponseCurrencyIls ProductListResponseCurrency = "ILS"
+	ProductListResponseCurrencyInr ProductListResponseCurrency = "INR"
+	ProductListResponseCurrencyIqd ProductListResponseCurrency = "IQD"
+	ProductListResponseCurrencyJmd ProductListResponseCurrency = "JMD"
+	ProductListResponseCurrencyJod ProductListResponseCurrency = "JOD"
+	ProductListResponseCurrencyJpy ProductListResponseCurrency = "JPY"
+	ProductListResponseCurrencyKes ProductListResponseCurrency = "KES"
+	ProductListResponseCurrencyKgs ProductListResponseCurrency = "KGS"
+	ProductListResponseCurrencyKhr ProductListResponseCurrency = "KHR"
+	ProductListResponseCurrencyKmf ProductListResponseCurrency = "KMF"
+	ProductListResponseCurrencyKrw ProductListResponseCurrency = "KRW"
+	ProductListResponseCurrencyKwd ProductListResponseCurrency = "KWD"
+	ProductListResponseCurrencyKyd ProductListResponseCurrency = "KYD"
+	ProductListResponseCurrencyKzt ProductListResponseCurrency = "KZT"
+	ProductListResponseCurrencyLak ProductListResponseCurrency = "LAK"
+	ProductListResponseCurrencyLbp ProductListResponseCurrency = "LBP"
+	ProductListResponseCurrencyLkr ProductListResponseCurrency = "LKR"
+	ProductListResponseCurrencyLrd ProductListResponseCurrency = "LRD"
+	ProductListResponseCurrencyLsl ProductListResponseCurrency = "LSL"
+	ProductListResponseCurrencyLyd ProductListResponseCurrency = "LYD"
+	ProductListResponseCurrencyMad ProductListResponseCurrency = "MAD"
+	ProductListResponseCurrencyMdl ProductListResponseCurrency = "MDL"
+	ProductListResponseCurrencyMga ProductListResponseCurrency = "MGA"
+	ProductListResponseCurrencyMkd ProductListResponseCurrency = "MKD"
+	ProductListResponseCurrencyMmk ProductListResponseCurrency = "MMK"
+	ProductListResponseCurrencyMnt ProductListResponseCurrency = "MNT"
+	ProductListResponseCurrencyMop ProductListResponseCurrency = "MOP"
+	ProductListResponseCurrencyMru ProductListResponseCurrency = "MRU"
+	ProductListResponseCurrencyMur ProductListResponseCurrency = "MUR"
+	ProductListResponseCurrencyMvr ProductListResponseCurrency = "MVR"
+	ProductListResponseCurrencyMwk ProductListResponseCurrency = "MWK"
+	ProductListResponseCurrencyMxn ProductListResponseCurrency = "MXN"
+	ProductListResponseCurrencyMyr ProductListResponseCurrency = "MYR"
+	ProductListResponseCurrencyMzn ProductListResponseCurrency = "MZN"
+	ProductListResponseCurrencyNad ProductListResponseCurrency = "NAD"
+	ProductListResponseCurrencyNgn ProductListResponseCurrency = "NGN"
+	ProductListResponseCurrencyNio ProductListResponseCurrency = "NIO"
+	ProductListResponseCurrencyNok ProductListResponseCurrency = "NOK"
+	ProductListResponseCurrencyNpr ProductListResponseCurrency = "NPR"
+	ProductListResponseCurrencyNzd ProductListResponseCurrency = "NZD"
+	ProductListResponseCurrencyOmr ProductListResponseCurrency = "OMR"
+	ProductListResponseCurrencyPab ProductListResponseCurrency = "PAB"
+	ProductListResponseCurrencyPen ProductListResponseCurrency = "PEN"
+	ProductListResponseCurrencyPgk ProductListResponseCurrency = "PGK"
+	ProductListResponseCurrencyPhp ProductListResponseCurrency = "PHP"
+	ProductListResponseCurrencyPkr ProductListResponseCurrency = "PKR"
+	ProductListResponseCurrencyPln ProductListResponseCurrency = "PLN"
+	ProductListResponseCurrencyPyg ProductListResponseCurrency = "PYG"
+	ProductListResponseCurrencyQar ProductListResponseCurrency = "QAR"
+	ProductListResponseCurrencyRon ProductListResponseCurrency = "RON"
+	ProductListResponseCurrencyRsd ProductListResponseCurrency = "RSD"
+	ProductListResponseCurrencyRub ProductListResponseCurrency = "RUB"
+	ProductListResponseCurrencyRwf ProductListResponseCurrency = "RWF"
+	ProductListResponseCurrencySar ProductListResponseCurrency = "SAR"
+	ProductListResponseCurrencySbd ProductListResponseCurrency = "SBD"
+	ProductListResponseCurrencyScr ProductListResponseCurrency = "SCR"
+	ProductListResponseCurrencySek ProductListResponseCurrency = "SEK"
+	ProductListResponseCurrencySgd ProductListResponseCurrency = "SGD"
+	ProductListResponseCurrencyShp ProductListResponseCurrency = "SHP"
+	ProductListResponseCurrencySle ProductListResponseCurrency = "SLE"
+	ProductListResponseCurrencySll ProductListResponseCurrency = "SLL"
+	ProductListResponseCurrencySos ProductListResponseCurrency = "SOS"
+	ProductListResponseCurrencySrd ProductListResponseCurrency = "SRD"
+	ProductListResponseCurrencySsp ProductListResponseCurrency = "SSP"
+	ProductListResponseCurrencyStn ProductListResponseCurrency = "STN"
+	ProductListResponseCurrencySvc ProductListResponseCurrency = "SVC"
+	ProductListResponseCurrencySzl ProductListResponseCurrency = "SZL"
+	ProductListResponseCurrencyThb ProductListResponseCurrency = "THB"
+	ProductListResponseCurrencyTnd ProductListResponseCurrency = "TND"
+	ProductListResponseCurrencyTop ProductListResponseCurrency = "TOP"
+	ProductListResponseCurrencyTry ProductListResponseCurrency = "TRY"
+	ProductListResponseCurrencyTtd ProductListResponseCurrency = "TTD"
+	ProductListResponseCurrencyTwd ProductListResponseCurrency = "TWD"
+	ProductListResponseCurrencyTzs ProductListResponseCurrency = "TZS"
+	ProductListResponseCurrencyUah ProductListResponseCurrency = "UAH"
+	ProductListResponseCurrencyUgx ProductListResponseCurrency = "UGX"
+	ProductListResponseCurrencyUsd ProductListResponseCurrency = "USD"
+	ProductListResponseCurrencyUyu ProductListResponseCurrency = "UYU"
+	ProductListResponseCurrencyUzs ProductListResponseCurrency = "UZS"
+	ProductListResponseCurrencyVes ProductListResponseCurrency = "VES"
+	ProductListResponseCurrencyVnd ProductListResponseCurrency = "VND"
+	ProductListResponseCurrencyVuv ProductListResponseCurrency = "VUV"
+	ProductListResponseCurrencyWst ProductListResponseCurrency = "WST"
+	ProductListResponseCurrencyXaf ProductListResponseCurrency = "XAF"
+	ProductListResponseCurrencyXcd ProductListResponseCurrency = "XCD"
+	ProductListResponseCurrencyXof ProductListResponseCurrency = "XOF"
+	ProductListResponseCurrencyXpf ProductListResponseCurrency = "XPF"
+	ProductListResponseCurrencyYer ProductListResponseCurrency = "YER"
+	ProductListResponseCurrencyZar ProductListResponseCurrency = "ZAR"
+	ProductListResponseCurrencyZmw ProductListResponseCurrency = "ZMW"
+)
+
+func (r ProductListResponseCurrency) IsKnown() bool {
+	switch r {
+	case ProductListResponseCurrencyAed, ProductListResponseCurrencyAll, ProductListResponseCurrencyAmd, ProductListResponseCurrencyAng, ProductListResponseCurrencyAoa, ProductListResponseCurrencyArs, ProductListResponseCurrencyAud, ProductListResponseCurrencyAwg, ProductListResponseCurrencyAzn, ProductListResponseCurrencyBam, ProductListResponseCurrencyBbd, ProductListResponseCurrencyBdt, ProductListResponseCurrencyBgn, ProductListResponseCurrencyBhd, ProductListResponseCurrencyBif, ProductListResponseCurrencyBmd, ProductListResponseCurrencyBnd, ProductListResponseCurrencyBob, ProductListResponseCurrencyBrl, ProductListResponseCurrencyBsd, ProductListResponseCurrencyBwp, ProductListResponseCurrencyByn, ProductListResponseCurrencyBzd, ProductListResponseCurrencyCad, ProductListResponseCurrencyChf, ProductListResponseCurrencyClp, ProductListResponseCurrencyCny, ProductListResponseCurrencyCop, ProductListResponseCurrencyCrc, ProductListResponseCurrencyCup, ProductListResponseCurrencyCve, ProductListResponseCurrencyCzk, ProductListResponseCurrencyDjf, ProductListResponseCurrencyDkk, ProductListResponseCurrencyDop, ProductListResponseCurrencyDzd, ProductListResponseCurrencyEgp, ProductListResponseCurrencyEtb, ProductListResponseCurrencyEur, ProductListResponseCurrencyFjd, ProductListResponseCurrencyFkp, ProductListResponseCurrencyGbp, ProductListResponseCurrencyGel, ProductListResponseCurrencyGhs, ProductListResponseCurrencyGip, ProductListResponseCurrencyGmd, ProductListResponseCurrencyGnf, ProductListResponseCurrencyGtq, ProductListResponseCurrencyGyd, ProductListResponseCurrencyHkd, ProductListResponseCurrencyHnl, ProductListResponseCurrencyHrk, ProductListResponseCurrencyHtg, ProductListResponseCurrencyHuf, ProductListResponseCurrencyIdr, ProductListResponseCurrencyIls, ProductListResponseCurrencyInr, ProductListResponseCurrencyIqd, ProductListResponseCurrencyJmd, ProductListResponseCurrencyJod, ProductListResponseCurrencyJpy, ProductListResponseCurrencyKes, ProductListResponseCurrencyKgs, ProductListResponseCurrencyKhr, ProductListResponseCurrencyKmf, ProductListResponseCurrencyKrw, ProductListResponseCurrencyKwd, ProductListResponseCurrencyKyd, ProductListResponseCurrencyKzt, ProductListResponseCurrencyLak, ProductListResponseCurrencyLbp, ProductListResponseCurrencyLkr, ProductListResponseCurrencyLrd, ProductListResponseCurrencyLsl, ProductListResponseCurrencyLyd, ProductListResponseCurrencyMad, ProductListResponseCurrencyMdl, ProductListResponseCurrencyMga, ProductListResponseCurrencyMkd, ProductListResponseCurrencyMmk, ProductListResponseCurrencyMnt, ProductListResponseCurrencyMop, ProductListResponseCurrencyMru, ProductListResponseCurrencyMur, ProductListResponseCurrencyMvr, ProductListResponseCurrencyMwk, ProductListResponseCurrencyMxn, ProductListResponseCurrencyMyr, ProductListResponseCurrencyMzn, ProductListResponseCurrencyNad, ProductListResponseCurrencyNgn, ProductListResponseCurrencyNio, ProductListResponseCurrencyNok, ProductListResponseCurrencyNpr, ProductListResponseCurrencyNzd, ProductListResponseCurrencyOmr, ProductListResponseCurrencyPab, ProductListResponseCurrencyPen, ProductListResponseCurrencyPgk, ProductListResponseCurrencyPhp, ProductListResponseCurrencyPkr, ProductListResponseCurrencyPln, ProductListResponseCurrencyPyg, ProductListResponseCurrencyQar, ProductListResponseCurrencyRon, ProductListResponseCurrencyRsd, ProductListResponseCurrencyRub, ProductListResponseCurrencyRwf, ProductListResponseCurrencySar, ProductListResponseCurrencySbd, ProductListResponseCurrencyScr, ProductListResponseCurrencySek, ProductListResponseCurrencySgd, ProductListResponseCurrencyShp, ProductListResponseCurrencySle, ProductListResponseCurrencySll, ProductListResponseCurrencySos, ProductListResponseCurrencySrd, ProductListResponseCurrencySsp, ProductListResponseCurrencyStn, ProductListResponseCurrencySvc, ProductListResponseCurrencySzl, ProductListResponseCurrencyThb, ProductListResponseCurrencyTnd, ProductListResponseCurrencyTop, ProductListResponseCurrencyTry, ProductListResponseCurrencyTtd, ProductListResponseCurrencyTwd, ProductListResponseCurrencyTzs, ProductListResponseCurrencyUah, ProductListResponseCurrencyUgx, ProductListResponseCurrencyUsd, ProductListResponseCurrencyUyu, ProductListResponseCurrencyUzs, ProductListResponseCurrencyVes, ProductListResponseCurrencyVnd, ProductListResponseCurrencyVuv, ProductListResponseCurrencyWst, ProductListResponseCurrencyXaf, ProductListResponseCurrencyXcd, ProductListResponseCurrencyXof, ProductListResponseCurrencyXpf, ProductListResponseCurrencyYer, ProductListResponseCurrencyZar, ProductListResponseCurrencyZmw:
 		return true
 	}
 	return false
@@ -1084,6 +1255,8 @@ type ProductNewParamsPrice struct {
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    param.Field[int64]                                           `json:"subscription_period_count"`
 	SubscriptionPeriodInterval param.Field[ProductNewParamsPriceSubscriptionPeriodInterval] `json:"subscription_period_interval"`
+	// Indicates if the price is tax inclusive
+	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
@@ -1111,6 +1284,8 @@ type ProductNewParamsPriceOneTimePrice struct {
 	// Purchasing power parity feature is not available as of now
 	PurchasingPowerParity param.Field[bool]                                  `json:"purchasing_power_parity,required"`
 	Type                  param.Field[ProductNewParamsPriceOneTimePriceType] `json:"type,required"`
+	// Indicates if the price is tax inclusive
+	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 }
 
 func (r ProductNewParamsPriceOneTimePrice) MarshalJSON() (data []byte, err error) {
@@ -1310,6 +1485,8 @@ type ProductNewParamsPriceRecurringPrice struct {
 	SubscriptionPeriodCount    param.Field[int64]                                                         `json:"subscription_period_count,required"`
 	SubscriptionPeriodInterval param.Field[ProductNewParamsPriceRecurringPriceSubscriptionPeriodInterval] `json:"subscription_period_interval,required"`
 	Type                       param.Field[ProductNewParamsPriceRecurringPriceType]                       `json:"type,required"`
+	// Indicates if the price is tax inclusive
+	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
@@ -1853,6 +2030,8 @@ type ProductUpdateParamsPrice struct {
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    param.Field[int64]                                              `json:"subscription_period_count"`
 	SubscriptionPeriodInterval param.Field[ProductUpdateParamsPriceSubscriptionPeriodInterval] `json:"subscription_period_interval"`
+	// Indicates if the price is tax inclusive
+	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
@@ -1880,6 +2059,8 @@ type ProductUpdateParamsPriceOneTimePrice struct {
 	// Purchasing power parity feature is not available as of now
 	PurchasingPowerParity param.Field[bool]                                     `json:"purchasing_power_parity,required"`
 	Type                  param.Field[ProductUpdateParamsPriceOneTimePriceType] `json:"type,required"`
+	// Indicates if the price is tax inclusive
+	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 }
 
 func (r ProductUpdateParamsPriceOneTimePrice) MarshalJSON() (data []byte, err error) {
@@ -2079,6 +2260,8 @@ type ProductUpdateParamsPriceRecurringPrice struct {
 	SubscriptionPeriodCount    param.Field[int64]                                                            `json:"subscription_period_count,required"`
 	SubscriptionPeriodInterval param.Field[ProductUpdateParamsPriceRecurringPriceSubscriptionPeriodInterval] `json:"subscription_period_interval,required"`
 	Type                       param.Field[ProductUpdateParamsPriceRecurringPriceType]                       `json:"type,required"`
+	// Indicates if the price is tax inclusive
+	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }

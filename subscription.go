@@ -112,6 +112,8 @@ type Subscription struct {
 	// Number of subscription period intervals
 	SubscriptionPeriodCount    int64                                  `json:"subscription_period_count,required"`
 	SubscriptionPeriodInterval SubscriptionSubscriptionPeriodInterval `json:"subscription_period_interval,required"`
+	// Indicates if the recurring_pre_tax_amount is tax inclusive
+	TaxInclusive bool `json:"tax_inclusive,required"`
 	// Number of days in the trial period (0 if no trial)
 	TrialPeriodDays int64            `json:"trial_period_days,required"`
 	JSON            subscriptionJSON `json:"-"`
@@ -133,6 +135,7 @@ type subscriptionJSON struct {
 	SubscriptionID             apijson.Field
 	SubscriptionPeriodCount    apijson.Field
 	SubscriptionPeriodInterval apijson.Field
+	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
