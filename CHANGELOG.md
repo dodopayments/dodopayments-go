@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.18.0 (2025-01-20)
+
+Full Changelog: [v0.17.0...v0.18.0](https://github.com/dodopayments/dodopayments-go/compare/v0.17.0...v0.18.0)
+
+### Features
+
+* **api:** updated openapi sepc ([#28](https://github.com/dodopayments/dodopayments-go/issues/28)) ([45929e2](https://github.com/dodopayments/dodopayments-go/commit/45929e2b4c0050d95253ba43243d912ed2265bda))
+
 ## 0.17.0 (2025-01-16)
 
 Full Changelog: [v0.16.1...v0.17.0](https://github.com/dodopayments/dodopayments-go/compare/v0.16.1...v0.17.0)
