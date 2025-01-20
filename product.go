@@ -92,6 +92,18 @@ func (r *ProductService) ListAutoPaging(ctx context.Context, query ProductListPa
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
+func (r *ProductService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
+	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return
+	}
+	path := fmt.Sprintf("products/%s", id)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
+	return
+}
+
 type Product struct {
 	// Unique identifier for the business to which the product belongs.
 	BusinessID string `json:"business_id,required"`
