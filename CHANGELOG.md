@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.19.0 (2025-01-23)
+
+Full Changelog: [v0.18.0...v0.19.0](https://github.com/dodopayments/dodopayments-go/compare/v0.18.0...v0.19.0)
+
+### Features
+
+* **api:** added archive product api ([#31](https://github.com/dodopayments/dodopayments-go/issues/31)) ([c35157f](https://github.com/dodopayments/dodopayments-go/commit/c35157fa4b6fc5c4a1dc88b5600fb0cf0f5fadbc))
+* **api:** manual updates ([#35](https://github.com/dodopayments/dodopayments-go/issues/35)) ([21343c9](https://github.com/dodopayments/dodopayments-go/commit/21343c9d032d598640b5a6ae765840669b9556a1))
+* **api:** manual updates ([#36](https://github.com/dodopayments/dodopayments-go/issues/36)) ([768e7ad](https://github.com/dodopayments/dodopayments-go/commit/768e7adf65e57bebcd7444c7a88f362fdcc1ad4c))
+
+
+### Bug Fixes
+
+* fix apijson.Port for embedded structs ([#33](https://github.com/dodopayments/dodopayments-go/issues/33)) ([27f05fb](https://github.com/dodopayments/dodopayments-go/commit/27f05fb18f90fa5ca4a8569cac9f93c9077252cc))
+* fix apijson.Port for embedded structs ([#34](https://github.com/dodopayments/dodopayments-go/issues/34)) ([bc00fd4](https://github.com/dodopayments/dodopayments-go/commit/bc00fd4d4689e7d92c945fbae5ea0b4062516e63))
+
 ## 0.18.0 (2025-01-20)
 
 Full Changelog: [v0.17.0...v0.18.0](https://github.com/dodopayments/dodopayments-go/compare/v0.17.0...v0.18.0)
