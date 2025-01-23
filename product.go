@@ -104,6 +104,18 @@ func (r *ProductService) Delete(ctx context.Context, id string, opts ...option.R
 	return
 }
 
+func (r *ProductService) Unarchive(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
+	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return
+	}
+	path := fmt.Sprintf("products/%s/unarchive", id)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, nil, opts...)
+	return
+}
+
 type Product struct {
 	// Unique identifier for the business to which the product belongs.
 	BusinessID string `json:"business_id,required"`
