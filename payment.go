@@ -442,9 +442,12 @@ func (r paymentNewResponseCustomerJSON) RawJSON() string {
 }
 
 type PaymentNewResponseProductCart struct {
-	ProductID string                            `json:"product_id,required"`
-	Quantity  int64                             `json:"quantity,required"`
-	JSON      paymentNewResponseProductCartJSON `json:"-"`
+	ProductID string `json:"product_id,required"`
+	Quantity  int64  `json:"quantity,required"`
+	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
+	// amount will be ignored
+	Amount int64                             `json:"amount,nullable"`
+	JSON   paymentNewResponseProductCartJSON `json:"-"`
 }
 
 // paymentNewResponseProductCartJSON contains the JSON metadata for the struct
@@ -452,6 +455,7 @@ type PaymentNewResponseProductCart struct {
 type paymentNewResponseProductCartJSON struct {
 	ProductID   apijson.Field
 	Quantity    apijson.Field
+	Amount      apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -799,6 +803,9 @@ func (r PaymentNewParamsCustomerCreateNewCustomer) implementsPaymentNewParamsCus
 type PaymentNewParamsProductCart struct {
 	ProductID param.Field[string] `json:"product_id,required"`
 	Quantity  param.Field[int64]  `json:"quantity,required"`
+	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
+	// amount will be ignored
+	Amount param.Field[int64] `json:"amount"`
 }
 
 func (r PaymentNewParamsProductCart) MarshalJSON() (data []byte, err error) {

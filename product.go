@@ -179,13 +179,19 @@ type ProductPrice struct {
 	Currency ProductPriceCurrency `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount float64 `json:"discount,required"`
-	// The payment amount. Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	// The payment amount, in the smallest denomination of the currency (e.g., cents
+	// for USD). For example, to charge $1.00, pass `100`.
+	//
+	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
+	// represents the **minimum** amount the customer must pay.
 	Price int64 `json:"price,required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
+	// Purchasing power parity feature is not available as of now.
 	PurchasingPowerParity bool             `json:"purchasing_power_parity,required"`
 	Type                  ProductPriceType `json:"type,required"`
+	// Indicates whether the customer can pay any amount they choose. If set to `true`,
+	// the [`price`](Self::price) field is the minimum amount.
+	PayWhatYouWant bool `json:"pay_what_you_want"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
 	PaymentFrequencyCount    int64                                `json:"payment_frequency_count"`
@@ -194,7 +200,11 @@ type ProductPrice struct {
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    int64                                  `json:"subscription_period_count"`
 	SubscriptionPeriodInterval ProductPriceSubscriptionPeriodInterval `json:"subscription_period_interval"`
-	// Indicates if the price is tax inclusive
+	// A suggested price for the user to pay. This value is only considered if
+	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
+	// ignored.
+	SuggestedPrice int64 `json:"suggested_price,nullable"`
+	// Indicates if the price is tax inclusive.
 	TaxInclusive bool `json:"tax_inclusive,nullable"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays int64            `json:"trial_period_days"`
@@ -209,10 +219,12 @@ type productPriceJSON struct {
 	Price                      apijson.Field
 	PurchasingPowerParity      apijson.Field
 	Type                       apijson.Field
+	PayWhatYouWant             apijson.Field
 	PaymentFrequencyCount      apijson.Field
 	PaymentFrequencyInterval   apijson.Field
 	SubscriptionPeriodCount    apijson.Field
 	SubscriptionPeriodInterval apijson.Field
+	SuggestedPrice             apijson.Field
 	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
 	raw                        string
@@ -267,14 +279,24 @@ type ProductPriceOneTimePrice struct {
 	Currency ProductPriceOneTimePriceCurrency `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount float64 `json:"discount,required"`
-	// The payment amount. Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	// The payment amount, in the smallest denomination of the currency (e.g., cents
+	// for USD). For example, to charge $1.00, pass `100`.
+	//
+	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
+	// represents the **minimum** amount the customer must pay.
 	Price int64 `json:"price,required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
+	// Purchasing power parity feature is not available as of now.
 	PurchasingPowerParity bool                         `json:"purchasing_power_parity,required"`
 	Type                  ProductPriceOneTimePriceType `json:"type,required"`
-	// Indicates if the price is tax inclusive
+	// Indicates whether the customer can pay any amount they choose. If set to `true`,
+	// the [`price`](Self::price) field is the minimum amount.
+	PayWhatYouWant bool `json:"pay_what_you_want"`
+	// A suggested price for the user to pay. This value is only considered if
+	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
+	// ignored.
+	SuggestedPrice int64 `json:"suggested_price,nullable"`
+	// Indicates if the price is tax inclusive.
 	TaxInclusive bool                         `json:"tax_inclusive,nullable"`
 	JSON         productPriceOneTimePriceJSON `json:"-"`
 }
@@ -287,6 +309,8 @@ type productPriceOneTimePriceJSON struct {
 	Price                 apijson.Field
 	PurchasingPowerParity apijson.Field
 	Type                  apijson.Field
+	PayWhatYouWant        apijson.Field
+	SuggestedPrice        apijson.Field
 	TaxInclusive          apijson.Field
 	raw                   string
 	ExtraFields           map[string]apijson.Field
@@ -1245,13 +1269,19 @@ type ProductListResponsePriceDetail struct {
 	Currency ProductListResponsePriceDetailCurrency `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount float64 `json:"discount,required"`
-	// The payment amount. Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	// The payment amount, in the smallest denomination of the currency (e.g., cents
+	// for USD). For example, to charge $1.00, pass `100`.
+	//
+	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
+	// represents the **minimum** amount the customer must pay.
 	Price int64 `json:"price,required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
+	// Purchasing power parity feature is not available as of now.
 	PurchasingPowerParity bool                               `json:"purchasing_power_parity,required"`
 	Type                  ProductListResponsePriceDetailType `json:"type,required"`
+	// Indicates whether the customer can pay any amount they choose. If set to `true`,
+	// the [`price`](Self::price) field is the minimum amount.
+	PayWhatYouWant bool `json:"pay_what_you_want"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
 	PaymentFrequencyCount    int64                                                  `json:"payment_frequency_count"`
@@ -1260,7 +1290,11 @@ type ProductListResponsePriceDetail struct {
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    int64                                                    `json:"subscription_period_count"`
 	SubscriptionPeriodInterval ProductListResponsePriceDetailSubscriptionPeriodInterval `json:"subscription_period_interval"`
-	// Indicates if the price is tax inclusive
+	// A suggested price for the user to pay. This value is only considered if
+	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
+	// ignored.
+	SuggestedPrice int64 `json:"suggested_price,nullable"`
+	// Indicates if the price is tax inclusive.
 	TaxInclusive bool `json:"tax_inclusive,nullable"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays int64                              `json:"trial_period_days"`
@@ -1276,10 +1310,12 @@ type productListResponsePriceDetailJSON struct {
 	Price                      apijson.Field
 	PurchasingPowerParity      apijson.Field
 	Type                       apijson.Field
+	PayWhatYouWant             apijson.Field
 	PaymentFrequencyCount      apijson.Field
 	PaymentFrequencyInterval   apijson.Field
 	SubscriptionPeriodCount    apijson.Field
 	SubscriptionPeriodInterval apijson.Field
+	SuggestedPrice             apijson.Field
 	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
 	raw                        string
@@ -1336,14 +1372,24 @@ type ProductListResponsePriceDetailOneTimePrice struct {
 	Currency ProductListResponsePriceDetailOneTimePriceCurrency `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount float64 `json:"discount,required"`
-	// The payment amount. Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	// The payment amount, in the smallest denomination of the currency (e.g., cents
+	// for USD). For example, to charge $1.00, pass `100`.
+	//
+	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
+	// represents the **minimum** amount the customer must pay.
 	Price int64 `json:"price,required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
+	// Purchasing power parity feature is not available as of now.
 	PurchasingPowerParity bool                                           `json:"purchasing_power_parity,required"`
 	Type                  ProductListResponsePriceDetailOneTimePriceType `json:"type,required"`
-	// Indicates if the price is tax inclusive
+	// Indicates whether the customer can pay any amount they choose. If set to `true`,
+	// the [`price`](Self::price) field is the minimum amount.
+	PayWhatYouWant bool `json:"pay_what_you_want"`
+	// A suggested price for the user to pay. This value is only considered if
+	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
+	// ignored.
+	SuggestedPrice int64 `json:"suggested_price,nullable"`
+	// Indicates if the price is tax inclusive.
 	TaxInclusive bool                                           `json:"tax_inclusive,nullable"`
 	JSON         productListResponsePriceDetailOneTimePriceJSON `json:"-"`
 }
@@ -1356,6 +1402,8 @@ type productListResponsePriceDetailOneTimePriceJSON struct {
 	Price                 apijson.Field
 	PurchasingPowerParity apijson.Field
 	Type                  apijson.Field
+	PayWhatYouWant        apijson.Field
+	SuggestedPrice        apijson.Field
 	TaxInclusive          apijson.Field
 	raw                   string
 	ExtraFields           map[string]apijson.Field
@@ -2036,13 +2084,19 @@ type ProductNewParamsPrice struct {
 	Currency param.Field[ProductNewParamsPriceCurrency] `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount param.Field[float64] `json:"discount,required"`
-	// The payment amount. Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	// The payment amount, in the smallest denomination of the currency (e.g., cents
+	// for USD). For example, to charge $1.00, pass `100`.
+	//
+	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
+	// represents the **minimum** amount the customer must pay.
 	Price param.Field[int64] `json:"price,required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
+	// Purchasing power parity feature is not available as of now.
 	PurchasingPowerParity param.Field[bool]                      `json:"purchasing_power_parity,required"`
 	Type                  param.Field[ProductNewParamsPriceType] `json:"type,required"`
+	// Indicates whether the customer can pay any amount they choose. If set to `true`,
+	// the [`price`](Self::price) field is the minimum amount.
+	PayWhatYouWant param.Field[bool] `json:"pay_what_you_want"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
 	PaymentFrequencyCount    param.Field[int64]                                         `json:"payment_frequency_count"`
@@ -2051,7 +2105,11 @@ type ProductNewParamsPrice struct {
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    param.Field[int64]                                           `json:"subscription_period_count"`
 	SubscriptionPeriodInterval param.Field[ProductNewParamsPriceSubscriptionPeriodInterval] `json:"subscription_period_interval"`
-	// Indicates if the price is tax inclusive
+	// A suggested price for the user to pay. This value is only considered if
+	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
+	// ignored.
+	SuggestedPrice param.Field[int64] `json:"suggested_price"`
+	// Indicates if the price is tax inclusive.
 	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
@@ -2073,14 +2131,24 @@ type ProductNewParamsPriceOneTimePrice struct {
 	Currency param.Field[ProductNewParamsPriceOneTimePriceCurrency] `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount param.Field[float64] `json:"discount,required"`
-	// The payment amount. Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	// The payment amount, in the smallest denomination of the currency (e.g., cents
+	// for USD). For example, to charge $1.00, pass `100`.
+	//
+	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
+	// represents the **minimum** amount the customer must pay.
 	Price param.Field[int64] `json:"price,required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
+	// Purchasing power parity feature is not available as of now.
 	PurchasingPowerParity param.Field[bool]                                  `json:"purchasing_power_parity,required"`
 	Type                  param.Field[ProductNewParamsPriceOneTimePriceType] `json:"type,required"`
-	// Indicates if the price is tax inclusive
+	// Indicates whether the customer can pay any amount they choose. If set to `true`,
+	// the [`price`](Self::price) field is the minimum amount.
+	PayWhatYouWant param.Field[bool] `json:"pay_what_you_want"`
+	// A suggested price for the user to pay. This value is only considered if
+	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
+	// ignored.
+	SuggestedPrice param.Field[int64] `json:"suggested_price"`
+	// Indicates if the price is tax inclusive.
 	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 }
 
@@ -2811,13 +2879,19 @@ type ProductUpdateParamsPrice struct {
 	Currency param.Field[ProductUpdateParamsPriceCurrency] `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount param.Field[float64] `json:"discount,required"`
-	// The payment amount. Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	// The payment amount, in the smallest denomination of the currency (e.g., cents
+	// for USD). For example, to charge $1.00, pass `100`.
+	//
+	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
+	// represents the **minimum** amount the customer must pay.
 	Price param.Field[int64] `json:"price,required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
+	// Purchasing power parity feature is not available as of now.
 	PurchasingPowerParity param.Field[bool]                         `json:"purchasing_power_parity,required"`
 	Type                  param.Field[ProductUpdateParamsPriceType] `json:"type,required"`
+	// Indicates whether the customer can pay any amount they choose. If set to `true`,
+	// the [`price`](Self::price) field is the minimum amount.
+	PayWhatYouWant param.Field[bool] `json:"pay_what_you_want"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
 	PaymentFrequencyCount    param.Field[int64]                                            `json:"payment_frequency_count"`
@@ -2826,7 +2900,11 @@ type ProductUpdateParamsPrice struct {
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount    param.Field[int64]                                              `json:"subscription_period_count"`
 	SubscriptionPeriodInterval param.Field[ProductUpdateParamsPriceSubscriptionPeriodInterval] `json:"subscription_period_interval"`
-	// Indicates if the price is tax inclusive
+	// A suggested price for the user to pay. This value is only considered if
+	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
+	// ignored.
+	SuggestedPrice param.Field[int64] `json:"suggested_price"`
+	// Indicates if the price is tax inclusive.
 	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
@@ -2848,14 +2926,24 @@ type ProductUpdateParamsPriceOneTimePrice struct {
 	Currency param.Field[ProductUpdateParamsPriceOneTimePriceCurrency] `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount param.Field[float64] `json:"discount,required"`
-	// The payment amount. Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	// The payment amount, in the smallest denomination of the currency (e.g., cents
+	// for USD). For example, to charge $1.00, pass `100`.
+	//
+	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
+	// represents the **minimum** amount the customer must pay.
 	Price param.Field[int64] `json:"price,required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
+	// Purchasing power parity feature is not available as of now.
 	PurchasingPowerParity param.Field[bool]                                     `json:"purchasing_power_parity,required"`
 	Type                  param.Field[ProductUpdateParamsPriceOneTimePriceType] `json:"type,required"`
-	// Indicates if the price is tax inclusive
+	// Indicates whether the customer can pay any amount they choose. If set to `true`,
+	// the [`price`](Self::price) field is the minimum amount.
+	PayWhatYouWant param.Field[bool] `json:"pay_what_you_want"`
+	// A suggested price for the user to pay. This value is only considered if
+	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
+	// ignored.
+	SuggestedPrice param.Field[int64] `json:"suggested_price"`
+	// Indicates if the price is tax inclusive.
 	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 }
 
