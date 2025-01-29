@@ -40,6 +40,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
 			Quantity:  dodopayments.F(int64(0)),
+			Amount:    dodopayments.F(int64(0)),
 		}}),
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
