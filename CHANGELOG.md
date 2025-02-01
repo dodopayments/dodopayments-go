@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.20.2 (2025-02-01)
+
+Full Changelog: [v0.20.1...v0.20.2](https://github.com/dodopayments/dodopayments-go/compare/v0.20.1...v0.20.2)
+
+### Bug Fixes
+
+* fix unicode encoding for json ([#42](https://github.com/dodopayments/dodopayments-go/issues/42)) ([315b144](https://github.com/dodopayments/dodopayments-go/commit/315b144ae3cfe253451c5dcb1ed0a291f5edcace))
+
+
+### Documentation
+
+* document raw responses ([#44](https://github.com/dodopayments/dodopayments-go/issues/44)) ([4ecb25e](https://github.com/dodopayments/dodopayments-go/commit/4ecb25eb69520af6ac6e77694aebd71bc3f8792a))
+
 ## 0.20.1 (2025-01-29)
 
 Full Changelog: [v0.19.0...v0.20.1](https://github.com/dodopayments/dodopayments-go/compare/v0.19.0...v0.20.1)
