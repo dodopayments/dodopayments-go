@@ -47,6 +47,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 		}),
 		PaymentLink: dodopayments.F(true),
 		ReturnURL:   dodopayments.F("return_url"),
+		TaxID:       dodopayments.F("tax_id"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
