@@ -7,8 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
+	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 )
@@ -32,26 +35,28 @@ func NewProductImageService(opts ...option.RequestOption) (r *ProductImageServic
 	return
 }
 
-func (r *ProductImageService) Update(ctx context.Context, id string, opts ...option.RequestOption) (res *ProductImageUpdateResponse, err error) {
+func (r *ProductImageService) Update(ctx context.Context, id string, body ProductImageUpdateParams, opts ...option.RequestOption) (res *ProductImageUpdateResponse, err error) {
 	opts = append(r.Options[:], opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return
 	}
 	path := fmt.Sprintf("products/%s/images", id)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
 	return
 }
 
 type ProductImageUpdateResponse struct {
-	URL  string                         `json:"url,required"`
-	JSON productImageUpdateResponseJSON `json:"-"`
+	URL     string                         `json:"url,required"`
+	ImageID string                         `json:"image_id,nullable" format:"uuid"`
+	JSON    productImageUpdateResponseJSON `json:"-"`
 }
 
 // productImageUpdateResponseJSON contains the JSON metadata for the struct
 // [ProductImageUpdateResponse]
 type productImageUpdateResponseJSON struct {
 	URL         apijson.Field
+	ImageID     apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -62,4 +67,17 @@ func (r *ProductImageUpdateResponse) UnmarshalJSON(data []byte) (err error) {
 
 func (r productImageUpdateResponseJSON) RawJSON() string {
 	return r.raw
+}
+
+type ProductImageUpdateParams struct {
+	ForceUpdate param.Field[bool] `query:"force_update"`
+}
+
+// URLQuery serializes [ProductImageUpdateParams]'s query parameters as
+// `url.Values`.
+func (r ProductImageUpdateParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

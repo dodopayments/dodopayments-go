@@ -466,6 +466,9 @@ type SubscriptionNewParams struct {
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional URL to redirect after successful subscription creation
 	ReturnURL param.Field[string] `json:"return_url"`
+	// Tax ID in case the payment is B2B. If tax id validation fails the payment
+	// creation will fail
+	TaxID param.Field[string] `json:"tax_id"`
 	// Optional trial period in days If specified, this value overrides the trial
 	// period set in the product's price Must be between 0 and 10000 days
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`

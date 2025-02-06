@@ -93,6 +93,8 @@ type Payment struct {
 	// Total amount charged to the customer including tax, in smallest currency unit
 	// (e.g. cents)
 	TotalAmount int64 `json:"total_amount,required"`
+	// An error message if the payment failed
+	ErrorMessage string `json:"error_message,nullable"`
 	// Checkout URL
 	PaymentLink string `json:"payment_link,nullable"`
 	// Payment method used by customer (e.g. "card", "bank_transfer")
@@ -122,6 +124,7 @@ type paymentJSON struct {
 	PaymentID         apijson.Field
 	Refunds           apijson.Field
 	TotalAmount       apijson.Field
+	ErrorMessage      apijson.Field
 	PaymentLink       apijson.Field
 	PaymentMethod     apijson.Field
 	PaymentMethodType apijson.Field
@@ -728,6 +731,9 @@ type PaymentNewParams struct {
 	// Optional URL to redirect the customer after payment. Must be a valid URL if
 	// provided.
 	ReturnURL param.Field[string] `json:"return_url"`
+	// Tax ID in case the payment is B2B. If tax id validation fails the payment
+	// creation will fail
+	TaxID param.Field[string] `json:"tax_id"`
 }
 
 func (r PaymentNewParams) MarshalJSON() (data []byte, err error) {
