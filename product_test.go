@@ -95,6 +95,7 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 		"id",
 		dodopayments.ProductUpdateParams{
 			Description:                 dodopayments.F("description"),
+			ImageID:                     dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 			LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
 			LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
 			LicenseKeyDuration: dodopayments.F(dodopayments.ProductUpdateParamsLicenseKeyDuration{
