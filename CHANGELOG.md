@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.22.0 (2025-02-06)
+
+Full Changelog: [v0.20.2...v0.22.0](https://github.com/dodopayments/dodopayments-go/compare/v0.20.2...v0.22.0)
+
+### Features
+
+* **api:** updated API changes for v0.22.0 ([#49](https://github.com/dodopayments/dodopayments-go/issues/49)) ([4227b4e](https://github.com/dodopayments/dodopayments-go/commit/4227b4e9f4e9b52e23e771332cad77a29f9130b4))
+* **client:** send `X-Stainless-Timeout` header ([#46](https://github.com/dodopayments/dodopayments-go/issues/46)) ([820c6d1](https://github.com/dodopayments/dodopayments-go/commit/820c6d165a7eecffda381ccfa706975627d151d8))
+
+
+### Chores
+
+* add UnionUnmarshaler for responses that are interfaces ([#48](https://github.com/dodopayments/dodopayments-go/issues/48)) ([c9c8181](https://github.com/dodopayments/dodopayments-go/commit/c9c81816a27fc6fcb8d899bb58471bd28544bf45))
+
 ## 0.20.2 (2025-02-01)
 
 Full Changelog: [v0.20.1...v0.20.2](https://github.com/dodopayments/dodopayments-go/compare/v0.20.1...v0.20.2)
