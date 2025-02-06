@@ -13,7 +13,7 @@ import (
 	"github.com/dodopayments/dodopayments-go/option"
 )
 
-func TestProductImageUpdate(t *testing.T) {
+func TestProductImageUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,7 +25,13 @@ func TestProductImageUpdate(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Products.Images.Update(context.TODO(), "id")
+	_, err := client.Products.Images.Update(
+		context.TODO(),
+		"id",
+		dodopayments.ProductImageUpdateParams{
+			ForceUpdate: dodopayments.F(true),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

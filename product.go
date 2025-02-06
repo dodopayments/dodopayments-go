@@ -2821,6 +2821,8 @@ func (r ProductNewParamsLicenseKeyDurationInterval) IsKnown() bool {
 type ProductUpdateParams struct {
 	// Description of the product, optional and must be at most 1000 characters.
 	Description param.Field[string] `json:"description"`
+	// Product image id after its uploaded to S3
+	ImageID param.Field[string] `json:"image_id" format:"uuid"`
 	// Message sent to the customer upon license key activation.
 	//
 	// Only applicable if `license_key_enabled` is `true`. This message contains
