@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.22.1 (2025-02-11)
+
+Full Changelog: [v0.22.0...v0.22.1](https://github.com/dodopayments/dodopayments-go/compare/v0.22.0...v0.22.1)
+
+### Features
+
+* **api:** manual updates ([#53](https://github.com/dodopayments/dodopayments-go/issues/53)) ([9e33be2](https://github.com/dodopayments/dodopayments-go/commit/9e33be29da04c57bccd00a710b8eb4eeca07d0ca))
+
+
+### Bug Fixes
+
+* fix early cancel when RequestTimeout is provided for streaming requests ([#51](https://github.com/dodopayments/dodopayments-go/issues/51)) ([aba5c84](https://github.com/dodopayments/dodopayments-go/commit/aba5c84542dedea35df5742259ae4ef5d8959e1c))
+
 ## 0.22.0 (2025-02-06)
 
 Full Changelog: [v0.20.2...v0.22.0](https://github.com/dodopayments/dodopayments-go/compare/v0.20.2...v0.22.0)
