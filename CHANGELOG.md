@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.22.2 (2025-02-11)
+
+Full Changelog: [v0.22.1...v0.22.2](https://github.com/dodopayments/dodopayments-go/compare/v0.22.1...v0.22.2)
+
+### Bug Fixes
+
+* do not call path.Base on ContentType ([#55](https://github.com/dodopayments/dodopayments-go/issues/55)) ([5632b38](https://github.com/dodopayments/dodopayments-go/commit/5632b38d8c6da3829adb93ec340339a45dc2358b))
+
 ## 0.22.1 (2025-02-11)
 
 Full Changelog: [v0.22.0...v0.22.1](https://github.com/dodopayments/dodopayments-go/compare/v0.22.0...v0.22.1)
