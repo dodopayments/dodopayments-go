@@ -225,14 +225,14 @@ func WithRequestTimeout(dur time.Duration) RequestOption {
 // environment to be the "live_mode" environment. An environment specifies which base URL
 // to use by default.
 func WithEnvironmentLiveMode() RequestOption {
-	return WithBaseURL("https://live.dodopayments.com//")
+	return WithBaseURL("https://live.dodopayments.com/")
 }
 
 // WithEnvironmentTestMode returns a RequestOption that sets the current
 // environment to be the "test_mode" environment. An environment specifies which base URL
 // to use by default.
 func WithEnvironmentTestMode() RequestOption {
-	return WithBaseURL("https://test.dodopayments.com//")
+	return WithBaseURL("https://test.dodopayments.com/")
 }
 
 // WithBearerToken returns a RequestOption that sets the client setting "bearer_token".
