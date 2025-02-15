@@ -37,8 +37,9 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		Customer: dodopayments.F[dodopayments.SubscriptionNewParamsCustomerUnion](dodopayments.SubscriptionNewParamsCustomerAttachExistingCustomer{
 			CustomerID: dodopayments.F("customer_id"),
 		}),
-		ProductID: dodopayments.F("product_id"),
-		Quantity:  dodopayments.F(int64(0)),
+		ProductID:    dodopayments.F("product_id"),
+		Quantity:     dodopayments.F(int64(0)),
+		DiscountCode: dodopayments.F("discount_code"),
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
 		}),
