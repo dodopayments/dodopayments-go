@@ -29,6 +29,7 @@ type Client struct {
 	WebhookEvents       *WebhookEventService
 	Products            *ProductService
 	Misc                *MiscService
+	Discounts           *DiscountService
 }
 
 // NewClient generates a new client with the default option read from the
@@ -57,6 +58,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.WebhookEvents = NewWebhookEventService(opts...)
 	r.Products = NewProductService(opts...)
 	r.Misc = NewMiscService(opts...)
+	r.Discounts = NewDiscountService(opts...)
 
 	return
 }
