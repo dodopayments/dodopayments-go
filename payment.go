@@ -93,6 +93,8 @@ type Payment struct {
 	// Total amount charged to the customer including tax, in smallest currency unit
 	// (e.g. cents)
 	TotalAmount int64 `json:"total_amount,required"`
+	// The discount id if discount is applied
+	DiscountID string `json:"discount_id,nullable"`
 	// An error message if the payment failed
 	ErrorMessage string `json:"error_message,nullable"`
 	// Checkout URL
@@ -124,6 +126,7 @@ type paymentJSON struct {
 	PaymentID         apijson.Field
 	Refunds           apijson.Field
 	TotalAmount       apijson.Field
+	DiscountID        apijson.Field
 	ErrorMessage      apijson.Field
 	PaymentLink       apijson.Field
 	PaymentMethod     apijson.Field
@@ -387,6 +390,8 @@ type PaymentNewResponse struct {
 	PaymentID string `json:"payment_id,required"`
 	// Total amount of the payment in smallest currency unit (e.g. cents)
 	TotalAmount int64 `json:"total_amount,required"`
+	// The discount id if discount is applied
+	DiscountID string `json:"discount_id,nullable"`
 	// Optional URL to a hosted payment page
 	PaymentLink string `json:"payment_link,nullable"`
 	// Optional list of products included in the payment
@@ -402,6 +407,7 @@ type paymentNewResponseJSON struct {
 	Metadata     apijson.Field
 	PaymentID    apijson.Field
 	TotalAmount  apijson.Field
+	DiscountID   apijson.Field
 	PaymentLink  apijson.Field
 	ProductCart  apijson.Field
 	raw          string
@@ -725,7 +731,9 @@ type PaymentNewParams struct {
 	Customer param.Field[PaymentNewParamsCustomerUnion] `json:"customer,required"`
 	// List of products in the cart. Must contain at least 1 and at most 100 items.
 	ProductCart param.Field[[]PaymentNewParamsProductCart] `json:"product_cart,required"`
-	Metadata    param.Field[map[string]string]             `json:"metadata"`
+	// Discount Code to apply to the transaction
+	DiscountCode param.Field[string]            `json:"discount_code"`
+	Metadata     param.Field[map[string]string] `json:"metadata"`
 	// Whether to generate a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional URL to redirect the customer after payment. Must be a valid URL if

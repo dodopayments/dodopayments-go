@@ -115,8 +115,10 @@ type Subscription struct {
 	// Indicates if the recurring_pre_tax_amount is tax inclusive
 	TaxInclusive bool `json:"tax_inclusive,required"`
 	// Number of days in the trial period (0 if no trial)
-	TrialPeriodDays int64            `json:"trial_period_days,required"`
-	JSON            subscriptionJSON `json:"-"`
+	TrialPeriodDays int64 `json:"trial_period_days,required"`
+	// The discount id if discount is applied
+	DiscountID string           `json:"discount_id,nullable"`
+	JSON       subscriptionJSON `json:"-"`
 }
 
 // subscriptionJSON contains the JSON metadata for the struct [Subscription]
@@ -137,6 +139,7 @@ type subscriptionJSON struct {
 	SubscriptionPeriodInterval apijson.Field
 	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
+	DiscountID                 apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
 }
@@ -400,6 +403,8 @@ type SubscriptionNewResponse struct {
 	// Client secret used to load Dodo checkout SDK NOTE : Dodo checkout SDK will be
 	// coming soon
 	ClientSecret string `json:"client_secret,nullable"`
+	// The discount id if discount is applied
+	DiscountID string `json:"discount_id,nullable"`
 	// URL to checkout page
 	PaymentLink string                      `json:"payment_link,nullable"`
 	JSON        subscriptionNewResponseJSON `json:"-"`
@@ -413,6 +418,7 @@ type subscriptionNewResponseJSON struct {
 	RecurringPreTaxAmount apijson.Field
 	SubscriptionID        apijson.Field
 	ClientSecret          apijson.Field
+	DiscountID            apijson.Field
 	PaymentLink           apijson.Field
 	raw                   string
 	ExtraFields           map[string]apijson.Field
@@ -460,8 +466,10 @@ type SubscriptionNewParams struct {
 	// Unique identifier of the product to subscribe to
 	ProductID param.Field[string] `json:"product_id,required"`
 	// Number of units to subscribe for. Must be at least 1.
-	Quantity param.Field[int64]             `json:"quantity,required"`
-	Metadata param.Field[map[string]string] `json:"metadata"`
+	Quantity param.Field[int64] `json:"quantity,required"`
+	// Discount Code to apply to the subscription
+	DiscountCode param.Field[string]            `json:"discount_code"`
+	Metadata     param.Field[map[string]string] `json:"metadata"`
 	// If true, generates a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional URL to redirect after successful subscription creation
