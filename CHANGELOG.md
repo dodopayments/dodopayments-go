@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.24.0 (2025-02-15)
+
+Full Changelog: [v0.22.1...v0.24.0](https://github.com/dodopayments/dodopayments-go/compare/v0.22.1...v0.24.0)
+
+### Features
+
+* **api:** added discount apis ([#59](https://github.com/dodopayments/dodopayments-go/issues/59)) ([e05b567](https://github.com/dodopayments/dodopayments-go/commit/e05b56738825f46f54be61c11f8f24cd9b66d1c9))
+* **api:** openapi spec changes ([#58](https://github.com/dodopayments/dodopayments-go/issues/58)) ([158f08f](https://github.com/dodopayments/dodopayments-go/commit/158f08f2eb9498764b0a2733fee4f6efad977f26))
+
+
+### Bug Fixes
+
+* **client:** don't truncate manually specified filenames ([#57](https://github.com/dodopayments/dodopayments-go/issues/57)) ([141d409](https://github.com/dodopayments/dodopayments-go/commit/141d4098b8ec71fbea19bbffae09f76fff2c7383))
+* do not call path.Base on ContentType ([#55](https://github.com/dodopayments/dodopayments-go/issues/55)) ([5632b38](https://github.com/dodopayments/dodopayments-go/commit/5632b38d8c6da3829adb93ec340339a45dc2358b))
+
 ## 0.22.1 (2025-02-11)
 
 Full Changelog: [v0.22.0...v0.22.1](https://github.com/dodopayments/dodopayments-go/compare/v0.22.0...v0.22.1)
