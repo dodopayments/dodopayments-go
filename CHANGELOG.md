@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.0 (2025-02-23)
+
+Full Changelog: [v0.24.0...v1.0.0](https://github.com/dodopayments/dodopayments-go/compare/v0.24.0...v1.0.0)
+
+### Features
+
+* **api:** updated config and updated version to v1.0.0 ([#63](https://github.com/dodopayments/dodopayments-go/issues/63)) ([6aeee58](https://github.com/dodopayments/dodopayments-go/commit/6aeee580859e4bc3b4e7e20945b0479914fad2d7))
+
+
+### Chores
+
+* **internal:** codegen related update ([#61](https://github.com/dodopayments/dodopayments-go/issues/61)) ([6d0094f](https://github.com/dodopayments/dodopayments-go/commit/6d0094f97fbdf6fc8c7cf3a882608990005f84c5))
+
 ## 0.24.0 (2025-02-15)
 
 Full Changelog: [v0.22.1...v0.24.0](https://github.com/dodopayments/dodopayments-go/compare/v0.22.1...v0.24.0)
