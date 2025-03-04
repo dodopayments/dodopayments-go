@@ -5,7 +5,7 @@
 The Dodo Payments Go library provides convenient access to [the Dodo Payments REST
 API](https://docs.dodopayments.com) from applications written in Go. The full API of this library can be found in [api.md](api.md).
 
-It is generated with [Stainless](https://www.stainlessapi.com/).
+It is generated with [Stainless](https://www.stainless.com/).
 
 ## Installation
 
@@ -24,7 +24,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/dodopayments/dodopayments-go@v1.0.0'
+go get -u 'github.com/dodopayments/dodopayments-go@v1.0.1'
 ```
 
 <!-- x-release-please-end -->

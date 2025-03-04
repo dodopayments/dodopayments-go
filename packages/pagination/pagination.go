@@ -40,7 +40,7 @@ func (r defaultPageNumberPaginationJSON) RawJSON() string {
 // will not return an error
 func (r *DefaultPageNumberPagination[T]) GetNextPage() (res *DefaultPageNumberPagination[T], err error) {
 	u := r.cfg.Request.URL
-	currentPage, err := strconv.Atoi(u.Query().Get("page_number"))
+	currentPage, err := strconv.ParseInt(u.Query().Get("page_number"), 10, 64)
 	if err != nil {
 		currentPage = 1
 	}
