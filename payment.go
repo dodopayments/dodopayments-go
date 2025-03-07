@@ -839,6 +839,8 @@ type PaymentListParams struct {
 	PageSize param.Field[int64] `query:"page_size"`
 	// Filter by status
 	Status param.Field[PaymentListParamsStatus] `query:"status"`
+	// Filter by subscription id
+	SubscriptionID param.Field[string] `query:"subscription_id"`
 }
 
 // URLQuery serializes [PaymentListParams]'s query parameters as `url.Values`.

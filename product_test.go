@@ -142,6 +142,7 @@ func TestProductListWithOptionalParams(t *testing.T) {
 		Archived:   dodopayments.F(true),
 		PageNumber: dodopayments.F(int64(0)),
 		PageSize:   dodopayments.F(int64(0)),
+		Recurring:  dodopayments.F(true),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
