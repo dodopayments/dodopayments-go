@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.5.0 (2025-03-07)
+
+Full Changelog: [v1.0.0...v1.5.0](https://github.com/dodopayments/dodopayments-go/compare/v1.0.0...v1.5.0)
+
+### Features
+
+* **api:** manual updates ([#68](https://github.com/dodopayments/dodopayments-go/issues/68)) ([5966b33](https://github.com/dodopayments/dodopayments-go/commit/5966b33933679146bebefe17c0150993f7fe2f08))
+
+
+### Chores
+
+* use strconv.ParseInt instead of strconv.Atoi for pagination params ([#67](https://github.com/dodopayments/dodopayments-go/issues/67)) ([c69b09d](https://github.com/dodopayments/dodopayments-go/commit/c69b09d3022e892be271cb137c371a2ec0363845))
+
+
+### Documentation
+
+* update URLs from stainlessapi.com to stainless.com ([#65](https://github.com/dodopayments/dodopayments-go/issues/65)) ([52a0d12](https://github.com/dodopayments/dodopayments-go/commit/52a0d1226c64724a704c0bc828e847e7f300768c))
+
 ## 1.0.0 (2025-02-23)
 
 Full Changelog: [v0.24.0...v1.0.0](https://github.com/dodopayments/dodopayments-go/compare/v0.24.0...v1.0.0)
