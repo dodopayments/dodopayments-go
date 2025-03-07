@@ -973,11 +973,12 @@ const (
 	ProductTaxCategoryDigitalProducts ProductTaxCategory = "digital_products"
 	ProductTaxCategorySaas            ProductTaxCategory = "saas"
 	ProductTaxCategoryEBook           ProductTaxCategory = "e_book"
+	ProductTaxCategoryEdtech          ProductTaxCategory = "edtech"
 )
 
 func (r ProductTaxCategory) IsKnown() bool {
 	switch r {
-	case ProductTaxCategoryDigitalProducts, ProductTaxCategorySaas, ProductTaxCategoryEBook:
+	case ProductTaxCategoryDigitalProducts, ProductTaxCategorySaas, ProductTaxCategoryEBook, ProductTaxCategoryEdtech:
 		return true
 	}
 	return false
@@ -1097,11 +1098,12 @@ const (
 	ProductListResponseTaxCategoryDigitalProducts ProductListResponseTaxCategory = "digital_products"
 	ProductListResponseTaxCategorySaas            ProductListResponseTaxCategory = "saas"
 	ProductListResponseTaxCategoryEBook           ProductListResponseTaxCategory = "e_book"
+	ProductListResponseTaxCategoryEdtech          ProductListResponseTaxCategory = "edtech"
 )
 
 func (r ProductListResponseTaxCategory) IsKnown() bool {
 	switch r {
-	case ProductListResponseTaxCategoryDigitalProducts, ProductListResponseTaxCategorySaas, ProductListResponseTaxCategoryEBook:
+	case ProductListResponseTaxCategoryDigitalProducts, ProductListResponseTaxCategorySaas, ProductListResponseTaxCategoryEBook, ProductListResponseTaxCategoryEdtech:
 		return true
 	}
 	return false
@@ -2782,11 +2784,12 @@ const (
 	ProductNewParamsTaxCategoryDigitalProducts ProductNewParamsTaxCategory = "digital_products"
 	ProductNewParamsTaxCategorySaas            ProductNewParamsTaxCategory = "saas"
 	ProductNewParamsTaxCategoryEBook           ProductNewParamsTaxCategory = "e_book"
+	ProductNewParamsTaxCategoryEdtech          ProductNewParamsTaxCategory = "edtech"
 )
 
 func (r ProductNewParamsTaxCategory) IsKnown() bool {
 	switch r {
-	case ProductNewParamsTaxCategoryDigitalProducts, ProductNewParamsTaxCategorySaas, ProductNewParamsTaxCategoryEBook:
+	case ProductNewParamsTaxCategoryDigitalProducts, ProductNewParamsTaxCategorySaas, ProductNewParamsTaxCategoryEBook, ProductNewParamsTaxCategoryEdtech:
 		return true
 	}
 	return false
@@ -3579,11 +3582,12 @@ const (
 	ProductUpdateParamsTaxCategoryDigitalProducts ProductUpdateParamsTaxCategory = "digital_products"
 	ProductUpdateParamsTaxCategorySaas            ProductUpdateParamsTaxCategory = "saas"
 	ProductUpdateParamsTaxCategoryEBook           ProductUpdateParamsTaxCategory = "e_book"
+	ProductUpdateParamsTaxCategoryEdtech          ProductUpdateParamsTaxCategory = "edtech"
 )
 
 func (r ProductUpdateParamsTaxCategory) IsKnown() bool {
 	switch r {
-	case ProductUpdateParamsTaxCategoryDigitalProducts, ProductUpdateParamsTaxCategorySaas, ProductUpdateParamsTaxCategoryEBook:
+	case ProductUpdateParamsTaxCategoryDigitalProducts, ProductUpdateParamsTaxCategorySaas, ProductUpdateParamsTaxCategoryEBook, ProductUpdateParamsTaxCategoryEdtech:
 		return true
 	}
 	return false
@@ -3596,6 +3600,12 @@ type ProductListParams struct {
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
+	// Filter products by pricing type:
+	//
+	// - `true`: Show only recurring pricing products (e.g. subscriptions)
+	// - `false`: Show only one-time price products
+	// - `null` or absent: Show both types of products
+	Recurring param.Field[bool] `query:"recurring"`
 }
 
 // URLQuery serializes [ProductListParams]'s query parameters as `url.Values`.
