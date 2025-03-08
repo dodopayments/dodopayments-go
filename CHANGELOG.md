@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.0 (2025-03-08)
+
+Full Changelog: [v1.5.0...v1.6.0](https://github.com/dodopayments/dodopayments-go/compare/v1.5.0...v1.6.0)
+
+### Features
+
+* **client:** allow custom baseurls without trailing slash ([#70](https://github.com/dodopayments/dodopayments-go/issues/70)) ([26e932f](https://github.com/dodopayments/dodopayments-go/commit/26e932f83d6ded011e04e51dbcd5681c8cf367ce))
+
 ## 1.5.0 (2025-03-07)
 
 Full Changelog: [v1.0.0...v1.5.0](https://github.com/dodopayments/dodopayments-go/compare/v1.0.0...v1.5.0)
