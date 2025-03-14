@@ -133,6 +133,8 @@ type Product struct {
 	TaxCategory ProductTaxCategory `json:"tax_category,required"`
 	// Timestamp when the product was last updated.
 	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	// Available Addons for subscription products
+	Addons []string `json:"addons,nullable"`
 	// Description of the product, optional.
 	Description string `json:"description,nullable"`
 	// URL of the product image, optional.
@@ -157,6 +159,7 @@ type productJSON struct {
 	ProductID                   apijson.Field
 	TaxCategory                 apijson.Field
 	UpdatedAt                   apijson.Field
+	Addons                      apijson.Field
 	Description                 apijson.Field
 	Image                       apijson.Field
 	LicenseKeyActivationMessage apijson.Field
@@ -2065,6 +2068,8 @@ type ProductNewParams struct {
 	// Represents the different categories of taxation applicable to various products
 	// and services.
 	TaxCategory param.Field[ProductNewParamsTaxCategory] `json:"tax_category,required"`
+	// Addons available for subscription product
+	Addons param.Field[[]string] `json:"addons"`
 	// Optional description of the product
 	Description param.Field[string] `json:"description"`
 	// Optional message displayed during license key activation
@@ -2822,6 +2827,8 @@ func (r ProductNewParamsLicenseKeyDurationInterval) IsKnown() bool {
 }
 
 type ProductUpdateParams struct {
+	// Available Addons for subscription products
+	Addons param.Field[[]string] `json:"addons"`
 	// Description of the product, optional and must be at most 1000 characters.
 	Description param.Field[string] `json:"description"`
 	// Product image id after its uploaded to S3
