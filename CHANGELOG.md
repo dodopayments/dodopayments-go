@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.6.3 (2025-03-14)
+
+Full Changelog: [v1.5.1...v1.6.3](https://github.com/dodopayments/dodopayments-go/compare/v1.5.1...v1.6.3)
+
+### Features
+
+* **api:** openapi spec updated ([#77](https://github.com/dodopayments/dodopayments-go/issues/77)) ([45cc3ba](https://github.com/dodopayments/dodopayments-go/commit/45cc3baa9617699d0a5dec55eb2fa1ce48cbd676))
+* **api:** updated stainless config ([#78](https://github.com/dodopayments/dodopayments-go/issues/78)) ([5b42536](https://github.com/dodopayments/dodopayments-go/commit/5b425369e01693925e5e7ae76625de401a2a80b3))
+* **client:** improve default client options support ([#74](https://github.com/dodopayments/dodopayments-go/issues/74)) ([e965c60](https://github.com/dodopayments/dodopayments-go/commit/e965c6044741a43205028d2968311ce9eac8c72e))
+
+
+### Chores
+
+* **internal:** remove extra empty newlines ([#76](https://github.com/dodopayments/dodopayments-go/issues/76)) ([7597ba9](https://github.com/dodopayments/dodopayments-go/commit/7597ba94050f9b237b72a4580c22f4fe290c7185))
+
 ## 1.5.1 (2025-03-12)
 
 Full Changelog: [v1.5.0...v1.5.1](https://github.com/dodopayments/dodopayments-go/compare/v1.5.0...v1.5.1)
