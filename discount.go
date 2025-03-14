@@ -182,8 +182,8 @@ type DiscountNewParams struct {
 	//     example, `540` means `5.4%`.
 	//
 	// Must be at least 1.
-	Amount param.Field[int64]                 `json:"amount,required"`
-	Type   param.Field[DiscountNewParamsType] `json:"type,required"`
+	Amount param.Field[int64]        `json:"amount,required"`
+	Type   param.Field[DiscountType] `json:"type,required"`
 	// Optionally supply a code (will be uppercased).
 	//
 	// - Must be at least 3 characters if provided.
@@ -202,20 +202,6 @@ func (r DiscountNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-type DiscountNewParamsType string
-
-const (
-	DiscountNewParamsTypePercentage DiscountNewParamsType = "percentage"
-)
-
-func (r DiscountNewParamsType) IsKnown() bool {
-	switch r {
-	case DiscountNewParamsTypePercentage:
-		return true
-	}
-	return false
-}
-
 type DiscountUpdateParams struct {
 	// If present, update the discount amount:
 	//
@@ -231,27 +217,13 @@ type DiscountUpdateParams struct {
 	Name      param.Field[string]    `json:"name"`
 	// If present, replaces all restricted product IDs with this new set. To remove all
 	// restrictions, send empty array
-	RestrictedTo param.Field[[]string]                 `json:"restricted_to"`
-	Type         param.Field[DiscountUpdateParamsType] `json:"type"`
-	UsageLimit   param.Field[int64]                    `json:"usage_limit"`
+	RestrictedTo param.Field[[]string]     `json:"restricted_to"`
+	Type         param.Field[DiscountType] `json:"type"`
+	UsageLimit   param.Field[int64]        `json:"usage_limit"`
 }
 
 func (r DiscountUpdateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
-}
-
-type DiscountUpdateParamsType string
-
-const (
-	DiscountUpdateParamsTypePercentage DiscountUpdateParamsType = "percentage"
-)
-
-func (r DiscountUpdateParamsType) IsKnown() bool {
-	switch r {
-	case DiscountUpdateParamsTypePercentage:
-		return true
-	}
-	return false
 }
 
 type DiscountListParams struct {

@@ -28,7 +28,7 @@ func TestDiscountNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Discounts.New(context.TODO(), dodopayments.DiscountNewParams{
 		Amount:       dodopayments.F(int64(0)),
-		Type:         dodopayments.F(dodopayments.DiscountNewParamsTypePercentage),
+		Type:         dodopayments.F(dodopayments.DiscountTypePercentage),
 		Code:         dodopayments.F("code"),
 		ExpiresAt:    dodopayments.F(time.Now()),
 		Name:         dodopayments.F("name"),
@@ -87,7 +87,7 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 			ExpiresAt:    dodopayments.F(time.Now()),
 			Name:         dodopayments.F("name"),
 			RestrictedTo: dodopayments.F([]string{"string"}),
-			Type:         dodopayments.F(dodopayments.DiscountUpdateParamsTypePercentage),
+			Type:         dodopayments.F(dodopayments.DiscountTypePercentage),
 			UsageLimit:   dodopayments.F(int64(0)),
 		},
 	)
