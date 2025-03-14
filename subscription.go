@@ -116,6 +116,8 @@ type Subscription struct {
 	TaxInclusive bool `json:"tax_inclusive,required"`
 	// Number of days in the trial period (0 if no trial)
 	TrialPeriodDays int64 `json:"trial_period_days,required"`
+	// Cancelled timestamp if the subscription is cancelled
+	CancelledAt time.Time `json:"cancelled_at,nullable" format:"date-time"`
 	// The discount id if discount is applied
 	DiscountID string           `json:"discount_id,nullable"`
 	JSON       subscriptionJSON `json:"-"`
@@ -139,6 +141,7 @@ type subscriptionJSON struct {
 	SubscriptionPeriodInterval apijson.Field
 	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
+	CancelledAt                apijson.Field
 	DiscountID                 apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
