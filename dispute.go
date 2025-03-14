@@ -151,6 +151,8 @@ type DisputeListParams struct {
 	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
 	// Get events created before this time
 	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
+	// Filter by customer_id
+	CustomerID param.Field[string] `query:"customer_id"`
 	// Filter by dispute stage
 	DisputeStage param.Field[DisputeListParamsDisputeStage] `query:"dispute_stage"`
 	// Filter by dispute status

@@ -51,6 +51,7 @@ func TestDisputeListWithOptionalParams(t *testing.T) {
 	_, err := client.Disputes.List(context.TODO(), dodopayments.DisputeListParams{
 		CreatedAtGte:  dodopayments.F(time.Now()),
 		CreatedAtLte:  dodopayments.F(time.Now()),
+		CustomerID:    dodopayments.F("customer_id"),
 		DisputeStage:  dodopayments.F(dodopayments.DisputeListParamsDisputeStagePreDispute),
 		DisputeStatus: dodopayments.F(dodopayments.DisputeListParamsDisputeStatusDisputeOpened),
 		PageNumber:    dodopayments.F(int64(0)),
