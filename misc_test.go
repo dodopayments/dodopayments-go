@@ -13,7 +13,7 @@ import (
 	"github.com/dodopayments/dodopayments-go/option"
 )
 
-func TestCustomerCustomerPortalSessionNewWithOptionalParams(t *testing.T) {
+func TestMiscListSupportedCountries(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,13 +25,7 @@ func TestCustomerCustomerPortalSessionNewWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Customers.CustomerPortal.Session.New(
-		context.TODO(),
-		"customer_id",
-		dodopayments.CustomerCustomerPortalSessionNewParams{
-			SendEmail: dodopayments.F(true),
-		},
-	)
+	_, err := client.Misc.ListSupportedCountries(context.TODO())
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

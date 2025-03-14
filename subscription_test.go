@@ -27,14 +27,14 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.New(context.TODO(), dodopayments.SubscriptionNewParams{
-		Billing: dodopayments.F(dodopayments.SubscriptionNewParamsBilling{
+		Billing: dodopayments.F(dodopayments.BillingAddressParam{
 			City:    dodopayments.F("city"),
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F("zipcode"),
 		}),
-		Customer: dodopayments.F[dodopayments.SubscriptionNewParamsCustomerUnion](dodopayments.SubscriptionNewParamsCustomerAttachExistingCustomer{
+		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 			CustomerID: dodopayments.F("customer_id"),
 		}),
 		ProductID:    dodopayments.F("product_id"),
@@ -98,7 +98,7 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),
-			Status: dodopayments.F(dodopayments.SubscriptionUpdateParamsStatusPending),
+			Status: dodopayments.F(dodopayments.SubscriptionStatusPending),
 		},
 	)
 	if err != nil {
@@ -128,7 +128,7 @@ func TestSubscriptionListWithOptionalParams(t *testing.T) {
 		CustomerID:   dodopayments.F("customer_id"),
 		PageNumber:   dodopayments.F(int64(0)),
 		PageSize:     dodopayments.F(int64(0)),
-		Status:       dodopayments.F(dodopayments.SubscriptionListParamsStatusPending),
+		Status:       dodopayments.F(dodopayments.SubscriptionStatusPending),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

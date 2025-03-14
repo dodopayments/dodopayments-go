@@ -3,6 +3,15 @@
 package dodopayments
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"net/url"
+
+	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
+	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 )
 
@@ -14,7 +23,6 @@ import (
 // the [NewCustomerCustomerPortalService] method instead.
 type CustomerCustomerPortalService struct {
 	Options []option.RequestOption
-	Session *CustomerCustomerPortalSessionService
 }
 
 // NewCustomerCustomerPortalService generates a new service that applies the given
@@ -23,6 +31,31 @@ type CustomerCustomerPortalService struct {
 func NewCustomerCustomerPortalService(opts ...option.RequestOption) (r *CustomerCustomerPortalService) {
 	r = &CustomerCustomerPortalService{}
 	r.Options = opts
-	r.Session = NewCustomerCustomerPortalSessionService(opts...)
 	return
+}
+
+func (r *CustomerCustomerPortalService) New(ctx context.Context, customerID string, body CustomerCustomerPortalNewParams, opts ...option.RequestOption) (err error) {
+	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	if customerID == "" {
+		err = errors.New("missing required customer_id parameter")
+		return
+	}
+	path := fmt.Sprintf("customers/%s/customer-portal/session", customerID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+type CustomerCustomerPortalNewParams struct {
+	// If true, will send link to user.
+	SendEmail param.Field[bool] `query:"send_email"`
+}
+
+// URLQuery serializes [CustomerCustomerPortalNewParams]'s query parameters as
+// `url.Values`.
+func (r CustomerCustomerPortalNewParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

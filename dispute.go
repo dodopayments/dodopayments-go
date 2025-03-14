@@ -80,9 +80,9 @@ type Dispute struct {
 	// The currency of the disputed amount, represented as an ISO 4217 currency code.
 	Currency string `json:"currency,required"`
 	// The unique identifier of the dispute.
-	DisputeID     string               `json:"dispute_id,required"`
-	DisputeStage  DisputeDisputeStage  `json:"dispute_stage,required"`
-	DisputeStatus DisputeDisputeStatus `json:"dispute_status,required"`
+	DisputeID     string        `json:"dispute_id,required"`
+	DisputeStage  DisputeStage  `json:"dispute_stage,required"`
+	DisputeStatus DisputeStatus `json:"dispute_status,required"`
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string      `json:"payment_id,required"`
 	JSON      disputeJSON `json:"-"`
@@ -110,37 +110,37 @@ func (r disputeJSON) RawJSON() string {
 	return r.raw
 }
 
-type DisputeDisputeStage string
+type DisputeStage string
 
 const (
-	DisputeDisputeStagePreDispute     DisputeDisputeStage = "pre_dispute"
-	DisputeDisputeStageDispute        DisputeDisputeStage = "dispute"
-	DisputeDisputeStagePreArbitration DisputeDisputeStage = "pre_arbitration"
+	DisputeStagePreDispute     DisputeStage = "pre_dispute"
+	DisputeStageDispute        DisputeStage = "dispute"
+	DisputeStagePreArbitration DisputeStage = "pre_arbitration"
 )
 
-func (r DisputeDisputeStage) IsKnown() bool {
+func (r DisputeStage) IsKnown() bool {
 	switch r {
-	case DisputeDisputeStagePreDispute, DisputeDisputeStageDispute, DisputeDisputeStagePreArbitration:
+	case DisputeStagePreDispute, DisputeStageDispute, DisputeStagePreArbitration:
 		return true
 	}
 	return false
 }
 
-type DisputeDisputeStatus string
+type DisputeStatus string
 
 const (
-	DisputeDisputeStatusDisputeOpened     DisputeDisputeStatus = "dispute_opened"
-	DisputeDisputeStatusDisputeExpired    DisputeDisputeStatus = "dispute_expired"
-	DisputeDisputeStatusDisputeAccepted   DisputeDisputeStatus = "dispute_accepted"
-	DisputeDisputeStatusDisputeCancelled  DisputeDisputeStatus = "dispute_cancelled"
-	DisputeDisputeStatusDisputeChallenged DisputeDisputeStatus = "dispute_challenged"
-	DisputeDisputeStatusDisputeWon        DisputeDisputeStatus = "dispute_won"
-	DisputeDisputeStatusDisputeLost       DisputeDisputeStatus = "dispute_lost"
+	DisputeStatusDisputeOpened     DisputeStatus = "dispute_opened"
+	DisputeStatusDisputeExpired    DisputeStatus = "dispute_expired"
+	DisputeStatusDisputeAccepted   DisputeStatus = "dispute_accepted"
+	DisputeStatusDisputeCancelled  DisputeStatus = "dispute_cancelled"
+	DisputeStatusDisputeChallenged DisputeStatus = "dispute_challenged"
+	DisputeStatusDisputeWon        DisputeStatus = "dispute_won"
+	DisputeStatusDisputeLost       DisputeStatus = "dispute_lost"
 )
 
-func (r DisputeDisputeStatus) IsKnown() bool {
+func (r DisputeStatus) IsKnown() bool {
 	switch r {
-	case DisputeDisputeStatusDisputeOpened, DisputeDisputeStatusDisputeExpired, DisputeDisputeStatusDisputeAccepted, DisputeDisputeStatusDisputeCancelled, DisputeDisputeStatusDisputeChallenged, DisputeDisputeStatusDisputeWon, DisputeDisputeStatusDisputeLost:
+	case DisputeStatusDisputeOpened, DisputeStatusDisputeExpired, DisputeStatusDisputeAccepted, DisputeStatusDisputeCancelled, DisputeStatusDisputeChallenged, DisputeStatusDisputeWon, DisputeStatusDisputeLost:
 		return true
 	}
 	return false
@@ -154,9 +154,9 @@ type DisputeListParams struct {
 	// Filter by customer_id
 	CustomerID param.Field[string] `query:"customer_id"`
 	// Filter by dispute stage
-	DisputeStage param.Field[DisputeListParamsDisputeStage] `query:"dispute_stage"`
+	DisputeStage param.Field[DisputeStage] `query:"dispute_stage"`
 	// Filter by dispute status
-	DisputeStatus param.Field[DisputeListParamsDisputeStatus] `query:"dispute_status"`
+	DisputeStatus param.Field[DisputeStatus] `query:"dispute_status"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
@@ -169,42 +169,4 @@ func (r DisputeListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
-}
-
-// Filter by dispute stage
-type DisputeListParamsDisputeStage string
-
-const (
-	DisputeListParamsDisputeStagePreDispute     DisputeListParamsDisputeStage = "pre_dispute"
-	DisputeListParamsDisputeStageDispute        DisputeListParamsDisputeStage = "dispute"
-	DisputeListParamsDisputeStagePreArbitration DisputeListParamsDisputeStage = "pre_arbitration"
-)
-
-func (r DisputeListParamsDisputeStage) IsKnown() bool {
-	switch r {
-	case DisputeListParamsDisputeStagePreDispute, DisputeListParamsDisputeStageDispute, DisputeListParamsDisputeStagePreArbitration:
-		return true
-	}
-	return false
-}
-
-// Filter by dispute status
-type DisputeListParamsDisputeStatus string
-
-const (
-	DisputeListParamsDisputeStatusDisputeOpened     DisputeListParamsDisputeStatus = "dispute_opened"
-	DisputeListParamsDisputeStatusDisputeExpired    DisputeListParamsDisputeStatus = "dispute_expired"
-	DisputeListParamsDisputeStatusDisputeAccepted   DisputeListParamsDisputeStatus = "dispute_accepted"
-	DisputeListParamsDisputeStatusDisputeCancelled  DisputeListParamsDisputeStatus = "dispute_cancelled"
-	DisputeListParamsDisputeStatusDisputeChallenged DisputeListParamsDisputeStatus = "dispute_challenged"
-	DisputeListParamsDisputeStatusDisputeWon        DisputeListParamsDisputeStatus = "dispute_won"
-	DisputeListParamsDisputeStatusDisputeLost       DisputeListParamsDisputeStatus = "dispute_lost"
-)
-
-func (r DisputeListParamsDisputeStatus) IsKnown() bool {
-	switch r {
-	case DisputeListParamsDisputeStatusDisputeOpened, DisputeListParamsDisputeStatusDisputeExpired, DisputeListParamsDisputeStatusDisputeAccepted, DisputeListParamsDisputeStatusDisputeCancelled, DisputeListParamsDisputeStatusDisputeChallenged, DisputeListParamsDisputeStatusDisputeWon, DisputeListParamsDisputeStatusDisputeLost:
-		return true
-	}
-	return false
 }

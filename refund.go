@@ -116,23 +116,6 @@ func (r refundJSON) RawJSON() string {
 	return r.raw
 }
 
-type RefundStatus string
-
-const (
-	RefundStatusSucceeded RefundStatus = "succeeded"
-	RefundStatusFailed    RefundStatus = "failed"
-	RefundStatusPending   RefundStatus = "pending"
-	RefundStatusReview    RefundStatus = "review"
-)
-
-func (r RefundStatus) IsKnown() bool {
-	switch r {
-	case RefundStatusSucceeded, RefundStatusFailed, RefundStatusPending, RefundStatusReview:
-		return true
-	}
-	return false
-}
-
 type RefundCurrency string
 
 const (
@@ -291,6 +274,23 @@ func (r RefundCurrency) IsKnown() bool {
 	return false
 }
 
+type RefundStatus string
+
+const (
+	RefundStatusSucceeded RefundStatus = "succeeded"
+	RefundStatusFailed    RefundStatus = "failed"
+	RefundStatusPending   RefundStatus = "pending"
+	RefundStatusReview    RefundStatus = "review"
+)
+
+func (r RefundStatus) IsKnown() bool {
+	switch r {
+	case RefundStatusSucceeded, RefundStatusFailed, RefundStatusPending, RefundStatusReview:
+		return true
+	}
+	return false
+}
+
 type RefundNewParams struct {
 	// The unique identifier of the payment to be refunded.
 	PaymentID param.Field[string] `json:"payment_id,required"`
@@ -317,7 +317,7 @@ type RefundListParams struct {
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
 	// Filter by status
-	Status param.Field[RefundListParamsStatus] `query:"status"`
+	Status param.Field[RefundStatus] `query:"status"`
 }
 
 // URLQuery serializes [RefundListParams]'s query parameters as `url.Values`.
@@ -326,22 +326,4 @@ func (r RefundListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
-}
-
-// Filter by status
-type RefundListParamsStatus string
-
-const (
-	RefundListParamsStatusSucceeded RefundListParamsStatus = "succeeded"
-	RefundListParamsStatusFailed    RefundListParamsStatus = "failed"
-	RefundListParamsStatusPending   RefundListParamsStatus = "pending"
-	RefundListParamsStatusReview    RefundListParamsStatus = "review"
-)
-
-func (r RefundListParamsStatus) IsKnown() bool {
-	switch r {
-	case RefundListParamsStatusSucceeded, RefundListParamsStatusFailed, RefundListParamsStatusPending, RefundListParamsStatusReview:
-		return true
-	}
-	return false
 }
