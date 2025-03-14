@@ -15,6 +15,7 @@ import (
 	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/packages/pagination"
 )
 
 // LicenseKeyService contains methods and other services that help with interacting
@@ -58,11 +59,25 @@ func (r *LicenseKeyService) Update(ctx context.Context, id string, body LicenseK
 	return
 }
 
-func (r *LicenseKeyService) List(ctx context.Context, query LicenseKeyListParams, opts ...option.RequestOption) (res *[]LicenseKeyListResponse, err error) {
+func (r *LicenseKeyService) List(ctx context.Context, query LicenseKeyListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[LicenseKey], err error) {
+	var raw *http.Response
 	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "license_keys"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+func (r *LicenseKeyService) ListAutoPaging(ctx context.Context, query LicenseKeyListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[LicenseKey] {
+	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
 type LicenseKey struct {
@@ -133,27 +148,6 @@ func (r LicenseKeyStatus) IsKnown() bool {
 		return true
 	}
 	return false
-}
-
-type LicenseKeyListResponse struct {
-	Items []LicenseKey               `json:"items,required"`
-	JSON  licenseKeyListResponseJSON `json:"-"`
-}
-
-// licenseKeyListResponseJSON contains the JSON metadata for the struct
-// [LicenseKeyListResponse]
-type licenseKeyListResponseJSON struct {
-	Items       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *LicenseKeyListResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r licenseKeyListResponseJSON) RawJSON() string {
-	return r.raw
 }
 
 type LicenseKeyUpdateParams struct {
