@@ -310,6 +310,8 @@ type RefundListParams struct {
 	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
 	// Get events created before this time
 	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
+	// Filter by customer_id
+	CustomerID param.Field[string] `query:"customer_id"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100

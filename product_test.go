@@ -37,6 +37,7 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 			TaxInclusive:          dodopayments.F(true),
 		}),
 		TaxCategory:                 dodopayments.F(dodopayments.ProductNewParamsTaxCategoryDigitalProducts),
+		Addons:                      dodopayments.F([]string{"string"}),
 		Description:                 dodopayments.F("description"),
 		LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
 		LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
@@ -94,6 +95,7 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.ProductUpdateParams{
+			Addons:                      dodopayments.F([]string{"string"}),
 			Description:                 dodopayments.F("description"),
 			ImageID:                     dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 			LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
