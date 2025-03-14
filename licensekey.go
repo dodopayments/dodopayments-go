@@ -182,7 +182,7 @@ type LicenseKeyListParams struct {
 	// Filter by product ID
 	ProductID param.Field[string] `query:"product_id"`
 	// Filter by license key status
-	Status param.Field[LicenseKeyListParamsStatus] `query:"status"`
+	Status param.Field[LicenseKeyStatus] `query:"status"`
 }
 
 // URLQuery serializes [LicenseKeyListParams]'s query parameters as `url.Values`.
@@ -191,21 +191,4 @@ func (r LicenseKeyListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
-}
-
-// Filter by license key status
-type LicenseKeyListParamsStatus string
-
-const (
-	LicenseKeyListParamsStatusActive   LicenseKeyListParamsStatus = "active"
-	LicenseKeyListParamsStatusExpired  LicenseKeyListParamsStatus = "expired"
-	LicenseKeyListParamsStatusDisabled LicenseKeyListParamsStatus = "disabled"
-)
-
-func (r LicenseKeyListParamsStatus) IsKnown() bool {
-	switch r {
-	case LicenseKeyListParamsStatusActive, LicenseKeyListParamsStatusExpired, LicenseKeyListParamsStatusDisabled:
-		return true
-	}
-	return false
 }

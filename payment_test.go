@@ -27,17 +27,17 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
-		Billing: dodopayments.F(dodopayments.PaymentNewParamsBilling{
+		Billing: dodopayments.F(dodopayments.BillingAddressParam{
 			City:    dodopayments.F("city"),
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F("zipcode"),
 		}),
-		Customer: dodopayments.F[dodopayments.PaymentNewParamsCustomerUnion](dodopayments.PaymentNewParamsCustomerAttachExistingCustomer{
+		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 			CustomerID: dodopayments.F("customer_id"),
 		}),
-		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
+		ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
 			ProductID: dodopayments.F("product_id"),
 			Quantity:  dodopayments.F(int64(0)),
 			Amount:    dodopayments.F(int64(0)),
@@ -99,7 +99,7 @@ func TestPaymentListWithOptionalParams(t *testing.T) {
 		CustomerID:     dodopayments.F("customer_id"),
 		PageNumber:     dodopayments.F(int64(0)),
 		PageSize:       dodopayments.F(int64(0)),
-		Status:         dodopayments.F(dodopayments.PaymentListParamsStatusSucceeded),
+		Status:         dodopayments.F(dodopayments.IntentStatusSucceeded),
 		SubscriptionID: dodopayments.F("subscription_id"),
 	})
 	if err != nil {

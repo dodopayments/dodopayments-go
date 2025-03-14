@@ -26,12 +26,12 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Products.New(context.TODO(), dodopayments.ProductNewParams{
-		Price: dodopayments.F[dodopayments.ProductNewParamsPriceUnion](dodopayments.ProductNewParamsPriceOneTimePrice{
-			Currency:              dodopayments.F(dodopayments.ProductNewParamsPriceOneTimePriceCurrencyAed),
+		Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
+			Currency:              dodopayments.F(dodopayments.PriceOneTimePriceCurrencyAed),
 			Discount:              dodopayments.F(0.000000),
 			Price:                 dodopayments.F(int64(0)),
 			PurchasingPowerParity: dodopayments.F(true),
-			Type:                  dodopayments.F(dodopayments.ProductNewParamsPriceOneTimePriceTypeOneTimePrice),
+			Type:                  dodopayments.F(dodopayments.PriceOneTimePriceTypeOneTimePrice),
 			PayWhatYouWant:        dodopayments.F(true),
 			SuggestedPrice:        dodopayments.F(int64(0)),
 			TaxInclusive:          dodopayments.F(true),
@@ -41,9 +41,9 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 		Description:                 dodopayments.F("description"),
 		LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
 		LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
-		LicenseKeyDuration: dodopayments.F(dodopayments.ProductNewParamsLicenseKeyDuration{
+		LicenseKeyDuration: dodopayments.F(dodopayments.LicenseKeyDurationParam{
 			Count:    dodopayments.F(int64(0)),
-			Interval: dodopayments.F(dodopayments.ProductNewParamsLicenseKeyDurationIntervalDay),
+			Interval: dodopayments.F(dodopayments.TimeIntervalDay),
 		}),
 		LicenseKeyEnabled: dodopayments.F(true),
 		Name:              dodopayments.F("name"),
@@ -100,18 +100,18 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 			ImageID:                     dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 			LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
 			LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
-			LicenseKeyDuration: dodopayments.F(dodopayments.ProductUpdateParamsLicenseKeyDuration{
+			LicenseKeyDuration: dodopayments.F(dodopayments.LicenseKeyDurationParam{
 				Count:    dodopayments.F(int64(0)),
-				Interval: dodopayments.F(dodopayments.ProductUpdateParamsLicenseKeyDurationIntervalDay),
+				Interval: dodopayments.F(dodopayments.TimeIntervalDay),
 			}),
 			LicenseKeyEnabled: dodopayments.F(true),
 			Name:              dodopayments.F("name"),
-			Price: dodopayments.F[dodopayments.ProductUpdateParamsPriceUnion](dodopayments.ProductUpdateParamsPriceOneTimePrice{
-				Currency:              dodopayments.F(dodopayments.ProductUpdateParamsPriceOneTimePriceCurrencyAed),
+			Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
+				Currency:              dodopayments.F(dodopayments.PriceOneTimePriceCurrencyAed),
 				Discount:              dodopayments.F(0.000000),
 				Price:                 dodopayments.F(int64(0)),
 				PurchasingPowerParity: dodopayments.F(true),
-				Type:                  dodopayments.F(dodopayments.ProductUpdateParamsPriceOneTimePriceTypeOneTimePrice),
+				Type:                  dodopayments.F(dodopayments.PriceOneTimePriceTypeOneTimePrice),
 				PayWhatYouWant:        dodopayments.F(true),
 				SuggestedPrice:        dodopayments.F(int64(0)),
 				TaxInclusive:          dodopayments.F(true),
