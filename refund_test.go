@@ -80,7 +80,7 @@ func TestRefundListWithOptionalParams(t *testing.T) {
 		CustomerID:   dodopayments.F("customer_id"),
 		PageNumber:   dodopayments.F(int64(0)),
 		PageSize:     dodopayments.F(int64(0)),
-		Status:       dodopayments.F(dodopayments.RefundListParamsStatusSucceeded),
+		Status:       dodopayments.F(dodopayments.RefundStatusSucceeded),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
