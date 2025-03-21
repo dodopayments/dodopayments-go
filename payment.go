@@ -730,6 +730,13 @@ type PaymentNewParams struct {
 	Customer param.Field[CustomerRequestUnionParam] `json:"customer,required"`
 	// List of products in the cart. Must contain at least 1 and at most 100 items.
 	ProductCart param.Field[[]OneTimeProductCartItemParam] `json:"product_cart,required"`
+	// List of payment methods allowed during checkout.
+	//
+	// Customers will **never** see payment methods that are **not** in this list.
+	// However, adding a method here **does not guarantee** customers will see it.
+	// Availability still depends on other factors (e.g., customer location, merchant
+	// settings).
+	AllowedPaymentMethodTypes param.Field[[]PaymentNewParamsAllowedPaymentMethodType] `json:"allowed_payment_method_types"`
 	// Discount Code to apply to the transaction
 	DiscountCode param.Field[string]            `json:"discount_code"`
 	Metadata     param.Field[map[string]string] `json:"metadata"`
@@ -745,6 +752,36 @@ type PaymentNewParams struct {
 
 func (r PaymentNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+type PaymentNewParamsAllowedPaymentMethodType string
+
+const (
+	PaymentNewParamsAllowedPaymentMethodTypeCredit         PaymentNewParamsAllowedPaymentMethodType = "credit"
+	PaymentNewParamsAllowedPaymentMethodTypeDebit          PaymentNewParamsAllowedPaymentMethodType = "debit"
+	PaymentNewParamsAllowedPaymentMethodTypeUpiCollect     PaymentNewParamsAllowedPaymentMethodType = "upi_collect"
+	PaymentNewParamsAllowedPaymentMethodTypeUpiIntent      PaymentNewParamsAllowedPaymentMethodType = "upi_intent"
+	PaymentNewParamsAllowedPaymentMethodTypeApplePay       PaymentNewParamsAllowedPaymentMethodType = "apple_pay"
+	PaymentNewParamsAllowedPaymentMethodTypeCashapp        PaymentNewParamsAllowedPaymentMethodType = "cashapp"
+	PaymentNewParamsAllowedPaymentMethodTypeGooglePay      PaymentNewParamsAllowedPaymentMethodType = "google_pay"
+	PaymentNewParamsAllowedPaymentMethodTypeMultibanco     PaymentNewParamsAllowedPaymentMethodType = "multibanco"
+	PaymentNewParamsAllowedPaymentMethodTypeBancontactCard PaymentNewParamsAllowedPaymentMethodType = "bancontact_card"
+	PaymentNewParamsAllowedPaymentMethodTypeEps            PaymentNewParamsAllowedPaymentMethodType = "eps"
+	PaymentNewParamsAllowedPaymentMethodTypeIdeal          PaymentNewParamsAllowedPaymentMethodType = "ideal"
+	PaymentNewParamsAllowedPaymentMethodTypePrzelewy24     PaymentNewParamsAllowedPaymentMethodType = "przelewy24"
+	PaymentNewParamsAllowedPaymentMethodTypeAffirm         PaymentNewParamsAllowedPaymentMethodType = "affirm"
+	PaymentNewParamsAllowedPaymentMethodTypeKlarna         PaymentNewParamsAllowedPaymentMethodType = "klarna"
+	PaymentNewParamsAllowedPaymentMethodTypeSepa           PaymentNewParamsAllowedPaymentMethodType = "sepa"
+	PaymentNewParamsAllowedPaymentMethodTypeACH            PaymentNewParamsAllowedPaymentMethodType = "ach"
+	PaymentNewParamsAllowedPaymentMethodTypeAmazonPay      PaymentNewParamsAllowedPaymentMethodType = "amazon_pay"
+)
+
+func (r PaymentNewParamsAllowedPaymentMethodType) IsKnown() bool {
+	switch r {
+	case PaymentNewParamsAllowedPaymentMethodTypeCredit, PaymentNewParamsAllowedPaymentMethodTypeDebit, PaymentNewParamsAllowedPaymentMethodTypeUpiCollect, PaymentNewParamsAllowedPaymentMethodTypeUpiIntent, PaymentNewParamsAllowedPaymentMethodTypeApplePay, PaymentNewParamsAllowedPaymentMethodTypeCashapp, PaymentNewParamsAllowedPaymentMethodTypeGooglePay, PaymentNewParamsAllowedPaymentMethodTypeMultibanco, PaymentNewParamsAllowedPaymentMethodTypeBancontactCard, PaymentNewParamsAllowedPaymentMethodTypeEps, PaymentNewParamsAllowedPaymentMethodTypeIdeal, PaymentNewParamsAllowedPaymentMethodTypePrzelewy24, PaymentNewParamsAllowedPaymentMethodTypeAffirm, PaymentNewParamsAllowedPaymentMethodTypeKlarna, PaymentNewParamsAllowedPaymentMethodTypeSepa, PaymentNewParamsAllowedPaymentMethodTypeACH, PaymentNewParamsAllowedPaymentMethodTypeAmazonPay:
+		return true
+	}
+	return false
 }
 
 type PaymentListParams struct {
