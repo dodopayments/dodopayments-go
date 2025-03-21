@@ -279,14 +279,16 @@ func (r PayoutListResponseCurrency) IsKnown() bool {
 type PayoutListResponseStatus string
 
 const (
-	PayoutListResponseStatusInProgress PayoutListResponseStatus = "in_progress"
-	PayoutListResponseStatusFailed     PayoutListResponseStatus = "failed"
-	PayoutListResponseStatusSuccess    PayoutListResponseStatus = "success"
+	PayoutListResponseStatusNotInitiated PayoutListResponseStatus = "not_initiated"
+	PayoutListResponseStatusInProgress   PayoutListResponseStatus = "in_progress"
+	PayoutListResponseStatusOnHold       PayoutListResponseStatus = "on_hold"
+	PayoutListResponseStatusFailed       PayoutListResponseStatus = "failed"
+	PayoutListResponseStatusSuccess      PayoutListResponseStatus = "success"
 )
 
 func (r PayoutListResponseStatus) IsKnown() bool {
 	switch r {
-	case PayoutListResponseStatusInProgress, PayoutListResponseStatusFailed, PayoutListResponseStatusSuccess:
+	case PayoutListResponseStatusNotInitiated, PayoutListResponseStatusInProgress, PayoutListResponseStatusOnHold, PayoutListResponseStatusFailed, PayoutListResponseStatusSuccess:
 		return true
 	}
 	return false

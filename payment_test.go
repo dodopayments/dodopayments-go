@@ -42,7 +42,8 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 			Quantity:  dodopayments.F(int64(0)),
 			Amount:    dodopayments.F(int64(0)),
 		}}),
-		DiscountCode: dodopayments.F("discount_code"),
+		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentNewParamsAllowedPaymentMethodType{dodopayments.PaymentNewParamsAllowedPaymentMethodTypeCredit}),
+		DiscountCode:              dodopayments.F("discount_code"),
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
 		}),
