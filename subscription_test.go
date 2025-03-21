@@ -37,11 +37,16 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 			CustomerID: dodopayments.F("customer_id"),
 		}),
-		ProductID:    dodopayments.F("product_id"),
-		Quantity:     dodopayments.F(int64(0)),
-		DiscountCode: dodopayments.F("discount_code"),
+		ProductID:                 dodopayments.F("product_id"),
+		Quantity:                  dodopayments.F(int64(0)),
+		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.SubscriptionNewParamsAllowedPaymentMethodType{dodopayments.SubscriptionNewParamsAllowedPaymentMethodTypeCredit}),
+		DiscountCode:              dodopayments.F("discount_code"),
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
+		}),
+		OnDemand: dodopayments.F(dodopayments.SubscriptionNewParamsOnDemand{
+			MandateOnly:  dodopayments.F(true),
+			ProductPrice: dodopayments.F(int64(0)),
 		}),
 		PaymentLink:     dodopayments.F(true),
 		ReturnURL:       dodopayments.F("return_url"),
@@ -130,6 +135,34 @@ func TestSubscriptionListWithOptionalParams(t *testing.T) {
 		PageSize:     dodopayments.F(int64(0)),
 		Status:       dodopayments.F(dodopayments.SubscriptionStatusPending),
 	})
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSubscriptionCharge(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Subscriptions.Charge(
+		context.TODO(),
+		"subscription_id",
+		dodopayments.SubscriptionChargeParams{
+			ProductPrice: dodopayments.F(int64(0)),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

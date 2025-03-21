@@ -87,6 +87,17 @@ func (r *SubscriptionService) ListAutoPaging(ctx context.Context, query Subscrip
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
+func (r *SubscriptionService) Charge(ctx context.Context, subscriptionID string, body SubscriptionChargeParams, opts ...option.RequestOption) (res *SubscriptionChargeResponse, err error) {
+	opts = append(r.Options[:], opts...)
+	if subscriptionID == "" {
+		err = errors.New("missing required subscription_id parameter")
+		return
+	}
+	path := fmt.Sprintf("subscriptions/%s/charge", subscriptionID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return
+}
+
 // Response struct representing subscription details
 type Subscription struct {
 	// Timestamp when the subscription was created
@@ -390,6 +401,27 @@ func (r subscriptionNewResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type SubscriptionChargeResponse struct {
+	PaymentID string                         `json:"payment_id,required"`
+	JSON      subscriptionChargeResponseJSON `json:"-"`
+}
+
+// subscriptionChargeResponseJSON contains the JSON metadata for the struct
+// [SubscriptionChargeResponse]
+type subscriptionChargeResponseJSON struct {
+	PaymentID   apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionChargeResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionChargeResponseJSON) RawJSON() string {
+	return r.raw
+}
+
 type SubscriptionNewParams struct {
 	Billing  param.Field[BillingAddressParam]       `json:"billing,required"`
 	Customer param.Field[CustomerRequestUnionParam] `json:"customer,required"`
@@ -397,9 +429,17 @@ type SubscriptionNewParams struct {
 	ProductID param.Field[string] `json:"product_id,required"`
 	// Number of units to subscribe for. Must be at least 1.
 	Quantity param.Field[int64] `json:"quantity,required"`
+	// List of payment methods allowed during checkout.
+	//
+	// Customers will **never** see payment methods that are **not** in this list.
+	// However, adding a method here **does not guarantee** customers will see it.
+	// Availability still depends on other factors (e.g., customer location, merchant
+	// settings).
+	AllowedPaymentMethodTypes param.Field[[]SubscriptionNewParamsAllowedPaymentMethodType] `json:"allowed_payment_method_types"`
 	// Discount Code to apply to the subscription
-	DiscountCode param.Field[string]            `json:"discount_code"`
-	Metadata     param.Field[map[string]string] `json:"metadata"`
+	DiscountCode param.Field[string]                        `json:"discount_code"`
+	Metadata     param.Field[map[string]string]             `json:"metadata"`
+	OnDemand     param.Field[SubscriptionNewParamsOnDemand] `json:"on_demand"`
 	// If true, generates a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional URL to redirect after successful subscription creation
@@ -413,6 +453,49 @@ type SubscriptionNewParams struct {
 }
 
 func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type SubscriptionNewParamsAllowedPaymentMethodType string
+
+const (
+	SubscriptionNewParamsAllowedPaymentMethodTypeCredit         SubscriptionNewParamsAllowedPaymentMethodType = "credit"
+	SubscriptionNewParamsAllowedPaymentMethodTypeDebit          SubscriptionNewParamsAllowedPaymentMethodType = "debit"
+	SubscriptionNewParamsAllowedPaymentMethodTypeUpiCollect     SubscriptionNewParamsAllowedPaymentMethodType = "upi_collect"
+	SubscriptionNewParamsAllowedPaymentMethodTypeUpiIntent      SubscriptionNewParamsAllowedPaymentMethodType = "upi_intent"
+	SubscriptionNewParamsAllowedPaymentMethodTypeApplePay       SubscriptionNewParamsAllowedPaymentMethodType = "apple_pay"
+	SubscriptionNewParamsAllowedPaymentMethodTypeCashapp        SubscriptionNewParamsAllowedPaymentMethodType = "cashapp"
+	SubscriptionNewParamsAllowedPaymentMethodTypeGooglePay      SubscriptionNewParamsAllowedPaymentMethodType = "google_pay"
+	SubscriptionNewParamsAllowedPaymentMethodTypeMultibanco     SubscriptionNewParamsAllowedPaymentMethodType = "multibanco"
+	SubscriptionNewParamsAllowedPaymentMethodTypeBancontactCard SubscriptionNewParamsAllowedPaymentMethodType = "bancontact_card"
+	SubscriptionNewParamsAllowedPaymentMethodTypeEps            SubscriptionNewParamsAllowedPaymentMethodType = "eps"
+	SubscriptionNewParamsAllowedPaymentMethodTypeIdeal          SubscriptionNewParamsAllowedPaymentMethodType = "ideal"
+	SubscriptionNewParamsAllowedPaymentMethodTypePrzelewy24     SubscriptionNewParamsAllowedPaymentMethodType = "przelewy24"
+	SubscriptionNewParamsAllowedPaymentMethodTypeAffirm         SubscriptionNewParamsAllowedPaymentMethodType = "affirm"
+	SubscriptionNewParamsAllowedPaymentMethodTypeKlarna         SubscriptionNewParamsAllowedPaymentMethodType = "klarna"
+	SubscriptionNewParamsAllowedPaymentMethodTypeSepa           SubscriptionNewParamsAllowedPaymentMethodType = "sepa"
+	SubscriptionNewParamsAllowedPaymentMethodTypeACH            SubscriptionNewParamsAllowedPaymentMethodType = "ach"
+	SubscriptionNewParamsAllowedPaymentMethodTypeAmazonPay      SubscriptionNewParamsAllowedPaymentMethodType = "amazon_pay"
+)
+
+func (r SubscriptionNewParamsAllowedPaymentMethodType) IsKnown() bool {
+	switch r {
+	case SubscriptionNewParamsAllowedPaymentMethodTypeCredit, SubscriptionNewParamsAllowedPaymentMethodTypeDebit, SubscriptionNewParamsAllowedPaymentMethodTypeUpiCollect, SubscriptionNewParamsAllowedPaymentMethodTypeUpiIntent, SubscriptionNewParamsAllowedPaymentMethodTypeApplePay, SubscriptionNewParamsAllowedPaymentMethodTypeCashapp, SubscriptionNewParamsAllowedPaymentMethodTypeGooglePay, SubscriptionNewParamsAllowedPaymentMethodTypeMultibanco, SubscriptionNewParamsAllowedPaymentMethodTypeBancontactCard, SubscriptionNewParamsAllowedPaymentMethodTypeEps, SubscriptionNewParamsAllowedPaymentMethodTypeIdeal, SubscriptionNewParamsAllowedPaymentMethodTypePrzelewy24, SubscriptionNewParamsAllowedPaymentMethodTypeAffirm, SubscriptionNewParamsAllowedPaymentMethodTypeKlarna, SubscriptionNewParamsAllowedPaymentMethodTypeSepa, SubscriptionNewParamsAllowedPaymentMethodTypeACH, SubscriptionNewParamsAllowedPaymentMethodTypeAmazonPay:
+		return true
+	}
+	return false
+}
+
+type SubscriptionNewParamsOnDemand struct {
+	// If set as True, does not perform any charge and only authorizes payment method
+	// details for future use.
+	MandateOnly param.Field[bool] `json:"mandate_only,required"`
+	// Product price for the initial charge to customer If not specified the stored
+	// price of the product will be used
+	ProductPrice param.Field[int64] `json:"product_price"`
+}
+
+func (r SubscriptionNewParamsOnDemand) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
@@ -446,4 +529,12 @@ func (r SubscriptionListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type SubscriptionChargeParams struct {
+	ProductPrice param.Field[int64] `json:"product_price,required"`
+}
+
+func (r SubscriptionChargeParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
