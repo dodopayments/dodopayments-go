@@ -198,7 +198,8 @@ type OneTimeProductCartItem struct {
 	ProductID string `json:"product_id,required"`
 	Quantity  int64  `json:"quantity,required"`
 	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
-	// amount will be ignored
+	// amount will be ignored Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	Amount int64                      `json:"amount,nullable"`
 	JSON   oneTimeProductCartItemJSON `json:"-"`
 }
@@ -225,7 +226,8 @@ type OneTimeProductCartItemParam struct {
 	ProductID param.Field[string] `json:"product_id,required"`
 	Quantity  param.Field[int64]  `json:"quantity,required"`
 	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
-	// amount will be ignored
+	// amount will be ignored Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	Amount param.Field[int64] `json:"amount"`
 }
 

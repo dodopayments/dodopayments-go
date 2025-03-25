@@ -491,7 +491,8 @@ type SubscriptionNewParamsOnDemand struct {
 	// details for future use.
 	MandateOnly param.Field[bool] `json:"mandate_only,required"`
 	// Product price for the initial charge to customer If not specified the stored
-	// price of the product will be used
+	// price of the product will be used Represented in the lowest denomination of the
+	// currency (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	ProductPrice param.Field[int64] `json:"product_price"`
 }
 
@@ -532,6 +533,8 @@ func (r SubscriptionListParams) URLQuery() (v url.Values) {
 }
 
 type SubscriptionChargeParams struct {
+	// The product price. Represented in the lowest denomination of the currency (e.g.,
+	// cents for USD). For example, to charge $1.00, pass `100`.
 	ProductPrice param.Field[int64] `json:"product_price,required"`
 }
 

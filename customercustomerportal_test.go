@@ -25,7 +25,7 @@ func TestCustomerCustomerPortalNewWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Customers.CustomerPortal.New(
+	_, err := client.Customers.CustomerPortal.New(
 		context.TODO(),
 		"customer_id",
 		dodopayments.CustomerCustomerPortalNewParams{
