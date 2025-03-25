@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.10.3 (2025-03-25)
+
+Full Changelog: [v1.10.1...v1.10.3](https://github.com/dodopayments/dodopayments-go/compare/v1.10.1...v1.10.3)
+
+### Features
+
+* **api:** manual updates ([#88](https://github.com/dodopayments/dodopayments-go/issues/88)) ([453a530](https://github.com/dodopayments/dodopayments-go/commit/453a53076a88d87f1322f261b801fb2a25676846))
+
+
+### Chores
+
+* **docs:** improve security documentation ([#86](https://github.com/dodopayments/dodopayments-go/issues/86)) ([29c6a85](https://github.com/dodopayments/dodopayments-go/commit/29c6a85f04866ba20bfdfecd0497387763aacc41))
+
 ## 1.10.1 (2025-03-21)
 
 Full Changelog: [v1.7.0...v1.10.1](https://github.com/dodopayments/dodopayments-go/compare/v1.7.0...v1.10.1)
