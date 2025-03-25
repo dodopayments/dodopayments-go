@@ -101,6 +101,7 @@ Methods:
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#Customer">Customer</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CustomerPortalSession">CustomerPortalSession</a>
 
 Methods:
 
@@ -113,7 +114,7 @@ Methods:
 
 Methods:
 
-- <code title="post /customers/{customer_id}/customer-portal/session">client.Customers.CustomerPortal.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CustomerCustomerPortalService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, customerID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CustomerCustomerPortalNewParams">CustomerCustomerPortalNewParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
+- <code title="post /customers/{customer_id}/customer-portal/session">client.Customers.CustomerPortal.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CustomerCustomerPortalService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, customerID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CustomerCustomerPortalNewParams">CustomerCustomerPortalNewParams</a>) (<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CustomerPortalSession">CustomerPortalSession</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Refunds
 
