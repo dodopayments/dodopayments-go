@@ -119,6 +119,27 @@ func (r customerJSON) RawJSON() string {
 	return r.raw
 }
 
+type CustomerPortalSession struct {
+	Link string                    `json:"link,required"`
+	JSON customerPortalSessionJSON `json:"-"`
+}
+
+// customerPortalSessionJSON contains the JSON metadata for the struct
+// [CustomerPortalSession]
+type customerPortalSessionJSON struct {
+	Link        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CustomerPortalSession) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r customerPortalSessionJSON) RawJSON() string {
+	return r.raw
+}
+
 type CustomerNewParams struct {
 	Email       param.Field[string] `json:"email,required"`
 	Name        param.Field[string] `json:"name,required"`

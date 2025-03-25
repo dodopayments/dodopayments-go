@@ -34,15 +34,14 @@ func NewCustomerCustomerPortalService(opts ...option.RequestOption) (r *Customer
 	return
 }
 
-func (r *CustomerCustomerPortalService) New(ctx context.Context, customerID string, body CustomerCustomerPortalNewParams, opts ...option.RequestOption) (err error) {
+func (r *CustomerCustomerPortalService) New(ctx context.Context, customerID string, body CustomerCustomerPortalNewParams, opts ...option.RequestOption) (res *CustomerPortalSession, err error) {
 	opts = append(r.Options[:], opts...)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
 		return
 	}
 	path := fmt.Sprintf("customers/%s/customer-portal/session", customerID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
 
