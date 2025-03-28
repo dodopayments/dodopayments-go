@@ -739,6 +739,7 @@ type PaymentNewParams struct {
 	// Availability still depends on other factors (e.g., customer location, merchant
 	// settings).
 	AllowedPaymentMethodTypes param.Field[[]PaymentNewParamsAllowedPaymentMethodType] `json:"allowed_payment_method_types"`
+	BillingCurrency           param.Field[PaymentNewParamsBillingCurrency]            `json:"billing_currency"`
 	// Discount Code to apply to the transaction
 	DiscountCode param.Field[string]            `json:"discount_code"`
 	Metadata     param.Field[map[string]string] `json:"metadata"`
@@ -747,6 +748,8 @@ type PaymentNewParams struct {
 	// Optional URL to redirect the customer after payment. Must be a valid URL if
 	// provided.
 	ReturnURL param.Field[string] `json:"return_url"`
+	// Display saved payment methods of a returning customer False by default
+	ShowSavedPaymentMethods param.Field[bool] `json:"show_saved_payment_methods"`
 	// Tax ID in case the payment is B2B. If tax id validation fails the payment
 	// creation will fail
 	TaxID param.Field[string] `json:"tax_id"`
@@ -781,6 +784,164 @@ const (
 func (r PaymentNewParamsAllowedPaymentMethodType) IsKnown() bool {
 	switch r {
 	case PaymentNewParamsAllowedPaymentMethodTypeCredit, PaymentNewParamsAllowedPaymentMethodTypeDebit, PaymentNewParamsAllowedPaymentMethodTypeUpiCollect, PaymentNewParamsAllowedPaymentMethodTypeUpiIntent, PaymentNewParamsAllowedPaymentMethodTypeApplePay, PaymentNewParamsAllowedPaymentMethodTypeCashapp, PaymentNewParamsAllowedPaymentMethodTypeGooglePay, PaymentNewParamsAllowedPaymentMethodTypeMultibanco, PaymentNewParamsAllowedPaymentMethodTypeBancontactCard, PaymentNewParamsAllowedPaymentMethodTypeEps, PaymentNewParamsAllowedPaymentMethodTypeIdeal, PaymentNewParamsAllowedPaymentMethodTypePrzelewy24, PaymentNewParamsAllowedPaymentMethodTypeAffirm, PaymentNewParamsAllowedPaymentMethodTypeKlarna, PaymentNewParamsAllowedPaymentMethodTypeSepa, PaymentNewParamsAllowedPaymentMethodTypeACH, PaymentNewParamsAllowedPaymentMethodTypeAmazonPay:
+		return true
+	}
+	return false
+}
+
+type PaymentNewParamsBillingCurrency string
+
+const (
+	PaymentNewParamsBillingCurrencyAed PaymentNewParamsBillingCurrency = "AED"
+	PaymentNewParamsBillingCurrencyAll PaymentNewParamsBillingCurrency = "ALL"
+	PaymentNewParamsBillingCurrencyAmd PaymentNewParamsBillingCurrency = "AMD"
+	PaymentNewParamsBillingCurrencyAng PaymentNewParamsBillingCurrency = "ANG"
+	PaymentNewParamsBillingCurrencyAoa PaymentNewParamsBillingCurrency = "AOA"
+	PaymentNewParamsBillingCurrencyArs PaymentNewParamsBillingCurrency = "ARS"
+	PaymentNewParamsBillingCurrencyAud PaymentNewParamsBillingCurrency = "AUD"
+	PaymentNewParamsBillingCurrencyAwg PaymentNewParamsBillingCurrency = "AWG"
+	PaymentNewParamsBillingCurrencyAzn PaymentNewParamsBillingCurrency = "AZN"
+	PaymentNewParamsBillingCurrencyBam PaymentNewParamsBillingCurrency = "BAM"
+	PaymentNewParamsBillingCurrencyBbd PaymentNewParamsBillingCurrency = "BBD"
+	PaymentNewParamsBillingCurrencyBdt PaymentNewParamsBillingCurrency = "BDT"
+	PaymentNewParamsBillingCurrencyBgn PaymentNewParamsBillingCurrency = "BGN"
+	PaymentNewParamsBillingCurrencyBhd PaymentNewParamsBillingCurrency = "BHD"
+	PaymentNewParamsBillingCurrencyBif PaymentNewParamsBillingCurrency = "BIF"
+	PaymentNewParamsBillingCurrencyBmd PaymentNewParamsBillingCurrency = "BMD"
+	PaymentNewParamsBillingCurrencyBnd PaymentNewParamsBillingCurrency = "BND"
+	PaymentNewParamsBillingCurrencyBob PaymentNewParamsBillingCurrency = "BOB"
+	PaymentNewParamsBillingCurrencyBrl PaymentNewParamsBillingCurrency = "BRL"
+	PaymentNewParamsBillingCurrencyBsd PaymentNewParamsBillingCurrency = "BSD"
+	PaymentNewParamsBillingCurrencyBwp PaymentNewParamsBillingCurrency = "BWP"
+	PaymentNewParamsBillingCurrencyByn PaymentNewParamsBillingCurrency = "BYN"
+	PaymentNewParamsBillingCurrencyBzd PaymentNewParamsBillingCurrency = "BZD"
+	PaymentNewParamsBillingCurrencyCad PaymentNewParamsBillingCurrency = "CAD"
+	PaymentNewParamsBillingCurrencyChf PaymentNewParamsBillingCurrency = "CHF"
+	PaymentNewParamsBillingCurrencyClp PaymentNewParamsBillingCurrency = "CLP"
+	PaymentNewParamsBillingCurrencyCny PaymentNewParamsBillingCurrency = "CNY"
+	PaymentNewParamsBillingCurrencyCop PaymentNewParamsBillingCurrency = "COP"
+	PaymentNewParamsBillingCurrencyCrc PaymentNewParamsBillingCurrency = "CRC"
+	PaymentNewParamsBillingCurrencyCup PaymentNewParamsBillingCurrency = "CUP"
+	PaymentNewParamsBillingCurrencyCve PaymentNewParamsBillingCurrency = "CVE"
+	PaymentNewParamsBillingCurrencyCzk PaymentNewParamsBillingCurrency = "CZK"
+	PaymentNewParamsBillingCurrencyDjf PaymentNewParamsBillingCurrency = "DJF"
+	PaymentNewParamsBillingCurrencyDkk PaymentNewParamsBillingCurrency = "DKK"
+	PaymentNewParamsBillingCurrencyDop PaymentNewParamsBillingCurrency = "DOP"
+	PaymentNewParamsBillingCurrencyDzd PaymentNewParamsBillingCurrency = "DZD"
+	PaymentNewParamsBillingCurrencyEgp PaymentNewParamsBillingCurrency = "EGP"
+	PaymentNewParamsBillingCurrencyEtb PaymentNewParamsBillingCurrency = "ETB"
+	PaymentNewParamsBillingCurrencyEur PaymentNewParamsBillingCurrency = "EUR"
+	PaymentNewParamsBillingCurrencyFjd PaymentNewParamsBillingCurrency = "FJD"
+	PaymentNewParamsBillingCurrencyFkp PaymentNewParamsBillingCurrency = "FKP"
+	PaymentNewParamsBillingCurrencyGbp PaymentNewParamsBillingCurrency = "GBP"
+	PaymentNewParamsBillingCurrencyGel PaymentNewParamsBillingCurrency = "GEL"
+	PaymentNewParamsBillingCurrencyGhs PaymentNewParamsBillingCurrency = "GHS"
+	PaymentNewParamsBillingCurrencyGip PaymentNewParamsBillingCurrency = "GIP"
+	PaymentNewParamsBillingCurrencyGmd PaymentNewParamsBillingCurrency = "GMD"
+	PaymentNewParamsBillingCurrencyGnf PaymentNewParamsBillingCurrency = "GNF"
+	PaymentNewParamsBillingCurrencyGtq PaymentNewParamsBillingCurrency = "GTQ"
+	PaymentNewParamsBillingCurrencyGyd PaymentNewParamsBillingCurrency = "GYD"
+	PaymentNewParamsBillingCurrencyHkd PaymentNewParamsBillingCurrency = "HKD"
+	PaymentNewParamsBillingCurrencyHnl PaymentNewParamsBillingCurrency = "HNL"
+	PaymentNewParamsBillingCurrencyHrk PaymentNewParamsBillingCurrency = "HRK"
+	PaymentNewParamsBillingCurrencyHtg PaymentNewParamsBillingCurrency = "HTG"
+	PaymentNewParamsBillingCurrencyHuf PaymentNewParamsBillingCurrency = "HUF"
+	PaymentNewParamsBillingCurrencyIdr PaymentNewParamsBillingCurrency = "IDR"
+	PaymentNewParamsBillingCurrencyIls PaymentNewParamsBillingCurrency = "ILS"
+	PaymentNewParamsBillingCurrencyInr PaymentNewParamsBillingCurrency = "INR"
+	PaymentNewParamsBillingCurrencyIqd PaymentNewParamsBillingCurrency = "IQD"
+	PaymentNewParamsBillingCurrencyJmd PaymentNewParamsBillingCurrency = "JMD"
+	PaymentNewParamsBillingCurrencyJod PaymentNewParamsBillingCurrency = "JOD"
+	PaymentNewParamsBillingCurrencyJpy PaymentNewParamsBillingCurrency = "JPY"
+	PaymentNewParamsBillingCurrencyKes PaymentNewParamsBillingCurrency = "KES"
+	PaymentNewParamsBillingCurrencyKgs PaymentNewParamsBillingCurrency = "KGS"
+	PaymentNewParamsBillingCurrencyKhr PaymentNewParamsBillingCurrency = "KHR"
+	PaymentNewParamsBillingCurrencyKmf PaymentNewParamsBillingCurrency = "KMF"
+	PaymentNewParamsBillingCurrencyKrw PaymentNewParamsBillingCurrency = "KRW"
+	PaymentNewParamsBillingCurrencyKwd PaymentNewParamsBillingCurrency = "KWD"
+	PaymentNewParamsBillingCurrencyKyd PaymentNewParamsBillingCurrency = "KYD"
+	PaymentNewParamsBillingCurrencyKzt PaymentNewParamsBillingCurrency = "KZT"
+	PaymentNewParamsBillingCurrencyLak PaymentNewParamsBillingCurrency = "LAK"
+	PaymentNewParamsBillingCurrencyLbp PaymentNewParamsBillingCurrency = "LBP"
+	PaymentNewParamsBillingCurrencyLkr PaymentNewParamsBillingCurrency = "LKR"
+	PaymentNewParamsBillingCurrencyLrd PaymentNewParamsBillingCurrency = "LRD"
+	PaymentNewParamsBillingCurrencyLsl PaymentNewParamsBillingCurrency = "LSL"
+	PaymentNewParamsBillingCurrencyLyd PaymentNewParamsBillingCurrency = "LYD"
+	PaymentNewParamsBillingCurrencyMad PaymentNewParamsBillingCurrency = "MAD"
+	PaymentNewParamsBillingCurrencyMdl PaymentNewParamsBillingCurrency = "MDL"
+	PaymentNewParamsBillingCurrencyMga PaymentNewParamsBillingCurrency = "MGA"
+	PaymentNewParamsBillingCurrencyMkd PaymentNewParamsBillingCurrency = "MKD"
+	PaymentNewParamsBillingCurrencyMmk PaymentNewParamsBillingCurrency = "MMK"
+	PaymentNewParamsBillingCurrencyMnt PaymentNewParamsBillingCurrency = "MNT"
+	PaymentNewParamsBillingCurrencyMop PaymentNewParamsBillingCurrency = "MOP"
+	PaymentNewParamsBillingCurrencyMru PaymentNewParamsBillingCurrency = "MRU"
+	PaymentNewParamsBillingCurrencyMur PaymentNewParamsBillingCurrency = "MUR"
+	PaymentNewParamsBillingCurrencyMvr PaymentNewParamsBillingCurrency = "MVR"
+	PaymentNewParamsBillingCurrencyMwk PaymentNewParamsBillingCurrency = "MWK"
+	PaymentNewParamsBillingCurrencyMxn PaymentNewParamsBillingCurrency = "MXN"
+	PaymentNewParamsBillingCurrencyMyr PaymentNewParamsBillingCurrency = "MYR"
+	PaymentNewParamsBillingCurrencyMzn PaymentNewParamsBillingCurrency = "MZN"
+	PaymentNewParamsBillingCurrencyNad PaymentNewParamsBillingCurrency = "NAD"
+	PaymentNewParamsBillingCurrencyNgn PaymentNewParamsBillingCurrency = "NGN"
+	PaymentNewParamsBillingCurrencyNio PaymentNewParamsBillingCurrency = "NIO"
+	PaymentNewParamsBillingCurrencyNok PaymentNewParamsBillingCurrency = "NOK"
+	PaymentNewParamsBillingCurrencyNpr PaymentNewParamsBillingCurrency = "NPR"
+	PaymentNewParamsBillingCurrencyNzd PaymentNewParamsBillingCurrency = "NZD"
+	PaymentNewParamsBillingCurrencyOmr PaymentNewParamsBillingCurrency = "OMR"
+	PaymentNewParamsBillingCurrencyPab PaymentNewParamsBillingCurrency = "PAB"
+	PaymentNewParamsBillingCurrencyPen PaymentNewParamsBillingCurrency = "PEN"
+	PaymentNewParamsBillingCurrencyPgk PaymentNewParamsBillingCurrency = "PGK"
+	PaymentNewParamsBillingCurrencyPhp PaymentNewParamsBillingCurrency = "PHP"
+	PaymentNewParamsBillingCurrencyPkr PaymentNewParamsBillingCurrency = "PKR"
+	PaymentNewParamsBillingCurrencyPln PaymentNewParamsBillingCurrency = "PLN"
+	PaymentNewParamsBillingCurrencyPyg PaymentNewParamsBillingCurrency = "PYG"
+	PaymentNewParamsBillingCurrencyQar PaymentNewParamsBillingCurrency = "QAR"
+	PaymentNewParamsBillingCurrencyRon PaymentNewParamsBillingCurrency = "RON"
+	PaymentNewParamsBillingCurrencyRsd PaymentNewParamsBillingCurrency = "RSD"
+	PaymentNewParamsBillingCurrencyRub PaymentNewParamsBillingCurrency = "RUB"
+	PaymentNewParamsBillingCurrencyRwf PaymentNewParamsBillingCurrency = "RWF"
+	PaymentNewParamsBillingCurrencySar PaymentNewParamsBillingCurrency = "SAR"
+	PaymentNewParamsBillingCurrencySbd PaymentNewParamsBillingCurrency = "SBD"
+	PaymentNewParamsBillingCurrencyScr PaymentNewParamsBillingCurrency = "SCR"
+	PaymentNewParamsBillingCurrencySek PaymentNewParamsBillingCurrency = "SEK"
+	PaymentNewParamsBillingCurrencySgd PaymentNewParamsBillingCurrency = "SGD"
+	PaymentNewParamsBillingCurrencyShp PaymentNewParamsBillingCurrency = "SHP"
+	PaymentNewParamsBillingCurrencySle PaymentNewParamsBillingCurrency = "SLE"
+	PaymentNewParamsBillingCurrencySll PaymentNewParamsBillingCurrency = "SLL"
+	PaymentNewParamsBillingCurrencySos PaymentNewParamsBillingCurrency = "SOS"
+	PaymentNewParamsBillingCurrencySrd PaymentNewParamsBillingCurrency = "SRD"
+	PaymentNewParamsBillingCurrencySsp PaymentNewParamsBillingCurrency = "SSP"
+	PaymentNewParamsBillingCurrencyStn PaymentNewParamsBillingCurrency = "STN"
+	PaymentNewParamsBillingCurrencySvc PaymentNewParamsBillingCurrency = "SVC"
+	PaymentNewParamsBillingCurrencySzl PaymentNewParamsBillingCurrency = "SZL"
+	PaymentNewParamsBillingCurrencyThb PaymentNewParamsBillingCurrency = "THB"
+	PaymentNewParamsBillingCurrencyTnd PaymentNewParamsBillingCurrency = "TND"
+	PaymentNewParamsBillingCurrencyTop PaymentNewParamsBillingCurrency = "TOP"
+	PaymentNewParamsBillingCurrencyTry PaymentNewParamsBillingCurrency = "TRY"
+	PaymentNewParamsBillingCurrencyTtd PaymentNewParamsBillingCurrency = "TTD"
+	PaymentNewParamsBillingCurrencyTwd PaymentNewParamsBillingCurrency = "TWD"
+	PaymentNewParamsBillingCurrencyTzs PaymentNewParamsBillingCurrency = "TZS"
+	PaymentNewParamsBillingCurrencyUah PaymentNewParamsBillingCurrency = "UAH"
+	PaymentNewParamsBillingCurrencyUgx PaymentNewParamsBillingCurrency = "UGX"
+	PaymentNewParamsBillingCurrencyUsd PaymentNewParamsBillingCurrency = "USD"
+	PaymentNewParamsBillingCurrencyUyu PaymentNewParamsBillingCurrency = "UYU"
+	PaymentNewParamsBillingCurrencyUzs PaymentNewParamsBillingCurrency = "UZS"
+	PaymentNewParamsBillingCurrencyVes PaymentNewParamsBillingCurrency = "VES"
+	PaymentNewParamsBillingCurrencyVnd PaymentNewParamsBillingCurrency = "VND"
+	PaymentNewParamsBillingCurrencyVuv PaymentNewParamsBillingCurrency = "VUV"
+	PaymentNewParamsBillingCurrencyWst PaymentNewParamsBillingCurrency = "WST"
+	PaymentNewParamsBillingCurrencyXaf PaymentNewParamsBillingCurrency = "XAF"
+	PaymentNewParamsBillingCurrencyXcd PaymentNewParamsBillingCurrency = "XCD"
+	PaymentNewParamsBillingCurrencyXof PaymentNewParamsBillingCurrency = "XOF"
+	PaymentNewParamsBillingCurrencyXpf PaymentNewParamsBillingCurrency = "XPF"
+	PaymentNewParamsBillingCurrencyYer PaymentNewParamsBillingCurrency = "YER"
+	PaymentNewParamsBillingCurrencyZar PaymentNewParamsBillingCurrency = "ZAR"
+	PaymentNewParamsBillingCurrencyZmw PaymentNewParamsBillingCurrency = "ZMW"
+)
+
+func (r PaymentNewParamsBillingCurrency) IsKnown() bool {
+	switch r {
+	case PaymentNewParamsBillingCurrencyAed, PaymentNewParamsBillingCurrencyAll, PaymentNewParamsBillingCurrencyAmd, PaymentNewParamsBillingCurrencyAng, PaymentNewParamsBillingCurrencyAoa, PaymentNewParamsBillingCurrencyArs, PaymentNewParamsBillingCurrencyAud, PaymentNewParamsBillingCurrencyAwg, PaymentNewParamsBillingCurrencyAzn, PaymentNewParamsBillingCurrencyBam, PaymentNewParamsBillingCurrencyBbd, PaymentNewParamsBillingCurrencyBdt, PaymentNewParamsBillingCurrencyBgn, PaymentNewParamsBillingCurrencyBhd, PaymentNewParamsBillingCurrencyBif, PaymentNewParamsBillingCurrencyBmd, PaymentNewParamsBillingCurrencyBnd, PaymentNewParamsBillingCurrencyBob, PaymentNewParamsBillingCurrencyBrl, PaymentNewParamsBillingCurrencyBsd, PaymentNewParamsBillingCurrencyBwp, PaymentNewParamsBillingCurrencyByn, PaymentNewParamsBillingCurrencyBzd, PaymentNewParamsBillingCurrencyCad, PaymentNewParamsBillingCurrencyChf, PaymentNewParamsBillingCurrencyClp, PaymentNewParamsBillingCurrencyCny, PaymentNewParamsBillingCurrencyCop, PaymentNewParamsBillingCurrencyCrc, PaymentNewParamsBillingCurrencyCup, PaymentNewParamsBillingCurrencyCve, PaymentNewParamsBillingCurrencyCzk, PaymentNewParamsBillingCurrencyDjf, PaymentNewParamsBillingCurrencyDkk, PaymentNewParamsBillingCurrencyDop, PaymentNewParamsBillingCurrencyDzd, PaymentNewParamsBillingCurrencyEgp, PaymentNewParamsBillingCurrencyEtb, PaymentNewParamsBillingCurrencyEur, PaymentNewParamsBillingCurrencyFjd, PaymentNewParamsBillingCurrencyFkp, PaymentNewParamsBillingCurrencyGbp, PaymentNewParamsBillingCurrencyGel, PaymentNewParamsBillingCurrencyGhs, PaymentNewParamsBillingCurrencyGip, PaymentNewParamsBillingCurrencyGmd, PaymentNewParamsBillingCurrencyGnf, PaymentNewParamsBillingCurrencyGtq, PaymentNewParamsBillingCurrencyGyd, PaymentNewParamsBillingCurrencyHkd, PaymentNewParamsBillingCurrencyHnl, PaymentNewParamsBillingCurrencyHrk, PaymentNewParamsBillingCurrencyHtg, PaymentNewParamsBillingCurrencyHuf, PaymentNewParamsBillingCurrencyIdr, PaymentNewParamsBillingCurrencyIls, PaymentNewParamsBillingCurrencyInr, PaymentNewParamsBillingCurrencyIqd, PaymentNewParamsBillingCurrencyJmd, PaymentNewParamsBillingCurrencyJod, PaymentNewParamsBillingCurrencyJpy, PaymentNewParamsBillingCurrencyKes, PaymentNewParamsBillingCurrencyKgs, PaymentNewParamsBillingCurrencyKhr, PaymentNewParamsBillingCurrencyKmf, PaymentNewParamsBillingCurrencyKrw, PaymentNewParamsBillingCurrencyKwd, PaymentNewParamsBillingCurrencyKyd, PaymentNewParamsBillingCurrencyKzt, PaymentNewParamsBillingCurrencyLak, PaymentNewParamsBillingCurrencyLbp, PaymentNewParamsBillingCurrencyLkr, PaymentNewParamsBillingCurrencyLrd, PaymentNewParamsBillingCurrencyLsl, PaymentNewParamsBillingCurrencyLyd, PaymentNewParamsBillingCurrencyMad, PaymentNewParamsBillingCurrencyMdl, PaymentNewParamsBillingCurrencyMga, PaymentNewParamsBillingCurrencyMkd, PaymentNewParamsBillingCurrencyMmk, PaymentNewParamsBillingCurrencyMnt, PaymentNewParamsBillingCurrencyMop, PaymentNewParamsBillingCurrencyMru, PaymentNewParamsBillingCurrencyMur, PaymentNewParamsBillingCurrencyMvr, PaymentNewParamsBillingCurrencyMwk, PaymentNewParamsBillingCurrencyMxn, PaymentNewParamsBillingCurrencyMyr, PaymentNewParamsBillingCurrencyMzn, PaymentNewParamsBillingCurrencyNad, PaymentNewParamsBillingCurrencyNgn, PaymentNewParamsBillingCurrencyNio, PaymentNewParamsBillingCurrencyNok, PaymentNewParamsBillingCurrencyNpr, PaymentNewParamsBillingCurrencyNzd, PaymentNewParamsBillingCurrencyOmr, PaymentNewParamsBillingCurrencyPab, PaymentNewParamsBillingCurrencyPen, PaymentNewParamsBillingCurrencyPgk, PaymentNewParamsBillingCurrencyPhp, PaymentNewParamsBillingCurrencyPkr, PaymentNewParamsBillingCurrencyPln, PaymentNewParamsBillingCurrencyPyg, PaymentNewParamsBillingCurrencyQar, PaymentNewParamsBillingCurrencyRon, PaymentNewParamsBillingCurrencyRsd, PaymentNewParamsBillingCurrencyRub, PaymentNewParamsBillingCurrencyRwf, PaymentNewParamsBillingCurrencySar, PaymentNewParamsBillingCurrencySbd, PaymentNewParamsBillingCurrencyScr, PaymentNewParamsBillingCurrencySek, PaymentNewParamsBillingCurrencySgd, PaymentNewParamsBillingCurrencyShp, PaymentNewParamsBillingCurrencySle, PaymentNewParamsBillingCurrencySll, PaymentNewParamsBillingCurrencySos, PaymentNewParamsBillingCurrencySrd, PaymentNewParamsBillingCurrencySsp, PaymentNewParamsBillingCurrencyStn, PaymentNewParamsBillingCurrencySvc, PaymentNewParamsBillingCurrencySzl, PaymentNewParamsBillingCurrencyThb, PaymentNewParamsBillingCurrencyTnd, PaymentNewParamsBillingCurrencyTop, PaymentNewParamsBillingCurrencyTry, PaymentNewParamsBillingCurrencyTtd, PaymentNewParamsBillingCurrencyTwd, PaymentNewParamsBillingCurrencyTzs, PaymentNewParamsBillingCurrencyUah, PaymentNewParamsBillingCurrencyUgx, PaymentNewParamsBillingCurrencyUsd, PaymentNewParamsBillingCurrencyUyu, PaymentNewParamsBillingCurrencyUzs, PaymentNewParamsBillingCurrencyVes, PaymentNewParamsBillingCurrencyVnd, PaymentNewParamsBillingCurrencyVuv, PaymentNewParamsBillingCurrencyWst, PaymentNewParamsBillingCurrencyXaf, PaymentNewParamsBillingCurrencyXcd, PaymentNewParamsBillingCurrencyXof, PaymentNewParamsBillingCurrencyXpf, PaymentNewParamsBillingCurrencyYer, PaymentNewParamsBillingCurrencyZar, PaymentNewParamsBillingCurrencyZmw:
 		return true
 	}
 	return false
