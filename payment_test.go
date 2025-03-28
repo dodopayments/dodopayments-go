@@ -43,13 +43,15 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 			Amount:    dodopayments.F(int64(0)),
 		}}),
 		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentNewParamsAllowedPaymentMethodType{dodopayments.PaymentNewParamsAllowedPaymentMethodTypeCredit}),
+		BillingCurrency:           dodopayments.F(dodopayments.PaymentNewParamsBillingCurrencyAed),
 		DiscountCode:              dodopayments.F("discount_code"),
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
 		}),
-		PaymentLink: dodopayments.F(true),
-		ReturnURL:   dodopayments.F("return_url"),
-		TaxID:       dodopayments.F("tax_id"),
+		PaymentLink:             dodopayments.F(true),
+		ReturnURL:               dodopayments.F("return_url"),
+		ShowSavedPaymentMethods: dodopayments.F(true),
+		TaxID:                   dodopayments.F("tax_id"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
