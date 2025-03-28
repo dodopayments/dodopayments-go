@@ -40,6 +40,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		ProductID:                 dodopayments.F("product_id"),
 		Quantity:                  dodopayments.F(int64(0)),
 		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.SubscriptionNewParamsAllowedPaymentMethodType{dodopayments.SubscriptionNewParamsAllowedPaymentMethodTypeCredit}),
+		BillingCurrency:           dodopayments.F(dodopayments.SubscriptionNewParamsBillingCurrencyAed),
 		DiscountCode:              dodopayments.F("discount_code"),
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
@@ -48,10 +49,11 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 			MandateOnly:  dodopayments.F(true),
 			ProductPrice: dodopayments.F(int64(0)),
 		}),
-		PaymentLink:     dodopayments.F(true),
-		ReturnURL:       dodopayments.F("return_url"),
-		TaxID:           dodopayments.F("tax_id"),
-		TrialPeriodDays: dodopayments.F(int64(0)),
+		PaymentLink:             dodopayments.F(true),
+		ReturnURL:               dodopayments.F("return_url"),
+		ShowSavedPaymentMethods: dodopayments.F(true),
+		TaxID:                   dodopayments.F("tax_id"),
+		TrialPeriodDays:         dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
