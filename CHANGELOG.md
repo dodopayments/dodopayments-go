@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.10.4 (2025-03-28)
+
+Full Changelog: [v1.10.3...v1.10.4](https://github.com/dodopayments/dodopayments-go/compare/v1.10.3...v1.10.4)
+
+### Bug Fixes
+
+* **test:** return early after test failure ([#92](https://github.com/dodopayments/dodopayments-go/issues/92)) ([34fbb82](https://github.com/dodopayments/dodopayments-go/commit/34fbb82a253dc8929cdcd7ea55df5e27c9cd85b4))
+
+
+### Chores
+
+* add request options to client tests ([#90](https://github.com/dodopayments/dodopayments-go/issues/90)) ([c40f8e9](https://github.com/dodopayments/dodopayments-go/commit/c40f8e94da595050a56f3bfa74c432b69d53e672))
+* fix typos ([#93](https://github.com/dodopayments/dodopayments-go/issues/93)) ([8f9e245](https://github.com/dodopayments/dodopayments-go/commit/8f9e245dc32500d6c25a11f423b8f7f5902c49c3))
+
 ## 1.10.3 (2025-03-25)
 
 Full Changelog: [v1.10.1...v1.10.3](https://github.com/dodopayments/dodopayments-go/compare/v1.10.1...v1.10.3)
