@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.11.1 (2025-04-05)
+
+Full Changelog: [v1.11.0...v1.11.1](https://github.com/dodopayments/dodopayments-go/compare/v1.11.0...v1.11.1)
+
+### Bug Fixes
+
+* **client:** return error on bad custom url instead of panic ([#99](https://github.com/dodopayments/dodopayments-go/issues/99)) ([ed014bd](https://github.com/dodopayments/dodopayments-go/commit/ed014bdef82cb23fe4d1bb3269efe9732f883a0f))
+
 ## 1.11.0 (2025-03-28)
 
 Full Changelog: [v1.10.4...v1.11.0](https://github.com/dodopayments/dodopayments-go/compare/v1.10.4...v1.11.0)
