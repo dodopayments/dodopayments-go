@@ -28,7 +28,6 @@ func TestRefundNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Refunds.New(context.TODO(), dodopayments.RefundNewParams{
 		PaymentID: dodopayments.F("payment_id"),
-		Amount:    dodopayments.F(int64(0)),
 		Reason:    dodopayments.F("reason"),
 	})
 	if err != nil {

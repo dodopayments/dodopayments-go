@@ -15,7 +15,6 @@ import (
 	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
-	"github.com/dodopayments/dodopayments-go/packages/pagination"
 )
 
 // LicenseKeyInstanceService contains methods and other services that help with
@@ -59,25 +58,11 @@ func (r *LicenseKeyInstanceService) Update(ctx context.Context, id string, body 
 	return
 }
 
-func (r *LicenseKeyInstanceService) List(ctx context.Context, query LicenseKeyInstanceListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[LicenseKeyInstance], err error) {
-	var raw *http.Response
+func (r *LicenseKeyInstanceService) List(ctx context.Context, query LicenseKeyInstanceListParams, opts ...option.RequestOption) (res *[]LicenseKeyInstanceListResponse, err error) {
 	opts = append(r.Options[:], opts...)
-	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "license_key_instances"
-	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
-	if err != nil {
-		return nil, err
-	}
-	err = cfg.Execute()
-	if err != nil {
-		return nil, err
-	}
-	res.SetPageConfig(cfg, raw)
-	return res, nil
-}
-
-func (r *LicenseKeyInstanceService) ListAutoPaging(ctx context.Context, query LicenseKeyInstanceListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[LicenseKeyInstance] {
-	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return
 }
 
 type LicenseKeyInstance struct {
@@ -106,6 +91,27 @@ func (r *LicenseKeyInstance) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r licenseKeyInstanceJSON) RawJSON() string {
+	return r.raw
+}
+
+type LicenseKeyInstanceListResponse struct {
+	Items []LicenseKeyInstance               `json:"items,required"`
+	JSON  licenseKeyInstanceListResponseJSON `json:"-"`
+}
+
+// licenseKeyInstanceListResponseJSON contains the JSON metadata for the struct
+// [LicenseKeyInstanceListResponse]
+type licenseKeyInstanceListResponseJSON struct {
+	Items       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *LicenseKeyInstanceListResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r licenseKeyInstanceListResponseJSON) RawJSON() string {
 	return r.raw
 }
 

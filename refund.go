@@ -294,9 +294,6 @@ func (r RefundStatus) IsKnown() bool {
 type RefundNewParams struct {
 	// The unique identifier of the payment to be refunded.
 	PaymentID param.Field[string] `json:"payment_id,required"`
-	// The amount to be refunded. Must be non-negative. Optional. Partial refunds are
-	// currently disabled.
-	Amount param.Field[int64] `json:"amount"`
 	// The reason for the refund, if any. Maximum length is 3000 characters. Optional.
 	Reason param.Field[string] `json:"reason"`
 }
