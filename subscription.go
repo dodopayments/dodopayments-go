@@ -100,6 +100,7 @@ func (r *SubscriptionService) Charge(ctx context.Context, subscriptionID string,
 
 // Response struct representing subscription details
 type Subscription struct {
+	Billing BillingAddress `json:"billing,required"`
 	// Timestamp when the subscription was created
 	CreatedAt time.Time              `json:"created_at,required" format:"date-time"`
 	Currency  SubscriptionCurrency   `json:"currency,required"`
@@ -136,6 +137,7 @@ type Subscription struct {
 
 // subscriptionJSON contains the JSON metadata for the struct [Subscription]
 type subscriptionJSON struct {
+	Billing                    apijson.Field
 	CreatedAt                  apijson.Field
 	Currency                   apijson.Field
 	Customer                   apijson.Field
@@ -662,8 +664,10 @@ func (r SubscriptionNewParamsOnDemand) MarshalJSON() (data []byte, err error) {
 }
 
 type SubscriptionUpdateParams struct {
-	Metadata param.Field[map[string]string]  `json:"metadata"`
-	Status   param.Field[SubscriptionStatus] `json:"status"`
+	Billing  param.Field[BillingAddressParam] `json:"billing"`
+	Metadata param.Field[map[string]string]   `json:"metadata"`
+	Status   param.Field[SubscriptionStatus]  `json:"status"`
+	TaxID    param.Field[string]              `json:"tax_id"`
 }
 
 func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {

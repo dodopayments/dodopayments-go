@@ -102,10 +102,18 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionUpdateParams{
+			Billing: dodopayments.F(dodopayments.BillingAddressParam{
+				City:    dodopayments.F("city"),
+				Country: dodopayments.F(dodopayments.CountryCodeAf),
+				State:   dodopayments.F("state"),
+				Street:  dodopayments.F("street"),
+				Zipcode: dodopayments.F("zipcode"),
+			}),
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),
 			Status: dodopayments.F(dodopayments.SubscriptionStatusPending),
+			TaxID:  dodopayments.F("tax_id"),
 		},
 	)
 	if err != nil {
