@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.14.0 (2025-04-11)
+
+Full Changelog: [v1.13.0...v1.14.0](https://github.com/dodopayments/dodopayments-go/compare/v1.13.0...v1.14.0)
+
+### Features
+
+* **api:** fixed license key pagination issues in openapi spec ([7a94e11](https://github.com/dodopayments/dodopayments-go/commit/7a94e11b04f3f0ada8518df06b9227216cde6e89))
+* **api:** updated openapi spec ([79ea42b](https://github.com/dodopayments/dodopayments-go/commit/79ea42bdcc769eacf61e6013ee3cf213ba19a9d5))
+
+
+### Chores
+
+* **internal:** expand CI branch coverage ([0fa813a](https://github.com/dodopayments/dodopayments-go/commit/0fa813a6008d1c566d63416261f7ef7572eb302b))
+* **internal:** reduce CI branch coverage ([70875a9](https://github.com/dodopayments/dodopayments-go/commit/70875a9c4054caa61eac8bbc6fe871c2e658a6db))
+
 ## 1.13.0 (2025-04-08)
 
 Full Changelog: [v1.11.1...v1.13.0](https://github.com/dodopayments/dodopayments-go/compare/v1.11.1...v1.13.0)
