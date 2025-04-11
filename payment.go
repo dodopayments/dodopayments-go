@@ -86,6 +86,39 @@ func (r AttachExistingCustomerParam) MarshalJSON() (data []byte, err error) {
 
 func (r AttachExistingCustomerParam) implementsCustomerRequestUnionParam() {}
 
+type BillingAddress struct {
+	// City name
+	City string `json:"city,required"`
+	// ISO country code alpha2 variant
+	Country CountryCode `json:"country,required"`
+	// State or province name
+	State string `json:"state,required"`
+	// Street address including house number and unit/apartment if applicable
+	Street string `json:"street,required"`
+	// Postal code or ZIP code
+	Zipcode string             `json:"zipcode,required"`
+	JSON    billingAddressJSON `json:"-"`
+}
+
+// billingAddressJSON contains the JSON metadata for the struct [BillingAddress]
+type billingAddressJSON struct {
+	City        apijson.Field
+	Country     apijson.Field
+	State       apijson.Field
+	Street      apijson.Field
+	Zipcode     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *BillingAddress) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r billingAddressJSON) RawJSON() string {
+	return r.raw
+}
+
 type BillingAddressParam struct {
 	// City name
 	City param.Field[string] `json:"city,required"`
