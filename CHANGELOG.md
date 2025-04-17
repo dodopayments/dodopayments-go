@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.14.1 (2025-04-17)
+
+Full Changelog: [v1.14.0...v1.14.1](https://github.com/dodopayments/dodopayments-go/compare/v1.14.0...v1.14.1)
+
+### Features
+
+* **client:** add support for reading base URL from environment variable ([6657397](https://github.com/dodopayments/dodopayments-go/commit/665739756fa0ded950f8626a0457f133d257afeb))
+
+
+### Chores
+
+* **docs:** document pre-request options ([c9e2855](https://github.com/dodopayments/dodopayments-go/commit/c9e285561788daeb2e473f6a9bafa4560b87a335))
+
+
+### Documentation
+
+* update documentation links to be more uniform ([deb7632](https://github.com/dodopayments/dodopayments-go/commit/deb763245f79c62e1cd0db30c6a2ce7f0d65d14a))
+
 ## 1.14.0 (2025-04-11)
 
 Full Changelog: [v1.13.0...v1.14.0](https://github.com/dodopayments/dodopayments-go/compare/v1.13.0...v1.14.0)
