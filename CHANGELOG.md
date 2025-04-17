@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.14.2 (2025-04-17)
+
+Full Changelog: [v1.14.1...v1.14.2](https://github.com/dodopayments/dodopayments-go/compare/v1.14.1...v1.14.2)
+
+### Chores
+
+* configure new SDK language ([9f96b13](https://github.com/dodopayments/dodopayments-go/commit/9f96b1376a5dec7bf065e9cfd3dfd4634ec9f6ac))
+
 ## 1.14.1 (2025-04-17)
 
 Full Changelog: [v1.14.0...v1.14.1](https://github.com/dodopayments/dodopayments-go/compare/v1.14.0...v1.14.1)
