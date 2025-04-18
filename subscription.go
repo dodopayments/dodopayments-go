@@ -464,28 +464,29 @@ func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
 type SubscriptionNewParamsAllowedPaymentMethodType string
 
 const (
-	SubscriptionNewParamsAllowedPaymentMethodTypeCredit         SubscriptionNewParamsAllowedPaymentMethodType = "credit"
-	SubscriptionNewParamsAllowedPaymentMethodTypeDebit          SubscriptionNewParamsAllowedPaymentMethodType = "debit"
-	SubscriptionNewParamsAllowedPaymentMethodTypeUpiCollect     SubscriptionNewParamsAllowedPaymentMethodType = "upi_collect"
-	SubscriptionNewParamsAllowedPaymentMethodTypeUpiIntent      SubscriptionNewParamsAllowedPaymentMethodType = "upi_intent"
-	SubscriptionNewParamsAllowedPaymentMethodTypeApplePay       SubscriptionNewParamsAllowedPaymentMethodType = "apple_pay"
-	SubscriptionNewParamsAllowedPaymentMethodTypeCashapp        SubscriptionNewParamsAllowedPaymentMethodType = "cashapp"
-	SubscriptionNewParamsAllowedPaymentMethodTypeGooglePay      SubscriptionNewParamsAllowedPaymentMethodType = "google_pay"
-	SubscriptionNewParamsAllowedPaymentMethodTypeMultibanco     SubscriptionNewParamsAllowedPaymentMethodType = "multibanco"
-	SubscriptionNewParamsAllowedPaymentMethodTypeBancontactCard SubscriptionNewParamsAllowedPaymentMethodType = "bancontact_card"
-	SubscriptionNewParamsAllowedPaymentMethodTypeEps            SubscriptionNewParamsAllowedPaymentMethodType = "eps"
-	SubscriptionNewParamsAllowedPaymentMethodTypeIdeal          SubscriptionNewParamsAllowedPaymentMethodType = "ideal"
-	SubscriptionNewParamsAllowedPaymentMethodTypePrzelewy24     SubscriptionNewParamsAllowedPaymentMethodType = "przelewy24"
-	SubscriptionNewParamsAllowedPaymentMethodTypeAffirm         SubscriptionNewParamsAllowedPaymentMethodType = "affirm"
-	SubscriptionNewParamsAllowedPaymentMethodTypeKlarna         SubscriptionNewParamsAllowedPaymentMethodType = "klarna"
-	SubscriptionNewParamsAllowedPaymentMethodTypeSepa           SubscriptionNewParamsAllowedPaymentMethodType = "sepa"
-	SubscriptionNewParamsAllowedPaymentMethodTypeACH            SubscriptionNewParamsAllowedPaymentMethodType = "ach"
-	SubscriptionNewParamsAllowedPaymentMethodTypeAmazonPay      SubscriptionNewParamsAllowedPaymentMethodType = "amazon_pay"
+	SubscriptionNewParamsAllowedPaymentMethodTypeCredit           SubscriptionNewParamsAllowedPaymentMethodType = "credit"
+	SubscriptionNewParamsAllowedPaymentMethodTypeDebit            SubscriptionNewParamsAllowedPaymentMethodType = "debit"
+	SubscriptionNewParamsAllowedPaymentMethodTypeUpiCollect       SubscriptionNewParamsAllowedPaymentMethodType = "upi_collect"
+	SubscriptionNewParamsAllowedPaymentMethodTypeUpiIntent        SubscriptionNewParamsAllowedPaymentMethodType = "upi_intent"
+	SubscriptionNewParamsAllowedPaymentMethodTypeApplePay         SubscriptionNewParamsAllowedPaymentMethodType = "apple_pay"
+	SubscriptionNewParamsAllowedPaymentMethodTypeCashapp          SubscriptionNewParamsAllowedPaymentMethodType = "cashapp"
+	SubscriptionNewParamsAllowedPaymentMethodTypeGooglePay        SubscriptionNewParamsAllowedPaymentMethodType = "google_pay"
+	SubscriptionNewParamsAllowedPaymentMethodTypeMultibanco       SubscriptionNewParamsAllowedPaymentMethodType = "multibanco"
+	SubscriptionNewParamsAllowedPaymentMethodTypeBancontactCard   SubscriptionNewParamsAllowedPaymentMethodType = "bancontact_card"
+	SubscriptionNewParamsAllowedPaymentMethodTypeEps              SubscriptionNewParamsAllowedPaymentMethodType = "eps"
+	SubscriptionNewParamsAllowedPaymentMethodTypeIdeal            SubscriptionNewParamsAllowedPaymentMethodType = "ideal"
+	SubscriptionNewParamsAllowedPaymentMethodTypePrzelewy24       SubscriptionNewParamsAllowedPaymentMethodType = "przelewy24"
+	SubscriptionNewParamsAllowedPaymentMethodTypeAffirm           SubscriptionNewParamsAllowedPaymentMethodType = "affirm"
+	SubscriptionNewParamsAllowedPaymentMethodTypeKlarna           SubscriptionNewParamsAllowedPaymentMethodType = "klarna"
+	SubscriptionNewParamsAllowedPaymentMethodTypeSepa             SubscriptionNewParamsAllowedPaymentMethodType = "sepa"
+	SubscriptionNewParamsAllowedPaymentMethodTypeACH              SubscriptionNewParamsAllowedPaymentMethodType = "ach"
+	SubscriptionNewParamsAllowedPaymentMethodTypeAmazonPay        SubscriptionNewParamsAllowedPaymentMethodType = "amazon_pay"
+	SubscriptionNewParamsAllowedPaymentMethodTypeAfterpayClearpay SubscriptionNewParamsAllowedPaymentMethodType = "afterpay_clearpay"
 )
 
 func (r SubscriptionNewParamsAllowedPaymentMethodType) IsKnown() bool {
 	switch r {
-	case SubscriptionNewParamsAllowedPaymentMethodTypeCredit, SubscriptionNewParamsAllowedPaymentMethodTypeDebit, SubscriptionNewParamsAllowedPaymentMethodTypeUpiCollect, SubscriptionNewParamsAllowedPaymentMethodTypeUpiIntent, SubscriptionNewParamsAllowedPaymentMethodTypeApplePay, SubscriptionNewParamsAllowedPaymentMethodTypeCashapp, SubscriptionNewParamsAllowedPaymentMethodTypeGooglePay, SubscriptionNewParamsAllowedPaymentMethodTypeMultibanco, SubscriptionNewParamsAllowedPaymentMethodTypeBancontactCard, SubscriptionNewParamsAllowedPaymentMethodTypeEps, SubscriptionNewParamsAllowedPaymentMethodTypeIdeal, SubscriptionNewParamsAllowedPaymentMethodTypePrzelewy24, SubscriptionNewParamsAllowedPaymentMethodTypeAffirm, SubscriptionNewParamsAllowedPaymentMethodTypeKlarna, SubscriptionNewParamsAllowedPaymentMethodTypeSepa, SubscriptionNewParamsAllowedPaymentMethodTypeACH, SubscriptionNewParamsAllowedPaymentMethodTypeAmazonPay:
+	case SubscriptionNewParamsAllowedPaymentMethodTypeCredit, SubscriptionNewParamsAllowedPaymentMethodTypeDebit, SubscriptionNewParamsAllowedPaymentMethodTypeUpiCollect, SubscriptionNewParamsAllowedPaymentMethodTypeUpiIntent, SubscriptionNewParamsAllowedPaymentMethodTypeApplePay, SubscriptionNewParamsAllowedPaymentMethodTypeCashapp, SubscriptionNewParamsAllowedPaymentMethodTypeGooglePay, SubscriptionNewParamsAllowedPaymentMethodTypeMultibanco, SubscriptionNewParamsAllowedPaymentMethodTypeBancontactCard, SubscriptionNewParamsAllowedPaymentMethodTypeEps, SubscriptionNewParamsAllowedPaymentMethodTypeIdeal, SubscriptionNewParamsAllowedPaymentMethodTypePrzelewy24, SubscriptionNewParamsAllowedPaymentMethodTypeAffirm, SubscriptionNewParamsAllowedPaymentMethodTypeKlarna, SubscriptionNewParamsAllowedPaymentMethodTypeSepa, SubscriptionNewParamsAllowedPaymentMethodTypeACH, SubscriptionNewParamsAllowedPaymentMethodTypeAmazonPay, SubscriptionNewParamsAllowedPaymentMethodTypeAfterpayClearpay:
 		return true
 	}
 	return false
