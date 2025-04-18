@@ -795,28 +795,29 @@ func (r PaymentNewParams) MarshalJSON() (data []byte, err error) {
 type PaymentNewParamsAllowedPaymentMethodType string
 
 const (
-	PaymentNewParamsAllowedPaymentMethodTypeCredit         PaymentNewParamsAllowedPaymentMethodType = "credit"
-	PaymentNewParamsAllowedPaymentMethodTypeDebit          PaymentNewParamsAllowedPaymentMethodType = "debit"
-	PaymentNewParamsAllowedPaymentMethodTypeUpiCollect     PaymentNewParamsAllowedPaymentMethodType = "upi_collect"
-	PaymentNewParamsAllowedPaymentMethodTypeUpiIntent      PaymentNewParamsAllowedPaymentMethodType = "upi_intent"
-	PaymentNewParamsAllowedPaymentMethodTypeApplePay       PaymentNewParamsAllowedPaymentMethodType = "apple_pay"
-	PaymentNewParamsAllowedPaymentMethodTypeCashapp        PaymentNewParamsAllowedPaymentMethodType = "cashapp"
-	PaymentNewParamsAllowedPaymentMethodTypeGooglePay      PaymentNewParamsAllowedPaymentMethodType = "google_pay"
-	PaymentNewParamsAllowedPaymentMethodTypeMultibanco     PaymentNewParamsAllowedPaymentMethodType = "multibanco"
-	PaymentNewParamsAllowedPaymentMethodTypeBancontactCard PaymentNewParamsAllowedPaymentMethodType = "bancontact_card"
-	PaymentNewParamsAllowedPaymentMethodTypeEps            PaymentNewParamsAllowedPaymentMethodType = "eps"
-	PaymentNewParamsAllowedPaymentMethodTypeIdeal          PaymentNewParamsAllowedPaymentMethodType = "ideal"
-	PaymentNewParamsAllowedPaymentMethodTypePrzelewy24     PaymentNewParamsAllowedPaymentMethodType = "przelewy24"
-	PaymentNewParamsAllowedPaymentMethodTypeAffirm         PaymentNewParamsAllowedPaymentMethodType = "affirm"
-	PaymentNewParamsAllowedPaymentMethodTypeKlarna         PaymentNewParamsAllowedPaymentMethodType = "klarna"
-	PaymentNewParamsAllowedPaymentMethodTypeSepa           PaymentNewParamsAllowedPaymentMethodType = "sepa"
-	PaymentNewParamsAllowedPaymentMethodTypeACH            PaymentNewParamsAllowedPaymentMethodType = "ach"
-	PaymentNewParamsAllowedPaymentMethodTypeAmazonPay      PaymentNewParamsAllowedPaymentMethodType = "amazon_pay"
+	PaymentNewParamsAllowedPaymentMethodTypeCredit           PaymentNewParamsAllowedPaymentMethodType = "credit"
+	PaymentNewParamsAllowedPaymentMethodTypeDebit            PaymentNewParamsAllowedPaymentMethodType = "debit"
+	PaymentNewParamsAllowedPaymentMethodTypeUpiCollect       PaymentNewParamsAllowedPaymentMethodType = "upi_collect"
+	PaymentNewParamsAllowedPaymentMethodTypeUpiIntent        PaymentNewParamsAllowedPaymentMethodType = "upi_intent"
+	PaymentNewParamsAllowedPaymentMethodTypeApplePay         PaymentNewParamsAllowedPaymentMethodType = "apple_pay"
+	PaymentNewParamsAllowedPaymentMethodTypeCashapp          PaymentNewParamsAllowedPaymentMethodType = "cashapp"
+	PaymentNewParamsAllowedPaymentMethodTypeGooglePay        PaymentNewParamsAllowedPaymentMethodType = "google_pay"
+	PaymentNewParamsAllowedPaymentMethodTypeMultibanco       PaymentNewParamsAllowedPaymentMethodType = "multibanco"
+	PaymentNewParamsAllowedPaymentMethodTypeBancontactCard   PaymentNewParamsAllowedPaymentMethodType = "bancontact_card"
+	PaymentNewParamsAllowedPaymentMethodTypeEps              PaymentNewParamsAllowedPaymentMethodType = "eps"
+	PaymentNewParamsAllowedPaymentMethodTypeIdeal            PaymentNewParamsAllowedPaymentMethodType = "ideal"
+	PaymentNewParamsAllowedPaymentMethodTypePrzelewy24       PaymentNewParamsAllowedPaymentMethodType = "przelewy24"
+	PaymentNewParamsAllowedPaymentMethodTypeAffirm           PaymentNewParamsAllowedPaymentMethodType = "affirm"
+	PaymentNewParamsAllowedPaymentMethodTypeKlarna           PaymentNewParamsAllowedPaymentMethodType = "klarna"
+	PaymentNewParamsAllowedPaymentMethodTypeSepa             PaymentNewParamsAllowedPaymentMethodType = "sepa"
+	PaymentNewParamsAllowedPaymentMethodTypeACH              PaymentNewParamsAllowedPaymentMethodType = "ach"
+	PaymentNewParamsAllowedPaymentMethodTypeAmazonPay        PaymentNewParamsAllowedPaymentMethodType = "amazon_pay"
+	PaymentNewParamsAllowedPaymentMethodTypeAfterpayClearpay PaymentNewParamsAllowedPaymentMethodType = "afterpay_clearpay"
 )
 
 func (r PaymentNewParamsAllowedPaymentMethodType) IsKnown() bool {
 	switch r {
-	case PaymentNewParamsAllowedPaymentMethodTypeCredit, PaymentNewParamsAllowedPaymentMethodTypeDebit, PaymentNewParamsAllowedPaymentMethodTypeUpiCollect, PaymentNewParamsAllowedPaymentMethodTypeUpiIntent, PaymentNewParamsAllowedPaymentMethodTypeApplePay, PaymentNewParamsAllowedPaymentMethodTypeCashapp, PaymentNewParamsAllowedPaymentMethodTypeGooglePay, PaymentNewParamsAllowedPaymentMethodTypeMultibanco, PaymentNewParamsAllowedPaymentMethodTypeBancontactCard, PaymentNewParamsAllowedPaymentMethodTypeEps, PaymentNewParamsAllowedPaymentMethodTypeIdeal, PaymentNewParamsAllowedPaymentMethodTypePrzelewy24, PaymentNewParamsAllowedPaymentMethodTypeAffirm, PaymentNewParamsAllowedPaymentMethodTypeKlarna, PaymentNewParamsAllowedPaymentMethodTypeSepa, PaymentNewParamsAllowedPaymentMethodTypeACH, PaymentNewParamsAllowedPaymentMethodTypeAmazonPay:
+	case PaymentNewParamsAllowedPaymentMethodTypeCredit, PaymentNewParamsAllowedPaymentMethodTypeDebit, PaymentNewParamsAllowedPaymentMethodTypeUpiCollect, PaymentNewParamsAllowedPaymentMethodTypeUpiIntent, PaymentNewParamsAllowedPaymentMethodTypeApplePay, PaymentNewParamsAllowedPaymentMethodTypeCashapp, PaymentNewParamsAllowedPaymentMethodTypeGooglePay, PaymentNewParamsAllowedPaymentMethodTypeMultibanco, PaymentNewParamsAllowedPaymentMethodTypeBancontactCard, PaymentNewParamsAllowedPaymentMethodTypeEps, PaymentNewParamsAllowedPaymentMethodTypeIdeal, PaymentNewParamsAllowedPaymentMethodTypePrzelewy24, PaymentNewParamsAllowedPaymentMethodTypeAffirm, PaymentNewParamsAllowedPaymentMethodTypeKlarna, PaymentNewParamsAllowedPaymentMethodTypeSepa, PaymentNewParamsAllowedPaymentMethodTypeACH, PaymentNewParamsAllowedPaymentMethodTypeAmazonPay, PaymentNewParamsAllowedPaymentMethodTypeAfterpayClearpay:
 		return true
 	}
 	return false
