@@ -282,6 +282,11 @@ type Payment struct {
 	PaymentID string `json:"payment_id,required"`
 	// List of refunds issued for this payment
 	Refunds []Refund `json:"refunds,required"`
+	// The amount that will be credited to your Dodo balance after currency conversion
+	// and processing. Especially relevant for adaptive pricing where the customer's
+	// payment currency differs from your settlement currency.
+	SettlementAmount   int64                     `json:"settlement_amount,required"`
+	SettlementCurrency PaymentSettlementCurrency `json:"settlement_currency,required"`
 	// Total amount charged to the customer including tax, in smallest currency unit
 	// (e.g. cents)
 	TotalAmount int64 `json:"total_amount,required"`
@@ -309,27 +314,29 @@ type Payment struct {
 
 // paymentJSON contains the JSON metadata for the struct [Payment]
 type paymentJSON struct {
-	BusinessID        apijson.Field
-	CreatedAt         apijson.Field
-	Currency          apijson.Field
-	Customer          apijson.Field
-	Disputes          apijson.Field
-	Metadata          apijson.Field
-	PaymentID         apijson.Field
-	Refunds           apijson.Field
-	TotalAmount       apijson.Field
-	DiscountID        apijson.Field
-	ErrorMessage      apijson.Field
-	PaymentLink       apijson.Field
-	PaymentMethod     apijson.Field
-	PaymentMethodType apijson.Field
-	ProductCart       apijson.Field
-	Status            apijson.Field
-	SubscriptionID    apijson.Field
-	Tax               apijson.Field
-	UpdatedAt         apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
+	BusinessID         apijson.Field
+	CreatedAt          apijson.Field
+	Currency           apijson.Field
+	Customer           apijson.Field
+	Disputes           apijson.Field
+	Metadata           apijson.Field
+	PaymentID          apijson.Field
+	Refunds            apijson.Field
+	SettlementAmount   apijson.Field
+	SettlementCurrency apijson.Field
+	TotalAmount        apijson.Field
+	DiscountID         apijson.Field
+	ErrorMessage       apijson.Field
+	PaymentLink        apijson.Field
+	PaymentMethod      apijson.Field
+	PaymentMethodType  apijson.Field
+	ProductCart        apijson.Field
+	Status             apijson.Field
+	SubscriptionID     apijson.Field
+	Tax                apijson.Field
+	UpdatedAt          apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
 }
 
 func (r *Payment) UnmarshalJSON(data []byte) (err error) {
@@ -493,6 +500,164 @@ const (
 func (r PaymentCurrency) IsKnown() bool {
 	switch r {
 	case PaymentCurrencyAed, PaymentCurrencyAll, PaymentCurrencyAmd, PaymentCurrencyAng, PaymentCurrencyAoa, PaymentCurrencyArs, PaymentCurrencyAud, PaymentCurrencyAwg, PaymentCurrencyAzn, PaymentCurrencyBam, PaymentCurrencyBbd, PaymentCurrencyBdt, PaymentCurrencyBgn, PaymentCurrencyBhd, PaymentCurrencyBif, PaymentCurrencyBmd, PaymentCurrencyBnd, PaymentCurrencyBob, PaymentCurrencyBrl, PaymentCurrencyBsd, PaymentCurrencyBwp, PaymentCurrencyByn, PaymentCurrencyBzd, PaymentCurrencyCad, PaymentCurrencyChf, PaymentCurrencyClp, PaymentCurrencyCny, PaymentCurrencyCop, PaymentCurrencyCrc, PaymentCurrencyCup, PaymentCurrencyCve, PaymentCurrencyCzk, PaymentCurrencyDjf, PaymentCurrencyDkk, PaymentCurrencyDop, PaymentCurrencyDzd, PaymentCurrencyEgp, PaymentCurrencyEtb, PaymentCurrencyEur, PaymentCurrencyFjd, PaymentCurrencyFkp, PaymentCurrencyGbp, PaymentCurrencyGel, PaymentCurrencyGhs, PaymentCurrencyGip, PaymentCurrencyGmd, PaymentCurrencyGnf, PaymentCurrencyGtq, PaymentCurrencyGyd, PaymentCurrencyHkd, PaymentCurrencyHnl, PaymentCurrencyHrk, PaymentCurrencyHtg, PaymentCurrencyHuf, PaymentCurrencyIdr, PaymentCurrencyIls, PaymentCurrencyInr, PaymentCurrencyIqd, PaymentCurrencyJmd, PaymentCurrencyJod, PaymentCurrencyJpy, PaymentCurrencyKes, PaymentCurrencyKgs, PaymentCurrencyKhr, PaymentCurrencyKmf, PaymentCurrencyKrw, PaymentCurrencyKwd, PaymentCurrencyKyd, PaymentCurrencyKzt, PaymentCurrencyLak, PaymentCurrencyLbp, PaymentCurrencyLkr, PaymentCurrencyLrd, PaymentCurrencyLsl, PaymentCurrencyLyd, PaymentCurrencyMad, PaymentCurrencyMdl, PaymentCurrencyMga, PaymentCurrencyMkd, PaymentCurrencyMmk, PaymentCurrencyMnt, PaymentCurrencyMop, PaymentCurrencyMru, PaymentCurrencyMur, PaymentCurrencyMvr, PaymentCurrencyMwk, PaymentCurrencyMxn, PaymentCurrencyMyr, PaymentCurrencyMzn, PaymentCurrencyNad, PaymentCurrencyNgn, PaymentCurrencyNio, PaymentCurrencyNok, PaymentCurrencyNpr, PaymentCurrencyNzd, PaymentCurrencyOmr, PaymentCurrencyPab, PaymentCurrencyPen, PaymentCurrencyPgk, PaymentCurrencyPhp, PaymentCurrencyPkr, PaymentCurrencyPln, PaymentCurrencyPyg, PaymentCurrencyQar, PaymentCurrencyRon, PaymentCurrencyRsd, PaymentCurrencyRub, PaymentCurrencyRwf, PaymentCurrencySar, PaymentCurrencySbd, PaymentCurrencyScr, PaymentCurrencySek, PaymentCurrencySgd, PaymentCurrencyShp, PaymentCurrencySle, PaymentCurrencySll, PaymentCurrencySos, PaymentCurrencySrd, PaymentCurrencySsp, PaymentCurrencyStn, PaymentCurrencySvc, PaymentCurrencySzl, PaymentCurrencyThb, PaymentCurrencyTnd, PaymentCurrencyTop, PaymentCurrencyTry, PaymentCurrencyTtd, PaymentCurrencyTwd, PaymentCurrencyTzs, PaymentCurrencyUah, PaymentCurrencyUgx, PaymentCurrencyUsd, PaymentCurrencyUyu, PaymentCurrencyUzs, PaymentCurrencyVes, PaymentCurrencyVnd, PaymentCurrencyVuv, PaymentCurrencyWst, PaymentCurrencyXaf, PaymentCurrencyXcd, PaymentCurrencyXof, PaymentCurrencyXpf, PaymentCurrencyYer, PaymentCurrencyZar, PaymentCurrencyZmw:
+		return true
+	}
+	return false
+}
+
+type PaymentSettlementCurrency string
+
+const (
+	PaymentSettlementCurrencyAed PaymentSettlementCurrency = "AED"
+	PaymentSettlementCurrencyAll PaymentSettlementCurrency = "ALL"
+	PaymentSettlementCurrencyAmd PaymentSettlementCurrency = "AMD"
+	PaymentSettlementCurrencyAng PaymentSettlementCurrency = "ANG"
+	PaymentSettlementCurrencyAoa PaymentSettlementCurrency = "AOA"
+	PaymentSettlementCurrencyArs PaymentSettlementCurrency = "ARS"
+	PaymentSettlementCurrencyAud PaymentSettlementCurrency = "AUD"
+	PaymentSettlementCurrencyAwg PaymentSettlementCurrency = "AWG"
+	PaymentSettlementCurrencyAzn PaymentSettlementCurrency = "AZN"
+	PaymentSettlementCurrencyBam PaymentSettlementCurrency = "BAM"
+	PaymentSettlementCurrencyBbd PaymentSettlementCurrency = "BBD"
+	PaymentSettlementCurrencyBdt PaymentSettlementCurrency = "BDT"
+	PaymentSettlementCurrencyBgn PaymentSettlementCurrency = "BGN"
+	PaymentSettlementCurrencyBhd PaymentSettlementCurrency = "BHD"
+	PaymentSettlementCurrencyBif PaymentSettlementCurrency = "BIF"
+	PaymentSettlementCurrencyBmd PaymentSettlementCurrency = "BMD"
+	PaymentSettlementCurrencyBnd PaymentSettlementCurrency = "BND"
+	PaymentSettlementCurrencyBob PaymentSettlementCurrency = "BOB"
+	PaymentSettlementCurrencyBrl PaymentSettlementCurrency = "BRL"
+	PaymentSettlementCurrencyBsd PaymentSettlementCurrency = "BSD"
+	PaymentSettlementCurrencyBwp PaymentSettlementCurrency = "BWP"
+	PaymentSettlementCurrencyByn PaymentSettlementCurrency = "BYN"
+	PaymentSettlementCurrencyBzd PaymentSettlementCurrency = "BZD"
+	PaymentSettlementCurrencyCad PaymentSettlementCurrency = "CAD"
+	PaymentSettlementCurrencyChf PaymentSettlementCurrency = "CHF"
+	PaymentSettlementCurrencyClp PaymentSettlementCurrency = "CLP"
+	PaymentSettlementCurrencyCny PaymentSettlementCurrency = "CNY"
+	PaymentSettlementCurrencyCop PaymentSettlementCurrency = "COP"
+	PaymentSettlementCurrencyCrc PaymentSettlementCurrency = "CRC"
+	PaymentSettlementCurrencyCup PaymentSettlementCurrency = "CUP"
+	PaymentSettlementCurrencyCve PaymentSettlementCurrency = "CVE"
+	PaymentSettlementCurrencyCzk PaymentSettlementCurrency = "CZK"
+	PaymentSettlementCurrencyDjf PaymentSettlementCurrency = "DJF"
+	PaymentSettlementCurrencyDkk PaymentSettlementCurrency = "DKK"
+	PaymentSettlementCurrencyDop PaymentSettlementCurrency = "DOP"
+	PaymentSettlementCurrencyDzd PaymentSettlementCurrency = "DZD"
+	PaymentSettlementCurrencyEgp PaymentSettlementCurrency = "EGP"
+	PaymentSettlementCurrencyEtb PaymentSettlementCurrency = "ETB"
+	PaymentSettlementCurrencyEur PaymentSettlementCurrency = "EUR"
+	PaymentSettlementCurrencyFjd PaymentSettlementCurrency = "FJD"
+	PaymentSettlementCurrencyFkp PaymentSettlementCurrency = "FKP"
+	PaymentSettlementCurrencyGbp PaymentSettlementCurrency = "GBP"
+	PaymentSettlementCurrencyGel PaymentSettlementCurrency = "GEL"
+	PaymentSettlementCurrencyGhs PaymentSettlementCurrency = "GHS"
+	PaymentSettlementCurrencyGip PaymentSettlementCurrency = "GIP"
+	PaymentSettlementCurrencyGmd PaymentSettlementCurrency = "GMD"
+	PaymentSettlementCurrencyGnf PaymentSettlementCurrency = "GNF"
+	PaymentSettlementCurrencyGtq PaymentSettlementCurrency = "GTQ"
+	PaymentSettlementCurrencyGyd PaymentSettlementCurrency = "GYD"
+	PaymentSettlementCurrencyHkd PaymentSettlementCurrency = "HKD"
+	PaymentSettlementCurrencyHnl PaymentSettlementCurrency = "HNL"
+	PaymentSettlementCurrencyHrk PaymentSettlementCurrency = "HRK"
+	PaymentSettlementCurrencyHtg PaymentSettlementCurrency = "HTG"
+	PaymentSettlementCurrencyHuf PaymentSettlementCurrency = "HUF"
+	PaymentSettlementCurrencyIdr PaymentSettlementCurrency = "IDR"
+	PaymentSettlementCurrencyIls PaymentSettlementCurrency = "ILS"
+	PaymentSettlementCurrencyInr PaymentSettlementCurrency = "INR"
+	PaymentSettlementCurrencyIqd PaymentSettlementCurrency = "IQD"
+	PaymentSettlementCurrencyJmd PaymentSettlementCurrency = "JMD"
+	PaymentSettlementCurrencyJod PaymentSettlementCurrency = "JOD"
+	PaymentSettlementCurrencyJpy PaymentSettlementCurrency = "JPY"
+	PaymentSettlementCurrencyKes PaymentSettlementCurrency = "KES"
+	PaymentSettlementCurrencyKgs PaymentSettlementCurrency = "KGS"
+	PaymentSettlementCurrencyKhr PaymentSettlementCurrency = "KHR"
+	PaymentSettlementCurrencyKmf PaymentSettlementCurrency = "KMF"
+	PaymentSettlementCurrencyKrw PaymentSettlementCurrency = "KRW"
+	PaymentSettlementCurrencyKwd PaymentSettlementCurrency = "KWD"
+	PaymentSettlementCurrencyKyd PaymentSettlementCurrency = "KYD"
+	PaymentSettlementCurrencyKzt PaymentSettlementCurrency = "KZT"
+	PaymentSettlementCurrencyLak PaymentSettlementCurrency = "LAK"
+	PaymentSettlementCurrencyLbp PaymentSettlementCurrency = "LBP"
+	PaymentSettlementCurrencyLkr PaymentSettlementCurrency = "LKR"
+	PaymentSettlementCurrencyLrd PaymentSettlementCurrency = "LRD"
+	PaymentSettlementCurrencyLsl PaymentSettlementCurrency = "LSL"
+	PaymentSettlementCurrencyLyd PaymentSettlementCurrency = "LYD"
+	PaymentSettlementCurrencyMad PaymentSettlementCurrency = "MAD"
+	PaymentSettlementCurrencyMdl PaymentSettlementCurrency = "MDL"
+	PaymentSettlementCurrencyMga PaymentSettlementCurrency = "MGA"
+	PaymentSettlementCurrencyMkd PaymentSettlementCurrency = "MKD"
+	PaymentSettlementCurrencyMmk PaymentSettlementCurrency = "MMK"
+	PaymentSettlementCurrencyMnt PaymentSettlementCurrency = "MNT"
+	PaymentSettlementCurrencyMop PaymentSettlementCurrency = "MOP"
+	PaymentSettlementCurrencyMru PaymentSettlementCurrency = "MRU"
+	PaymentSettlementCurrencyMur PaymentSettlementCurrency = "MUR"
+	PaymentSettlementCurrencyMvr PaymentSettlementCurrency = "MVR"
+	PaymentSettlementCurrencyMwk PaymentSettlementCurrency = "MWK"
+	PaymentSettlementCurrencyMxn PaymentSettlementCurrency = "MXN"
+	PaymentSettlementCurrencyMyr PaymentSettlementCurrency = "MYR"
+	PaymentSettlementCurrencyMzn PaymentSettlementCurrency = "MZN"
+	PaymentSettlementCurrencyNad PaymentSettlementCurrency = "NAD"
+	PaymentSettlementCurrencyNgn PaymentSettlementCurrency = "NGN"
+	PaymentSettlementCurrencyNio PaymentSettlementCurrency = "NIO"
+	PaymentSettlementCurrencyNok PaymentSettlementCurrency = "NOK"
+	PaymentSettlementCurrencyNpr PaymentSettlementCurrency = "NPR"
+	PaymentSettlementCurrencyNzd PaymentSettlementCurrency = "NZD"
+	PaymentSettlementCurrencyOmr PaymentSettlementCurrency = "OMR"
+	PaymentSettlementCurrencyPab PaymentSettlementCurrency = "PAB"
+	PaymentSettlementCurrencyPen PaymentSettlementCurrency = "PEN"
+	PaymentSettlementCurrencyPgk PaymentSettlementCurrency = "PGK"
+	PaymentSettlementCurrencyPhp PaymentSettlementCurrency = "PHP"
+	PaymentSettlementCurrencyPkr PaymentSettlementCurrency = "PKR"
+	PaymentSettlementCurrencyPln PaymentSettlementCurrency = "PLN"
+	PaymentSettlementCurrencyPyg PaymentSettlementCurrency = "PYG"
+	PaymentSettlementCurrencyQar PaymentSettlementCurrency = "QAR"
+	PaymentSettlementCurrencyRon PaymentSettlementCurrency = "RON"
+	PaymentSettlementCurrencyRsd PaymentSettlementCurrency = "RSD"
+	PaymentSettlementCurrencyRub PaymentSettlementCurrency = "RUB"
+	PaymentSettlementCurrencyRwf PaymentSettlementCurrency = "RWF"
+	PaymentSettlementCurrencySar PaymentSettlementCurrency = "SAR"
+	PaymentSettlementCurrencySbd PaymentSettlementCurrency = "SBD"
+	PaymentSettlementCurrencyScr PaymentSettlementCurrency = "SCR"
+	PaymentSettlementCurrencySek PaymentSettlementCurrency = "SEK"
+	PaymentSettlementCurrencySgd PaymentSettlementCurrency = "SGD"
+	PaymentSettlementCurrencyShp PaymentSettlementCurrency = "SHP"
+	PaymentSettlementCurrencySle PaymentSettlementCurrency = "SLE"
+	PaymentSettlementCurrencySll PaymentSettlementCurrency = "SLL"
+	PaymentSettlementCurrencySos PaymentSettlementCurrency = "SOS"
+	PaymentSettlementCurrencySrd PaymentSettlementCurrency = "SRD"
+	PaymentSettlementCurrencySsp PaymentSettlementCurrency = "SSP"
+	PaymentSettlementCurrencyStn PaymentSettlementCurrency = "STN"
+	PaymentSettlementCurrencySvc PaymentSettlementCurrency = "SVC"
+	PaymentSettlementCurrencySzl PaymentSettlementCurrency = "SZL"
+	PaymentSettlementCurrencyThb PaymentSettlementCurrency = "THB"
+	PaymentSettlementCurrencyTnd PaymentSettlementCurrency = "TND"
+	PaymentSettlementCurrencyTop PaymentSettlementCurrency = "TOP"
+	PaymentSettlementCurrencyTry PaymentSettlementCurrency = "TRY"
+	PaymentSettlementCurrencyTtd PaymentSettlementCurrency = "TTD"
+	PaymentSettlementCurrencyTwd PaymentSettlementCurrency = "TWD"
+	PaymentSettlementCurrencyTzs PaymentSettlementCurrency = "TZS"
+	PaymentSettlementCurrencyUah PaymentSettlementCurrency = "UAH"
+	PaymentSettlementCurrencyUgx PaymentSettlementCurrency = "UGX"
+	PaymentSettlementCurrencyUsd PaymentSettlementCurrency = "USD"
+	PaymentSettlementCurrencyUyu PaymentSettlementCurrency = "UYU"
+	PaymentSettlementCurrencyUzs PaymentSettlementCurrency = "UZS"
+	PaymentSettlementCurrencyVes PaymentSettlementCurrency = "VES"
+	PaymentSettlementCurrencyVnd PaymentSettlementCurrency = "VND"
+	PaymentSettlementCurrencyVuv PaymentSettlementCurrency = "VUV"
+	PaymentSettlementCurrencyWst PaymentSettlementCurrency = "WST"
+	PaymentSettlementCurrencyXaf PaymentSettlementCurrency = "XAF"
+	PaymentSettlementCurrencyXcd PaymentSettlementCurrency = "XCD"
+	PaymentSettlementCurrencyXof PaymentSettlementCurrency = "XOF"
+	PaymentSettlementCurrencyXpf PaymentSettlementCurrency = "XPF"
+	PaymentSettlementCurrencyYer PaymentSettlementCurrency = "YER"
+	PaymentSettlementCurrencyZar PaymentSettlementCurrency = "ZAR"
+	PaymentSettlementCurrencyZmw PaymentSettlementCurrency = "ZMW"
+)
+
+func (r PaymentSettlementCurrency) IsKnown() bool {
+	switch r {
+	case PaymentSettlementCurrencyAed, PaymentSettlementCurrencyAll, PaymentSettlementCurrencyAmd, PaymentSettlementCurrencyAng, PaymentSettlementCurrencyAoa, PaymentSettlementCurrencyArs, PaymentSettlementCurrencyAud, PaymentSettlementCurrencyAwg, PaymentSettlementCurrencyAzn, PaymentSettlementCurrencyBam, PaymentSettlementCurrencyBbd, PaymentSettlementCurrencyBdt, PaymentSettlementCurrencyBgn, PaymentSettlementCurrencyBhd, PaymentSettlementCurrencyBif, PaymentSettlementCurrencyBmd, PaymentSettlementCurrencyBnd, PaymentSettlementCurrencyBob, PaymentSettlementCurrencyBrl, PaymentSettlementCurrencyBsd, PaymentSettlementCurrencyBwp, PaymentSettlementCurrencyByn, PaymentSettlementCurrencyBzd, PaymentSettlementCurrencyCad, PaymentSettlementCurrencyChf, PaymentSettlementCurrencyClp, PaymentSettlementCurrencyCny, PaymentSettlementCurrencyCop, PaymentSettlementCurrencyCrc, PaymentSettlementCurrencyCup, PaymentSettlementCurrencyCve, PaymentSettlementCurrencyCzk, PaymentSettlementCurrencyDjf, PaymentSettlementCurrencyDkk, PaymentSettlementCurrencyDop, PaymentSettlementCurrencyDzd, PaymentSettlementCurrencyEgp, PaymentSettlementCurrencyEtb, PaymentSettlementCurrencyEur, PaymentSettlementCurrencyFjd, PaymentSettlementCurrencyFkp, PaymentSettlementCurrencyGbp, PaymentSettlementCurrencyGel, PaymentSettlementCurrencyGhs, PaymentSettlementCurrencyGip, PaymentSettlementCurrencyGmd, PaymentSettlementCurrencyGnf, PaymentSettlementCurrencyGtq, PaymentSettlementCurrencyGyd, PaymentSettlementCurrencyHkd, PaymentSettlementCurrencyHnl, PaymentSettlementCurrencyHrk, PaymentSettlementCurrencyHtg, PaymentSettlementCurrencyHuf, PaymentSettlementCurrencyIdr, PaymentSettlementCurrencyIls, PaymentSettlementCurrencyInr, PaymentSettlementCurrencyIqd, PaymentSettlementCurrencyJmd, PaymentSettlementCurrencyJod, PaymentSettlementCurrencyJpy, PaymentSettlementCurrencyKes, PaymentSettlementCurrencyKgs, PaymentSettlementCurrencyKhr, PaymentSettlementCurrencyKmf, PaymentSettlementCurrencyKrw, PaymentSettlementCurrencyKwd, PaymentSettlementCurrencyKyd, PaymentSettlementCurrencyKzt, PaymentSettlementCurrencyLak, PaymentSettlementCurrencyLbp, PaymentSettlementCurrencyLkr, PaymentSettlementCurrencyLrd, PaymentSettlementCurrencyLsl, PaymentSettlementCurrencyLyd, PaymentSettlementCurrencyMad, PaymentSettlementCurrencyMdl, PaymentSettlementCurrencyMga, PaymentSettlementCurrencyMkd, PaymentSettlementCurrencyMmk, PaymentSettlementCurrencyMnt, PaymentSettlementCurrencyMop, PaymentSettlementCurrencyMru, PaymentSettlementCurrencyMur, PaymentSettlementCurrencyMvr, PaymentSettlementCurrencyMwk, PaymentSettlementCurrencyMxn, PaymentSettlementCurrencyMyr, PaymentSettlementCurrencyMzn, PaymentSettlementCurrencyNad, PaymentSettlementCurrencyNgn, PaymentSettlementCurrencyNio, PaymentSettlementCurrencyNok, PaymentSettlementCurrencyNpr, PaymentSettlementCurrencyNzd, PaymentSettlementCurrencyOmr, PaymentSettlementCurrencyPab, PaymentSettlementCurrencyPen, PaymentSettlementCurrencyPgk, PaymentSettlementCurrencyPhp, PaymentSettlementCurrencyPkr, PaymentSettlementCurrencyPln, PaymentSettlementCurrencyPyg, PaymentSettlementCurrencyQar, PaymentSettlementCurrencyRon, PaymentSettlementCurrencyRsd, PaymentSettlementCurrencyRub, PaymentSettlementCurrencyRwf, PaymentSettlementCurrencySar, PaymentSettlementCurrencySbd, PaymentSettlementCurrencyScr, PaymentSettlementCurrencySek, PaymentSettlementCurrencySgd, PaymentSettlementCurrencyShp, PaymentSettlementCurrencySle, PaymentSettlementCurrencySll, PaymentSettlementCurrencySos, PaymentSettlementCurrencySrd, PaymentSettlementCurrencySsp, PaymentSettlementCurrencyStn, PaymentSettlementCurrencySvc, PaymentSettlementCurrencySzl, PaymentSettlementCurrencyThb, PaymentSettlementCurrencyTnd, PaymentSettlementCurrencyTop, PaymentSettlementCurrencyTry, PaymentSettlementCurrencyTtd, PaymentSettlementCurrencyTwd, PaymentSettlementCurrencyTzs, PaymentSettlementCurrencyUah, PaymentSettlementCurrencyUgx, PaymentSettlementCurrencyUsd, PaymentSettlementCurrencyUyu, PaymentSettlementCurrencyUzs, PaymentSettlementCurrencyVes, PaymentSettlementCurrencyVnd, PaymentSettlementCurrencyVuv, PaymentSettlementCurrencyWst, PaymentSettlementCurrencyXaf, PaymentSettlementCurrencyXcd, PaymentSettlementCurrencyXof, PaymentSettlementCurrencyXpf, PaymentSettlementCurrencyYer, PaymentSettlementCurrencyZar, PaymentSettlementCurrencyZmw:
 		return true
 	}
 	return false
