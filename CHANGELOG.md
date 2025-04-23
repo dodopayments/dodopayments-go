@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.18.0 (2025-04-23)
+
+Full Changelog: [v1.17.0...v1.18.0](https://github.com/dodopayments/dodopayments-go/compare/v1.17.0...v1.18.0)
+
+### Features
+
+* **api:** added change plan api ([680c698](https://github.com/dodopayments/dodopayments-go/commit/680c698c4e5a2bf90fdb74e953ac548667916ae2))
+* **api:** manual updates ([ff481c9](https://github.com/dodopayments/dodopayments-go/commit/ff481c94c1bcfc6dbd48de598bcd84ce26f57149))
+
+
+### Chores
+
+* **ci:** add timeout thresholds for CI jobs ([65dace7](https://github.com/dodopayments/dodopayments-go/commit/65dace711d0670213088c9ac0aeaa4ba545eaa92))
+
 ## 1.17.0 (2025-04-22)
 
 Full Changelog: [v1.16.1...v1.17.0](https://github.com/dodopayments/dodopayments-go/compare/v1.16.1...v1.17.0)
