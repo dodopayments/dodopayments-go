@@ -106,11 +106,14 @@ type Subscription struct {
 	Currency  SubscriptionCurrency   `json:"currency,required"`
 	Customer  CustomerLimitedDetails `json:"customer,required"`
 	Metadata  map[string]string      `json:"metadata,required"`
-	// Timestamp of the next scheduled billing
+	// Timestamp of the next scheduled billing. Indicates the end of current billing
+	// period
 	NextBillingDate time.Time `json:"next_billing_date,required" format:"date-time"`
 	// Number of payment frequency intervals
 	PaymentFrequencyCount    int64        `json:"payment_frequency_count,required"`
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
+	// Timestamp of the last payment. Indicates the start of current billing period
+	PreviousBillingDate time.Time `json:"previous_billing_date,required" format:"date-time"`
 	// Identifier of the product associated with this subscription
 	ProductID string `json:"product_id,required"`
 	// Number of units/items included in the subscription
@@ -145,6 +148,7 @@ type subscriptionJSON struct {
 	NextBillingDate            apijson.Field
 	PaymentFrequencyCount      apijson.Field
 	PaymentFrequencyInterval   apijson.Field
+	PreviousBillingDate        apijson.Field
 	ProductID                  apijson.Field
 	Quantity                   apijson.Field
 	RecurringPreTaxAmount      apijson.Field
