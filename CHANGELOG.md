@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.18.1 (2025-04-24)
+
+Full Changelog: [v1.18.0...v1.18.1](https://github.com/dodopayments/dodopayments-go/compare/v1.18.0...v1.18.1)
+
+### Chores
+
+* **ci:** only use depot for staging repos ([675733f](https://github.com/dodopayments/dodopayments-go/commit/675733f2a217e9f2cb6c11e5c5b02f579e176f17))
+* **internal:** codegen related update ([13d98e5](https://github.com/dodopayments/dodopayments-go/commit/13d98e58ae49b29df988eec666dcd932225afc48))
+
 ## 1.18.0 (2025-04-23)
 
 Full Changelog: [v1.17.0...v1.18.0](https://github.com/dodopayments/dodopayments-go/compare/v1.17.0...v1.18.0)
