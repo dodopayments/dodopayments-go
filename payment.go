@@ -302,7 +302,11 @@ type Payment struct {
 	PaymentMethodType string `json:"payment_method_type,nullable"`
 	// List of products purchased in a one-time payment
 	ProductCart []PaymentProductCart `json:"product_cart,nullable"`
-	Status      IntentStatus         `json:"status,nullable"`
+	// This represents the portion of settlement_amount that corresponds to taxes
+	// collected. Especially relevant for adaptive pricing where the tax component must
+	// be tracked separately in your Dodo balance.
+	SettlementTax int64        `json:"settlement_tax,nullable"`
+	Status        IntentStatus `json:"status,nullable"`
 	// Identifier of the subscription if payment is part of a subscription
 	SubscriptionID string `json:"subscription_id,nullable"`
 	// Amount of tax collected in smallest currency unit (e.g. cents)
@@ -331,6 +335,7 @@ type paymentJSON struct {
 	PaymentMethod      apijson.Field
 	PaymentMethodType  apijson.Field
 	ProductCart        apijson.Field
+	SettlementTax      apijson.Field
 	Status             apijson.Field
 	SubscriptionID     apijson.Field
 	Tax                apijson.Field
