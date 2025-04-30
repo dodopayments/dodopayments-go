@@ -109,6 +109,9 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 				Street:  dodopayments.F("street"),
 				Zipcode: dodopayments.F("zipcode"),
 			}),
+			DisableOnDemand: dodopayments.F(dodopayments.SubscriptionUpdateParamsDisableOnDemand{
+				NextBillingDate: dodopayments.F(time.Now()),
+			}),
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),

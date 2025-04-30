@@ -121,6 +121,8 @@ type Subscription struct {
 	// Timestamp of the next scheduled billing. Indicates the end of current billing
 	// period
 	NextBillingDate time.Time `json:"next_billing_date,required" format:"date-time"`
+	// Wether the subscription is on-demand or not
+	OnDemand bool `json:"on_demand,required"`
 	// Number of payment frequency intervals
 	PaymentFrequencyCount    int64        `json:"payment_frequency_count,required"`
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
@@ -158,6 +160,7 @@ type subscriptionJSON struct {
 	Customer                   apijson.Field
 	Metadata                   apijson.Field
 	NextBillingDate            apijson.Field
+	OnDemand                   apijson.Field
 	PaymentFrequencyCount      apijson.Field
 	PaymentFrequencyInterval   apijson.Field
 	PreviousBillingDate        apijson.Field
@@ -681,13 +684,22 @@ func (r SubscriptionNewParamsOnDemand) MarshalJSON() (data []byte, err error) {
 }
 
 type SubscriptionUpdateParams struct {
-	Billing  param.Field[BillingAddressParam] `json:"billing"`
-	Metadata param.Field[map[string]string]   `json:"metadata"`
-	Status   param.Field[SubscriptionStatus]  `json:"status"`
-	TaxID    param.Field[string]              `json:"tax_id"`
+	Billing         param.Field[BillingAddressParam]                     `json:"billing"`
+	DisableOnDemand param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
+	Metadata        param.Field[map[string]string]                       `json:"metadata"`
+	Status          param.Field[SubscriptionStatus]                      `json:"status"`
+	TaxID           param.Field[string]                                  `json:"tax_id"`
 }
 
 func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type SubscriptionUpdateParamsDisableOnDemand struct {
+	NextBillingDate param.Field[time.Time] `json:"next_billing_date,required" format:"date-time"`
+}
+
+func (r SubscriptionUpdateParamsDisableOnDemand) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
