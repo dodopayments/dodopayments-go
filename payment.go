@@ -269,6 +269,7 @@ func (r OneTimeProductCartItemParam) MarshalJSON() (data []byte, err error) {
 }
 
 type Payment struct {
+	Billing BillingAddress `json:"billing,required"`
 	// Identifier of the business associated with the payment
 	BusinessID string `json:"business_id,required"`
 	// Timestamp when the payment was created
@@ -318,6 +319,7 @@ type Payment struct {
 
 // paymentJSON contains the JSON metadata for the struct [Payment]
 type paymentJSON struct {
+	Billing            apijson.Field
 	BusinessID         apijson.Field
 	CreatedAt          apijson.Field
 	Currency           apijson.Field
