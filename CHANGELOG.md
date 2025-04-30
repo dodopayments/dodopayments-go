@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.19.0 (2025-04-30)
+
+Full Changelog: [v1.18.3...v1.19.0](https://github.com/dodopayments/dodopayments-go/compare/v1.18.3...v1.19.0)
+
+### Features
+
+* **api:** manual updates ([b39feb5](https://github.com/dodopayments/dodopayments-go/commit/b39feb55d041614f075715455434d3a3ad58680c))
+
+
+### Bug Fixes
+
+* handle empty bodies in WithJSONSet ([c4a512f](https://github.com/dodopayments/dodopayments-go/commit/c4a512f5e226afea4b2fb511e248e200be09f6cc))
+
 ## 1.18.3 (2025-04-25)
 
 Full Changelog: [v1.18.1...v1.18.3](https://github.com/dodopayments/dodopayments-go/compare/v1.18.1...v1.18.3)
