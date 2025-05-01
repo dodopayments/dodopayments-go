@@ -24,7 +24,7 @@ func TestUsage(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	payment, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
+	subscription, err := client.Subscriptions.New(context.TODO(), dodopayments.SubscriptionNewParams{
 		Billing: dodopayments.F(dodopayments.BillingAddressParam{
 			City:    dodopayments.F("city"),
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
@@ -35,14 +35,12 @@ func TestUsage(t *testing.T) {
 		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 			CustomerID: dodopayments.F("customer_id"),
 		}),
-		ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
-			ProductID: dodopayments.F("product_id"),
-			Quantity:  dodopayments.F(int64(0)),
-		}}),
+		ProductID: dodopayments.F("product_id"),
+		Quantity:  dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Logf("%+v\n", payment.PaymentID)
+	t.Logf("%+v\n", subscription.SubscriptionID)
 }
