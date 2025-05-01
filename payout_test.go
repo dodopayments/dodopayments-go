@@ -23,7 +23,7 @@ func TestPayoutListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Payouts.List(context.TODO(), dodopayments.PayoutListParams{
 		PageNumber: dodopayments.F(int64(0)),

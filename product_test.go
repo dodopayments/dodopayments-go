@@ -23,11 +23,11 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Products.New(context.TODO(), dodopayments.ProductNewParams{
 		Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
-			Currency:              dodopayments.F(dodopayments.PriceOneTimePriceCurrencyAed),
+			Currency:              dodopayments.F(dodopayments.CurrencyAed),
 			Discount:              dodopayments.F(0.000000),
 			Price:                 dodopayments.F(int64(0)),
 			PurchasingPowerParity: dodopayments.F(true),
@@ -36,7 +36,7 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 			SuggestedPrice:        dodopayments.F(int64(0)),
 			TaxInclusive:          dodopayments.F(true),
 		}),
-		TaxCategory:                 dodopayments.F(dodopayments.ProductNewParamsTaxCategoryDigitalProducts),
+		TaxCategory:                 dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
 		Addons:                      dodopayments.F([]string{"string"}),
 		Description:                 dodopayments.F("description"),
 		LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
@@ -67,7 +67,7 @@ func TestProductGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Products.Get(context.TODO(), "id")
 	if err != nil {
@@ -89,7 +89,7 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	err := client.Products.Update(
 		context.TODO(),
@@ -107,7 +107,7 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 			LicenseKeyEnabled: dodopayments.F(true),
 			Name:              dodopayments.F("name"),
 			Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
-				Currency:              dodopayments.F(dodopayments.PriceOneTimePriceCurrencyAed),
+				Currency:              dodopayments.F(dodopayments.CurrencyAed),
 				Discount:              dodopayments.F(0.000000),
 				Price:                 dodopayments.F(int64(0)),
 				PurchasingPowerParity: dodopayments.F(true),
@@ -116,7 +116,7 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 				SuggestedPrice:        dodopayments.F(int64(0)),
 				TaxInclusive:          dodopayments.F(true),
 			}),
-			TaxCategory: dodopayments.F(dodopayments.ProductUpdateParamsTaxCategoryDigitalProducts),
+			TaxCategory: dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
 		},
 	)
 	if err != nil {
@@ -138,7 +138,7 @@ func TestProductListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Products.List(context.TODO(), dodopayments.ProductListParams{
 		Archived:   dodopayments.F(true),
@@ -165,7 +165,7 @@ func TestProductDelete(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	err := client.Products.Delete(context.TODO(), "id")
 	if err != nil {
@@ -187,7 +187,7 @@ func TestProductUnarchive(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	err := client.Products.Unarchive(context.TODO(), "id")
 	if err != nil {
