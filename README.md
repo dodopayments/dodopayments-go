@@ -53,7 +53,7 @@ func main() {
 		option.WithAPIKey("My API Key"),  // defaults to os.LookupEnv("DODO_PAYMENTS_API_KEY")
 		option.WithEnvironmentTestMode(), // defaults to option.WithEnvironmentLiveMode()
 	)
-	subscription, err := client.Subscriptions.New(context.TODO(), dodopayments.SubscriptionNewParams{
+	payment, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.BillingAddressParam{
 			City:    dodopayments.F("city"),
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
@@ -64,13 +64,15 @@ func main() {
 		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 			CustomerID: dodopayments.F("customer_id"),
 		}),
-		ProductID: dodopayments.F("product_id"),
-		Quantity:  dodopayments.F(int64(0)),
+		ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
+			ProductID: dodopayments.F("product_id"),
+			Quantity:  dodopayments.F(int64(0)),
+		}}),
 	})
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v\n", subscription.SubscriptionID)
+	fmt.Printf("%+v\n", payment.PaymentID)
 }
 
 ```
