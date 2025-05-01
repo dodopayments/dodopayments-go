@@ -7,14 +7,13 @@ import (
 	"errors"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
 )
 
-func TestDiscountNewWithOptionalParams(t *testing.T) {
+func TestAddonNewWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -26,14 +25,12 @@ func TestDiscountNewWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Discounts.New(context.TODO(), dodopayments.DiscountNewParams{
-		Amount:       dodopayments.F(int64(0)),
-		Type:         dodopayments.F(dodopayments.DiscountTypePercentage),
-		Code:         dodopayments.F("code"),
-		ExpiresAt:    dodopayments.F(time.Now()),
-		Name:         dodopayments.F("name"),
-		RestrictedTo: dodopayments.F([]string{"string"}),
-		UsageLimit:   dodopayments.F(int64(0)),
+	_, err := client.Addons.New(context.TODO(), dodopayments.AddonNewParams{
+		Currency:    dodopayments.F(dodopayments.CurrencyAed),
+		Name:        dodopayments.F("name"),
+		Price:       dodopayments.F(int64(0)),
+		TaxCategory: dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
+		Description: dodopayments.F("description"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -44,7 +41,7 @@ func TestDiscountNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestDiscountGet(t *testing.T) {
+func TestAddonGet(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -56,7 +53,7 @@ func TestDiscountGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Discounts.Get(context.TODO(), "discount_id")
+	_, err := client.Addons.Get(context.TODO(), "id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -66,7 +63,7 @@ func TestDiscountGet(t *testing.T) {
 	}
 }
 
-func TestDiscountUpdateWithOptionalParams(t *testing.T) {
+func TestAddonUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -78,17 +75,16 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Discounts.Update(
+	_, err := client.Addons.Update(
 		context.TODO(),
-		"discount_id",
-		dodopayments.DiscountUpdateParams{
-			Amount:       dodopayments.F(int64(0)),
-			Code:         dodopayments.F("code"),
-			ExpiresAt:    dodopayments.F(time.Now()),
-			Name:         dodopayments.F("name"),
-			RestrictedTo: dodopayments.F([]string{"string"}),
-			Type:         dodopayments.F(dodopayments.DiscountTypePercentage),
-			UsageLimit:   dodopayments.F(int64(0)),
+		"id",
+		dodopayments.AddonUpdateParams{
+			Currency:    dodopayments.F(dodopayments.CurrencyAed),
+			Description: dodopayments.F("description"),
+			ImageID:     dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
+			Name:        dodopayments.F("name"),
+			Price:       dodopayments.F(int64(0)),
+			TaxCategory: dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
 		},
 	)
 	if err != nil {
@@ -100,7 +96,7 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestDiscountListWithOptionalParams(t *testing.T) {
+func TestAddonListWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -112,7 +108,7 @@ func TestDiscountListWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Discounts.List(context.TODO(), dodopayments.DiscountListParams{
+	_, err := client.Addons.List(context.TODO(), dodopayments.AddonListParams{
 		PageNumber: dodopayments.F(int64(0)),
 		PageSize:   dodopayments.F(int64(0)),
 	})
@@ -125,7 +121,7 @@ func TestDiscountListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestDiscountDelete(t *testing.T) {
+func TestAddonUpdateImages(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -137,7 +133,7 @@ func TestDiscountDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.Discounts.Delete(context.TODO(), "discount_id")
+	_, err := client.Addons.UpdateImages(context.TODO(), "id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
