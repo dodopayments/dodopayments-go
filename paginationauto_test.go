@@ -22,7 +22,7 @@ func TestAutoPagination(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	iter := client.Payments.ListAutoPaging(context.TODO(), dodopayments.PaymentListParams{})
 	// Prism mock isn't going to give us real pagination

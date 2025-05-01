@@ -30,6 +30,7 @@ type Client struct {
 	Products            *ProductService
 	Misc                *MiscService
 	Discounts           *DiscountService
+	Addons              *AddonService
 }
 
 // DefaultClientOptions read from the environment (DODO_PAYMENTS_API_KEY,
@@ -40,7 +41,7 @@ func DefaultClientOptions() []option.RequestOption {
 		defaults = append(defaults, option.WithBaseURL(o))
 	}
 	if o, ok := os.LookupEnv("DODO_PAYMENTS_API_KEY"); ok {
-		defaults = append(defaults, option.WithBearerToken(o))
+		defaults = append(defaults, option.WithAPIKey(o))
 	}
 	return defaults
 }
@@ -68,6 +69,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Products = NewProductService(opts...)
 	r.Misc = NewMiscService(opts...)
 	r.Discounts = NewDiscountService(opts...)
+	r.Addons = NewAddonService(opts...)
 
 	return
 }

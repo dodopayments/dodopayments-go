@@ -23,7 +23,7 @@ func TestCustomerCustomerPortalNewWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Customers.CustomerPortal.New(
 		context.TODO(),

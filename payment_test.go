@@ -24,7 +24,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.BillingAddressParam{
@@ -43,7 +43,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 			Amount:    dodopayments.F(int64(0)),
 		}}),
 		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentNewParamsAllowedPaymentMethodType{dodopayments.PaymentNewParamsAllowedPaymentMethodTypeCredit}),
-		BillingCurrency:           dodopayments.F(dodopayments.PaymentNewParamsBillingCurrencyAed),
+		BillingCurrency:           dodopayments.F(dodopayments.CurrencyAed),
 		DiscountCode:              dodopayments.F("discount_code"),
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
@@ -72,7 +72,7 @@ func TestPaymentGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Payments.Get(context.TODO(), "payment_id")
 	if err != nil {
@@ -94,7 +94,7 @@ func TestPaymentListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Payments.List(context.TODO(), dodopayments.PaymentListParams{
 		CreatedAtGte:   dodopayments.F(time.Now()),
