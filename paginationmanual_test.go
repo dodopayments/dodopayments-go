@@ -22,7 +22,7 @@ func TestManualPagination(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	page, err := client.Payments.List(context.TODO(), dodopayments.PaymentListParams{})
 	if err != nil {

@@ -24,7 +24,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.New(context.TODO(), dodopayments.SubscriptionNewParams{
 		Billing: dodopayments.F(dodopayments.BillingAddressParam{
@@ -78,7 +78,7 @@ func TestSubscriptionGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.Get(context.TODO(), "subscription_id")
 	if err != nil {
@@ -100,7 +100,7 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.Update(
 		context.TODO(),
@@ -142,7 +142,7 @@ func TestSubscriptionListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.List(context.TODO(), dodopayments.SubscriptionListParams{
 		CreatedAtGte: dodopayments.F(time.Now()),
@@ -171,7 +171,7 @@ func TestSubscriptionChangePlan(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	err := client.Subscriptions.ChangePlan(
 		context.TODO(),
@@ -201,7 +201,7 @@ func TestSubscriptionCharge(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.Charge(
 		context.TODO(),

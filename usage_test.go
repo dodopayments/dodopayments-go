@@ -22,7 +22,7 @@ func TestUsage(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	payment, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.BillingAddressParam{

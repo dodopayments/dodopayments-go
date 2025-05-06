@@ -24,7 +24,7 @@ func TestDisputeGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Disputes.Get(context.TODO(), "dispute_id")
 	if err != nil {
@@ -46,7 +46,7 @@ func TestDisputeListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Disputes.List(context.TODO(), dodopayments.DisputeListParams{
 		CreatedAtGte:  dodopayments.F(time.Now()),
