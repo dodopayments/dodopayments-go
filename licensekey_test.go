@@ -24,7 +24,7 @@ func TestLicenseKeyGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.LicenseKeys.Get(context.TODO(), "lic_123")
 	if err != nil {
@@ -46,7 +46,7 @@ func TestLicenseKeyUpdateWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.LicenseKeys.Update(
 		context.TODO(),
@@ -76,7 +76,7 @@ func TestLicenseKeyListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.LicenseKeys.List(context.TODO(), dodopayments.LicenseKeyListParams{
 		CustomerID: dodopayments.F("customer_id"),

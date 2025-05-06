@@ -23,7 +23,7 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Products.New(context.TODO(), dodopayments.ProductNewParams{
 		Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
@@ -67,7 +67,7 @@ func TestProductGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Products.Get(context.TODO(), "id")
 	if err != nil {
@@ -89,7 +89,7 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	err := client.Products.Update(
 		context.TODO(),
@@ -138,7 +138,7 @@ func TestProductListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Products.List(context.TODO(), dodopayments.ProductListParams{
 		Archived:   dodopayments.F(true),
@@ -165,7 +165,7 @@ func TestProductDelete(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	err := client.Products.Delete(context.TODO(), "id")
 	if err != nil {
@@ -187,7 +187,7 @@ func TestProductUnarchive(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	err := client.Products.Unarchive(context.TODO(), "id")
 	if err != nil {

@@ -23,7 +23,7 @@ func TestAddonNewWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Addons.New(context.TODO(), dodopayments.AddonNewParams{
 		Currency:    dodopayments.F(dodopayments.CurrencyAed),
@@ -51,7 +51,7 @@ func TestAddonGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Addons.Get(context.TODO(), "id")
 	if err != nil {
@@ -73,7 +73,7 @@ func TestAddonUpdateWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Addons.Update(
 		context.TODO(),
@@ -106,7 +106,7 @@ func TestAddonListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Addons.List(context.TODO(), dodopayments.AddonListParams{
 		PageNumber: dodopayments.F(int64(0)),
@@ -131,7 +131,7 @@ func TestAddonUpdateImages(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Addons.UpdateImages(context.TODO(), "id")
 	if err != nil {

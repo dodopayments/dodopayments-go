@@ -23,7 +23,7 @@ func TestLicenseActivate(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Licenses.Activate(context.TODO(), dodopayments.LicenseActivateParams{
 		LicenseKey: dodopayments.F("license_key"),
@@ -48,7 +48,7 @@ func TestLicenseDeactivate(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	err := client.Licenses.Deactivate(context.TODO(), dodopayments.LicenseDeactivateParams{
 		LicenseKey:           dodopayments.F("license_key"),
@@ -73,7 +73,7 @@ func TestLicenseValidateWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Licenses.Validate(context.TODO(), dodopayments.LicenseValidateParams{
 		LicenseKey:           dodopayments.F("2b1f8e2d-c41e-4e8f-b2d3-d9fd61c38f43"),

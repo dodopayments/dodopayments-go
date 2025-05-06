@@ -273,10 +273,10 @@ func WithEnvironmentTestMode() RequestOption {
 	return WithBaseURL("https://test.dodopayments.com/")
 }
 
-// WithAPIKey returns a RequestOption that sets the client setting "api_key".
-func WithAPIKey(value string) RequestOption {
+// WithBearerToken returns a RequestOption that sets the client setting "bearer_token".
+func WithBearerToken(value string) RequestOption {
 	return requestconfig.RequestOptionFunc(func(r *requestconfig.RequestConfig) error {
-		r.APIKey = value
-		return r.Apply(WithHeader("authorization", fmt.Sprintf("Bearer %s", r.APIKey)))
+		r.BearerToken = value
+		return r.Apply(WithHeader("authorization", fmt.Sprintf("Bearer %s", r.BearerToken)))
 	})
 }

@@ -23,7 +23,7 @@ func TestInvoicePaymentGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	err := client.Invoices.Payments.Get(context.TODO(), "payment_id")
 	if err != nil {

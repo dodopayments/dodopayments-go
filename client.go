@@ -41,7 +41,7 @@ func DefaultClientOptions() []option.RequestOption {
 		defaults = append(defaults, option.WithBaseURL(o))
 	}
 	if o, ok := os.LookupEnv("DODO_PAYMENTS_API_KEY"); ok {
-		defaults = append(defaults, option.WithAPIKey(o))
+		defaults = append(defaults, option.WithBearerToken(o))
 	}
 	return defaults
 }
