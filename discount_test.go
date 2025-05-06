@@ -24,7 +24,7 @@ func TestDiscountNewWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Discounts.New(context.TODO(), dodopayments.DiscountNewParams{
 		Amount:       dodopayments.F(int64(0)),
@@ -54,7 +54,7 @@ func TestDiscountGet(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Discounts.Get(context.TODO(), "discount_id")
 	if err != nil {
@@ -76,7 +76,7 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Discounts.Update(
 		context.TODO(),
@@ -110,7 +110,7 @@ func TestDiscountListWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Discounts.List(context.TODO(), dodopayments.DiscountListParams{
 		PageNumber: dodopayments.F(int64(0)),
@@ -135,7 +135,7 @@ func TestDiscountDelete(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	err := client.Discounts.Delete(context.TODO(), "discount_id")
 	if err != nil {

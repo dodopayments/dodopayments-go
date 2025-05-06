@@ -23,7 +23,7 @@ func TestProductImageUpdateWithOptionalParams(t *testing.T) {
 	}
 	client := dodopayments.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
+		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Products.Images.Update(
 		context.TODO(),
