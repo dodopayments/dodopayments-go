@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.22.0 (2025-05-09)
+
+Full Changelog: [v1.20.0...v1.22.0](https://github.com/dodopayments/dodopayments-go/compare/v1.20.0...v1.22.0)
+
+### Features
+
+* **api:** fixed api key schema to bearer ([8f68c28](https://github.com/dodopayments/dodopayments-go/commit/8f68c288629378a35ee4cc37ab1a001ed47ca3bb))
+* **api:** manual updates ([49fc0bc](https://github.com/dodopayments/dodopayments-go/commit/49fc0bcbd8baea3bf23e586e18b48c524e4eda1e))
+* **api:** updated openapi spec ([7a5f7e9](https://github.com/dodopayments/dodopayments-go/commit/7a5f7e96e1fc121b811992b4a72787c1bc6237e0))
+
+
+### Bug Fixes
+
+* **client:** clean up reader resources ([18f1eb1](https://github.com/dodopayments/dodopayments-go/commit/18f1eb1cc94554185add08b6512953d0f3b71ced))
+* **client:** correctly update body in WithJSONSet ([0791e69](https://github.com/dodopayments/dodopayments-go/commit/0791e69f6a3e4cfde4fa5e01319ec284bb405cdd))
+
+
+### Chores
+
+* **internal:** codegen related update ([7631a6e](https://github.com/dodopayments/dodopayments-go/commit/7631a6e94f8f4f91318215afbfacbb3e6c6740e3))
+
 ## 1.20.0 (2025-05-01)
 
 Full Changelog: [v1.19.0...v1.20.0](https://github.com/dodopayments/dodopayments-go/compare/v1.19.0...v1.20.0)
