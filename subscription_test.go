@@ -161,7 +161,7 @@ func TestSubscriptionListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestSubscriptionChangePlan(t *testing.T) {
+func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -180,6 +180,10 @@ func TestSubscriptionChangePlan(t *testing.T) {
 			ProductID:            dodopayments.F("product_id"),
 			ProrationBillingMode: dodopayments.F(dodopayments.SubscriptionChangePlanParamsProrationBillingModeProratedImmediately),
 			Quantity:             dodopayments.F(int64(0)),
+			Addons: dodopayments.F([]dodopayments.SubscriptionChangePlanParamsAddon{{
+				AddonID:  dodopayments.F("addon_id"),
+				Quantity: dodopayments.F(int64(0)),
+			}}),
 		},
 	)
 	if err != nil {

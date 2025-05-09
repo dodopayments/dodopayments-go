@@ -37,7 +37,7 @@ func NewDisputeService(opts ...option.RequestOption) (r *DisputeService) {
 	return
 }
 
-func (r *DisputeService) Get(ctx context.Context, disputeID string, opts ...option.RequestOption) (res *Dispute, err error) {
+func (r *DisputeService) Get(ctx context.Context, disputeID string, opts ...option.RequestOption) (res *DisputeGetResponse, err error) {
 	opts = append(r.Options[:], opts...)
 	if disputeID == "" {
 		err = errors.New("missing required dispute_id parameter")
@@ -48,7 +48,7 @@ func (r *DisputeService) Get(ctx context.Context, disputeID string, opts ...opti
 	return
 }
 
-func (r *DisputeService) List(ctx context.Context, query DisputeListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[Dispute], err error) {
+func (r *DisputeService) List(ctx context.Context, query DisputeListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[DisputeListResponse], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
@@ -65,7 +65,7 @@ func (r *DisputeService) List(ctx context.Context, query DisputeListParams, opts
 	return res, nil
 }
 
-func (r *DisputeService) ListAutoPaging(ctx context.Context, query DisputeListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[Dispute] {
+func (r *DisputeService) ListAutoPaging(ctx context.Context, query DisputeListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[DisputeListResponse] {
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
@@ -84,8 +84,10 @@ type Dispute struct {
 	DisputeStage  DisputeStage  `json:"dispute_stage,required"`
 	DisputeStatus DisputeStatus `json:"dispute_status,required"`
 	// The unique identifier of the payment associated with the dispute.
-	PaymentID string      `json:"payment_id,required"`
-	JSON      disputeJSON `json:"-"`
+	PaymentID string `json:"payment_id,required"`
+	// Remarks
+	Remarks string      `json:"remarks,nullable"`
+	JSON    disputeJSON `json:"-"`
 }
 
 // disputeJSON contains the JSON metadata for the struct [Dispute]
@@ -98,6 +100,7 @@ type disputeJSON struct {
 	DisputeStage  apijson.Field
 	DisputeStatus apijson.Field
 	PaymentID     apijson.Field
+	Remarks       apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -144,6 +147,98 @@ func (r DisputeStatus) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+type DisputeGetResponse struct {
+	// The amount involved in the dispute, represented as a string to accommodate
+	// precision.
+	Amount string `json:"amount,required"`
+	// The unique identifier of the business involved in the dispute.
+	BusinessID string `json:"business_id,required"`
+	// The timestamp of when the dispute was created, in UTC.
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// The currency of the disputed amount, represented as an ISO 4217 currency code.
+	Currency string                 `json:"currency,required"`
+	Customer CustomerLimitedDetails `json:"customer,required"`
+	// The unique identifier of the dispute.
+	DisputeID     string        `json:"dispute_id,required"`
+	DisputeStage  DisputeStage  `json:"dispute_stage,required"`
+	DisputeStatus DisputeStatus `json:"dispute_status,required"`
+	// The unique identifier of the payment associated with the dispute.
+	PaymentID string `json:"payment_id,required"`
+	// Reason for the dispute
+	Reason string `json:"reason,nullable"`
+	// Remarks
+	Remarks string                 `json:"remarks,nullable"`
+	JSON    disputeGetResponseJSON `json:"-"`
+}
+
+// disputeGetResponseJSON contains the JSON metadata for the struct
+// [DisputeGetResponse]
+type disputeGetResponseJSON struct {
+	Amount        apijson.Field
+	BusinessID    apijson.Field
+	CreatedAt     apijson.Field
+	Currency      apijson.Field
+	Customer      apijson.Field
+	DisputeID     apijson.Field
+	DisputeStage  apijson.Field
+	DisputeStatus apijson.Field
+	PaymentID     apijson.Field
+	Reason        apijson.Field
+	Remarks       apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *DisputeGetResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r disputeGetResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type DisputeListResponse struct {
+	// The amount involved in the dispute, represented as a string to accommodate
+	// precision.
+	Amount string `json:"amount,required"`
+	// The unique identifier of the business involved in the dispute.
+	BusinessID string `json:"business_id,required"`
+	// The timestamp of when the dispute was created, in UTC.
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// The currency of the disputed amount, represented as an ISO 4217 currency code.
+	Currency string `json:"currency,required"`
+	// The unique identifier of the dispute.
+	DisputeID     string        `json:"dispute_id,required"`
+	DisputeStage  DisputeStage  `json:"dispute_stage,required"`
+	DisputeStatus DisputeStatus `json:"dispute_status,required"`
+	// The unique identifier of the payment associated with the dispute.
+	PaymentID string                  `json:"payment_id,required"`
+	JSON      disputeListResponseJSON `json:"-"`
+}
+
+// disputeListResponseJSON contains the JSON metadata for the struct
+// [DisputeListResponse]
+type disputeListResponseJSON struct {
+	Amount        apijson.Field
+	BusinessID    apijson.Field
+	CreatedAt     apijson.Field
+	Currency      apijson.Field
+	DisputeID     apijson.Field
+	DisputeStage  apijson.Field
+	DisputeStatus apijson.Field
+	PaymentID     apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *DisputeListResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r disputeListResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type DisputeListParams struct {
