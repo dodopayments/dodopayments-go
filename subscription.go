@@ -535,6 +535,9 @@ type SubscriptionChangePlanParams struct {
 	ProrationBillingMode param.Field[SubscriptionChangePlanParamsProrationBillingMode] `json:"proration_billing_mode,required"`
 	// Number of units to subscribe for. Must be at least 1.
 	Quantity param.Field[int64] `json:"quantity,required"`
+	// Addons for the new plan. Note : Leaving this empty would remove any existing
+	// addons
+	Addons param.Field[[]SubscriptionChangePlanParamsAddon] `json:"addons"`
 }
 
 func (r SubscriptionChangePlanParams) MarshalJSON() (data []byte, err error) {
@@ -553,6 +556,15 @@ func (r SubscriptionChangePlanParamsProrationBillingMode) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+type SubscriptionChangePlanParamsAddon struct {
+	AddonID  param.Field[string] `json:"addon_id,required"`
+	Quantity param.Field[int64]  `json:"quantity,required"`
+}
+
+func (r SubscriptionChangePlanParamsAddon) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type SubscriptionChargeParams struct {

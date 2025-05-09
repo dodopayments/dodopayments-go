@@ -291,6 +291,14 @@ type Payment struct {
 	// Total amount charged to the customer including tax, in smallest currency unit
 	// (e.g. cents)
 	TotalAmount int64 `json:"total_amount,required"`
+	// ISO country code alpha2 variant
+	CardIssuingCountry CountryCode `json:"card_issuing_country,nullable"`
+	// The last four digits of the card
+	CardLastFour string `json:"card_last_four,nullable"`
+	// Card network like VISA, MASTERCARD etc.
+	CardNetwork string `json:"card_network,nullable"`
+	// The type of card DEBIT or CREDIT
+	CardType string `json:"card_type,nullable"`
 	// The discount id if discount is applied
 	DiscountID string `json:"discount_id,nullable"`
 	// An error message if the payment failed
@@ -331,6 +339,10 @@ type paymentJSON struct {
 	SettlementAmount   apijson.Field
 	SettlementCurrency apijson.Field
 	TotalAmount        apijson.Field
+	CardIssuingCountry apijson.Field
+	CardLastFour       apijson.Field
+	CardNetwork        apijson.Field
+	CardType           apijson.Field
 	DiscountID         apijson.Field
 	ErrorMessage       apijson.Field
 	PaymentLink        apijson.Field
