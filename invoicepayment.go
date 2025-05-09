@@ -31,14 +31,14 @@ func NewInvoicePaymentService(opts ...option.RequestOption) (r *InvoicePaymentSe
 	return
 }
 
-func (r *InvoicePaymentService) Get(ctx context.Context, paymentID string, opts ...option.RequestOption) (err error) {
+func (r *InvoicePaymentService) Get(ctx context.Context, paymentID string, opts ...option.RequestOption) (res *http.Response, err error) {
 	opts = append(r.Options[:], opts...)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
 	if paymentID == "" {
 		err = errors.New("missing required payment_id parameter")
 		return
 	}
 	path := fmt.Sprintf("invoices/payments/%s", paymentID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, nil, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
