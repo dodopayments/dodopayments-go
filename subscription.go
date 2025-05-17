@@ -570,7 +570,8 @@ func (r SubscriptionChangePlanParamsAddon) MarshalJSON() (data []byte, err error
 type SubscriptionChargeParams struct {
 	// The product price. Represented in the lowest denomination of the currency (e.g.,
 	// cents for USD). For example, to charge $1.00, pass `100`.
-	ProductPrice param.Field[int64] `json:"product_price,required"`
+	ProductPrice param.Field[int64]             `json:"product_price,required"`
+	Metadata     param.Field[map[string]string] `json:"metadata"`
 }
 
 func (r SubscriptionChargeParams) MarshalJSON() (data []byte, err error) {
