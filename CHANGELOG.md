@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.25.0 (2025-05-17)
+
+Full Changelog: [v1.22.0...v1.25.0](https://github.com/dodopayments/dodopayments-go/compare/v1.22.0...v1.25.0)
+
+### Features
+
+* **api:** updated openapi spec ([eefc5f8](https://github.com/dodopayments/dodopayments-go/commit/eefc5f8f4427820a399177f55554d3e787ae635b))
+* **client:** add support for endpoint-specific base URLs in python ([b27eaa8](https://github.com/dodopayments/dodopayments-go/commit/b27eaa81cec506e81092b6e70e5510759ea59f29))
+
 ## 1.22.0 (2025-05-09)
 
 Full Changelog: [v1.20.0...v1.22.0](https://github.com/dodopayments/dodopayments-go/compare/v1.20.0...v1.22.0)
