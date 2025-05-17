@@ -195,7 +195,7 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestSubscriptionCharge(t *testing.T) {
+func TestSubscriptionChargeWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -212,6 +212,9 @@ func TestSubscriptionCharge(t *testing.T) {
 		"subscription_id",
 		dodopayments.SubscriptionChargeParams{
 			ProductPrice: dodopayments.F(int64(0)),
+			Metadata: dodopayments.F(map[string]string{
+				"foo": "string",
+			}),
 		},
 	)
 	if err != nil {
