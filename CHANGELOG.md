@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.25.1 (2025-05-22)
+
+Full Changelog: [v1.25.0...v1.25.1](https://github.com/dodopayments/dodopayments-go/compare/v1.25.0...v1.25.1)
+
+### Chores
+
+* **docs:** grammar improvements ([e9a332c](https://github.com/dodopayments/dodopayments-go/commit/e9a332c0e20d69d0c3b93330188bb9a4ab68bc2e))
+* improve devcontainer setup ([112f5c2](https://github.com/dodopayments/dodopayments-go/commit/112f5c2bcb1913e34457968f2028004583399b41))
+
 ## 1.25.0 (2025-05-17)
 
 Full Changelog: [v1.22.0...v1.25.0](https://github.com/dodopayments/dodopayments-go/compare/v1.22.0...v1.25.0)
