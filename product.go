@@ -505,6 +505,7 @@ func (r PriceRecurringPriceParam) MarshalJSON() (data []byte, err error) {
 func (r PriceRecurringPriceParam) implementsPriceUnionParam() {}
 
 type Product struct {
+	BrandID string `json:"brand_id,required"`
 	// Unique identifier for the business to which the product belongs.
 	BusinessID string `json:"business_id,required"`
 	// Timestamp when the product was created.
@@ -539,6 +540,7 @@ type Product struct {
 
 // productJSON contains the JSON metadata for the struct [Product]
 type productJSON struct {
+	BrandID                     apijson.Field
 	BusinessID                  apijson.Field
 	CreatedAt                   apijson.Field
 	IsRecurring                 apijson.Field
@@ -639,6 +641,8 @@ type ProductNewParams struct {
 	TaxCategory param.Field[TaxCategory] `json:"tax_category,required"`
 	// Addons available for subscription product
 	Addons param.Field[[]string] `json:"addons"`
+	// Brand id for the product, if not provided will default to primary brand
+	BrandID param.Field[string] `json:"brand_id"`
 	// Optional description of the product
 	Description param.Field[string] `json:"description"`
 	// Optional message displayed during license key activation
@@ -658,7 +662,8 @@ func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
 
 type ProductUpdateParams struct {
 	// Available Addons for subscription products
-	Addons param.Field[[]string] `json:"addons"`
+	Addons  param.Field[[]string] `json:"addons"`
+	BrandID param.Field[string]   `json:"brand_id"`
 	// Description of the product, optional and must be at most 1000 characters.
 	Description param.Field[string] `json:"description"`
 	// Product image id after its uploaded to S3
@@ -694,6 +699,8 @@ func (r ProductUpdateParams) MarshalJSON() (data []byte, err error) {
 type ProductListParams struct {
 	// List archived products
 	Archived param.Field[bool] `query:"archived"`
+	// filter by Brand id
+	BrandID param.Field[string] `query:"brand_id"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
