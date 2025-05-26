@@ -256,6 +256,8 @@ type SubscriptionNewResponse struct {
 	Addons   []AddonCartResponseItem `json:"addons,required"`
 	Customer CustomerLimitedDetails  `json:"customer,required"`
 	Metadata map[string]string       `json:"metadata,required"`
+	// First payment id for the subscription
+	PaymentID string `json:"payment_id,required"`
 	// Tax will be added to the amount and charged to the customer on each billing
 	// cycle
 	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount,required"`
@@ -277,6 +279,7 @@ type subscriptionNewResponseJSON struct {
 	Addons                apijson.Field
 	Customer              apijson.Field
 	Metadata              apijson.Field
+	PaymentID             apijson.Field
 	RecurringPreTaxAmount apijson.Field
 	SubscriptionID        apijson.Field
 	ClientSecret          apijson.Field
@@ -507,6 +510,8 @@ func (r SubscriptionUpdateParamsDisableOnDemand) MarshalJSON() (data []byte, err
 }
 
 type SubscriptionListParams struct {
+	// filter by Brand id
+	BrandID param.Field[string] `query:"brand_id"`
 	// Get events after this created time
 	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
 	// Get events created before this time

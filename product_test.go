@@ -38,6 +38,7 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 		}),
 		TaxCategory:                 dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
 		Addons:                      dodopayments.F([]string{"string"}),
+		BrandID:                     dodopayments.F("brand_id"),
 		Description:                 dodopayments.F("description"),
 		LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
 		LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
@@ -96,6 +97,7 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 		"id",
 		dodopayments.ProductUpdateParams{
 			Addons:                      dodopayments.F([]string{"string"}),
+			BrandID:                     dodopayments.F("brand_id"),
 			Description:                 dodopayments.F("description"),
 			ImageID:                     dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 			LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
@@ -142,6 +144,7 @@ func TestProductListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Products.List(context.TODO(), dodopayments.ProductListParams{
 		Archived:   dodopayments.F(true),
+		BrandID:    dodopayments.F("brand_id"),
 		PageNumber: dodopayments.F(int64(0)),
 		PageSize:   dodopayments.F(int64(0)),
 		Recurring:  dodopayments.F(true),

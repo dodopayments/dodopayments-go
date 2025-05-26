@@ -97,6 +97,7 @@ func TestPaymentListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Payments.List(context.TODO(), dodopayments.PaymentListParams{
+		BrandID:        dodopayments.F("brand_id"),
 		CreatedAtGte:   dodopayments.F(time.Now()),
 		CreatedAtLte:   dodopayments.F(time.Now()),
 		CustomerID:     dodopayments.F("customer_id"),
@@ -105,6 +106,28 @@ func TestPaymentListWithOptionalParams(t *testing.T) {
 		Status:         dodopayments.F(dodopayments.IntentStatusSucceeded),
 		SubscriptionID: dodopayments.F("subscription_id"),
 	})
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestPaymentGetLineItems(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Payments.GetLineItems(context.TODO(), "payment_id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
