@@ -145,6 +145,7 @@ func TestSubscriptionListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.List(context.TODO(), dodopayments.SubscriptionListParams{
+		BrandID:      dodopayments.F("brand_id"),
 		CreatedAtGte: dodopayments.F(time.Now()),
 		CreatedAtLte: dodopayments.F(time.Now()),
 		CustomerID:   dodopayments.F("customer_id"),

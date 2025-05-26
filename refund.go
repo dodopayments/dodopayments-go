@@ -81,6 +81,8 @@ type Refund struct {
 	BusinessID string `json:"business_id,required"`
 	// The timestamp of when the refund was created in UTC.
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// If true the refund is a partial refund
+	IsPartial bool `json:"is_partial,required"`
 	// The unique identifier of the payment associated with the refund.
 	PaymentID string `json:"payment_id,required"`
 	// The unique identifier of the refund.
@@ -98,6 +100,7 @@ type Refund struct {
 type refundJSON struct {
 	BusinessID  apijson.Field
 	CreatedAt   apijson.Field
+	IsPartial   apijson.Field
 	PaymentID   apijson.Field
 	RefundID    apijson.Field
 	Status      apijson.Field
@@ -136,11 +139,26 @@ func (r RefundStatus) IsKnown() bool {
 type RefundNewParams struct {
 	// The unique identifier of the payment to be refunded.
 	PaymentID param.Field[string] `json:"payment_id,required"`
+	// Partially Refund an Individual Item
+	Items param.Field[[]RefundNewParamsItem] `json:"items"`
 	// The reason for the refund, if any. Maximum length is 3000 characters. Optional.
 	Reason param.Field[string] `json:"reason"`
 }
 
 func (r RefundNewParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type RefundNewParamsItem struct {
+	// The id of the item (i.e. `product_id` or `addon_id`)
+	ItemID param.Field[string] `json:"item_id,required"`
+	// The amount to refund. if None the whole item is refunded
+	Amount param.Field[int64] `json:"amount"`
+	// Specify if tax is inclusive of the refund. Default true.
+	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
+}
+
+func (r RefundNewParamsItem) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 

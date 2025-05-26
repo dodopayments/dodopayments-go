@@ -76,6 +76,17 @@ func (r *PaymentService) ListAutoPaging(ctx context.Context, query PaymentListPa
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
+func (r *PaymentService) GetLineItems(ctx context.Context, paymentID string, opts ...option.RequestOption) (res *PaymentGetLineItemsResponse, err error) {
+	opts = append(r.Options[:], opts...)
+	if paymentID == "" {
+		err = errors.New("missing required payment_id parameter")
+		return
+	}
+	path := fmt.Sprintf("payments/%s/line-items", paymentID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
 type AttachExistingCustomerParam struct {
 	CustomerID param.Field[string] `json:"customer_id,required"`
 }
@@ -270,6 +281,8 @@ func (r OneTimeProductCartItemParam) MarshalJSON() (data []byte, err error) {
 
 type Payment struct {
 	Billing BillingAddress `json:"billing,required"`
+	// brand id this payment belongs to
+	BrandID string `json:"brand_id,required"`
 	// Identifier of the business associated with the payment
 	BusinessID string `json:"business_id,required"`
 	// Timestamp when the payment was created
@@ -328,6 +341,7 @@ type Payment struct {
 // paymentJSON contains the JSON metadata for the struct [Payment]
 type paymentJSON struct {
 	Billing            apijson.Field
+	BrandID            apijson.Field
 	BusinessID         apijson.Field
 	CreatedAt          apijson.Field
 	Currency           apijson.Field
@@ -432,6 +446,7 @@ func (r paymentNewResponseJSON) RawJSON() string {
 }
 
 type PaymentListResponse struct {
+	BrandID           string                  `json:"brand_id,required"`
 	CreatedAt         time.Time               `json:"created_at,required" format:"date-time"`
 	Currency          Currency                `json:"currency,required"`
 	Customer          CustomerLimitedDetails  `json:"customer,required"`
@@ -448,6 +463,7 @@ type PaymentListResponse struct {
 // paymentListResponseJSON contains the JSON metadata for the struct
 // [PaymentListResponse]
 type paymentListResponseJSON struct {
+	BrandID           apijson.Field
 	CreatedAt         apijson.Field
 	Currency          apijson.Field
 	Customer          apijson.Field
@@ -467,6 +483,58 @@ func (r *PaymentListResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r paymentListResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type PaymentGetLineItemsResponse struct {
+	Currency Currency                          `json:"currency,required"`
+	Items    []PaymentGetLineItemsResponseItem `json:"items,required"`
+	JSON     paymentGetLineItemsResponseJSON   `json:"-"`
+}
+
+// paymentGetLineItemsResponseJSON contains the JSON metadata for the struct
+// [PaymentGetLineItemsResponse]
+type paymentGetLineItemsResponseJSON struct {
+	Currency    apijson.Field
+	Items       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PaymentGetLineItemsResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentGetLineItemsResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type PaymentGetLineItemsResponseItem struct {
+	Amount      int64                               `json:"amount,required"`
+	ItemsID     string                              `json:"items_id,required"`
+	Tax         int64                               `json:"tax,required"`
+	Description string                              `json:"description,nullable"`
+	Name        string                              `json:"name,nullable"`
+	JSON        paymentGetLineItemsResponseItemJSON `json:"-"`
+}
+
+// paymentGetLineItemsResponseItemJSON contains the JSON metadata for the struct
+// [PaymentGetLineItemsResponseItem]
+type paymentGetLineItemsResponseItemJSON struct {
+	Amount      apijson.Field
+	ItemsID     apijson.Field
+	Tax         apijson.Field
+	Description apijson.Field
+	Name        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PaymentGetLineItemsResponseItem) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentGetLineItemsResponseItemJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -534,6 +602,8 @@ func (r PaymentNewParamsAllowedPaymentMethodType) IsKnown() bool {
 }
 
 type PaymentListParams struct {
+	// filter by Brand id
+	BrandID param.Field[string] `query:"brand_id"`
 	// Get events after this created time
 	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
 	// Get events created before this time
