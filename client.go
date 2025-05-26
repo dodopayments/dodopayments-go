@@ -31,6 +31,7 @@ type Client struct {
 	Misc                *MiscService
 	Discounts           *DiscountService
 	Addons              *AddonService
+	Brands              *BrandService
 }
 
 // DefaultClientOptions read from the environment (DODO_PAYMENTS_API_KEY,
@@ -70,6 +71,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Misc = NewMiscService(opts...)
 	r.Discounts = NewDiscountService(opts...)
 	r.Addons = NewAddonService(opts...)
+	r.Brands = NewBrandService(opts...)
 
 	return
 }
