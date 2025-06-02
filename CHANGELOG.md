@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.30.0 (2025-06-02)
+
+Full Changelog: [v1.27.0...v1.30.0](https://github.com/dodopayments/dodopayments-go/compare/v1.27.0...v1.30.0)
+
+### Features
+
+* **api:** manual updates ([cd3ac15](https://github.com/dodopayments/dodopayments-go/commit/cd3ac15f6f4fd293580224f076c989515402bfbe))
+
+
+### Chores
+
+* make go mod tidy continue on error ([377ec0c](https://github.com/dodopayments/dodopayments-go/commit/377ec0cff8b734bd626a36f7c37e9b6ede76978f))
+
 ## 1.27.0 (2025-05-26)
 
 Full Changelog: [v1.25.0...v1.27.0](https://github.com/dodopayments/dodopayments-go/compare/v1.25.0...v1.27.0)
