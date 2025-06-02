@@ -87,7 +87,7 @@ func (r *SubscriptionService) ListAutoPaging(ctx context.Context, query Subscrip
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
-func (r *SubscriptionService) ChangePlan(ctx context.Context, subscriptionID string, body SubscriptionChangePlanParams, opts ...option.RequestOption) (err error) {
+func (r *SubscriptionService) ChangePlan(ctx context.Context, subscriptionID string, opts ...option.RequestOption) (err error) {
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if subscriptionID == "" {
@@ -95,7 +95,7 @@ func (r *SubscriptionService) ChangePlan(ctx context.Context, subscriptionID str
 		return
 	}
 	path := fmt.Sprintf("subscriptions/%s/change-plan", subscriptionID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, nil, opts...)
 	return
 }
 
@@ -532,44 +532,6 @@ func (r SubscriptionListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
-}
-
-type SubscriptionChangePlanParams struct {
-	// Unique identifier of the product to subscribe to
-	ProductID            param.Field[string]                                           `json:"product_id,required"`
-	ProrationBillingMode param.Field[SubscriptionChangePlanParamsProrationBillingMode] `json:"proration_billing_mode,required"`
-	// Number of units to subscribe for. Must be at least 1.
-	Quantity param.Field[int64] `json:"quantity,required"`
-	// Addons for the new plan. Note : Leaving this empty would remove any existing
-	// addons
-	Addons param.Field[[]SubscriptionChangePlanParamsAddon] `json:"addons"`
-}
-
-func (r SubscriptionChangePlanParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type SubscriptionChangePlanParamsProrationBillingMode string
-
-const (
-	SubscriptionChangePlanParamsProrationBillingModeProratedImmediately SubscriptionChangePlanParamsProrationBillingMode = "prorated_immediately"
-)
-
-func (r SubscriptionChangePlanParamsProrationBillingMode) IsKnown() bool {
-	switch r {
-	case SubscriptionChangePlanParamsProrationBillingModeProratedImmediately:
-		return true
-	}
-	return false
-}
-
-type SubscriptionChangePlanParamsAddon struct {
-	AddonID  param.Field[string] `json:"addon_id,required"`
-	Quantity param.Field[int64]  `json:"quantity,required"`
-}
-
-func (r SubscriptionChangePlanParamsAddon) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 type SubscriptionChargeParams struct {

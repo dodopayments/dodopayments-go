@@ -57,14 +57,14 @@ func (r *CustomerService) Get(ctx context.Context, customerID string, opts ...op
 	return
 }
 
-func (r *CustomerService) Update(ctx context.Context, customerID string, body CustomerUpdateParams, opts ...option.RequestOption) (res *Customer, err error) {
+func (r *CustomerService) Update(ctx context.Context, customerID string, opts ...option.RequestOption) (res *Customer, err error) {
 	opts = append(r.Options[:], opts...)
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
 		return
 	}
 	path := fmt.Sprintf("customers/%s", customerID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, nil, &res, opts...)
 	return
 }
 
@@ -147,15 +147,6 @@ type CustomerNewParams struct {
 }
 
 func (r CustomerNewParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type CustomerUpdateParams struct {
-	Name        param.Field[string] `json:"name"`
-	PhoneNumber param.Field[string] `json:"phone_number"`
-}
-
-func (r CustomerUpdateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
