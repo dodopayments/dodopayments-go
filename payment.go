@@ -314,6 +314,8 @@ type Payment struct {
 	CardType string `json:"card_type,nullable"`
 	// The discount id if discount is applied
 	DiscountID string `json:"discount_id,nullable"`
+	// An error code if the payment failed
+	ErrorCode string `json:"error_code,nullable"`
 	// An error message if the payment failed
 	ErrorMessage string `json:"error_message,nullable"`
 	// Checkout URL
@@ -358,6 +360,7 @@ type paymentJSON struct {
 	CardNetwork        apijson.Field
 	CardType           apijson.Field
 	DiscountID         apijson.Field
+	ErrorCode          apijson.Field
 	ErrorMessage       apijson.Field
 	PaymentLink        apijson.Field
 	PaymentMethod      apijson.Field
