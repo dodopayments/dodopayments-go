@@ -61,7 +61,7 @@ func TestCustomerGet(t *testing.T) {
 	}
 }
 
-func TestCustomerUpdateWithOptionalParams(t *testing.T) {
+func TestCustomerUpdate(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -73,14 +73,7 @@ func TestCustomerUpdateWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.Update(
-		context.TODO(),
-		"customer_id",
-		dodopayments.CustomerUpdateParams{
-			Name:        dodopayments.F("name"),
-			PhoneNumber: dodopayments.F("phone_number"),
-		},
-	)
+	_, err := client.Customers.Update(context.TODO(), "customer_id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
