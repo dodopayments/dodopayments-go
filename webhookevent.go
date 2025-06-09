@@ -116,6 +116,8 @@ type WebhookEventListParams struct {
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
+	// Filter by webhook destination
+	WebhookID param.Field[string] `query:"webhook_id"`
 }
 
 // URLQuery serializes [WebhookEventListParams]'s query parameters as `url.Values`.
