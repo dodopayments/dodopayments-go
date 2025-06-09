@@ -113,6 +113,7 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 				Street:  dodopayments.F("street"),
 				Zipcode: dodopayments.F("zipcode"),
 			}),
+			CancelAtNextBillingDate: dodopayments.F(true),
 			DisableOnDemand: dodopayments.F(dodopayments.SubscriptionUpdateParamsDisableOnDemand{
 				NextBillingDate: dodopayments.F(time.Now()),
 			}),

@@ -139,6 +139,8 @@ type Subscription struct {
 	// Addons associated with this subscription
 	Addons  []AddonCartResponseItem `json:"addons,required"`
 	Billing BillingAddress          `json:"billing,required"`
+	// Indicates if the subscription will cancel at the next billing date
+	CancelAtNextBillingDate bool `json:"cancel_at_next_billing_date,required"`
 	// Timestamp when the subscription was created
 	CreatedAt time.Time              `json:"created_at,required" format:"date-time"`
 	Currency  Currency               `json:"currency,required"`
@@ -182,6 +184,7 @@ type Subscription struct {
 type subscriptionJSON struct {
 	Addons                     apijson.Field
 	Billing                    apijson.Field
+	CancelAtNextBillingDate    apijson.Field
 	CreatedAt                  apijson.Field
 	Currency                   apijson.Field
 	Customer                   apijson.Field
@@ -300,6 +303,8 @@ func (r subscriptionNewResponseJSON) RawJSON() string {
 // Response struct representing subscription details
 type SubscriptionListResponse struct {
 	Billing BillingAddress `json:"billing,required"`
+	// Indicates if the subscription will cancel at the next billing date
+	CancelAtNextBillingDate bool `json:"cancel_at_next_billing_date,required"`
 	// Timestamp when the subscription was created
 	CreatedAt time.Time              `json:"created_at,required" format:"date-time"`
 	Currency  Currency               `json:"currency,required"`
@@ -343,6 +348,7 @@ type SubscriptionListResponse struct {
 // [SubscriptionListResponse]
 type subscriptionListResponseJSON struct {
 	Billing                    apijson.Field
+	CancelAtNextBillingDate    apijson.Field
 	CreatedAt                  apijson.Field
 	Currency                   apijson.Field
 	Customer                   apijson.Field
@@ -490,11 +496,12 @@ func (r SubscriptionNewParamsOnDemand) MarshalJSON() (data []byte, err error) {
 }
 
 type SubscriptionUpdateParams struct {
-	Billing         param.Field[BillingAddressParam]                     `json:"billing"`
-	DisableOnDemand param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
-	Metadata        param.Field[map[string]string]                       `json:"metadata"`
-	Status          param.Field[SubscriptionStatus]                      `json:"status"`
-	TaxID           param.Field[string]                                  `json:"tax_id"`
+	Billing                 param.Field[BillingAddressParam]                     `json:"billing"`
+	CancelAtNextBillingDate param.Field[bool]                                    `json:"cancel_at_next_billing_date"`
+	DisableOnDemand         param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
+	Metadata                param.Field[map[string]string]                       `json:"metadata"`
+	Status                  param.Field[SubscriptionStatus]                      `json:"status"`
+	TaxID                   param.Field[string]                                  `json:"tax_id"`
 }
 
 func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {
