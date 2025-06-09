@@ -55,6 +55,7 @@ func TestWebhookEventListWithOptionalParams(t *testing.T) {
 		ObjectID:     dodopayments.F("object_id"),
 		PageNumber:   dodopayments.F(int64(0)),
 		PageSize:     dodopayments.F(int64(0)),
+		WebhookID:    dodopayments.F("webhook_id"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
