@@ -289,6 +289,8 @@ type Payment struct {
 	CreatedAt time.Time              `json:"created_at,required" format:"date-time"`
 	Currency  Currency               `json:"currency,required"`
 	Customer  CustomerLimitedDetails `json:"customer,required"`
+	// brand id this payment belongs to
+	DigitalProductsDelivered bool `json:"digital_products_delivered,required"`
 	// List of disputes associated with this payment
 	Disputes []Dispute         `json:"disputes,required"`
 	Metadata map[string]string `json:"metadata,required"`
@@ -342,37 +344,38 @@ type Payment struct {
 
 // paymentJSON contains the JSON metadata for the struct [Payment]
 type paymentJSON struct {
-	Billing            apijson.Field
-	BrandID            apijson.Field
-	BusinessID         apijson.Field
-	CreatedAt          apijson.Field
-	Currency           apijson.Field
-	Customer           apijson.Field
-	Disputes           apijson.Field
-	Metadata           apijson.Field
-	PaymentID          apijson.Field
-	Refunds            apijson.Field
-	SettlementAmount   apijson.Field
-	SettlementCurrency apijson.Field
-	TotalAmount        apijson.Field
-	CardIssuingCountry apijson.Field
-	CardLastFour       apijson.Field
-	CardNetwork        apijson.Field
-	CardType           apijson.Field
-	DiscountID         apijson.Field
-	ErrorCode          apijson.Field
-	ErrorMessage       apijson.Field
-	PaymentLink        apijson.Field
-	PaymentMethod      apijson.Field
-	PaymentMethodType  apijson.Field
-	ProductCart        apijson.Field
-	SettlementTax      apijson.Field
-	Status             apijson.Field
-	SubscriptionID     apijson.Field
-	Tax                apijson.Field
-	UpdatedAt          apijson.Field
-	raw                string
-	ExtraFields        map[string]apijson.Field
+	Billing                  apijson.Field
+	BrandID                  apijson.Field
+	BusinessID               apijson.Field
+	CreatedAt                apijson.Field
+	Currency                 apijson.Field
+	Customer                 apijson.Field
+	DigitalProductsDelivered apijson.Field
+	Disputes                 apijson.Field
+	Metadata                 apijson.Field
+	PaymentID                apijson.Field
+	Refunds                  apijson.Field
+	SettlementAmount         apijson.Field
+	SettlementCurrency       apijson.Field
+	TotalAmount              apijson.Field
+	CardIssuingCountry       apijson.Field
+	CardLastFour             apijson.Field
+	CardNetwork              apijson.Field
+	CardType                 apijson.Field
+	DiscountID               apijson.Field
+	ErrorCode                apijson.Field
+	ErrorMessage             apijson.Field
+	PaymentLink              apijson.Field
+	PaymentMethod            apijson.Field
+	PaymentMethodType        apijson.Field
+	ProductCart              apijson.Field
+	SettlementTax            apijson.Field
+	Status                   apijson.Field
+	SubscriptionID           apijson.Field
+	Tax                      apijson.Field
+	UpdatedAt                apijson.Field
+	raw                      string
+	ExtraFields              map[string]apijson.Field
 }
 
 func (r *Payment) UnmarshalJSON(data []byte) (err error) {
@@ -449,36 +452,38 @@ func (r paymentNewResponseJSON) RawJSON() string {
 }
 
 type PaymentListResponse struct {
-	BrandID           string                  `json:"brand_id,required"`
-	CreatedAt         time.Time               `json:"created_at,required" format:"date-time"`
-	Currency          Currency                `json:"currency,required"`
-	Customer          CustomerLimitedDetails  `json:"customer,required"`
-	Metadata          map[string]string       `json:"metadata,required"`
-	PaymentID         string                  `json:"payment_id,required"`
-	TotalAmount       int64                   `json:"total_amount,required"`
-	PaymentMethod     string                  `json:"payment_method,nullable"`
-	PaymentMethodType string                  `json:"payment_method_type,nullable"`
-	Status            IntentStatus            `json:"status,nullable"`
-	SubscriptionID    string                  `json:"subscription_id,nullable"`
-	JSON              paymentListResponseJSON `json:"-"`
+	BrandID                  string                  `json:"brand_id,required"`
+	CreatedAt                time.Time               `json:"created_at,required" format:"date-time"`
+	Currency                 Currency                `json:"currency,required"`
+	Customer                 CustomerLimitedDetails  `json:"customer,required"`
+	DigitalProductsDelivered bool                    `json:"digital_products_delivered,required"`
+	Metadata                 map[string]string       `json:"metadata,required"`
+	PaymentID                string                  `json:"payment_id,required"`
+	TotalAmount              int64                   `json:"total_amount,required"`
+	PaymentMethod            string                  `json:"payment_method,nullable"`
+	PaymentMethodType        string                  `json:"payment_method_type,nullable"`
+	Status                   IntentStatus            `json:"status,nullable"`
+	SubscriptionID           string                  `json:"subscription_id,nullable"`
+	JSON                     paymentListResponseJSON `json:"-"`
 }
 
 // paymentListResponseJSON contains the JSON metadata for the struct
 // [PaymentListResponse]
 type paymentListResponseJSON struct {
-	BrandID           apijson.Field
-	CreatedAt         apijson.Field
-	Currency          apijson.Field
-	Customer          apijson.Field
-	Metadata          apijson.Field
-	PaymentID         apijson.Field
-	TotalAmount       apijson.Field
-	PaymentMethod     apijson.Field
-	PaymentMethodType apijson.Field
-	Status            apijson.Field
-	SubscriptionID    apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
+	BrandID                  apijson.Field
+	CreatedAt                apijson.Field
+	Currency                 apijson.Field
+	Customer                 apijson.Field
+	DigitalProductsDelivered apijson.Field
+	Metadata                 apijson.Field
+	PaymentID                apijson.Field
+	TotalAmount              apijson.Field
+	PaymentMethod            apijson.Field
+	PaymentMethodType        apijson.Field
+	Status                   apijson.Field
+	SubscriptionID           apijson.Field
+	raw                      string
+	ExtraFields              map[string]apijson.Field
 }
 
 func (r *PaymentListResponse) UnmarshalJSON(data []byte) (err error) {
