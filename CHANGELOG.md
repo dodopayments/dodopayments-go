@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.34.0 (2025-06-18)
+
+Full Changelog: [v1.32.0...v1.34.0](https://github.com/dodopayments/dodopayments-go/compare/v1.32.0...v1.34.0)
+
+### Features
+
+* **api:** updated to version 1.34.0 ([5d11342](https://github.com/dodopayments/dodopayments-go/commit/5d11342e2f69e292141166f5ce8ca0ac592c2826))
+* **client:** add debug log helper ([3dc8c47](https://github.com/dodopayments/dodopayments-go/commit/3dc8c47637fb9f0940375b4764fbffdd4557a087))
+
+
+### Chores
+
+* **ci:** enable for pull requests ([99a67e6](https://github.com/dodopayments/dodopayments-go/commit/99a67e6a049b9bade204c9043d0bf03430b8835f))
+
 ## 1.32.0 (2025-06-09)
 
 Full Changelog: [v1.30.2...v1.32.0](https://github.com/dodopayments/dodopayments-go/compare/v1.30.2...v1.32.0)
