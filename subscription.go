@@ -560,11 +560,12 @@ type SubscriptionChangePlanParamsProrationBillingMode string
 
 const (
 	SubscriptionChangePlanParamsProrationBillingModeProratedImmediately SubscriptionChangePlanParamsProrationBillingMode = "prorated_immediately"
+	SubscriptionChangePlanParamsProrationBillingModeFullImmediately     SubscriptionChangePlanParamsProrationBillingMode = "full_immediately"
 )
 
 func (r SubscriptionChangePlanParamsProrationBillingMode) IsKnown() bool {
 	switch r {
-	case SubscriptionChangePlanParamsProrationBillingModeProratedImmediately:
+	case SubscriptionChangePlanParamsProrationBillingModeProratedImmediately, SubscriptionChangePlanParamsProrationBillingModeFullImmediately:
 		return true
 	}
 	return false
