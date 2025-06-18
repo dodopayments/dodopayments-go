@@ -36,10 +36,14 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 			SuggestedPrice:        dodopayments.F(int64(0)),
 			TaxInclusive:          dodopayments.F(true),
 		}),
-		TaxCategory:                 dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
-		Addons:                      dodopayments.F([]string{"string"}),
-		BrandID:                     dodopayments.F("brand_id"),
-		Description:                 dodopayments.F("description"),
+		TaxCategory: dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
+		Addons:      dodopayments.F([]string{"string"}),
+		BrandID:     dodopayments.F("brand_id"),
+		Description: dodopayments.F("description"),
+		DigitalProductDelivery: dodopayments.F(dodopayments.ProductNewParamsDigitalProductDelivery{
+			ExternalURL:  dodopayments.F("external_url"),
+			Instructions: dodopayments.F("instructions"),
+		}),
 		LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
 		LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
 		LicenseKeyDuration: dodopayments.F(dodopayments.LicenseKeyDurationParam{
@@ -96,9 +100,14 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.ProductUpdateParams{
-			Addons:                      dodopayments.F([]string{"string"}),
-			BrandID:                     dodopayments.F("brand_id"),
-			Description:                 dodopayments.F("description"),
+			Addons:      dodopayments.F([]string{"string"}),
+			BrandID:     dodopayments.F("brand_id"),
+			Description: dodopayments.F("description"),
+			DigitalProductDelivery: dodopayments.F(dodopayments.ProductUpdateParamsDigitalProductDelivery{
+				ExternalURL:  dodopayments.F("external_url"),
+				Files:        dodopayments.F([]string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"}),
+				Instructions: dodopayments.F("instructions"),
+			}),
 			ImageID:                     dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 			LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
 			LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
@@ -193,6 +202,34 @@ func TestProductUnarchive(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	err := client.Products.Unarchive(context.TODO(), "id")
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestProductUpdateFiles(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Products.UpdateFiles(
+		context.TODO(),
+		"id",
+		dodopayments.ProductUpdateFilesParams{
+			FileName: dodopayments.F("file_name"),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

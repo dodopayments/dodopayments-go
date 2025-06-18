@@ -116,6 +116,17 @@ func (r *ProductService) Unarchive(ctx context.Context, id string, opts ...optio
 	return
 }
 
+func (r *ProductService) UpdateFiles(ctx context.Context, id string, body ProductUpdateFilesParams, opts ...option.RequestOption) (res *ProductUpdateFilesResponse, err error) {
+	opts = append(r.Options[:], opts...)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return
+	}
+	path := fmt.Sprintf("products/%s/files", id)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
+	return
+}
+
 type LicenseKeyDuration struct {
 	Count    int64                  `json:"count,required"`
 	Interval TimeInterval           `json:"interval,required"`
@@ -525,7 +536,8 @@ type Product struct {
 	// Available Addons for subscription products
 	Addons []string `json:"addons,nullable"`
 	// Description of the product, optional.
-	Description string `json:"description,nullable"`
+	Description            string                        `json:"description,nullable"`
+	DigitalProductDelivery ProductDigitalProductDelivery `json:"digital_product_delivery,nullable"`
 	// URL of the product image, optional.
 	Image string `json:"image,nullable"`
 	// Message sent upon license key activation, if applicable.
@@ -551,6 +563,7 @@ type productJSON struct {
 	UpdatedAt                   apijson.Field
 	Addons                      apijson.Field
 	Description                 apijson.Field
+	DigitalProductDelivery      apijson.Field
 	Image                       apijson.Field
 	LicenseKeyActivationMessage apijson.Field
 	LicenseKeyActivationsLimit  apijson.Field
@@ -565,6 +578,59 @@ func (r *Product) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r productJSON) RawJSON() string {
+	return r.raw
+}
+
+type ProductDigitalProductDelivery struct {
+	// External URL to digital product
+	ExternalURL string `json:"external_url,nullable"`
+	// Uploaded files ids of digital product
+	Files []ProductDigitalProductDeliveryFile `json:"files,nullable"`
+	// Instructions to download and use the digital product
+	Instructions string                            `json:"instructions,nullable"`
+	JSON         productDigitalProductDeliveryJSON `json:"-"`
+}
+
+// productDigitalProductDeliveryJSON contains the JSON metadata for the struct
+// [ProductDigitalProductDelivery]
+type productDigitalProductDeliveryJSON struct {
+	ExternalURL  apijson.Field
+	Files        apijson.Field
+	Instructions apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *ProductDigitalProductDelivery) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productDigitalProductDeliveryJSON) RawJSON() string {
+	return r.raw
+}
+
+type ProductDigitalProductDeliveryFile struct {
+	FileID   string                                `json:"file_id,required" format:"uuid"`
+	FileName string                                `json:"file_name,required"`
+	URL      string                                `json:"url,required"`
+	JSON     productDigitalProductDeliveryFileJSON `json:"-"`
+}
+
+// productDigitalProductDeliveryFileJSON contains the JSON metadata for the struct
+// [ProductDigitalProductDeliveryFile]
+type productDigitalProductDeliveryFileJSON struct {
+	FileID      apijson.Field
+	FileName    apijson.Field
+	URL         apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductDigitalProductDeliveryFile) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productDigitalProductDeliveryFileJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -634,6 +700,29 @@ func (r productListResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type ProductUpdateFilesResponse struct {
+	FileID string                         `json:"file_id,required" format:"uuid"`
+	URL    string                         `json:"url,required"`
+	JSON   productUpdateFilesResponseJSON `json:"-"`
+}
+
+// productUpdateFilesResponseJSON contains the JSON metadata for the struct
+// [ProductUpdateFilesResponse]
+type productUpdateFilesResponseJSON struct {
+	FileID      apijson.Field
+	URL         apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductUpdateFilesResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productUpdateFilesResponseJSON) RawJSON() string {
+	return r.raw
+}
+
 type ProductNewParams struct {
 	Price param.Field[PriceUnionParam] `json:"price,required"`
 	// Represents the different categories of taxation applicable to various products
@@ -644,7 +733,8 @@ type ProductNewParams struct {
 	// Brand id for the product, if not provided will default to primary brand
 	BrandID param.Field[string] `json:"brand_id"`
 	// Optional description of the product
-	Description param.Field[string] `json:"description"`
+	Description            param.Field[string]                                 `json:"description"`
+	DigitalProductDelivery param.Field[ProductNewParamsDigitalProductDelivery] `json:"digital_product_delivery"`
 	// Optional message displayed during license key activation
 	LicenseKeyActivationMessage param.Field[string] `json:"license_key_activation_message"`
 	// The number of times the license key can be activated. Must be 0 or greater
@@ -660,12 +750,24 @@ func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type ProductNewParamsDigitalProductDelivery struct {
+	// External URL to digital product
+	ExternalURL param.Field[string] `json:"external_url"`
+	// Instructions to download and use the digital product
+	Instructions param.Field[string] `json:"instructions"`
+}
+
+func (r ProductNewParamsDigitalProductDelivery) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type ProductUpdateParams struct {
 	// Available Addons for subscription products
 	Addons  param.Field[[]string] `json:"addons"`
 	BrandID param.Field[string]   `json:"brand_id"`
 	// Description of the product, optional and must be at most 1000 characters.
-	Description param.Field[string] `json:"description"`
+	Description            param.Field[string]                                    `json:"description"`
+	DigitalProductDelivery param.Field[ProductUpdateParamsDigitalProductDelivery] `json:"digital_product_delivery"`
 	// Product image id after its uploaded to S3
 	ImageID param.Field[string] `json:"image_id" format:"uuid"`
 	// Message sent to the customer upon license key activation.
@@ -696,6 +798,19 @@ func (r ProductUpdateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type ProductUpdateParamsDigitalProductDelivery struct {
+	// External URL to digital product
+	ExternalURL param.Field[string] `json:"external_url"`
+	// Uploaded files ids of digital product
+	Files param.Field[[]string] `json:"files" format:"uuid"`
+	// Instructions to download and use the digital product
+	Instructions param.Field[string] `json:"instructions"`
+}
+
+func (r ProductUpdateParamsDigitalProductDelivery) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type ProductListParams struct {
 	// List archived products
 	Archived param.Field[bool] `query:"archived"`
@@ -719,4 +834,12 @@ func (r ProductListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type ProductUpdateFilesParams struct {
+	FileName param.Field[string] `json:"file_name,required"`
+}
+
+func (r ProductUpdateFilesParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
