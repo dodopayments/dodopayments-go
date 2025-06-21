@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.34.1 (2025-06-21)
+
+Full Changelog: [v1.34.0...v1.34.1](https://github.com/dodopayments/dodopayments-go/compare/v1.34.0...v1.34.1)
+
 ## 1.34.0 (2025-06-18)
 
 Full Changelog: [v1.32.0...v1.34.0](https://github.com/dodopayments/dodopayments-go/compare/v1.32.0...v1.34.0)
