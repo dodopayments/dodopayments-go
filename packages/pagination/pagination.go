@@ -39,6 +39,9 @@ func (r defaultPageNumberPaginationJSON) RawJSON() string {
 // there is no next page, this function will return a 'nil' for the page value, but
 // will not return an error
 func (r *DefaultPageNumberPagination[T]) GetNextPage() (res *DefaultPageNumberPagination[T], err error) {
+	if len(r.Items) == 0 {
+		return nil, nil
+	}
 	u := r.cfg.Request.URL
 	currentPage, err := strconv.ParseInt(u.Query().Get("page_number"), 10, 64)
 	if err != nil {
