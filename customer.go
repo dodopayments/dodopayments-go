@@ -160,6 +160,8 @@ func (r CustomerUpdateParams) MarshalJSON() (data []byte, err error) {
 }
 
 type CustomerListParams struct {
+	// Filter by customer email
+	Email param.Field[string] `query:"email"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100

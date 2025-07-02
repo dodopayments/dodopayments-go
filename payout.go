@@ -65,7 +65,8 @@ type PayoutListResponse struct {
 	Chargebacks int64 `json:"chargebacks,required"`
 	// The timestamp when the payout was created, in UTC.
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
-	Currency  Currency  `json:"currency,required"`
+	// The currency of the payout, represented as an ISO 4217 currency code.
+	Currency Currency `json:"currency,required"`
 	// The fee charged for processing the payout.
 	Fee int64 `json:"fee,required"`
 	// The payment method used for the payout (e.g., bank transfer, card, etc.).
@@ -73,8 +74,9 @@ type PayoutListResponse struct {
 	// The unique identifier of the payout.
 	PayoutID string `json:"payout_id,required"`
 	// The total value of refunds associated with the payout.
-	Refunds int64                    `json:"refunds,required"`
-	Status  PayoutListResponseStatus `json:"status,required"`
+	Refunds int64 `json:"refunds,required"`
+	// The current status of the payout.
+	Status PayoutListResponseStatus `json:"status,required"`
 	// The tax applied to the payout.
 	Tax int64 `json:"tax,required"`
 	// The timestamp when the payout was last updated, in UTC.
@@ -118,6 +120,7 @@ func (r payoutListResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+// The current status of the payout.
 type PayoutListResponseStatus string
 
 const (

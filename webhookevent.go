@@ -37,6 +37,7 @@ func NewWebhookEventService(opts ...option.RequestOption) (r *WebhookEventServic
 	return
 }
 
+// Deprecated: deprecated
 func (r *WebhookEventService) Get(ctx context.Context, webhookEventID string, opts ...option.RequestOption) (res *WebhookEvent, err error) {
 	opts = append(r.Options[:], opts...)
 	if webhookEventID == "" {
@@ -116,6 +117,8 @@ type WebhookEventListParams struct {
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
+	// Filter by webhook event id
+	WebhookEventID param.Field[string] `query:"webhook_event_id"`
 	// Filter by webhook destination
 	WebhookID param.Field[string] `query:"webhook_id"`
 }
