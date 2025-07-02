@@ -100,7 +100,7 @@ func (r AttachExistingCustomerParam) implementsCustomerRequestUnionParam() {}
 type BillingAddress struct {
 	// City name
 	City string `json:"city,required"`
-	// ISO country code alpha2 variant
+	// Two-letter ISO country code (ISO 3166-1 alpha-2)
 	Country CountryCode `json:"country,required"`
 	// State or province name
 	State string `json:"state,required"`
@@ -133,7 +133,7 @@ func (r billingAddressJSON) RawJSON() string {
 type BillingAddressParam struct {
 	// City name
 	City param.Field[string] `json:"city,required"`
-	// ISO country code alpha2 variant
+	// Two-letter ISO country code (ISO 3166-1 alpha-2)
 	Country param.Field[CountryCode] `json:"country,required"`
 	// State or province name
 	State param.Field[string] `json:"state,required"`
@@ -280,19 +280,23 @@ func (r OneTimeProductCartItemParam) MarshalJSON() (data []byte, err error) {
 }
 
 type Payment struct {
+	// Billing address details for payments
 	Billing BillingAddress `json:"billing,required"`
 	// brand id this payment belongs to
 	BrandID string `json:"brand_id,required"`
 	// Identifier of the business associated with the payment
 	BusinessID string `json:"business_id,required"`
 	// Timestamp when the payment was created
-	CreatedAt time.Time              `json:"created_at,required" format:"date-time"`
-	Currency  Currency               `json:"currency,required"`
-	Customer  CustomerLimitedDetails `json:"customer,required"`
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// Currency used for the payment
+	Currency Currency `json:"currency,required"`
+	// Details about the customer who made the payment
+	Customer CustomerLimitedDetails `json:"customer,required"`
 	// brand id this payment belongs to
 	DigitalProductsDelivered bool `json:"digital_products_delivered,required"`
 	// List of disputes associated with this payment
-	Disputes []Dispute         `json:"disputes,required"`
+	Disputes []Dispute `json:"disputes,required"`
+	// Additional custom data associated with the payment
 	Metadata map[string]string `json:"metadata,required"`
 	// Unique identifier for the payment
 	PaymentID string `json:"payment_id,required"`
@@ -301,12 +305,15 @@ type Payment struct {
 	// The amount that will be credited to your Dodo balance after currency conversion
 	// and processing. Especially relevant for adaptive pricing where the customer's
 	// payment currency differs from your settlement currency.
-	SettlementAmount   int64    `json:"settlement_amount,required"`
+	SettlementAmount int64 `json:"settlement_amount,required"`
+	// The currency in which the settlement_amount will be credited to your Dodo
+	// balance. This may differ from the customer's payment currency in adaptive
+	// pricing scenarios.
 	SettlementCurrency Currency `json:"settlement_currency,required"`
 	// Total amount charged to the customer including tax, in smallest currency unit
 	// (e.g. cents)
 	TotalAmount int64 `json:"total_amount,required"`
-	// ISO country code alpha2 variant
+	// ISO2 country code of the card
 	CardIssuingCountry CountryCode `json:"card_issuing_country,nullable"`
 	// The last four digits of the card
 	CardLastFour string `json:"card_last_four,nullable"`
@@ -331,8 +338,9 @@ type Payment struct {
 	// This represents the portion of settlement_amount that corresponds to taxes
 	// collected. Especially relevant for adaptive pricing where the tax component must
 	// be tracked separately in your Dodo balance.
-	SettlementTax int64        `json:"settlement_tax,nullable"`
-	Status        IntentStatus `json:"status,nullable"`
+	SettlementTax int64 `json:"settlement_tax,nullable"`
+	// Current status of the payment intent
+	Status IntentStatus `json:"status,nullable"`
 	// Identifier of the subscription if payment is part of a subscription
 	SubscriptionID string `json:"subscription_id,nullable"`
 	// Amount of tax collected in smallest currency unit (e.g. cents)
@@ -412,15 +420,19 @@ func (r paymentProductCartJSON) RawJSON() string {
 type PaymentNewResponse struct {
 	// Client secret used to load Dodo checkout SDK NOTE : Dodo checkout SDK will be
 	// coming soon
-	ClientSecret string                 `json:"client_secret,required"`
-	Customer     CustomerLimitedDetails `json:"customer,required"`
-	Metadata     map[string]string      `json:"metadata,required"`
+	ClientSecret string `json:"client_secret,required"`
+	// Limited details about the customer making the payment
+	Customer CustomerLimitedDetails `json:"customer,required"`
+	// Additional metadata associated with the payment
+	Metadata map[string]string `json:"metadata,required"`
 	// Unique identifier for the payment
 	PaymentID string `json:"payment_id,required"`
 	// Total amount of the payment in smallest currency unit (e.g. cents)
 	TotalAmount int64 `json:"total_amount,required"`
 	// The discount id if discount is applied
 	DiscountID string `json:"discount_id,nullable"`
+	// Expiry timestamp of the payment link
+	ExpiresOn time.Time `json:"expires_on,nullable" format:"date-time"`
 	// Optional URL to a hosted payment page
 	PaymentLink string `json:"payment_link,nullable"`
 	// Optional list of products included in the payment
@@ -437,6 +449,7 @@ type paymentNewResponseJSON struct {
 	PaymentID    apijson.Field
 	TotalAmount  apijson.Field
 	DiscountID   apijson.Field
+	ExpiresOn    apijson.Field
 	PaymentLink  apijson.Field
 	ProductCart  apijson.Field
 	raw          string
@@ -547,7 +560,9 @@ func (r paymentGetLineItemsResponseItemJSON) RawJSON() string {
 }
 
 type PaymentNewParams struct {
-	Billing  param.Field[BillingAddressParam]       `json:"billing,required"`
+	// Billing address details for the payment
+	Billing param.Field[BillingAddressParam] `json:"billing,required"`
+	// Customer information for the payment
 	Customer param.Field[CustomerRequestUnionParam] `json:"customer,required"`
 	// List of products in the cart. Must contain at least 1 and at most 100 items.
 	ProductCart param.Field[[]OneTimeProductCartItemParam] `json:"product_cart,required"`
@@ -558,10 +573,14 @@ type PaymentNewParams struct {
 	// Availability still depends on other factors (e.g., customer location, merchant
 	// settings).
 	AllowedPaymentMethodTypes param.Field[[]PaymentNewParamsAllowedPaymentMethodType] `json:"allowed_payment_method_types"`
-	BillingCurrency           param.Field[Currency]                                   `json:"billing_currency"`
+	// Fix the currency in which the end customer is billed. If Dodo Payments cannot
+	// support that currency for this transaction, it will not proceed
+	BillingCurrency param.Field[Currency] `json:"billing_currency"`
 	// Discount Code to apply to the transaction
-	DiscountCode param.Field[string]            `json:"discount_code"`
-	Metadata     param.Field[map[string]string] `json:"metadata"`
+	DiscountCode param.Field[string] `json:"discount_code"`
+	// Additional metadata associated with the payment. Defaults to empty if not
+	// provided.
+	Metadata param.Field[map[string]string] `json:"metadata"`
 	// Whether to generate a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional URL to redirect the customer after payment. Must be a valid URL if
@@ -623,7 +642,7 @@ type PaymentListParams struct {
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
 	// Filter by status
-	Status param.Field[IntentStatus] `query:"status"`
+	Status param.Field[PaymentListParamsStatus] `query:"status"`
 	// Filter by subscription id
 	SubscriptionID param.Field[string] `query:"subscription_id"`
 }
@@ -634,4 +653,29 @@ func (r PaymentListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Filter by status
+type PaymentListParamsStatus string
+
+const (
+	PaymentListParamsStatusSucceeded                      PaymentListParamsStatus = "succeeded"
+	PaymentListParamsStatusFailed                         PaymentListParamsStatus = "failed"
+	PaymentListParamsStatusCancelled                      PaymentListParamsStatus = "cancelled"
+	PaymentListParamsStatusProcessing                     PaymentListParamsStatus = "processing"
+	PaymentListParamsStatusRequiresCustomerAction         PaymentListParamsStatus = "requires_customer_action"
+	PaymentListParamsStatusRequiresMerchantAction         PaymentListParamsStatus = "requires_merchant_action"
+	PaymentListParamsStatusRequiresPaymentMethod          PaymentListParamsStatus = "requires_payment_method"
+	PaymentListParamsStatusRequiresConfirmation           PaymentListParamsStatus = "requires_confirmation"
+	PaymentListParamsStatusRequiresCapture                PaymentListParamsStatus = "requires_capture"
+	PaymentListParamsStatusPartiallyCaptured              PaymentListParamsStatus = "partially_captured"
+	PaymentListParamsStatusPartiallyCapturedAndCapturable PaymentListParamsStatus = "partially_captured_and_capturable"
+)
+
+func (r PaymentListParamsStatus) IsKnown() bool {
+	switch r {
+	case PaymentListParamsStatusSucceeded, PaymentListParamsStatusFailed, PaymentListParamsStatusCancelled, PaymentListParamsStatusProcessing, PaymentListParamsStatusRequiresCustomerAction, PaymentListParamsStatusRequiresMerchantAction, PaymentListParamsStatusRequiresPaymentMethod, PaymentListParamsStatusRequiresConfirmation, PaymentListParamsStatusRequiresCapture, PaymentListParamsStatusPartiallyCaptured, PaymentListParamsStatusPartiallyCapturedAndCapturable:
+		return true
+	}
+	return false
 }

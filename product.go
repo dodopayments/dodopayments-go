@@ -159,7 +159,9 @@ func (r LicenseKeyDurationParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+// One-time price details.
 type Price struct {
+	// The currency in which the payment is made.
 	Currency Currency `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount float64 `json:"discount,required"`
@@ -178,11 +180,13 @@ type Price struct {
 	PayWhatYouWant bool `json:"pay_what_you_want"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
-	PaymentFrequencyCount    int64        `json:"payment_frequency_count"`
+	PaymentFrequencyCount int64 `json:"payment_frequency_count"`
+	// The time interval for the payment frequency (e.g., day, month, year).
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
-	SubscriptionPeriodCount    int64        `json:"subscription_period_count"`
+	SubscriptionPeriodCount int64 `json:"subscription_period_count"`
+	// The time interval for the subscription period (e.g., day, month, year).
 	SubscriptionPeriodInterval TimeInterval `json:"subscription_period_interval"`
 	// A suggested price for the user to pay. This value is only considered if
 	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
@@ -237,6 +241,8 @@ func (r Price) AsUnion() PriceUnion {
 	return r.union
 }
 
+// One-time price details.
+//
 // Union satisfied by [PriceOneTimePrice] or [PriceRecurringPrice].
 type PriceUnion interface {
 	implementsPrice()
@@ -245,21 +251,21 @@ type PriceUnion interface {
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*PriceUnion)(nil)).Elem(),
-		"type",
+		"",
 		apijson.UnionVariant{
-			TypeFilter:         gjson.JSON,
-			Type:               reflect.TypeOf(PriceOneTimePrice{}),
-			DiscriminatorValue: "one_time_price",
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(PriceOneTimePrice{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter:         gjson.JSON,
-			Type:               reflect.TypeOf(PriceRecurringPrice{}),
-			DiscriminatorValue: "recurring_price",
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(PriceRecurringPrice{}),
 		},
 	)
 }
 
+// One-time price details.
 type PriceOneTimePrice struct {
+	// The currency in which the payment is made.
 	Currency Currency `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount float64 `json:"discount,required"`
@@ -324,13 +330,16 @@ func (r PriceOneTimePriceType) IsKnown() bool {
 	return false
 }
 
+// Recurring price details.
 type PriceRecurringPrice struct {
+	// The currency in which the payment is made.
 	Currency Currency `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount float64 `json:"discount,required"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
-	PaymentFrequencyCount    int64        `json:"payment_frequency_count,required"`
+	PaymentFrequencyCount int64 `json:"payment_frequency_count,required"`
+	// The time interval for the payment frequency (e.g., day, month, year).
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
 	// The payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
@@ -340,7 +349,8 @@ type PriceRecurringPrice struct {
 	PurchasingPowerParity bool `json:"purchasing_power_parity,required"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
-	SubscriptionPeriodCount    int64                   `json:"subscription_period_count,required"`
+	SubscriptionPeriodCount int64 `json:"subscription_period_count,required"`
+	// The time interval for the subscription period (e.g., day, month, year).
 	SubscriptionPeriodInterval TimeInterval            `json:"subscription_period_interval,required"`
 	Type                       PriceRecurringPriceType `json:"type,required"`
 	// Indicates if the price is tax inclusive
@@ -407,7 +417,9 @@ func (r PriceType) IsKnown() bool {
 	return false
 }
 
+// One-time price details.
 type PriceParam struct {
+	// The currency in which the payment is made.
 	Currency param.Field[Currency] `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount param.Field[float64] `json:"discount,required"`
@@ -426,11 +438,13 @@ type PriceParam struct {
 	PayWhatYouWant param.Field[bool] `json:"pay_what_you_want"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
-	PaymentFrequencyCount    param.Field[int64]        `json:"payment_frequency_count"`
+	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count"`
+	// The time interval for the payment frequency (e.g., day, month, year).
 	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
-	SubscriptionPeriodCount    param.Field[int64]        `json:"subscription_period_count"`
+	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count"`
+	// The time interval for the subscription period (e.g., day, month, year).
 	SubscriptionPeriodInterval param.Field[TimeInterval] `json:"subscription_period_interval"`
 	// A suggested price for the user to pay. This value is only considered if
 	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
@@ -448,12 +462,16 @@ func (r PriceParam) MarshalJSON() (data []byte, err error) {
 
 func (r PriceParam) implementsPriceUnionParam() {}
 
+// One-time price details.
+//
 // Satisfied by [PriceOneTimePriceParam], [PriceRecurringPriceParam], [PriceParam].
 type PriceUnionParam interface {
 	implementsPriceUnionParam()
 }
 
+// One-time price details.
 type PriceOneTimePriceParam struct {
+	// The currency in which the payment is made.
 	Currency param.Field[Currency] `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount param.Field[float64] `json:"discount,required"`
@@ -484,13 +502,16 @@ func (r PriceOneTimePriceParam) MarshalJSON() (data []byte, err error) {
 
 func (r PriceOneTimePriceParam) implementsPriceUnionParam() {}
 
+// Recurring price details.
 type PriceRecurringPriceParam struct {
+	// The currency in which the payment is made.
 	Currency param.Field[Currency] `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
 	Discount param.Field[float64] `json:"discount,required"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
-	PaymentFrequencyCount    param.Field[int64]        `json:"payment_frequency_count,required"`
+	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count,required"`
+	// The time interval for the payment frequency (e.g., day, month, year).
 	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval,required"`
 	// The payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
@@ -500,7 +521,8 @@ type PriceRecurringPriceParam struct {
 	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity,required"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
-	SubscriptionPeriodCount    param.Field[int64]                   `json:"subscription_period_count,required"`
+	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count,required"`
+	// The time interval for the subscription period (e.g., day, month, year).
 	SubscriptionPeriodInterval param.Field[TimeInterval]            `json:"subscription_period_interval,required"`
 	Type                       param.Field[PriceRecurringPriceType] `json:"type,required"`
 	// Indicates if the price is tax inclusive
@@ -524,12 +546,12 @@ type Product struct {
 	// Indicates if the product is recurring (e.g., subscriptions).
 	IsRecurring bool `json:"is_recurring,required"`
 	// Indicates whether the product requires a license key.
-	LicenseKeyEnabled bool  `json:"license_key_enabled,required"`
-	Price             Price `json:"price,required"`
+	LicenseKeyEnabled bool `json:"license_key_enabled,required"`
+	// Pricing information for the product.
+	Price Price `json:"price,required"`
 	// Unique identifier for the product.
 	ProductID string `json:"product_id,required"`
-	// Represents the different categories of taxation applicable to various products
-	// and services.
+	// Tax category associated with the product.
 	TaxCategory TaxCategory `json:"tax_category,required"`
 	// Timestamp when the product was last updated.
 	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
@@ -543,8 +565,9 @@ type Product struct {
 	// Message sent upon license key activation, if applicable.
 	LicenseKeyActivationMessage string `json:"license_key_activation_message,nullable"`
 	// Limit on the number of activations for the license key, if enabled.
-	LicenseKeyActivationsLimit int64              `json:"license_key_activations_limit,nullable"`
-	LicenseKeyDuration         LicenseKeyDuration `json:"license_key_duration,nullable"`
+	LicenseKeyActivationsLimit int64 `json:"license_key_activations_limit,nullable"`
+	// Duration of the license key validity, if enabled.
+	LicenseKeyDuration LicenseKeyDuration `json:"license_key_duration,nullable"`
 	// Name of the product, optional.
 	Name string      `json:"name,nullable"`
 	JSON productJSON `json:"-"`
@@ -643,12 +666,12 @@ type ProductListResponse struct {
 	IsRecurring bool `json:"is_recurring,required"`
 	// Unique identifier for the product.
 	ProductID string `json:"product_id,required"`
-	// Represents the different categories of taxation applicable to various products
-	// and services.
+	// Tax category associated with the product.
 	TaxCategory TaxCategory `json:"tax_category,required"`
 	// Timestamp when the product was last updated.
 	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
-	Currency  Currency  `json:"currency,nullable"`
+	// Currency of the price
+	Currency Currency `json:"currency,nullable"`
 	// Description of the product, optional.
 	Description string `json:"description,nullable"`
 	// URL of the product image, optional.
@@ -665,7 +688,8 @@ type ProductListResponse struct {
 	// - In INR, a price of `₹1234.56` would be represented as `123456` (paise).
 	//
 	// This ensures precision and avoids floating-point rounding errors.
-	Price       int64 `json:"price,nullable"`
+	Price int64 `json:"price,nullable"`
+	// Details of the price
 	PriceDetail Price `json:"price_detail,nullable"`
 	// Indicates if the price is tax inclusive
 	TaxInclusive bool                    `json:"tax_inclusive,nullable"`
@@ -724,22 +748,26 @@ func (r productUpdateFilesResponseJSON) RawJSON() string {
 }
 
 type ProductNewParams struct {
+	// Price configuration for the product
 	Price param.Field[PriceUnionParam] `json:"price,required"`
-	// Represents the different categories of taxation applicable to various products
-	// and services.
+	// Tax category applied to this product
 	TaxCategory param.Field[TaxCategory] `json:"tax_category,required"`
 	// Addons available for subscription product
 	Addons param.Field[[]string] `json:"addons"`
 	// Brand id for the product, if not provided will default to primary brand
 	BrandID param.Field[string] `json:"brand_id"`
 	// Optional description of the product
-	Description            param.Field[string]                                 `json:"description"`
+	Description param.Field[string] `json:"description"`
+	// Choose how you would like you digital product delivered
 	DigitalProductDelivery param.Field[ProductNewParamsDigitalProductDelivery] `json:"digital_product_delivery"`
 	// Optional message displayed during license key activation
 	LicenseKeyActivationMessage param.Field[string] `json:"license_key_activation_message"`
 	// The number of times the license key can be activated. Must be 0 or greater
-	LicenseKeyActivationsLimit param.Field[int64]                   `json:"license_key_activations_limit"`
-	LicenseKeyDuration         param.Field[LicenseKeyDurationParam] `json:"license_key_duration"`
+	LicenseKeyActivationsLimit param.Field[int64] `json:"license_key_activations_limit"`
+	// Duration configuration for the license key. Set to null if you don't want the
+	// license key to expire. For subscriptions, the lifetime of the license key is
+	// tied to the subscription period
+	LicenseKeyDuration param.Field[LicenseKeyDurationParam] `json:"license_key_duration"`
 	// When true, generates and sends a license key to your customer. Defaults to false
 	LicenseKeyEnabled param.Field[bool] `json:"license_key_enabled"`
 	// Optional name of the product
@@ -750,6 +778,7 @@ func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+// Choose how you would like you digital product delivered
 type ProductNewParamsDigitalProductDelivery struct {
 	// External URL to digital product
 	ExternalURL param.Field[string] `json:"external_url"`
@@ -766,7 +795,8 @@ type ProductUpdateParams struct {
 	Addons  param.Field[[]string] `json:"addons"`
 	BrandID param.Field[string]   `json:"brand_id"`
 	// Description of the product, optional and must be at most 1000 characters.
-	Description            param.Field[string]                                    `json:"description"`
+	Description param.Field[string] `json:"description"`
+	// Choose how you would like you digital product delivered
 	DigitalProductDelivery param.Field[ProductUpdateParamsDigitalProductDelivery] `json:"digital_product_delivery"`
 	// Product image id after its uploaded to S3
 	ImageID param.Field[string] `json:"image_id" format:"uuid"`
@@ -779,18 +809,22 @@ type ProductUpdateParams struct {
 	//
 	// Only applicable if `license_key_enabled` is `true`. Represents the maximum
 	// number of times the license key can be activated.
-	LicenseKeyActivationsLimit param.Field[int64]                   `json:"license_key_activations_limit"`
-	LicenseKeyDuration         param.Field[LicenseKeyDurationParam] `json:"license_key_duration"`
+	LicenseKeyActivationsLimit param.Field[int64] `json:"license_key_activations_limit"`
+	// Duration of the license key if enabled.
+	//
+	// Only applicable if `license_key_enabled` is `true`. Represents the duration in
+	// days for which the license key is valid.
+	LicenseKeyDuration param.Field[LicenseKeyDurationParam] `json:"license_key_duration"`
 	// Whether the product requires a license key.
 	//
 	// If `true`, additional fields related to license key (duration, activations
 	// limit, activation message) become applicable.
 	LicenseKeyEnabled param.Field[bool] `json:"license_key_enabled"`
 	// Name of the product, optional and must be at most 100 characters.
-	Name  param.Field[string]          `json:"name"`
+	Name param.Field[string] `json:"name"`
+	// Price details of the product.
 	Price param.Field[PriceUnionParam] `json:"price"`
-	// Represents the different categories of taxation applicable to various products
-	// and services.
+	// Tax category of the product.
 	TaxCategory param.Field[TaxCategory] `json:"tax_category"`
 }
 
@@ -798,6 +832,7 @@ func (r ProductUpdateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+// Choose how you would like you digital product delivered
 type ProductUpdateParamsDigitalProductDelivery struct {
 	// External URL to digital product
 	ExternalURL param.Field[string] `json:"external_url"`

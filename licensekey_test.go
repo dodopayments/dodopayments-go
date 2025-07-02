@@ -83,7 +83,7 @@ func TestLicenseKeyListWithOptionalParams(t *testing.T) {
 		PageNumber: dodopayments.F(int64(0)),
 		PageSize:   dodopayments.F(int64(0)),
 		ProductID:  dodopayments.F("product_id"),
-		Status:     dodopayments.F(dodopayments.LicenseKeyStatusActive),
+		Status:     dodopayments.F(dodopayments.LicenseKeyListParamsStatusActive),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

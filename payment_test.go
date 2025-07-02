@@ -103,7 +103,7 @@ func TestPaymentListWithOptionalParams(t *testing.T) {
 		CustomerID:     dodopayments.F("customer_id"),
 		PageNumber:     dodopayments.F(int64(0)),
 		PageSize:       dodopayments.F(int64(0)),
-		Status:         dodopayments.F(dodopayments.IntentStatusSucceeded),
+		Status:         dodopayments.F(dodopayments.PaymentListParamsStatusSucceeded),
 		SubscriptionID: dodopayments.F("subscription_id"),
 	})
 	if err != nil {

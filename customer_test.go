@@ -103,6 +103,7 @@ func TestCustomerListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Customers.List(context.TODO(), dodopayments.CustomerListParams{
+		Email:      dodopayments.F("email"),
 		PageNumber: dodopayments.F(int64(0)),
 		PageSize:   dodopayments.F(int64(0)),
 	})
