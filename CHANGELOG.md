@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.37.0 (2025-07-02)
+
+Full Changelog: [v1.34.1...v1.37.0](https://github.com/dodopayments/dodopayments-go/compare/v1.34.1...v1.37.0)
+
+### Features
+
+* **api:** updated openapi spec for v1.37.0 ([d30877b](https://github.com/dodopayments/dodopayments-go/commit/d30877b15a9b2afbebec951cdf6a3d180dd92de8))
+
+
+### Bug Fixes
+
+* don't try to deserialize as json when ResponseBodyInto is []byte ([93f4181](https://github.com/dodopayments/dodopayments-go/commit/93f41811368755de1b155f350e9b318ff2e1455f))
+* **pagination:** check if page data is empty in GetNextPage ([75db278](https://github.com/dodopayments/dodopayments-go/commit/75db2787fcf1a25fafb2179c6c02180bf2e2723e))
+
+
+### Chores
+
+* **ci:** only run for pushes and fork pull requests ([523798a](https://github.com/dodopayments/dodopayments-go/commit/523798a2af676b41e6abf1e63596e6b88d4cca8b))
+
 ## 1.34.1 (2025-06-21)
 
 Full Changelog: [v1.34.0...v1.34.1](https://github.com/dodopayments/dodopayments-go/compare/v1.34.0...v1.34.1)
