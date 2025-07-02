@@ -37,7 +37,8 @@ func NewDiscountService(opts ...option.RequestOption) (r *DiscountService) {
 	return
 }
 
-// If `code` is omitted or empty, a random 16-char uppercase code is generated.
+// POST /discounts If `code` is omitted or empty, a random 16-char uppercase code
+// is generated.
 func (r *DiscountService) New(ctx context.Context, body DiscountNewParams, opts ...option.RequestOption) (res *Discount, err error) {
 	opts = append(r.Options[:], opts...)
 	path := "discounts"
@@ -123,8 +124,9 @@ type Discount struct {
 	// List of product IDs to which this discount is restricted.
 	RestrictedTo []string `json:"restricted_to,required"`
 	// How many times this discount has been used.
-	TimesUsed int64        `json:"times_used,required"`
-	Type      DiscountType `json:"type,required"`
+	TimesUsed int64 `json:"times_used,required"`
+	// The type of discount, e.g. `percentage`, `flat`, or `flat_per_unit`.
+	Type DiscountType `json:"type,required"`
 	// Optional date/time after which discount is expired.
 	ExpiresAt time.Time `json:"expires_at,nullable" format:"date-time"`
 	// Name for the Discount
@@ -182,8 +184,9 @@ type DiscountNewParams struct {
 	//     example, `540` means `5.4%`.
 	//
 	// Must be at least 1.
-	Amount param.Field[int64]        `json:"amount,required"`
-	Type   param.Field[DiscountType] `json:"type,required"`
+	Amount param.Field[int64] `json:"amount,required"`
+	// The discount type (e.g. `percentage`, `flat`, or `flat_per_unit`).
+	Type param.Field[DiscountType] `json:"type,required"`
 	// Optionally supply a code (will be uppercased).
 	//
 	// - Must be at least 3 characters if provided.
@@ -217,9 +220,10 @@ type DiscountUpdateParams struct {
 	Name      param.Field[string]    `json:"name"`
 	// If present, replaces all restricted product IDs with this new set. To remove all
 	// restrictions, send empty array
-	RestrictedTo param.Field[[]string]     `json:"restricted_to"`
-	Type         param.Field[DiscountType] `json:"type"`
-	UsageLimit   param.Field[int64]        `json:"usage_limit"`
+	RestrictedTo param.Field[[]string] `json:"restricted_to"`
+	// If present, update the discount type.
+	Type       param.Field[DiscountType] `json:"type"`
+	UsageLimit param.Field[int64]        `json:"usage_limit"`
 }
 
 func (r DiscountUpdateParams) MarshalJSON() (data []byte, err error) {

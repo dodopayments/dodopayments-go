@@ -96,8 +96,9 @@ type LicenseKey struct {
 	// The unique identifier of the payment associated with the license key.
 	PaymentID string `json:"payment_id,required"`
 	// The unique identifier of the product associated with the license key.
-	ProductID string           `json:"product_id,required"`
-	Status    LicenseKeyStatus `json:"status,required"`
+	ProductID string `json:"product_id,required"`
+	// The current status of the license key (e.g., active, inactive, expired).
+	Status LicenseKeyStatus `json:"status,required"`
 	// The maximum number of activations allowed for this license key.
 	ActivationsLimit int64 `json:"activations_limit,nullable"`
 	// The timestamp indicating when the license key expires, in UTC.
@@ -176,7 +177,7 @@ type LicenseKeyListParams struct {
 	// Filter by product ID
 	ProductID param.Field[string] `query:"product_id"`
 	// Filter by license key status
-	Status param.Field[LicenseKeyStatus] `query:"status"`
+	Status param.Field[LicenseKeyListParamsStatus] `query:"status"`
 }
 
 // URLQuery serializes [LicenseKeyListParams]'s query parameters as `url.Values`.
@@ -185,4 +186,21 @@ func (r LicenseKeyListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Filter by license key status
+type LicenseKeyListParamsStatus string
+
+const (
+	LicenseKeyListParamsStatusActive   LicenseKeyListParamsStatus = "active"
+	LicenseKeyListParamsStatusExpired  LicenseKeyListParamsStatus = "expired"
+	LicenseKeyListParamsStatusDisabled LicenseKeyListParamsStatus = "disabled"
+)
+
+func (r LicenseKeyListParamsStatus) IsKnown() bool {
+	switch r {
+	case LicenseKeyListParamsStatusActive, LicenseKeyListParamsStatusExpired, LicenseKeyListParamsStatusDisabled:
+		return true
+	}
+	return false
 }

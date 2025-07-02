@@ -137,22 +137,27 @@ func (r addonCartResponseItemJSON) RawJSON() string {
 // Response struct representing subscription details
 type Subscription struct {
 	// Addons associated with this subscription
-	Addons  []AddonCartResponseItem `json:"addons,required"`
-	Billing BillingAddress          `json:"billing,required"`
+	Addons []AddonCartResponseItem `json:"addons,required"`
+	// Billing address details for payments
+	Billing BillingAddress `json:"billing,required"`
 	// Indicates if the subscription will cancel at the next billing date
 	CancelAtNextBillingDate bool `json:"cancel_at_next_billing_date,required"`
 	// Timestamp when the subscription was created
-	CreatedAt time.Time              `json:"created_at,required" format:"date-time"`
-	Currency  Currency               `json:"currency,required"`
-	Customer  CustomerLimitedDetails `json:"customer,required"`
-	Metadata  map[string]string      `json:"metadata,required"`
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// Currency used for the subscription payments
+	Currency Currency `json:"currency,required"`
+	// Customer details associated with the subscription
+	Customer CustomerLimitedDetails `json:"customer,required"`
+	// Additional custom data associated with the subscription
+	Metadata map[string]string `json:"metadata,required"`
 	// Timestamp of the next scheduled billing. Indicates the end of current billing
 	// period
 	NextBillingDate time.Time `json:"next_billing_date,required" format:"date-time"`
 	// Wether the subscription is on-demand or not
 	OnDemand bool `json:"on_demand,required"`
 	// Number of payment frequency intervals
-	PaymentFrequencyCount    int64        `json:"payment_frequency_count,required"`
+	PaymentFrequencyCount int64 `json:"payment_frequency_count,required"`
+	// Time interval for payment frequency (e.g. month, year)
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
 	// Timestamp of the last payment. Indicates the start of current billing period
 	PreviousBillingDate time.Time `json:"previous_billing_date,required" format:"date-time"`
@@ -162,12 +167,14 @@ type Subscription struct {
 	Quantity int64 `json:"quantity,required"`
 	// Amount charged before tax for each recurring payment in smallest currency unit
 	// (e.g. cents)
-	RecurringPreTaxAmount int64              `json:"recurring_pre_tax_amount,required"`
-	Status                SubscriptionStatus `json:"status,required"`
+	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount,required"`
+	// Current status of the subscription
+	Status SubscriptionStatus `json:"status,required"`
 	// Unique identifier for the subscription
 	SubscriptionID string `json:"subscription_id,required"`
 	// Number of subscription period intervals
-	SubscriptionPeriodCount    int64        `json:"subscription_period_count,required"`
+	SubscriptionPeriodCount int64 `json:"subscription_period_count,required"`
+	// Time interval for the subscription period (e.g. month, year)
 	SubscriptionPeriodInterval TimeInterval `json:"subscription_period_interval,required"`
 	// Indicates if the recurring_pre_tax_amount is tax inclusive
 	TaxInclusive bool `json:"tax_inclusive,required"`
@@ -256,9 +263,11 @@ func (r TimeInterval) IsKnown() bool {
 
 type SubscriptionNewResponse struct {
 	// Addons associated with this subscription
-	Addons   []AddonCartResponseItem `json:"addons,required"`
-	Customer CustomerLimitedDetails  `json:"customer,required"`
-	Metadata map[string]string       `json:"metadata,required"`
+	Addons []AddonCartResponseItem `json:"addons,required"`
+	// Customer details associated with this subscription
+	Customer CustomerLimitedDetails `json:"customer,required"`
+	// Additional metadata associated with the subscription
+	Metadata map[string]string `json:"metadata,required"`
 	// First payment id for the subscription
 	PaymentID string `json:"payment_id,required"`
 	// Tax will be added to the amount and charged to the customer on each billing
@@ -271,6 +280,8 @@ type SubscriptionNewResponse struct {
 	ClientSecret string `json:"client_secret,nullable"`
 	// The discount id if discount is applied
 	DiscountID string `json:"discount_id,nullable"`
+	// Expiry timestamp of the payment link
+	ExpiresOn time.Time `json:"expires_on,nullable" format:"date-time"`
 	// URL to checkout page
 	PaymentLink string                      `json:"payment_link,nullable"`
 	JSON        subscriptionNewResponseJSON `json:"-"`
@@ -287,6 +298,7 @@ type subscriptionNewResponseJSON struct {
 	SubscriptionID        apijson.Field
 	ClientSecret          apijson.Field
 	DiscountID            apijson.Field
+	ExpiresOn             apijson.Field
 	PaymentLink           apijson.Field
 	raw                   string
 	ExtraFields           map[string]apijson.Field
@@ -302,21 +314,26 @@ func (r subscriptionNewResponseJSON) RawJSON() string {
 
 // Response struct representing subscription details
 type SubscriptionListResponse struct {
+	// Billing address details for payments
 	Billing BillingAddress `json:"billing,required"`
 	// Indicates if the subscription will cancel at the next billing date
 	CancelAtNextBillingDate bool `json:"cancel_at_next_billing_date,required"`
 	// Timestamp when the subscription was created
-	CreatedAt time.Time              `json:"created_at,required" format:"date-time"`
-	Currency  Currency               `json:"currency,required"`
-	Customer  CustomerLimitedDetails `json:"customer,required"`
-	Metadata  map[string]string      `json:"metadata,required"`
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// Currency used for the subscription payments
+	Currency Currency `json:"currency,required"`
+	// Customer details associated with the subscription
+	Customer CustomerLimitedDetails `json:"customer,required"`
+	// Additional custom data associated with the subscription
+	Metadata map[string]string `json:"metadata,required"`
 	// Timestamp of the next scheduled billing. Indicates the end of current billing
 	// period
 	NextBillingDate time.Time `json:"next_billing_date,required" format:"date-time"`
 	// Wether the subscription is on-demand or not
 	OnDemand bool `json:"on_demand,required"`
 	// Number of payment frequency intervals
-	PaymentFrequencyCount    int64        `json:"payment_frequency_count,required"`
+	PaymentFrequencyCount int64 `json:"payment_frequency_count,required"`
+	// Time interval for payment frequency (e.g. month, year)
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
 	// Timestamp of the last payment. Indicates the start of current billing period
 	PreviousBillingDate time.Time `json:"previous_billing_date,required" format:"date-time"`
@@ -326,12 +343,14 @@ type SubscriptionListResponse struct {
 	Quantity int64 `json:"quantity,required"`
 	// Amount charged before tax for each recurring payment in smallest currency unit
 	// (e.g. cents)
-	RecurringPreTaxAmount int64              `json:"recurring_pre_tax_amount,required"`
-	Status                SubscriptionStatus `json:"status,required"`
+	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount,required"`
+	// Current status of the subscription
+	Status SubscriptionStatus `json:"status,required"`
 	// Unique identifier for the subscription
 	SubscriptionID string `json:"subscription_id,required"`
 	// Number of subscription period intervals
-	SubscriptionPeriodCount    int64        `json:"subscription_period_count,required"`
+	SubscriptionPeriodCount int64 `json:"subscription_period_count,required"`
+	// Time interval for the subscription period (e.g. month, year)
 	SubscriptionPeriodInterval TimeInterval `json:"subscription_period_interval,required"`
 	// Indicates if the recurring_pre_tax_amount is tax inclusive
 	TaxInclusive bool `json:"tax_inclusive,required"`
@@ -403,7 +422,9 @@ func (r subscriptionChargeResponseJSON) RawJSON() string {
 }
 
 type SubscriptionNewParams struct {
-	Billing  param.Field[BillingAddressParam]       `json:"billing,required"`
+	// Billing address information for the subscription
+	Billing param.Field[BillingAddressParam] `json:"billing,required"`
+	// Customer details for the subscription
 	Customer param.Field[CustomerRequestUnionParam] `json:"customer,required"`
 	// Unique identifier of the product to subscribe to
 	ProductID param.Field[string] `json:"product_id,required"`
@@ -418,11 +439,14 @@ type SubscriptionNewParams struct {
 	// Availability still depends on other factors (e.g., customer location, merchant
 	// settings).
 	AllowedPaymentMethodTypes param.Field[[]SubscriptionNewParamsAllowedPaymentMethodType] `json:"allowed_payment_method_types"`
-	BillingCurrency           param.Field[Currency]                                        `json:"billing_currency"`
+	// Fix the currency in which the end customer is billed. If Dodo Payments cannot
+	// support that currency for this transaction, it will not proceed
+	BillingCurrency param.Field[Currency] `json:"billing_currency"`
 	// Discount Code to apply to the subscription
-	DiscountCode param.Field[string]                        `json:"discount_code"`
-	Metadata     param.Field[map[string]string]             `json:"metadata"`
-	OnDemand     param.Field[SubscriptionNewParamsOnDemand] `json:"on_demand"`
+	DiscountCode param.Field[string] `json:"discount_code"`
+	// Additional metadata for the subscription Defaults to empty if not specified
+	Metadata param.Field[map[string]string]             `json:"metadata"`
+	OnDemand param.Field[SubscriptionNewParamsOnDemand] `json:"on_demand"`
 	// If true, generates a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional URL to redirect after successful subscription creation
@@ -530,7 +554,7 @@ type SubscriptionListParams struct {
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
 	// Filter by status
-	Status param.Field[SubscriptionStatus] `query:"status"`
+	Status param.Field[SubscriptionListParamsStatus] `query:"status"`
 }
 
 // URLQuery serializes [SubscriptionListParams]'s query parameters as `url.Values`.
@@ -541,9 +565,31 @@ func (r SubscriptionListParams) URLQuery() (v url.Values) {
 	})
 }
 
+// Filter by status
+type SubscriptionListParamsStatus string
+
+const (
+	SubscriptionListParamsStatusPending   SubscriptionListParamsStatus = "pending"
+	SubscriptionListParamsStatusActive    SubscriptionListParamsStatus = "active"
+	SubscriptionListParamsStatusOnHold    SubscriptionListParamsStatus = "on_hold"
+	SubscriptionListParamsStatusPaused    SubscriptionListParamsStatus = "paused"
+	SubscriptionListParamsStatusCancelled SubscriptionListParamsStatus = "cancelled"
+	SubscriptionListParamsStatusFailed    SubscriptionListParamsStatus = "failed"
+	SubscriptionListParamsStatusExpired   SubscriptionListParamsStatus = "expired"
+)
+
+func (r SubscriptionListParamsStatus) IsKnown() bool {
+	switch r {
+	case SubscriptionListParamsStatusPending, SubscriptionListParamsStatusActive, SubscriptionListParamsStatusOnHold, SubscriptionListParamsStatusPaused, SubscriptionListParamsStatusCancelled, SubscriptionListParamsStatusFailed, SubscriptionListParamsStatusExpired:
+		return true
+	}
+	return false
+}
+
 type SubscriptionChangePlanParams struct {
 	// Unique identifier of the product to subscribe to
-	ProductID            param.Field[string]                                           `json:"product_id,required"`
+	ProductID param.Field[string] `json:"product_id,required"`
+	// Proration Billing Mode
 	ProrationBillingMode param.Field[SubscriptionChangePlanParamsProrationBillingMode] `json:"proration_billing_mode,required"`
 	// Number of units to subscribe for. Must be at least 1.
 	Quantity param.Field[int64] `json:"quantity,required"`
@@ -556,6 +602,7 @@ func (r SubscriptionChangePlanParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+// Proration Billing Mode
 type SubscriptionChangePlanParamsProrationBillingMode string
 
 const (
@@ -583,8 +630,10 @@ func (r SubscriptionChangePlanParamsAddon) MarshalJSON() (data []byte, err error
 type SubscriptionChargeParams struct {
 	// The product price. Represented in the lowest denomination of the currency (e.g.,
 	// cents for USD). For example, to charge $1.00, pass `100`.
-	ProductPrice param.Field[int64]             `json:"product_price,required"`
-	Metadata     param.Field[map[string]string] `json:"metadata"`
+	ProductPrice param.Field[int64] `json:"product_price,required"`
+	// Metadata for the payment. If not passed, the metadata of the subscription will
+	// be taken
+	Metadata param.Field[map[string]string] `json:"metadata"`
 }
 
 func (r SubscriptionChargeParams) MarshalJSON() (data []byte, err error) {

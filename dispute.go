@@ -80,8 +80,10 @@ type Dispute struct {
 	// The currency of the disputed amount, represented as an ISO 4217 currency code.
 	Currency string `json:"currency,required"`
 	// The unique identifier of the dispute.
-	DisputeID     string        `json:"dispute_id,required"`
-	DisputeStage  DisputeStage  `json:"dispute_stage,required"`
+	DisputeID string `json:"dispute_id,required"`
+	// The current stage of the dispute process.
+	DisputeStage DisputeStage `json:"dispute_stage,required"`
+	// The current status of the dispute.
 	DisputeStatus DisputeStatus `json:"dispute_status,required"`
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string `json:"payment_id,required"`
@@ -158,11 +160,14 @@ type DisputeGetResponse struct {
 	// The timestamp of when the dispute was created, in UTC.
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
 	// The currency of the disputed amount, represented as an ISO 4217 currency code.
-	Currency string                 `json:"currency,required"`
+	Currency string `json:"currency,required"`
+	// The customer who filed the dispute
 	Customer CustomerLimitedDetails `json:"customer,required"`
 	// The unique identifier of the dispute.
-	DisputeID     string        `json:"dispute_id,required"`
-	DisputeStage  DisputeStage  `json:"dispute_stage,required"`
+	DisputeID string `json:"dispute_id,required"`
+	// The current stage of the dispute process.
+	DisputeStage DisputeStage `json:"dispute_stage,required"`
+	// The current status of the dispute.
 	DisputeStatus DisputeStatus `json:"dispute_status,required"`
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string `json:"payment_id,required"`
@@ -210,8 +215,10 @@ type DisputeListResponse struct {
 	// The currency of the disputed amount, represented as an ISO 4217 currency code.
 	Currency string `json:"currency,required"`
 	// The unique identifier of the dispute.
-	DisputeID     string        `json:"dispute_id,required"`
-	DisputeStage  DisputeStage  `json:"dispute_stage,required"`
+	DisputeID string `json:"dispute_id,required"`
+	// The current stage of the dispute process.
+	DisputeStage DisputeStage `json:"dispute_stage,required"`
+	// The current status of the dispute.
 	DisputeStatus DisputeStatus `json:"dispute_status,required"`
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string                  `json:"payment_id,required"`
@@ -249,9 +256,9 @@ type DisputeListParams struct {
 	// Filter by customer_id
 	CustomerID param.Field[string] `query:"customer_id"`
 	// Filter by dispute stage
-	DisputeStage param.Field[DisputeStage] `query:"dispute_stage"`
+	DisputeStage param.Field[DisputeListParamsDisputeStage] `query:"dispute_stage"`
 	// Filter by dispute status
-	DisputeStatus param.Field[DisputeStatus] `query:"dispute_status"`
+	DisputeStatus param.Field[DisputeListParamsDisputeStatus] `query:"dispute_status"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
@@ -264,4 +271,42 @@ func (r DisputeListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Filter by dispute stage
+type DisputeListParamsDisputeStage string
+
+const (
+	DisputeListParamsDisputeStagePreDispute     DisputeListParamsDisputeStage = "pre_dispute"
+	DisputeListParamsDisputeStageDispute        DisputeListParamsDisputeStage = "dispute"
+	DisputeListParamsDisputeStagePreArbitration DisputeListParamsDisputeStage = "pre_arbitration"
+)
+
+func (r DisputeListParamsDisputeStage) IsKnown() bool {
+	switch r {
+	case DisputeListParamsDisputeStagePreDispute, DisputeListParamsDisputeStageDispute, DisputeListParamsDisputeStagePreArbitration:
+		return true
+	}
+	return false
+}
+
+// Filter by dispute status
+type DisputeListParamsDisputeStatus string
+
+const (
+	DisputeListParamsDisputeStatusDisputeOpened     DisputeListParamsDisputeStatus = "dispute_opened"
+	DisputeListParamsDisputeStatusDisputeExpired    DisputeListParamsDisputeStatus = "dispute_expired"
+	DisputeListParamsDisputeStatusDisputeAccepted   DisputeListParamsDisputeStatus = "dispute_accepted"
+	DisputeListParamsDisputeStatusDisputeCancelled  DisputeListParamsDisputeStatus = "dispute_cancelled"
+	DisputeListParamsDisputeStatusDisputeChallenged DisputeListParamsDisputeStatus = "dispute_challenged"
+	DisputeListParamsDisputeStatusDisputeWon        DisputeListParamsDisputeStatus = "dispute_won"
+	DisputeListParamsDisputeStatusDisputeLost       DisputeListParamsDisputeStatus = "dispute_lost"
+)
+
+func (r DisputeListParamsDisputeStatus) IsKnown() bool {
+	switch r {
+	case DisputeListParamsDisputeStatusDisputeOpened, DisputeListParamsDisputeStatusDisputeExpired, DisputeListParamsDisputeStatusDisputeAccepted, DisputeListParamsDisputeStatusDisputeCancelled, DisputeListParamsDisputeStatusDisputeChallenged, DisputeListParamsDisputeStatusDisputeWon, DisputeListParamsDisputeStatusDisputeLost:
+		return true
+	}
+	return false
 }

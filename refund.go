@@ -86,10 +86,12 @@ type Refund struct {
 	// The unique identifier of the payment associated with the refund.
 	PaymentID string `json:"payment_id,required"`
 	// The unique identifier of the refund.
-	RefundID string       `json:"refund_id,required"`
-	Status   RefundStatus `json:"status,required"`
+	RefundID string `json:"refund_id,required"`
+	// The current status of the refund.
+	Status RefundStatus `json:"status,required"`
 	// The refunded amount.
-	Amount   int64    `json:"amount,nullable"`
+	Amount int64 `json:"amount,nullable"`
+	// The currency of the refund, represented as an ISO 4217 currency code.
 	Currency Currency `json:"currency,nullable"`
 	// The reason provided for the refund, if any. Optional.
 	Reason string     `json:"reason,nullable"`
@@ -174,7 +176,7 @@ type RefundListParams struct {
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
 	// Filter by status
-	Status param.Field[RefundStatus] `query:"status"`
+	Status param.Field[RefundListParamsStatus] `query:"status"`
 }
 
 // URLQuery serializes [RefundListParams]'s query parameters as `url.Values`.
@@ -183,4 +185,22 @@ func (r RefundListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Filter by status
+type RefundListParamsStatus string
+
+const (
+	RefundListParamsStatusSucceeded RefundListParamsStatus = "succeeded"
+	RefundListParamsStatusFailed    RefundListParamsStatus = "failed"
+	RefundListParamsStatusPending   RefundListParamsStatus = "pending"
+	RefundListParamsStatusReview    RefundListParamsStatus = "review"
+)
+
+func (r RefundListParamsStatus) IsKnown() bool {
+	switch r {
+	case RefundListParamsStatusSucceeded, RefundListParamsStatusFailed, RefundListParamsStatusPending, RefundListParamsStatusReview:
+		return true
+	}
+	return false
 }

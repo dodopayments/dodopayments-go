@@ -49,13 +49,14 @@ func TestWebhookEventListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.WebhookEvents.List(context.TODO(), dodopayments.WebhookEventListParams{
-		CreatedAtGte: dodopayments.F(time.Now()),
-		CreatedAtLte: dodopayments.F(time.Now()),
-		Limit:        dodopayments.F(int64(0)),
-		ObjectID:     dodopayments.F("object_id"),
-		PageNumber:   dodopayments.F(int64(0)),
-		PageSize:     dodopayments.F(int64(0)),
-		WebhookID:    dodopayments.F("webhook_id"),
+		CreatedAtGte:   dodopayments.F(time.Now()),
+		CreatedAtLte:   dodopayments.F(time.Now()),
+		Limit:          dodopayments.F(int64(0)),
+		ObjectID:       dodopayments.F("object_id"),
+		PageNumber:     dodopayments.F(int64(0)),
+		PageSize:       dodopayments.F(int64(0)),
+		WebhookEventID: dodopayments.F("webhook_event_id"),
+		WebhookID:      dodopayments.F("webhook_id"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

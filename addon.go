@@ -105,13 +105,13 @@ type AddonResponse struct {
 	BusinessID string `json:"business_id,required"`
 	// Created time
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
-	Currency  Currency  `json:"currency,required"`
+	// Currency of the Addon
+	Currency Currency `json:"currency,required"`
 	// Name of the Addon
 	Name string `json:"name,required"`
 	// Amount of the addon
 	Price int64 `json:"price,required"`
-	// Represents the different categories of taxation applicable to various products
-	// and services.
+	// Tax category applied to this Addon
 	TaxCategory TaxCategory `json:"tax_category,required"`
 	// Updated time
 	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
@@ -170,13 +170,13 @@ func (r addonUpdateImagesResponseJSON) RawJSON() string {
 }
 
 type AddonNewParams struct {
+	// The currency of the Addon
 	Currency param.Field[Currency] `json:"currency,required"`
 	// Name of the Addon
 	Name param.Field[string] `json:"name,required"`
 	// Amount of the addon
 	Price param.Field[int64] `json:"price,required"`
-	// Represents the different categories of taxation applicable to various products
-	// and services.
+	// Tax category applied to this Addon
 	TaxCategory param.Field[TaxCategory] `json:"tax_category,required"`
 	// Optional description of the Addon
 	Description param.Field[string] `json:"description"`
@@ -187,6 +187,7 @@ func (r AddonNewParams) MarshalJSON() (data []byte, err error) {
 }
 
 type AddonUpdateParams struct {
+	// The currency of the Addon
 	Currency param.Field[Currency] `json:"currency"`
 	// Description of the Addon, optional and must be at most 1000 characters.
 	Description param.Field[string] `json:"description"`
@@ -196,8 +197,7 @@ type AddonUpdateParams struct {
 	Name param.Field[string] `json:"name"`
 	// Amount of the addon
 	Price param.Field[int64] `json:"price"`
-	// Represents the different categories of taxation applicable to various products
-	// and services.
+	// Tax category of the Addon.
 	TaxCategory param.Field[TaxCategory] `json:"tax_category"`
 }
 
