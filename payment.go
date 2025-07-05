@@ -531,24 +531,26 @@ func (r paymentGetLineItemsResponseJSON) RawJSON() string {
 }
 
 type PaymentGetLineItemsResponseItem struct {
-	Amount      int64                               `json:"amount,required"`
-	ItemsID     string                              `json:"items_id,required"`
-	Tax         int64                               `json:"tax,required"`
-	Description string                              `json:"description,nullable"`
-	Name        string                              `json:"name,nullable"`
-	JSON        paymentGetLineItemsResponseItemJSON `json:"-"`
+	Amount           int64                               `json:"amount,required"`
+	ItemsID          string                              `json:"items_id,required"`
+	RefundableAmount int64                               `json:"refundable_amount,required"`
+	Tax              int64                               `json:"tax,required"`
+	Description      string                              `json:"description,nullable"`
+	Name             string                              `json:"name,nullable"`
+	JSON             paymentGetLineItemsResponseItemJSON `json:"-"`
 }
 
 // paymentGetLineItemsResponseItemJSON contains the JSON metadata for the struct
 // [PaymentGetLineItemsResponseItem]
 type paymentGetLineItemsResponseItemJSON struct {
-	Amount      apijson.Field
-	ItemsID     apijson.Field
-	Tax         apijson.Field
-	Description apijson.Field
-	Name        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	Amount           apijson.Field
+	ItemsID          apijson.Field
+	RefundableAmount apijson.Field
+	Tax              apijson.Field
+	Description      apijson.Field
+	Name             apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *PaymentGetLineItemsResponseItem) UnmarshalJSON(data []byte) (err error) {
