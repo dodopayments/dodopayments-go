@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.38.3 (2025-07-11)
+
+Full Changelog: [v1.38.2...v1.38.3](https://github.com/dodopayments/dodopayments-go/compare/v1.38.2...v1.38.3)
+
+### Chores
+
+* lint tests in subpackages ([ffdb5a4](https://github.com/dodopayments/dodopayments-go/commit/ffdb5a4bdcd9dc8199b7503879f1ed9e862448f8))
+
 ## 1.38.2 (2025-07-09)
 
 Full Changelog: [v1.38.1...v1.38.2](https://github.com/dodopayments/dodopayments-go/compare/v1.38.1...v1.38.2)
