@@ -50,8 +50,10 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 			"foo": "string",
 		}),
 		OnDemand: dodopayments.F(dodopayments.SubscriptionNewParamsOnDemand{
-			MandateOnly:  dodopayments.F(true),
-			ProductPrice: dodopayments.F(int64(0)),
+			MandateOnly:                   dodopayments.F(true),
+			AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
+			ProductCurrency:               dodopayments.F(dodopayments.CurrencyAed),
+			ProductPrice:                  dodopayments.F(int64(0)),
 		}),
 		PaymentLink:             dodopayments.F(true),
 		ReturnURL:               dodopayments.F("return_url"),
@@ -213,10 +215,12 @@ func TestSubscriptionChargeWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionChargeParams{
-			ProductPrice: dodopayments.F(int64(0)),
+			ProductPrice:                  dodopayments.F(int64(0)),
+			AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),
+			ProductCurrency: dodopayments.F(dodopayments.CurrencyAed),
 		},
 	)
 	if err != nil {

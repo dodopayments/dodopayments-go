@@ -509,6 +509,13 @@ type SubscriptionNewParamsOnDemand struct {
 	// If set as True, does not perform any charge and only authorizes payment method
 	// details for future use.
 	MandateOnly param.Field[bool] `json:"mandate_only,required"`
+	// Whether adaptive currency fees should be included in the product_price (true) or
+	// added on top (false). This field is ignored if adaptive pricing is not enabled
+	// for the business.
+	AdaptiveCurrencyFeesInclusive param.Field[bool] `json:"adaptive_currency_fees_inclusive"`
+	// Optional currency of the product price. If not specified, defaults to the
+	// currency of the product.
+	ProductCurrency param.Field[Currency] `json:"product_currency"`
 	// Product price for the initial charge to customer If not specified the stored
 	// price of the product will be used Represented in the lowest denomination of the
 	// currency (e.g., cents for USD). For example, to charge $1.00, pass `100`.
@@ -631,9 +638,16 @@ type SubscriptionChargeParams struct {
 	// The product price. Represented in the lowest denomination of the currency (e.g.,
 	// cents for USD). For example, to charge $1.00, pass `100`.
 	ProductPrice param.Field[int64] `json:"product_price,required"`
+	// Whether adaptive currency fees should be included in the product_price (true) or
+	// added on top (false). This field is ignored if adaptive pricing is not enabled
+	// for the business.
+	AdaptiveCurrencyFeesInclusive param.Field[bool] `json:"adaptive_currency_fees_inclusive"`
 	// Metadata for the payment. If not passed, the metadata of the subscription will
 	// be taken
 	Metadata param.Field[map[string]string] `json:"metadata"`
+	// Optional currency of the product price. If not specified, defaults to the
+	// currency of the product.
+	ProductCurrency param.Field[Currency] `json:"product_currency"`
 }
 
 func (r SubscriptionChargeParams) MarshalJSON() (data []byte, err error) {
