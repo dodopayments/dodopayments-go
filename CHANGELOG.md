@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.39.0 (2025-07-15)
+
+Full Changelog: [v1.38.2...v1.39.0](https://github.com/dodopayments/dodopayments-go/compare/v1.38.2...v1.39.0)
+
+### Features
+
+* **api:** updated openapi spec to v1.40.0 ([8d9cfd8](https://github.com/dodopayments/dodopayments-go/commit/8d9cfd8f3fa7f99b152ac0fc94af525acc323216))
+
+
+### Chores
+
+* lint tests in subpackages ([ffdb5a4](https://github.com/dodopayments/dodopayments-go/commit/ffdb5a4bdcd9dc8199b7503879f1ed9e862448f8))
+
 ## 1.38.2 (2025-07-09)
 
 Full Changelog: [v1.38.1...v1.38.2](https://github.com/dodopayments/dodopayments-go/compare/v1.38.1...v1.38.2)
