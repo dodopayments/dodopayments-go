@@ -516,6 +516,9 @@ type SubscriptionNewParamsOnDemand struct {
 	// Optional currency of the product price. If not specified, defaults to the
 	// currency of the product.
 	ProductCurrency param.Field[Currency] `json:"product_currency"`
+	// Optional product description override for billing and line items. If not
+	// specified, the stored description of the product will be used.
+	ProductDescription param.Field[string] `json:"product_description"`
 	// Product price for the initial charge to customer If not specified the stored
 	// price of the product will be used Represented in the lowest denomination of the
 	// currency (e.g., cents for USD). For example, to charge $1.00, pass `100`.
@@ -648,6 +651,9 @@ type SubscriptionChargeParams struct {
 	// Optional currency of the product price. If not specified, defaults to the
 	// currency of the product.
 	ProductCurrency param.Field[Currency] `json:"product_currency"`
+	// Optional product description override for billing and line items. If not
+	// specified, the stored description of the product will be used.
+	ProductDescription param.Field[string] `json:"product_description"`
 }
 
 func (r SubscriptionChargeParams) MarshalJSON() (data []byte, err error) {

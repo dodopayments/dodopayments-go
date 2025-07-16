@@ -53,6 +53,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 			MandateOnly:                   dodopayments.F(true),
 			AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
 			ProductCurrency:               dodopayments.F(dodopayments.CurrencyAed),
+			ProductDescription:            dodopayments.F("product_description"),
 			ProductPrice:                  dodopayments.F(int64(0)),
 		}),
 		PaymentLink:             dodopayments.F(true),
@@ -220,7 +221,8 @@ func TestSubscriptionChargeWithOptionalParams(t *testing.T) {
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),
-			ProductCurrency: dodopayments.F(dodopayments.CurrencyAed),
+			ProductCurrency:    dodopayments.F(dodopayments.CurrencyAed),
+			ProductDescription: dodopayments.F("product_description"),
 		},
 	)
 	if err != nil {
