@@ -134,6 +134,15 @@ func (r addonCartResponseItemJSON) RawJSON() string {
 	return r.raw
 }
 
+type AttachAddonParam struct {
+	AddonID  param.Field[string] `json:"addon_id,required"`
+	Quantity param.Field[int64]  `json:"quantity,required"`
+}
+
+func (r AttachAddonParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 // Response struct representing subscription details
 type Subscription struct {
 	// Addons associated with this subscription
@@ -431,14 +440,14 @@ type SubscriptionNewParams struct {
 	// Number of units to subscribe for. Must be at least 1.
 	Quantity param.Field[int64] `json:"quantity,required"`
 	// Attach addons to this subscription
-	Addons param.Field[[]SubscriptionNewParamsAddon] `json:"addons"`
+	Addons param.Field[[]AttachAddonParam] `json:"addons"`
 	// List of payment methods allowed during checkout.
 	//
 	// Customers will **never** see payment methods that are **not** in this list.
 	// However, adding a method here **does not guarantee** customers will see it.
 	// Availability still depends on other factors (e.g., customer location, merchant
 	// settings).
-	AllowedPaymentMethodTypes param.Field[[]SubscriptionNewParamsAllowedPaymentMethodType] `json:"allowed_payment_method_types"`
+	AllowedPaymentMethodTypes param.Field[[]PaymentMethodTypes] `json:"allowed_payment_method_types"`
 	// Fix the currency in which the end customer is billed. If Dodo Payments cannot
 	// support that currency for this transaction, it will not proceed
 	BillingCurrency param.Field[Currency] `json:"billing_currency"`
@@ -463,46 +472,6 @@ type SubscriptionNewParams struct {
 
 func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
-}
-
-type SubscriptionNewParamsAddon struct {
-	AddonID  param.Field[string] `json:"addon_id,required"`
-	Quantity param.Field[int64]  `json:"quantity,required"`
-}
-
-func (r SubscriptionNewParamsAddon) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type SubscriptionNewParamsAllowedPaymentMethodType string
-
-const (
-	SubscriptionNewParamsAllowedPaymentMethodTypeCredit           SubscriptionNewParamsAllowedPaymentMethodType = "credit"
-	SubscriptionNewParamsAllowedPaymentMethodTypeDebit            SubscriptionNewParamsAllowedPaymentMethodType = "debit"
-	SubscriptionNewParamsAllowedPaymentMethodTypeUpiCollect       SubscriptionNewParamsAllowedPaymentMethodType = "upi_collect"
-	SubscriptionNewParamsAllowedPaymentMethodTypeUpiIntent        SubscriptionNewParamsAllowedPaymentMethodType = "upi_intent"
-	SubscriptionNewParamsAllowedPaymentMethodTypeApplePay         SubscriptionNewParamsAllowedPaymentMethodType = "apple_pay"
-	SubscriptionNewParamsAllowedPaymentMethodTypeCashapp          SubscriptionNewParamsAllowedPaymentMethodType = "cashapp"
-	SubscriptionNewParamsAllowedPaymentMethodTypeGooglePay        SubscriptionNewParamsAllowedPaymentMethodType = "google_pay"
-	SubscriptionNewParamsAllowedPaymentMethodTypeMultibanco       SubscriptionNewParamsAllowedPaymentMethodType = "multibanco"
-	SubscriptionNewParamsAllowedPaymentMethodTypeBancontactCard   SubscriptionNewParamsAllowedPaymentMethodType = "bancontact_card"
-	SubscriptionNewParamsAllowedPaymentMethodTypeEps              SubscriptionNewParamsAllowedPaymentMethodType = "eps"
-	SubscriptionNewParamsAllowedPaymentMethodTypeIdeal            SubscriptionNewParamsAllowedPaymentMethodType = "ideal"
-	SubscriptionNewParamsAllowedPaymentMethodTypePrzelewy24       SubscriptionNewParamsAllowedPaymentMethodType = "przelewy24"
-	SubscriptionNewParamsAllowedPaymentMethodTypeAffirm           SubscriptionNewParamsAllowedPaymentMethodType = "affirm"
-	SubscriptionNewParamsAllowedPaymentMethodTypeKlarna           SubscriptionNewParamsAllowedPaymentMethodType = "klarna"
-	SubscriptionNewParamsAllowedPaymentMethodTypeSepa             SubscriptionNewParamsAllowedPaymentMethodType = "sepa"
-	SubscriptionNewParamsAllowedPaymentMethodTypeACH              SubscriptionNewParamsAllowedPaymentMethodType = "ach"
-	SubscriptionNewParamsAllowedPaymentMethodTypeAmazonPay        SubscriptionNewParamsAllowedPaymentMethodType = "amazon_pay"
-	SubscriptionNewParamsAllowedPaymentMethodTypeAfterpayClearpay SubscriptionNewParamsAllowedPaymentMethodType = "afterpay_clearpay"
-)
-
-func (r SubscriptionNewParamsAllowedPaymentMethodType) IsKnown() bool {
-	switch r {
-	case SubscriptionNewParamsAllowedPaymentMethodTypeCredit, SubscriptionNewParamsAllowedPaymentMethodTypeDebit, SubscriptionNewParamsAllowedPaymentMethodTypeUpiCollect, SubscriptionNewParamsAllowedPaymentMethodTypeUpiIntent, SubscriptionNewParamsAllowedPaymentMethodTypeApplePay, SubscriptionNewParamsAllowedPaymentMethodTypeCashapp, SubscriptionNewParamsAllowedPaymentMethodTypeGooglePay, SubscriptionNewParamsAllowedPaymentMethodTypeMultibanco, SubscriptionNewParamsAllowedPaymentMethodTypeBancontactCard, SubscriptionNewParamsAllowedPaymentMethodTypeEps, SubscriptionNewParamsAllowedPaymentMethodTypeIdeal, SubscriptionNewParamsAllowedPaymentMethodTypePrzelewy24, SubscriptionNewParamsAllowedPaymentMethodTypeAffirm, SubscriptionNewParamsAllowedPaymentMethodTypeKlarna, SubscriptionNewParamsAllowedPaymentMethodTypeSepa, SubscriptionNewParamsAllowedPaymentMethodTypeACH, SubscriptionNewParamsAllowedPaymentMethodTypeAmazonPay, SubscriptionNewParamsAllowedPaymentMethodTypeAfterpayClearpay:
-		return true
-	}
-	return false
 }
 
 type SubscriptionNewParamsOnDemand struct {
@@ -605,7 +574,7 @@ type SubscriptionChangePlanParams struct {
 	Quantity param.Field[int64] `json:"quantity,required"`
 	// Addons for the new plan. Note : Leaving this empty would remove any existing
 	// addons
-	Addons param.Field[[]SubscriptionChangePlanParamsAddon] `json:"addons"`
+	Addons param.Field[[]AttachAddonParam] `json:"addons"`
 }
 
 func (r SubscriptionChangePlanParams) MarshalJSON() (data []byte, err error) {
@@ -626,15 +595,6 @@ func (r SubscriptionChangePlanParamsProrationBillingMode) IsKnown() bool {
 		return true
 	}
 	return false
-}
-
-type SubscriptionChangePlanParamsAddon struct {
-	AddonID  param.Field[string] `json:"addon_id,required"`
-	Quantity param.Field[int64]  `json:"quantity,required"`
-}
-
-func (r SubscriptionChangePlanParamsAddon) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 type SubscriptionChargeParams struct {

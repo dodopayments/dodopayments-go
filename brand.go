@@ -33,7 +33,7 @@ func NewBrandService(opts ...option.RequestOption) (r *BrandService) {
 	return
 }
 
-func (r *BrandService) New(ctx context.Context, body BrandNewParams, opts ...option.RequestOption) (res *BrandNewResponse, err error) {
+func (r *BrandService) New(ctx context.Context, body BrandNewParams, opts ...option.RequestOption) (res *Brand, err error) {
 	opts = append(r.Options[:], opts...)
 	path := "brands"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
@@ -41,7 +41,7 @@ func (r *BrandService) New(ctx context.Context, body BrandNewParams, opts ...opt
 }
 
 // Thin handler just calls `get_brand` and wraps in `Json(...)`
-func (r *BrandService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *BrandGetResponse, err error) {
+func (r *BrandService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *Brand, err error) {
 	opts = append(r.Options[:], opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
@@ -52,7 +52,7 @@ func (r *BrandService) Get(ctx context.Context, id string, opts ...option.Reques
 	return
 }
 
-func (r *BrandService) Update(ctx context.Context, id string, body BrandUpdateParams, opts ...option.RequestOption) (res *BrandUpdateResponse, err error) {
+func (r *BrandService) Update(ctx context.Context, id string, body BrandUpdateParams, opts ...option.RequestOption) (res *Brand, err error) {
 	opts = append(r.Options[:], opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
@@ -81,26 +81,25 @@ func (r *BrandService) UpdateImages(ctx context.Context, id string, opts ...opti
 	return
 }
 
-type BrandNewResponse struct {
-	BrandID             string                             `json:"brand_id,required"`
-	BusinessID          string                             `json:"business_id,required"`
-	Enabled             bool                               `json:"enabled,required"`
-	StatementDescriptor string                             `json:"statement_descriptor,required"`
-	VerificationEnabled bool                               `json:"verification_enabled,required"`
-	VerificationStatus  BrandNewResponseVerificationStatus `json:"verification_status,required"`
-	Description         string                             `json:"description,nullable"`
-	Image               string                             `json:"image,nullable"`
-	Name                string                             `json:"name,nullable"`
+type Brand struct {
+	BrandID             string                  `json:"brand_id,required"`
+	BusinessID          string                  `json:"business_id,required"`
+	Enabled             bool                    `json:"enabled,required"`
+	StatementDescriptor string                  `json:"statement_descriptor,required"`
+	VerificationEnabled bool                    `json:"verification_enabled,required"`
+	VerificationStatus  BrandVerificationStatus `json:"verification_status,required"`
+	Description         string                  `json:"description,nullable"`
+	Image               string                  `json:"image,nullable"`
+	Name                string                  `json:"name,nullable"`
 	// Incase the brand verification fails or is put on hold
-	ReasonForHold string               `json:"reason_for_hold,nullable"`
-	SupportEmail  string               `json:"support_email,nullable"`
-	URL           string               `json:"url,nullable"`
-	JSON          brandNewResponseJSON `json:"-"`
+	ReasonForHold string    `json:"reason_for_hold,nullable"`
+	SupportEmail  string    `json:"support_email,nullable"`
+	URL           string    `json:"url,nullable"`
+	JSON          brandJSON `json:"-"`
 }
 
-// brandNewResponseJSON contains the JSON metadata for the struct
-// [BrandNewResponse]
-type brandNewResponseJSON struct {
+// brandJSON contains the JSON metadata for the struct [Brand]
+type brandJSON struct {
 	BrandID             apijson.Field
 	BusinessID          apijson.Field
 	Enabled             apijson.Field
@@ -117,148 +116,26 @@ type brandNewResponseJSON struct {
 	ExtraFields         map[string]apijson.Field
 }
 
-func (r *BrandNewResponse) UnmarshalJSON(data []byte) (err error) {
+func (r *Brand) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r brandNewResponseJSON) RawJSON() string {
+func (r brandJSON) RawJSON() string {
 	return r.raw
 }
 
-type BrandNewResponseVerificationStatus string
+type BrandVerificationStatus string
 
 const (
-	BrandNewResponseVerificationStatusSuccess BrandNewResponseVerificationStatus = "Success"
-	BrandNewResponseVerificationStatusFail    BrandNewResponseVerificationStatus = "Fail"
-	BrandNewResponseVerificationStatusReview  BrandNewResponseVerificationStatus = "Review"
-	BrandNewResponseVerificationStatusHold    BrandNewResponseVerificationStatus = "Hold"
+	BrandVerificationStatusSuccess BrandVerificationStatus = "Success"
+	BrandVerificationStatusFail    BrandVerificationStatus = "Fail"
+	BrandVerificationStatusReview  BrandVerificationStatus = "Review"
+	BrandVerificationStatusHold    BrandVerificationStatus = "Hold"
 )
 
-func (r BrandNewResponseVerificationStatus) IsKnown() bool {
+func (r BrandVerificationStatus) IsKnown() bool {
 	switch r {
-	case BrandNewResponseVerificationStatusSuccess, BrandNewResponseVerificationStatusFail, BrandNewResponseVerificationStatusReview, BrandNewResponseVerificationStatusHold:
-		return true
-	}
-	return false
-}
-
-type BrandGetResponse struct {
-	BrandID             string                             `json:"brand_id,required"`
-	BusinessID          string                             `json:"business_id,required"`
-	Enabled             bool                               `json:"enabled,required"`
-	StatementDescriptor string                             `json:"statement_descriptor,required"`
-	VerificationEnabled bool                               `json:"verification_enabled,required"`
-	VerificationStatus  BrandGetResponseVerificationStatus `json:"verification_status,required"`
-	Description         string                             `json:"description,nullable"`
-	Image               string                             `json:"image,nullable"`
-	Name                string                             `json:"name,nullable"`
-	// Incase the brand verification fails or is put on hold
-	ReasonForHold string               `json:"reason_for_hold,nullable"`
-	SupportEmail  string               `json:"support_email,nullable"`
-	URL           string               `json:"url,nullable"`
-	JSON          brandGetResponseJSON `json:"-"`
-}
-
-// brandGetResponseJSON contains the JSON metadata for the struct
-// [BrandGetResponse]
-type brandGetResponseJSON struct {
-	BrandID             apijson.Field
-	BusinessID          apijson.Field
-	Enabled             apijson.Field
-	StatementDescriptor apijson.Field
-	VerificationEnabled apijson.Field
-	VerificationStatus  apijson.Field
-	Description         apijson.Field
-	Image               apijson.Field
-	Name                apijson.Field
-	ReasonForHold       apijson.Field
-	SupportEmail        apijson.Field
-	URL                 apijson.Field
-	raw                 string
-	ExtraFields         map[string]apijson.Field
-}
-
-func (r *BrandGetResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r brandGetResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type BrandGetResponseVerificationStatus string
-
-const (
-	BrandGetResponseVerificationStatusSuccess BrandGetResponseVerificationStatus = "Success"
-	BrandGetResponseVerificationStatusFail    BrandGetResponseVerificationStatus = "Fail"
-	BrandGetResponseVerificationStatusReview  BrandGetResponseVerificationStatus = "Review"
-	BrandGetResponseVerificationStatusHold    BrandGetResponseVerificationStatus = "Hold"
-)
-
-func (r BrandGetResponseVerificationStatus) IsKnown() bool {
-	switch r {
-	case BrandGetResponseVerificationStatusSuccess, BrandGetResponseVerificationStatusFail, BrandGetResponseVerificationStatusReview, BrandGetResponseVerificationStatusHold:
-		return true
-	}
-	return false
-}
-
-type BrandUpdateResponse struct {
-	BrandID             string                                `json:"brand_id,required"`
-	BusinessID          string                                `json:"business_id,required"`
-	Enabled             bool                                  `json:"enabled,required"`
-	StatementDescriptor string                                `json:"statement_descriptor,required"`
-	VerificationEnabled bool                                  `json:"verification_enabled,required"`
-	VerificationStatus  BrandUpdateResponseVerificationStatus `json:"verification_status,required"`
-	Description         string                                `json:"description,nullable"`
-	Image               string                                `json:"image,nullable"`
-	Name                string                                `json:"name,nullable"`
-	// Incase the brand verification fails or is put on hold
-	ReasonForHold string                  `json:"reason_for_hold,nullable"`
-	SupportEmail  string                  `json:"support_email,nullable"`
-	URL           string                  `json:"url,nullable"`
-	JSON          brandUpdateResponseJSON `json:"-"`
-}
-
-// brandUpdateResponseJSON contains the JSON metadata for the struct
-// [BrandUpdateResponse]
-type brandUpdateResponseJSON struct {
-	BrandID             apijson.Field
-	BusinessID          apijson.Field
-	Enabled             apijson.Field
-	StatementDescriptor apijson.Field
-	VerificationEnabled apijson.Field
-	VerificationStatus  apijson.Field
-	Description         apijson.Field
-	Image               apijson.Field
-	Name                apijson.Field
-	ReasonForHold       apijson.Field
-	SupportEmail        apijson.Field
-	URL                 apijson.Field
-	raw                 string
-	ExtraFields         map[string]apijson.Field
-}
-
-func (r *BrandUpdateResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r brandUpdateResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type BrandUpdateResponseVerificationStatus string
-
-const (
-	BrandUpdateResponseVerificationStatusSuccess BrandUpdateResponseVerificationStatus = "Success"
-	BrandUpdateResponseVerificationStatusFail    BrandUpdateResponseVerificationStatus = "Fail"
-	BrandUpdateResponseVerificationStatusReview  BrandUpdateResponseVerificationStatus = "Review"
-	BrandUpdateResponseVerificationStatusHold    BrandUpdateResponseVerificationStatus = "Hold"
-)
-
-func (r BrandUpdateResponseVerificationStatus) IsKnown() bool {
-	switch r {
-	case BrandUpdateResponseVerificationStatusSuccess, BrandUpdateResponseVerificationStatusFail, BrandUpdateResponseVerificationStatusReview, BrandUpdateResponseVerificationStatusHold:
+	case BrandVerificationStatusSuccess, BrandVerificationStatusFail, BrandVerificationStatusReview, BrandVerificationStatusHold:
 		return true
 	}
 	return false
@@ -266,8 +143,8 @@ func (r BrandUpdateResponseVerificationStatus) IsKnown() bool {
 
 type BrandListResponse struct {
 	// List of brands for this business
-	Items []BrandListResponseItem `json:"items,required"`
-	JSON  brandListResponseJSON   `json:"-"`
+	Items []Brand               `json:"items,required"`
+	JSON  brandListResponseJSON `json:"-"`
 }
 
 // brandListResponseJSON contains the JSON metadata for the struct
@@ -284,67 +161,6 @@ func (r *BrandListResponse) UnmarshalJSON(data []byte) (err error) {
 
 func (r brandListResponseJSON) RawJSON() string {
 	return r.raw
-}
-
-type BrandListResponseItem struct {
-	BrandID             string                                   `json:"brand_id,required"`
-	BusinessID          string                                   `json:"business_id,required"`
-	Enabled             bool                                     `json:"enabled,required"`
-	StatementDescriptor string                                   `json:"statement_descriptor,required"`
-	VerificationEnabled bool                                     `json:"verification_enabled,required"`
-	VerificationStatus  BrandListResponseItemsVerificationStatus `json:"verification_status,required"`
-	Description         string                                   `json:"description,nullable"`
-	Image               string                                   `json:"image,nullable"`
-	Name                string                                   `json:"name,nullable"`
-	// Incase the brand verification fails or is put on hold
-	ReasonForHold string                    `json:"reason_for_hold,nullable"`
-	SupportEmail  string                    `json:"support_email,nullable"`
-	URL           string                    `json:"url,nullable"`
-	JSON          brandListResponseItemJSON `json:"-"`
-}
-
-// brandListResponseItemJSON contains the JSON metadata for the struct
-// [BrandListResponseItem]
-type brandListResponseItemJSON struct {
-	BrandID             apijson.Field
-	BusinessID          apijson.Field
-	Enabled             apijson.Field
-	StatementDescriptor apijson.Field
-	VerificationEnabled apijson.Field
-	VerificationStatus  apijson.Field
-	Description         apijson.Field
-	Image               apijson.Field
-	Name                apijson.Field
-	ReasonForHold       apijson.Field
-	SupportEmail        apijson.Field
-	URL                 apijson.Field
-	raw                 string
-	ExtraFields         map[string]apijson.Field
-}
-
-func (r *BrandListResponseItem) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r brandListResponseItemJSON) RawJSON() string {
-	return r.raw
-}
-
-type BrandListResponseItemsVerificationStatus string
-
-const (
-	BrandListResponseItemsVerificationStatusSuccess BrandListResponseItemsVerificationStatus = "Success"
-	BrandListResponseItemsVerificationStatusFail    BrandListResponseItemsVerificationStatus = "Fail"
-	BrandListResponseItemsVerificationStatusReview  BrandListResponseItemsVerificationStatus = "Review"
-	BrandListResponseItemsVerificationStatusHold    BrandListResponseItemsVerificationStatus = "Hold"
-)
-
-func (r BrandListResponseItemsVerificationStatus) IsKnown() bool {
-	switch r {
-	case BrandListResponseItemsVerificationStatusSuccess, BrandListResponseItemsVerificationStatusFail, BrandListResponseItemsVerificationStatusReview, BrandListResponseItemsVerificationStatusHold:
-		return true
-	}
-	return false
 }
 
 type BrandUpdateImagesResponse struct {

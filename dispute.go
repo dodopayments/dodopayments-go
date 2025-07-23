@@ -37,7 +37,7 @@ func NewDisputeService(opts ...option.RequestOption) (r *DisputeService) {
 	return
 }
 
-func (r *DisputeService) Get(ctx context.Context, disputeID string, opts ...option.RequestOption) (res *DisputeGetResponse, err error) {
+func (r *DisputeService) Get(ctx context.Context, disputeID string, opts ...option.RequestOption) (res *GetDispute, err error) {
 	opts = append(r.Options[:], opts...)
 	if disputeID == "" {
 		err = errors.New("missing required dispute_id parameter")
@@ -151,7 +151,7 @@ func (r DisputeStatus) IsKnown() bool {
 	return false
 }
 
-type DisputeGetResponse struct {
+type GetDispute struct {
 	// The amount involved in the dispute, represented as a string to accommodate
 	// precision.
 	Amount string `json:"amount,required"`
@@ -174,13 +174,12 @@ type DisputeGetResponse struct {
 	// Reason for the dispute
 	Reason string `json:"reason,nullable"`
 	// Remarks
-	Remarks string                 `json:"remarks,nullable"`
-	JSON    disputeGetResponseJSON `json:"-"`
+	Remarks string         `json:"remarks,nullable"`
+	JSON    getDisputeJSON `json:"-"`
 }
 
-// disputeGetResponseJSON contains the JSON metadata for the struct
-// [DisputeGetResponse]
-type disputeGetResponseJSON struct {
+// getDisputeJSON contains the JSON metadata for the struct [GetDispute]
+type getDisputeJSON struct {
 	Amount        apijson.Field
 	BusinessID    apijson.Field
 	CreatedAt     apijson.Field
@@ -196,11 +195,11 @@ type disputeGetResponseJSON struct {
 	ExtraFields   map[string]apijson.Field
 }
 
-func (r *DisputeGetResponse) UnmarshalJSON(data []byte) (err error) {
+func (r *GetDispute) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r disputeGetResponseJSON) RawJSON() string {
+func (r getDisputeJSON) RawJSON() string {
 	return r.raw
 }
 
