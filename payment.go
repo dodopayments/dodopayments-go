@@ -417,6 +417,37 @@ func (r paymentProductCartJSON) RawJSON() string {
 	return r.raw
 }
 
+type PaymentMethodTypes string
+
+const (
+	PaymentMethodTypesCredit           PaymentMethodTypes = "credit"
+	PaymentMethodTypesDebit            PaymentMethodTypes = "debit"
+	PaymentMethodTypesUpiCollect       PaymentMethodTypes = "upi_collect"
+	PaymentMethodTypesUpiIntent        PaymentMethodTypes = "upi_intent"
+	PaymentMethodTypesApplePay         PaymentMethodTypes = "apple_pay"
+	PaymentMethodTypesCashapp          PaymentMethodTypes = "cashapp"
+	PaymentMethodTypesGooglePay        PaymentMethodTypes = "google_pay"
+	PaymentMethodTypesMultibanco       PaymentMethodTypes = "multibanco"
+	PaymentMethodTypesBancontactCard   PaymentMethodTypes = "bancontact_card"
+	PaymentMethodTypesEps              PaymentMethodTypes = "eps"
+	PaymentMethodTypesIdeal            PaymentMethodTypes = "ideal"
+	PaymentMethodTypesPrzelewy24       PaymentMethodTypes = "przelewy24"
+	PaymentMethodTypesAffirm           PaymentMethodTypes = "affirm"
+	PaymentMethodTypesKlarna           PaymentMethodTypes = "klarna"
+	PaymentMethodTypesSepa             PaymentMethodTypes = "sepa"
+	PaymentMethodTypesACH              PaymentMethodTypes = "ach"
+	PaymentMethodTypesAmazonPay        PaymentMethodTypes = "amazon_pay"
+	PaymentMethodTypesAfterpayClearpay PaymentMethodTypes = "afterpay_clearpay"
+)
+
+func (r PaymentMethodTypes) IsKnown() bool {
+	switch r {
+	case PaymentMethodTypesCredit, PaymentMethodTypesDebit, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesApplePay, PaymentMethodTypesCashapp, PaymentMethodTypesGooglePay, PaymentMethodTypesMultibanco, PaymentMethodTypesBancontactCard, PaymentMethodTypesEps, PaymentMethodTypesIdeal, PaymentMethodTypesPrzelewy24, PaymentMethodTypesAffirm, PaymentMethodTypesKlarna, PaymentMethodTypesSepa, PaymentMethodTypesACH, PaymentMethodTypesAmazonPay, PaymentMethodTypesAfterpayClearpay:
+		return true
+	}
+	return false
+}
+
 type PaymentNewResponse struct {
 	// Client secret used to load Dodo checkout SDK NOTE : Dodo checkout SDK will be
 	// coming soon
@@ -574,7 +605,7 @@ type PaymentNewParams struct {
 	// However, adding a method here **does not guarantee** customers will see it.
 	// Availability still depends on other factors (e.g., customer location, merchant
 	// settings).
-	AllowedPaymentMethodTypes param.Field[[]PaymentNewParamsAllowedPaymentMethodType] `json:"allowed_payment_method_types"`
+	AllowedPaymentMethodTypes param.Field[[]PaymentMethodTypes] `json:"allowed_payment_method_types"`
 	// Fix the currency in which the end customer is billed. If Dodo Payments cannot
 	// support that currency for this transaction, it will not proceed
 	BillingCurrency param.Field[Currency] `json:"billing_currency"`
@@ -597,37 +628,6 @@ type PaymentNewParams struct {
 
 func (r PaymentNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
-}
-
-type PaymentNewParamsAllowedPaymentMethodType string
-
-const (
-	PaymentNewParamsAllowedPaymentMethodTypeCredit           PaymentNewParamsAllowedPaymentMethodType = "credit"
-	PaymentNewParamsAllowedPaymentMethodTypeDebit            PaymentNewParamsAllowedPaymentMethodType = "debit"
-	PaymentNewParamsAllowedPaymentMethodTypeUpiCollect       PaymentNewParamsAllowedPaymentMethodType = "upi_collect"
-	PaymentNewParamsAllowedPaymentMethodTypeUpiIntent        PaymentNewParamsAllowedPaymentMethodType = "upi_intent"
-	PaymentNewParamsAllowedPaymentMethodTypeApplePay         PaymentNewParamsAllowedPaymentMethodType = "apple_pay"
-	PaymentNewParamsAllowedPaymentMethodTypeCashapp          PaymentNewParamsAllowedPaymentMethodType = "cashapp"
-	PaymentNewParamsAllowedPaymentMethodTypeGooglePay        PaymentNewParamsAllowedPaymentMethodType = "google_pay"
-	PaymentNewParamsAllowedPaymentMethodTypeMultibanco       PaymentNewParamsAllowedPaymentMethodType = "multibanco"
-	PaymentNewParamsAllowedPaymentMethodTypeBancontactCard   PaymentNewParamsAllowedPaymentMethodType = "bancontact_card"
-	PaymentNewParamsAllowedPaymentMethodTypeEps              PaymentNewParamsAllowedPaymentMethodType = "eps"
-	PaymentNewParamsAllowedPaymentMethodTypeIdeal            PaymentNewParamsAllowedPaymentMethodType = "ideal"
-	PaymentNewParamsAllowedPaymentMethodTypePrzelewy24       PaymentNewParamsAllowedPaymentMethodType = "przelewy24"
-	PaymentNewParamsAllowedPaymentMethodTypeAffirm           PaymentNewParamsAllowedPaymentMethodType = "affirm"
-	PaymentNewParamsAllowedPaymentMethodTypeKlarna           PaymentNewParamsAllowedPaymentMethodType = "klarna"
-	PaymentNewParamsAllowedPaymentMethodTypeSepa             PaymentNewParamsAllowedPaymentMethodType = "sepa"
-	PaymentNewParamsAllowedPaymentMethodTypeACH              PaymentNewParamsAllowedPaymentMethodType = "ach"
-	PaymentNewParamsAllowedPaymentMethodTypeAmazonPay        PaymentNewParamsAllowedPaymentMethodType = "amazon_pay"
-	PaymentNewParamsAllowedPaymentMethodTypeAfterpayClearpay PaymentNewParamsAllowedPaymentMethodType = "afterpay_clearpay"
-)
-
-func (r PaymentNewParamsAllowedPaymentMethodType) IsKnown() bool {
-	switch r {
-	case PaymentNewParamsAllowedPaymentMethodTypeCredit, PaymentNewParamsAllowedPaymentMethodTypeDebit, PaymentNewParamsAllowedPaymentMethodTypeUpiCollect, PaymentNewParamsAllowedPaymentMethodTypeUpiIntent, PaymentNewParamsAllowedPaymentMethodTypeApplePay, PaymentNewParamsAllowedPaymentMethodTypeCashapp, PaymentNewParamsAllowedPaymentMethodTypeGooglePay, PaymentNewParamsAllowedPaymentMethodTypeMultibanco, PaymentNewParamsAllowedPaymentMethodTypeBancontactCard, PaymentNewParamsAllowedPaymentMethodTypeEps, PaymentNewParamsAllowedPaymentMethodTypeIdeal, PaymentNewParamsAllowedPaymentMethodTypePrzelewy24, PaymentNewParamsAllowedPaymentMethodTypeAffirm, PaymentNewParamsAllowedPaymentMethodTypeKlarna, PaymentNewParamsAllowedPaymentMethodTypeSepa, PaymentNewParamsAllowedPaymentMethodTypeACH, PaymentNewParamsAllowedPaymentMethodTypeAmazonPay, PaymentNewParamsAllowedPaymentMethodTypeAfterpayClearpay:
-		return true
-	}
-	return false
 }
 
 type PaymentListParams struct {

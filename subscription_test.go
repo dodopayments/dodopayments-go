@@ -39,11 +39,11 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		}),
 		ProductID: dodopayments.F("product_id"),
 		Quantity:  dodopayments.F(int64(0)),
-		Addons: dodopayments.F([]dodopayments.SubscriptionNewParamsAddon{{
+		Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
 			AddonID:  dodopayments.F("addon_id"),
 			Quantity: dodopayments.F(int64(0)),
 		}}),
-		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.SubscriptionNewParamsAllowedPaymentMethodType{dodopayments.SubscriptionNewParamsAllowedPaymentMethodTypeCredit}),
+		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesCredit}),
 		BillingCurrency:           dodopayments.F(dodopayments.CurrencyAed),
 		DiscountCode:              dodopayments.F("discount_code"),
 		Metadata: dodopayments.F(map[string]string{
@@ -185,7 +185,7 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 			ProductID:            dodopayments.F("product_id"),
 			ProrationBillingMode: dodopayments.F(dodopayments.SubscriptionChangePlanParamsProrationBillingModeProratedImmediately),
 			Quantity:             dodopayments.F(int64(0)),
-			Addons: dodopayments.F([]dodopayments.SubscriptionChangePlanParamsAddon{{
+			Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
 				AddonID:  dodopayments.F("addon_id"),
 				Quantity: dodopayments.F(int64(0)),
 			}}),
