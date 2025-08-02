@@ -239,7 +239,6 @@ const (
 	SubscriptionStatusPending   SubscriptionStatus = "pending"
 	SubscriptionStatusActive    SubscriptionStatus = "active"
 	SubscriptionStatusOnHold    SubscriptionStatus = "on_hold"
-	SubscriptionStatusPaused    SubscriptionStatus = "paused"
 	SubscriptionStatusCancelled SubscriptionStatus = "cancelled"
 	SubscriptionStatusFailed    SubscriptionStatus = "failed"
 	SubscriptionStatusExpired   SubscriptionStatus = "expired"
@@ -247,7 +246,7 @@ const (
 
 func (r SubscriptionStatus) IsKnown() bool {
 	switch r {
-	case SubscriptionStatusPending, SubscriptionStatusActive, SubscriptionStatusOnHold, SubscriptionStatusPaused, SubscriptionStatusCancelled, SubscriptionStatusFailed, SubscriptionStatusExpired:
+	case SubscriptionStatusPending, SubscriptionStatusActive, SubscriptionStatusOnHold, SubscriptionStatusCancelled, SubscriptionStatusFailed, SubscriptionStatusExpired:
 		return true
 	}
 	return false
@@ -551,7 +550,6 @@ const (
 	SubscriptionListParamsStatusPending   SubscriptionListParamsStatus = "pending"
 	SubscriptionListParamsStatusActive    SubscriptionListParamsStatus = "active"
 	SubscriptionListParamsStatusOnHold    SubscriptionListParamsStatus = "on_hold"
-	SubscriptionListParamsStatusPaused    SubscriptionListParamsStatus = "paused"
 	SubscriptionListParamsStatusCancelled SubscriptionListParamsStatus = "cancelled"
 	SubscriptionListParamsStatusFailed    SubscriptionListParamsStatus = "failed"
 	SubscriptionListParamsStatusExpired   SubscriptionListParamsStatus = "expired"
@@ -559,7 +557,7 @@ const (
 
 func (r SubscriptionListParamsStatus) IsKnown() bool {
 	switch r {
-	case SubscriptionListParamsStatusPending, SubscriptionListParamsStatusActive, SubscriptionListParamsStatusOnHold, SubscriptionListParamsStatusPaused, SubscriptionListParamsStatusCancelled, SubscriptionListParamsStatusFailed, SubscriptionListParamsStatusExpired:
+	case SubscriptionListParamsStatusPending, SubscriptionListParamsStatusActive, SubscriptionListParamsStatusOnHold, SubscriptionListParamsStatusCancelled, SubscriptionListParamsStatusFailed, SubscriptionListParamsStatusExpired:
 		return true
 	}
 	return false
@@ -585,13 +583,14 @@ func (r SubscriptionChangePlanParams) MarshalJSON() (data []byte, err error) {
 type SubscriptionChangePlanParamsProrationBillingMode string
 
 const (
-	SubscriptionChangePlanParamsProrationBillingModeProratedImmediately SubscriptionChangePlanParamsProrationBillingMode = "prorated_immediately"
-	SubscriptionChangePlanParamsProrationBillingModeFullImmediately     SubscriptionChangePlanParamsProrationBillingMode = "full_immediately"
+	SubscriptionChangePlanParamsProrationBillingModeProratedImmediately   SubscriptionChangePlanParamsProrationBillingMode = "prorated_immediately"
+	SubscriptionChangePlanParamsProrationBillingModeFullImmediately       SubscriptionChangePlanParamsProrationBillingMode = "full_immediately"
+	SubscriptionChangePlanParamsProrationBillingModeDifferenceImmediately SubscriptionChangePlanParamsProrationBillingMode = "difference_immediately"
 )
 
 func (r SubscriptionChangePlanParamsProrationBillingMode) IsKnown() bool {
 	switch r {
-	case SubscriptionChangePlanParamsProrationBillingModeProratedImmediately, SubscriptionChangePlanParamsProrationBillingModeFullImmediately:
+	case SubscriptionChangePlanParamsProrationBillingModeProratedImmediately, SubscriptionChangePlanParamsProrationBillingModeFullImmediately, SubscriptionChangePlanParamsProrationBillingModeDifferenceImmediately:
 		return true
 	}
 	return false
