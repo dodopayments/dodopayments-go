@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.45.0 (2025-08-09)
+
+Full Changelog: [v1.44.0...v1.45.0](https://github.com/dodopayments/dodopayments-go/compare/v1.44.0...v1.45.0)
+
+### Features
+
+* **client:** support optional json html escaping ([2182455](https://github.com/dodopayments/dodopayments-go/commit/21824553f576e67f44e1f98947d9ff0bbd6efd90))
+
+
+### Chores
+
+* **internal:** update comment in script ([c3c920a](https://github.com/dodopayments/dodopayments-go/commit/c3c920afede3ea3be6e62f3410d7f0501ff77df8))
+* update @stainless-api/prism-cli to v5.15.0 ([c9b7e3b](https://github.com/dodopayments/dodopayments-go/commit/c9b7e3bf00a976e61158e2e171792832f13de684))
+
 ## 1.44.0 (2025-08-02)
 
 Full Changelog: [v1.43.0...v1.44.0](https://github.com/dodopayments/dodopayments-go/compare/v1.43.0...v1.44.0)
