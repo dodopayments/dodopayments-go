@@ -32,6 +32,8 @@ type Client struct {
 	Discounts           *DiscountService
 	Addons              *AddonService
 	Brands              *BrandService
+	Webhooks            *WebhookService
+	YourWebhookURL      *YourWebhookURLService
 }
 
 // DefaultClientOptions read from the environment (DODO_PAYMENTS_API_KEY,
@@ -72,6 +74,8 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Discounts = NewDiscountService(opts...)
 	r.Addons = NewAddonService(opts...)
 	r.Brands = NewBrandService(opts...)
+	r.Webhooks = NewWebhookService(opts...)
+	r.YourWebhookURL = NewYourWebhookURLService(opts...)
 
 	return
 }

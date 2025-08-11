@@ -131,6 +131,10 @@ type Discount struct {
 	ExpiresAt time.Time `json:"expires_at,nullable" format:"date-time"`
 	// Name for the Discount
 	Name string `json:"name,nullable"`
+	// Number of subscription billing cycles this discount is valid for. If not
+	// provided, the discount will be applied indefinitely to all recurring payments
+	// related to the subscription.
+	SubscriptionCycles int64 `json:"subscription_cycles,nullable"`
 	// Usage limit for this discount, if any.
 	UsageLimit int64        `json:"usage_limit,nullable"`
 	JSON       discountJSON `json:"-"`
@@ -138,19 +142,20 @@ type Discount struct {
 
 // discountJSON contains the JSON metadata for the struct [Discount]
 type discountJSON struct {
-	Amount       apijson.Field
-	BusinessID   apijson.Field
-	Code         apijson.Field
-	CreatedAt    apijson.Field
-	DiscountID   apijson.Field
-	RestrictedTo apijson.Field
-	TimesUsed    apijson.Field
-	Type         apijson.Field
-	ExpiresAt    apijson.Field
-	Name         apijson.Field
-	UsageLimit   apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
+	Amount             apijson.Field
+	BusinessID         apijson.Field
+	Code               apijson.Field
+	CreatedAt          apijson.Field
+	DiscountID         apijson.Field
+	RestrictedTo       apijson.Field
+	TimesUsed          apijson.Field
+	Type               apijson.Field
+	ExpiresAt          apijson.Field
+	Name               apijson.Field
+	SubscriptionCycles apijson.Field
+	UsageLimit         apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
 }
 
 func (r *Discount) UnmarshalJSON(data []byte) (err error) {
@@ -197,6 +202,10 @@ type DiscountNewParams struct {
 	Name      param.Field[string]    `json:"name"`
 	// List of product IDs to restrict usage (if any).
 	RestrictedTo param.Field[[]string] `json:"restricted_to"`
+	// Number of subscription billing cycles this discount is valid for. If not
+	// provided, the discount will be applied indefinitely to all recurring payments
+	// related to the subscription.
+	SubscriptionCycles param.Field[int64] `json:"subscription_cycles"`
 	// How many times this discount can be used (if any). Must be >= 1 if provided.
 	UsageLimit param.Field[int64] `json:"usage_limit"`
 }
@@ -221,6 +230,10 @@ type DiscountUpdateParams struct {
 	// If present, replaces all restricted product IDs with this new set. To remove all
 	// restrictions, send empty array
 	RestrictedTo param.Field[[]string] `json:"restricted_to"`
+	// Number of subscription billing cycles this discount is valid for. If not
+	// provided, the discount will be applied indefinitely to all recurring payments
+	// related to the subscription.
+	SubscriptionCycles param.Field[int64] `json:"subscription_cycles"`
 	// If present, update the discount type.
 	Type       param.Field[DiscountType] `json:"type"`
 	UsageLimit param.Field[int64]        `json:"usage_limit"`

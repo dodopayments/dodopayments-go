@@ -147,22 +147,6 @@ func (r BillingAddressParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-type CreateNewCustomerParam struct {
-	Email param.Field[string] `json:"email,required"`
-	Name  param.Field[string] `json:"name,required"`
-	// When false, the most recently created customer object with the given email is
-	// used if exists. When true, a new customer object is always created False by
-	// default
-	CreateNewCustomer param.Field[bool]   `json:"create_new_customer"`
-	PhoneNumber       param.Field[string] `json:"phone_number"`
-}
-
-func (r CreateNewCustomerParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-func (r CreateNewCustomerParam) implementsCustomerRequestUnionParam() {}
-
 type CustomerLimitedDetails struct {
 	// Unique identifier for the customer
 	CustomerID string `json:"customer_id,required"`
@@ -191,15 +175,24 @@ func (r customerLimitedDetailsJSON) RawJSON() string {
 	return r.raw
 }
 
+type CustomerLimitedDetailsParam struct {
+	// Unique identifier for the customer
+	CustomerID param.Field[string] `json:"customer_id,required"`
+	// Email address of the customer
+	Email param.Field[string] `json:"email,required"`
+	// Full name of the customer
+	Name param.Field[string] `json:"name,required"`
+}
+
+func (r CustomerLimitedDetailsParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type CustomerRequestParam struct {
-	// When false, the most recently created customer object with the given email is
-	// used if exists. When true, a new customer object is always created False by
-	// default
-	CreateNewCustomer param.Field[bool]   `json:"create_new_customer"`
-	CustomerID        param.Field[string] `json:"customer_id"`
-	Email             param.Field[string] `json:"email"`
-	Name              param.Field[string] `json:"name"`
-	PhoneNumber       param.Field[string] `json:"phone_number"`
+	CustomerID  param.Field[string] `json:"customer_id"`
+	Email       param.Field[string] `json:"email"`
+	Name        param.Field[string] `json:"name"`
+	PhoneNumber param.Field[string] `json:"phone_number"`
 }
 
 func (r CustomerRequestParam) MarshalJSON() (data []byte, err error) {
@@ -208,7 +201,7 @@ func (r CustomerRequestParam) MarshalJSON() (data []byte, err error) {
 
 func (r CustomerRequestParam) implementsCustomerRequestUnionParam() {}
 
-// Satisfied by [AttachExistingCustomerParam], [CreateNewCustomerParam],
+// Satisfied by [AttachExistingCustomerParam], [NewCustomerParam],
 // [CustomerRequestParam].
 type CustomerRequestUnionParam interface {
 	implementsCustomerRequestUnionParam()
@@ -237,6 +230,18 @@ func (r IntentStatus) IsKnown() bool {
 	}
 	return false
 }
+
+type NewCustomerParam struct {
+	Email       param.Field[string] `json:"email,required"`
+	Name        param.Field[string] `json:"name,required"`
+	PhoneNumber param.Field[string] `json:"phone_number"`
+}
+
+func (r NewCustomerParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r NewCustomerParam) implementsCustomerRequestUnionParam() {}
 
 type OneTimeProductCartItem struct {
 	ProductID string `json:"product_id,required"`
@@ -415,6 +420,89 @@ func (r *PaymentProductCart) UnmarshalJSON(data []byte) (err error) {
 
 func (r paymentProductCartJSON) RawJSON() string {
 	return r.raw
+}
+
+type PaymentParam struct {
+	// Billing address details for payments
+	Billing param.Field[BillingAddressParam] `json:"billing,required"`
+	// brand id this payment belongs to
+	BrandID param.Field[string] `json:"brand_id,required"`
+	// Identifier of the business associated with the payment
+	BusinessID param.Field[string] `json:"business_id,required"`
+	// Timestamp when the payment was created
+	CreatedAt param.Field[time.Time] `json:"created_at,required" format:"date-time"`
+	// Currency used for the payment
+	Currency param.Field[Currency] `json:"currency,required"`
+	// Details about the customer who made the payment
+	Customer param.Field[CustomerLimitedDetailsParam] `json:"customer,required"`
+	// brand id this payment belongs to
+	DigitalProductsDelivered param.Field[bool] `json:"digital_products_delivered,required"`
+	// List of disputes associated with this payment
+	Disputes param.Field[[]DisputeParam] `json:"disputes,required"`
+	// Additional custom data associated with the payment
+	Metadata param.Field[map[string]string] `json:"metadata,required"`
+	// Unique identifier for the payment
+	PaymentID param.Field[string] `json:"payment_id,required"`
+	// List of refunds issued for this payment
+	Refunds param.Field[[]RefundParam] `json:"refunds,required"`
+	// The amount that will be credited to your Dodo balance after currency conversion
+	// and processing. Especially relevant for adaptive pricing where the customer's
+	// payment currency differs from your settlement currency.
+	SettlementAmount param.Field[int64] `json:"settlement_amount,required"`
+	// The currency in which the settlement_amount will be credited to your Dodo
+	// balance. This may differ from the customer's payment currency in adaptive
+	// pricing scenarios.
+	SettlementCurrency param.Field[Currency] `json:"settlement_currency,required"`
+	// Total amount charged to the customer including tax, in smallest currency unit
+	// (e.g. cents)
+	TotalAmount param.Field[int64] `json:"total_amount,required"`
+	// ISO2 country code of the card
+	CardIssuingCountry param.Field[CountryCode] `json:"card_issuing_country"`
+	// The last four digits of the card
+	CardLastFour param.Field[string] `json:"card_last_four"`
+	// Card network like VISA, MASTERCARD etc.
+	CardNetwork param.Field[string] `json:"card_network"`
+	// The type of card DEBIT or CREDIT
+	CardType param.Field[string] `json:"card_type"`
+	// The discount id if discount is applied
+	DiscountID param.Field[string] `json:"discount_id"`
+	// An error code if the payment failed
+	ErrorCode param.Field[string] `json:"error_code"`
+	// An error message if the payment failed
+	ErrorMessage param.Field[string] `json:"error_message"`
+	// Checkout URL
+	PaymentLink param.Field[string] `json:"payment_link"`
+	// Payment method used by customer (e.g. "card", "bank_transfer")
+	PaymentMethod param.Field[string] `json:"payment_method"`
+	// Specific type of payment method (e.g. "visa", "mastercard")
+	PaymentMethodType param.Field[string] `json:"payment_method_type"`
+	// List of products purchased in a one-time payment
+	ProductCart param.Field[[]PaymentProductCartParam] `json:"product_cart"`
+	// This represents the portion of settlement_amount that corresponds to taxes
+	// collected. Especially relevant for adaptive pricing where the tax component must
+	// be tracked separately in your Dodo balance.
+	SettlementTax param.Field[int64] `json:"settlement_tax"`
+	// Current status of the payment intent
+	Status param.Field[IntentStatus] `json:"status"`
+	// Identifier of the subscription if payment is part of a subscription
+	SubscriptionID param.Field[string] `json:"subscription_id"`
+	// Amount of tax collected in smallest currency unit (e.g. cents)
+	Tax param.Field[int64] `json:"tax"`
+	// Timestamp when the payment was last updated
+	UpdatedAt param.Field[time.Time] `json:"updated_at" format:"date-time"`
+}
+
+func (r PaymentParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type PaymentProductCartParam struct {
+	ProductID param.Field[string] `json:"product_id,required"`
+	Quantity  param.Field[int64]  `json:"quantity,required"`
+}
+
+func (r PaymentProductCartParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type PaymentMethodTypes string
