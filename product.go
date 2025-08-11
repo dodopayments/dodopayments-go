@@ -547,6 +547,8 @@ type Product struct {
 	IsRecurring bool `json:"is_recurring,required"`
 	// Indicates whether the product requires a license key.
 	LicenseKeyEnabled bool `json:"license_key_enabled,required"`
+	// Additional custom data associated with the product
+	Metadata map[string]string `json:"metadata,required"`
 	// Pricing information for the product.
 	Price Price `json:"price,required"`
 	// Unique identifier for the product.
@@ -580,6 +582,7 @@ type productJSON struct {
 	CreatedAt                   apijson.Field
 	IsRecurring                 apijson.Field
 	LicenseKeyEnabled           apijson.Field
+	Metadata                    apijson.Field
 	Price                       apijson.Field
 	ProductID                   apijson.Field
 	TaxCategory                 apijson.Field
@@ -664,6 +667,8 @@ type ProductListResponse struct {
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
 	// Indicates if the product is recurring (e.g., subscriptions).
 	IsRecurring bool `json:"is_recurring,required"`
+	// Additional custom data associated with the product
+	Metadata map[string]string `json:"metadata,required"`
 	// Unique identifier for the product.
 	ProductID string `json:"product_id,required"`
 	// Tax category associated with the product.
@@ -702,6 +707,7 @@ type productListResponseJSON struct {
 	BusinessID   apijson.Field
 	CreatedAt    apijson.Field
 	IsRecurring  apijson.Field
+	Metadata     apijson.Field
 	ProductID    apijson.Field
 	TaxCategory  apijson.Field
 	UpdatedAt    apijson.Field
@@ -770,6 +776,8 @@ type ProductNewParams struct {
 	LicenseKeyDuration param.Field[LicenseKeyDurationParam] `json:"license_key_duration"`
 	// When true, generates and sends a license key to your customer. Defaults to false
 	LicenseKeyEnabled param.Field[bool] `json:"license_key_enabled"`
+	// Additional metadata for the product
+	Metadata param.Field[map[string]string] `json:"metadata"`
 	// Optional name of the product
 	Name param.Field[string] `json:"name"`
 }
@@ -820,6 +828,8 @@ type ProductUpdateParams struct {
 	// If `true`, additional fields related to license key (duration, activations
 	// limit, activation message) become applicable.
 	LicenseKeyEnabled param.Field[bool] `json:"license_key_enabled"`
+	// Additional metadata for the product
+	Metadata param.Field[map[string]string] `json:"metadata"`
 	// Name of the product, optional and must be at most 100 characters.
 	Name param.Field[string] `json:"name"`
 	// Price details of the product.

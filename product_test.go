@@ -51,7 +51,10 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 			Interval: dodopayments.F(dodopayments.TimeIntervalDay),
 		}),
 		LicenseKeyEnabled: dodopayments.F(true),
-		Name:              dodopayments.F("name"),
+		Metadata: dodopayments.F(map[string]string{
+			"foo": "string",
+		}),
+		Name: dodopayments.F("name"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -116,7 +119,10 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 				Interval: dodopayments.F(dodopayments.TimeIntervalDay),
 			}),
 			LicenseKeyEnabled: dodopayments.F(true),
-			Name:              dodopayments.F("name"),
+			Metadata: dodopayments.F(map[string]string{
+				"foo": "string",
+			}),
+			Name: dodopayments.F("name"),
 			Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
 				Currency:              dodopayments.F(dodopayments.CurrencyAed),
 				Discount:              dodopayments.F(0.000000),

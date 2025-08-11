@@ -134,6 +134,16 @@ func (r addonCartResponseItemJSON) RawJSON() string {
 	return r.raw
 }
 
+// Response struct representing subscription details
+type AddonCartResponseItemParam struct {
+	AddonID  param.Field[string] `json:"addon_id,required"`
+	Quantity param.Field[int64]  `json:"quantity,required"`
+}
+
+func (r AddonCartResponseItemParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type AttachAddonParam struct {
 	AddonID  param.Field[string] `json:"addon_id,required"`
 	Quantity param.Field[int64]  `json:"quantity,required"`
@@ -191,6 +201,8 @@ type Subscription struct {
 	TrialPeriodDays int64 `json:"trial_period_days,required"`
 	// Cancelled timestamp if the subscription is cancelled
 	CancelledAt time.Time `json:"cancelled_at,nullable" format:"date-time"`
+	// Number of remaining discount cycles if discount is applied
+	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining,nullable"`
 	// The discount id if discount is applied
 	DiscountID string           `json:"discount_id,nullable"`
 	JSON       subscriptionJSON `json:"-"`
@@ -220,6 +232,7 @@ type subscriptionJSON struct {
 	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
 	CancelledAt                apijson.Field
+	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
@@ -231,6 +244,64 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 
 func (r subscriptionJSON) RawJSON() string {
 	return r.raw
+}
+
+// Response struct representing subscription details
+type SubscriptionParam struct {
+	// Addons associated with this subscription
+	Addons param.Field[[]AddonCartResponseItemParam] `json:"addons,required"`
+	// Billing address details for payments
+	Billing param.Field[BillingAddressParam] `json:"billing,required"`
+	// Indicates if the subscription will cancel at the next billing date
+	CancelAtNextBillingDate param.Field[bool] `json:"cancel_at_next_billing_date,required"`
+	// Timestamp when the subscription was created
+	CreatedAt param.Field[time.Time] `json:"created_at,required" format:"date-time"`
+	// Currency used for the subscription payments
+	Currency param.Field[Currency] `json:"currency,required"`
+	// Customer details associated with the subscription
+	Customer param.Field[CustomerLimitedDetailsParam] `json:"customer,required"`
+	// Additional custom data associated with the subscription
+	Metadata param.Field[map[string]string] `json:"metadata,required"`
+	// Timestamp of the next scheduled billing. Indicates the end of current billing
+	// period
+	NextBillingDate param.Field[time.Time] `json:"next_billing_date,required" format:"date-time"`
+	// Wether the subscription is on-demand or not
+	OnDemand param.Field[bool] `json:"on_demand,required"`
+	// Number of payment frequency intervals
+	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count,required"`
+	// Time interval for payment frequency (e.g. month, year)
+	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval,required"`
+	// Timestamp of the last payment. Indicates the start of current billing period
+	PreviousBillingDate param.Field[time.Time] `json:"previous_billing_date,required" format:"date-time"`
+	// Identifier of the product associated with this subscription
+	ProductID param.Field[string] `json:"product_id,required"`
+	// Number of units/items included in the subscription
+	Quantity param.Field[int64] `json:"quantity,required"`
+	// Amount charged before tax for each recurring payment in smallest currency unit
+	// (e.g. cents)
+	RecurringPreTaxAmount param.Field[int64] `json:"recurring_pre_tax_amount,required"`
+	// Current status of the subscription
+	Status param.Field[SubscriptionStatus] `json:"status,required"`
+	// Unique identifier for the subscription
+	SubscriptionID param.Field[string] `json:"subscription_id,required"`
+	// Number of subscription period intervals
+	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count,required"`
+	// Time interval for the subscription period (e.g. month, year)
+	SubscriptionPeriodInterval param.Field[TimeInterval] `json:"subscription_period_interval,required"`
+	// Indicates if the recurring_pre_tax_amount is tax inclusive
+	TaxInclusive param.Field[bool] `json:"tax_inclusive,required"`
+	// Number of days in the trial period (0 if no trial)
+	TrialPeriodDays param.Field[int64] `json:"trial_period_days,required"`
+	// Cancelled timestamp if the subscription is cancelled
+	CancelledAt param.Field[time.Time] `json:"cancelled_at" format:"date-time"`
+	// Number of remaining discount cycles if discount is applied
+	DiscountCyclesRemaining param.Field[int64] `json:"discount_cycles_remaining"`
+	// The discount id if discount is applied
+	DiscountID param.Field[string] `json:"discount_id"`
+}
+
+func (r SubscriptionParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type SubscriptionStatus string
@@ -366,6 +437,8 @@ type SubscriptionListResponse struct {
 	TrialPeriodDays int64 `json:"trial_period_days,required"`
 	// Cancelled timestamp if the subscription is cancelled
 	CancelledAt time.Time `json:"cancelled_at,nullable" format:"date-time"`
+	// Number of remaining discount cycles if discount is applied
+	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining,nullable"`
 	// The discount id if discount is applied
 	DiscountID string                       `json:"discount_id,nullable"`
 	JSON       subscriptionListResponseJSON `json:"-"`
@@ -395,6 +468,7 @@ type subscriptionListResponseJSON struct {
 	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
 	CancelledAt                apijson.Field
+	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
