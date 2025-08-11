@@ -7,14 +7,13 @@ import (
 	"errors"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
 )
 
-func TestDiscountNewWithOptionalParams(t *testing.T) {
+func TestWebhookNewWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -26,15 +25,19 @@ func TestDiscountNewWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Discounts.New(context.TODO(), dodopayments.DiscountNewParams{
-		Amount:             dodopayments.F(int64(0)),
-		Type:               dodopayments.F(dodopayments.DiscountTypePercentage),
-		Code:               dodopayments.F("code"),
-		ExpiresAt:          dodopayments.F(time.Now()),
-		Name:               dodopayments.F("name"),
-		RestrictedTo:       dodopayments.F([]string{"string"}),
-		SubscriptionCycles: dodopayments.F(int64(0)),
-		UsageLimit:         dodopayments.F(int64(0)),
+	_, err := client.Webhooks.New(context.TODO(), dodopayments.WebhookNewParams{
+		URL:         dodopayments.F("url"),
+		Description: dodopayments.F("description"),
+		Disabled:    dodopayments.F(true),
+		FilterTypes: dodopayments.F([]dodopayments.WebhookEventType{dodopayments.WebhookEventTypePaymentSucceeded}),
+		Headers: dodopayments.F(map[string]string{
+			"foo": "string",
+		}),
+		IdempotencyKey: dodopayments.F("idempotency_key"),
+		Metadata: dodopayments.F(map[string]string{
+			"foo": "string",
+		}),
+		RateLimit: dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -45,7 +48,7 @@ func TestDiscountNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestDiscountGet(t *testing.T) {
+func TestWebhookGet(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -57,7 +60,7 @@ func TestDiscountGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Discounts.Get(context.TODO(), "discount_id")
+	_, err := client.Webhooks.Get(context.TODO(), "webhook_id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -67,7 +70,7 @@ func TestDiscountGet(t *testing.T) {
 	}
 }
 
-func TestDiscountUpdateWithOptionalParams(t *testing.T) {
+func TestWebhookUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -79,18 +82,18 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Discounts.Update(
+	_, err := client.Webhooks.Update(
 		context.TODO(),
-		"discount_id",
-		dodopayments.DiscountUpdateParams{
-			Amount:             dodopayments.F(int64(0)),
-			Code:               dodopayments.F("code"),
-			ExpiresAt:          dodopayments.F(time.Now()),
-			Name:               dodopayments.F("name"),
-			RestrictedTo:       dodopayments.F([]string{"string"}),
-			SubscriptionCycles: dodopayments.F(int64(0)),
-			Type:               dodopayments.F(dodopayments.DiscountTypePercentage),
-			UsageLimit:         dodopayments.F(int64(0)),
+		"webhook_id",
+		dodopayments.WebhookUpdateParams{
+			Description: dodopayments.F("description"),
+			Disabled:    dodopayments.F(true),
+			FilterTypes: dodopayments.F([]dodopayments.WebhookEventType{dodopayments.WebhookEventTypePaymentSucceeded}),
+			Metadata: dodopayments.F(map[string]string{
+				"foo": "string",
+			}),
+			RateLimit: dodopayments.F(int64(0)),
+			URL:       dodopayments.F("url"),
 		},
 	)
 	if err != nil {
@@ -102,7 +105,7 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestDiscountListWithOptionalParams(t *testing.T) {
+func TestWebhookListWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -114,9 +117,9 @@ func TestDiscountListWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Discounts.List(context.TODO(), dodopayments.DiscountListParams{
-		PageNumber: dodopayments.F(int64(0)),
-		PageSize:   dodopayments.F(int64(0)),
+	_, err := client.Webhooks.List(context.TODO(), dodopayments.WebhookListParams{
+		Iterator: dodopayments.F("iterator"),
+		Limit:    dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -127,7 +130,7 @@ func TestDiscountListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestDiscountDelete(t *testing.T) {
+func TestWebhookDelete(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -139,7 +142,7 @@ func TestDiscountDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Discounts.Delete(context.TODO(), "discount_id")
+	err := client.Webhooks.Delete(context.TODO(), "webhook_id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

@@ -135,6 +135,38 @@ func (r licenseKeyJSON) RawJSON() string {
 	return r.raw
 }
 
+type LicenseKeyParam struct {
+	// The unique identifier of the license key.
+	ID param.Field[string] `json:"id,required"`
+	// The unique identifier of the business associated with the license key.
+	BusinessID param.Field[string] `json:"business_id,required"`
+	// The timestamp indicating when the license key was created, in UTC.
+	CreatedAt param.Field[time.Time] `json:"created_at,required" format:"date-time"`
+	// The unique identifier of the customer associated with the license key.
+	CustomerID param.Field[string] `json:"customer_id,required"`
+	// The current number of instances activated for this license key.
+	InstancesCount param.Field[int64] `json:"instances_count,required"`
+	// The license key string.
+	Key param.Field[string] `json:"key,required"`
+	// The unique identifier of the payment associated with the license key.
+	PaymentID param.Field[string] `json:"payment_id,required"`
+	// The unique identifier of the product associated with the license key.
+	ProductID param.Field[string] `json:"product_id,required"`
+	// The current status of the license key (e.g., active, inactive, expired).
+	Status param.Field[LicenseKeyStatus] `json:"status,required"`
+	// The maximum number of activations allowed for this license key.
+	ActivationsLimit param.Field[int64] `json:"activations_limit"`
+	// The timestamp indicating when the license key expires, in UTC.
+	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
+	// The unique identifier of the subscription associated with the license key, if
+	// any.
+	SubscriptionID param.Field[string] `json:"subscription_id"`
+}
+
+func (r LicenseKeyParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type LicenseKeyStatus string
 
 const (
