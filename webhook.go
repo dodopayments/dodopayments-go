@@ -308,15 +308,15 @@ func (r webhookListResponseJSON) RawJSON() string {
 
 type WebhookNewParams struct {
 	// Url of the webhook
-	URL param.Field[string] `json:"url,required"`
-	// Filter events to the webhook.
-	//
-	// Webhook event will only be sent for events in the list.
+	URL         param.Field[string] `json:"url,required"`
 	Description param.Field[string] `json:"description"`
 	// Create the webhook in a disabled state.
 	//
 	// Default is false
-	Disabled    param.Field[bool]               `json:"disabled"`
+	Disabled param.Field[bool] `json:"disabled"`
+	// Filter events to the webhook.
+	//
+	// Webhook event will only be sent for events in the list.
 	FilterTypes param.Field[[]WebhookEventType] `json:"filter_types"`
 	// Custom headers to be passed
 	Headers param.Field[map[string]string] `json:"headers"`
