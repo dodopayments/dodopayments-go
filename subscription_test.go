@@ -123,8 +123,9 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),
-			Status: dodopayments.F(dodopayments.SubscriptionStatusPending),
-			TaxID:  dodopayments.F("tax_id"),
+			NextBillingDate: dodopayments.F(time.Now()),
+			Status:          dodopayments.F(dodopayments.SubscriptionStatusPending),
+			TaxID:           dodopayments.F("tax_id"),
 		},
 	)
 	if err != nil {

@@ -576,6 +576,7 @@ type SubscriptionUpdateParams struct {
 	CancelAtNextBillingDate param.Field[bool]                                    `json:"cancel_at_next_billing_date"`
 	DisableOnDemand         param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
 	Metadata                param.Field[map[string]string]                       `json:"metadata"`
+	NextBillingDate         param.Field[time.Time]                               `json:"next_billing_date" format:"date-time"`
 	Status                  param.Field[SubscriptionStatus]                      `json:"status"`
 	TaxID                   param.Field[string]                                  `json:"tax_id"`
 }
