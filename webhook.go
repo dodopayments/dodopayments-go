@@ -106,6 +106,18 @@ func (r *WebhookService) Delete(ctx context.Context, webhookID string, opts ...o
 	return
 }
 
+// Get webhook secret by id
+func (r *WebhookService) GetSecret(ctx context.Context, webhookID string, opts ...option.RequestOption) (res *WebhookGetSecretResponse, err error) {
+	opts = append(r.Options[:], opts...)
+	if webhookID == "" {
+		err = errors.New("missing required webhook_id parameter")
+		return
+	}
+	path := fmt.Sprintf("webhooks/%s/secret", webhookID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
 type WebhookNewResponse struct {
 	// The webhook's ID.
 	ID string `json:"id,required"`
@@ -303,6 +315,27 @@ func (r *WebhookListResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r webhookListResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type WebhookGetSecretResponse struct {
+	Secret string                       `json:"secret,required"`
+	JSON   webhookGetSecretResponseJSON `json:"-"`
+}
+
+// webhookGetSecretResponseJSON contains the JSON metadata for the struct
+// [WebhookGetSecretResponse]
+type webhookGetSecretResponseJSON struct {
+	Secret      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *WebhookGetSecretResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r webhookGetSecretResponseJSON) RawJSON() string {
 	return r.raw
 }
 
