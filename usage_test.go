@@ -24,25 +24,17 @@ func TestUsage(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	payment, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
-		Billing: dodopayments.F(dodopayments.BillingAddressParam{
-			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAf),
-			State:   dodopayments.F("state"),
-			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F("zipcode"),
-		}),
-		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
-			CustomerID: dodopayments.F("customer_id"),
-		}),
-		ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
-			ProductID: dodopayments.F("product_id"),
-			Quantity:  dodopayments.F(int64(0)),
-		}}),
+	checkoutSessionResponse, err := client.CheckoutSessions.New(context.TODO(), dodopayments.CheckoutSessionNewParams{
+		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
+		},
 	})
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Logf("%+v\n", payment.PaymentID)
+	t.Logf("%+v\n", checkoutSessionResponse.SessionID)
 }
