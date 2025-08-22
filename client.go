@@ -16,6 +16,7 @@ import (
 // directly, and instead use the [NewClient] method instead.
 type Client struct {
 	Options             []option.RequestOption
+	CheckoutSessions    *CheckoutSessionService
 	Payments            *PaymentService
 	Subscriptions       *SubscriptionService
 	Invoices            *InvoiceService
@@ -33,7 +34,6 @@ type Client struct {
 	Addons              *AddonService
 	Brands              *BrandService
 	Webhooks            *WebhookService
-	YourWebhookURL      *YourWebhookURLService
 }
 
 // DefaultClientOptions read from the environment (DODO_PAYMENTS_API_KEY,
@@ -58,6 +58,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 
 	r = &Client{Options: opts}
 
+	r.CheckoutSessions = NewCheckoutSessionService(opts...)
 	r.Payments = NewPaymentService(opts...)
 	r.Subscriptions = NewSubscriptionService(opts...)
 	r.Invoices = NewInvoiceService(opts...)
@@ -75,7 +76,6 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Addons = NewAddonService(opts...)
 	r.Brands = NewBrandService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
-	r.YourWebhookURL = NewYourWebhookURLService(opts...)
 
 	return
 }

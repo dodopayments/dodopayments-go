@@ -121,31 +121,6 @@ func (r refundJSON) RawJSON() string {
 	return r.raw
 }
 
-type RefundParam struct {
-	// The unique identifier of the business issuing the refund.
-	BusinessID param.Field[string] `json:"business_id,required"`
-	// The timestamp of when the refund was created in UTC.
-	CreatedAt param.Field[time.Time] `json:"created_at,required" format:"date-time"`
-	// If true the refund is a partial refund
-	IsPartial param.Field[bool] `json:"is_partial,required"`
-	// The unique identifier of the payment associated with the refund.
-	PaymentID param.Field[string] `json:"payment_id,required"`
-	// The unique identifier of the refund.
-	RefundID param.Field[string] `json:"refund_id,required"`
-	// The current status of the refund.
-	Status param.Field[RefundStatus] `json:"status,required"`
-	// The refunded amount.
-	Amount param.Field[int64] `json:"amount"`
-	// The currency of the refund, represented as an ISO 4217 currency code.
-	Currency param.Field[Currency] `json:"currency"`
-	// The reason provided for the refund, if any. Optional.
-	Reason param.Field[string] `json:"reason"`
-}
-
-func (r RefundParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 type RefundStatus string
 
 const (

@@ -39,7 +39,7 @@ func NewWebhookService(opts ...option.RequestOption) (r *WebhookService) {
 }
 
 // Create a new webhook
-func (r *WebhookService) New(ctx context.Context, body WebhookNewParams, opts ...option.RequestOption) (res *WebhookNewResponse, err error) {
+func (r *WebhookService) New(ctx context.Context, body WebhookNewParams, opts ...option.RequestOption) (res *WebhookDetails, err error) {
 	opts = append(r.Options[:], opts...)
 	path := "webhooks"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
@@ -47,7 +47,7 @@ func (r *WebhookService) New(ctx context.Context, body WebhookNewParams, opts ..
 }
 
 // Get a webhook by id
-func (r *WebhookService) Get(ctx context.Context, webhookID string, opts ...option.RequestOption) (res *WebhookGetResponse, err error) {
+func (r *WebhookService) Get(ctx context.Context, webhookID string, opts ...option.RequestOption) (res *WebhookDetails, err error) {
 	opts = append(r.Options[:], opts...)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
@@ -59,7 +59,7 @@ func (r *WebhookService) Get(ctx context.Context, webhookID string, opts ...opti
 }
 
 // Patch a webhook by id
-func (r *WebhookService) Update(ctx context.Context, webhookID string, body WebhookUpdateParams, opts ...option.RequestOption) (res *WebhookUpdateResponse, err error) {
+func (r *WebhookService) Update(ctx context.Context, webhookID string, body WebhookUpdateParams, opts ...option.RequestOption) (res *WebhookDetails, err error) {
 	opts = append(r.Options[:], opts...)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
@@ -71,7 +71,7 @@ func (r *WebhookService) Update(ctx context.Context, webhookID string, body Webh
 }
 
 // List all webhooks
-func (r *WebhookService) List(ctx context.Context, query WebhookListParams, opts ...option.RequestOption) (res *pagination.CursorPagePagination[WebhookListResponse], err error) {
+func (r *WebhookService) List(ctx context.Context, query WebhookListParams, opts ...option.RequestOption) (res *pagination.CursorPagePagination[WebhookDetails], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
@@ -89,7 +89,7 @@ func (r *WebhookService) List(ctx context.Context, query WebhookListParams, opts
 }
 
 // List all webhooks
-func (r *WebhookService) ListAutoPaging(ctx context.Context, query WebhookListParams, opts ...option.RequestOption) *pagination.CursorPagePaginationAutoPager[WebhookListResponse] {
+func (r *WebhookService) ListAutoPaging(ctx context.Context, query WebhookListParams, opts ...option.RequestOption) *pagination.CursorPagePaginationAutoPager[WebhookDetails] {
 	return pagination.NewCursorPagePaginationAutoPager(r.List(ctx, query, opts...))
 }
 
@@ -118,7 +118,7 @@ func (r *WebhookService) GetSecret(ctx context.Context, webhookID string, opts .
 	return
 }
 
-type WebhookNewResponse struct {
+type WebhookDetails struct {
 	// The webhook's ID.
 	ID string `json:"id,required"`
 	// Created at timestamp
@@ -140,13 +140,12 @@ type WebhookNewResponse struct {
 	// Webhook event will only be sent for events in the list.
 	FilterTypes []string `json:"filter_types,nullable"`
 	// Configured rate limit
-	RateLimit int64                  `json:"rate_limit,nullable"`
-	JSON      webhookNewResponseJSON `json:"-"`
+	RateLimit int64              `json:"rate_limit,nullable"`
+	JSON      webhookDetailsJSON `json:"-"`
 }
 
-// webhookNewResponseJSON contains the JSON metadata for the struct
-// [WebhookNewResponse]
-type webhookNewResponseJSON struct {
+// webhookDetailsJSON contains the JSON metadata for the struct [WebhookDetails]
+type webhookDetailsJSON struct {
 	ID          apijson.Field
 	CreatedAt   apijson.Field
 	Description apijson.Field
@@ -160,161 +159,11 @@ type webhookNewResponseJSON struct {
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *WebhookNewResponse) UnmarshalJSON(data []byte) (err error) {
+func (r *WebhookDetails) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r webhookNewResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type WebhookGetResponse struct {
-	// The webhook's ID.
-	ID string `json:"id,required"`
-	// Created at timestamp
-	CreatedAt string `json:"created_at,required"`
-	// An example webhook name.
-	Description string `json:"description,required"`
-	// Metadata of the webhook
-	Metadata map[string]string `json:"metadata,required"`
-	// Updated at timestamp
-	UpdatedAt string `json:"updated_at,required"`
-	// Url endpoint of the webhook
-	URL string `json:"url,required"`
-	// Status of the webhook.
-	//
-	// If true, events are not sent
-	Disabled bool `json:"disabled,nullable"`
-	// Filter events to the webhook.
-	//
-	// Webhook event will only be sent for events in the list.
-	FilterTypes []string `json:"filter_types,nullable"`
-	// Configured rate limit
-	RateLimit int64                  `json:"rate_limit,nullable"`
-	JSON      webhookGetResponseJSON `json:"-"`
-}
-
-// webhookGetResponseJSON contains the JSON metadata for the struct
-// [WebhookGetResponse]
-type webhookGetResponseJSON struct {
-	ID          apijson.Field
-	CreatedAt   apijson.Field
-	Description apijson.Field
-	Metadata    apijson.Field
-	UpdatedAt   apijson.Field
-	URL         apijson.Field
-	Disabled    apijson.Field
-	FilterTypes apijson.Field
-	RateLimit   apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *WebhookGetResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r webhookGetResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type WebhookUpdateResponse struct {
-	// The webhook's ID.
-	ID string `json:"id,required"`
-	// Created at timestamp
-	CreatedAt string `json:"created_at,required"`
-	// An example webhook name.
-	Description string `json:"description,required"`
-	// Metadata of the webhook
-	Metadata map[string]string `json:"metadata,required"`
-	// Updated at timestamp
-	UpdatedAt string `json:"updated_at,required"`
-	// Url endpoint of the webhook
-	URL string `json:"url,required"`
-	// Status of the webhook.
-	//
-	// If true, events are not sent
-	Disabled bool `json:"disabled,nullable"`
-	// Filter events to the webhook.
-	//
-	// Webhook event will only be sent for events in the list.
-	FilterTypes []string `json:"filter_types,nullable"`
-	// Configured rate limit
-	RateLimit int64                     `json:"rate_limit,nullable"`
-	JSON      webhookUpdateResponseJSON `json:"-"`
-}
-
-// webhookUpdateResponseJSON contains the JSON metadata for the struct
-// [WebhookUpdateResponse]
-type webhookUpdateResponseJSON struct {
-	ID          apijson.Field
-	CreatedAt   apijson.Field
-	Description apijson.Field
-	Metadata    apijson.Field
-	UpdatedAt   apijson.Field
-	URL         apijson.Field
-	Disabled    apijson.Field
-	FilterTypes apijson.Field
-	RateLimit   apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *WebhookUpdateResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r webhookUpdateResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type WebhookListResponse struct {
-	// The webhook's ID.
-	ID string `json:"id,required"`
-	// Created at timestamp
-	CreatedAt string `json:"created_at,required"`
-	// An example webhook name.
-	Description string `json:"description,required"`
-	// Metadata of the webhook
-	Metadata map[string]string `json:"metadata,required"`
-	// Updated at timestamp
-	UpdatedAt string `json:"updated_at,required"`
-	// Url endpoint of the webhook
-	URL string `json:"url,required"`
-	// Status of the webhook.
-	//
-	// If true, events are not sent
-	Disabled bool `json:"disabled,nullable"`
-	// Filter events to the webhook.
-	//
-	// Webhook event will only be sent for events in the list.
-	FilterTypes []string `json:"filter_types,nullable"`
-	// Configured rate limit
-	RateLimit int64                   `json:"rate_limit,nullable"`
-	JSON      webhookListResponseJSON `json:"-"`
-}
-
-// webhookListResponseJSON contains the JSON metadata for the struct
-// [WebhookListResponse]
-type webhookListResponseJSON struct {
-	ID          apijson.Field
-	CreatedAt   apijson.Field
-	Description apijson.Field
-	Metadata    apijson.Field
-	UpdatedAt   apijson.Field
-	URL         apijson.Field
-	Disabled    apijson.Field
-	FilterTypes apijson.Field
-	RateLimit   apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *WebhookListResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r webhookListResponseJSON) RawJSON() string {
+func (r webhookDetailsJSON) RawJSON() string {
 	return r.raw
 }
 

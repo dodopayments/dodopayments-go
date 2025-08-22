@@ -49,7 +49,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
 		}),
-		OnDemand: dodopayments.F(dodopayments.SubscriptionNewParamsOnDemand{
+		OnDemand: dodopayments.F(dodopayments.OnDemandSubscriptionParam{
 			MandateOnly:                   dodopayments.F(true),
 			AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
 			ProductCurrency:               dodopayments.F(dodopayments.CurrencyAed),
