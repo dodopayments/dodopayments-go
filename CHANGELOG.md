@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.51.0 (2025-08-22)
+
+Full Changelog: [v1.49.0...v1.51.0](https://github.com/dodopayments/dodopayments-go/compare/v1.49.0...v1.51.0)
+
+### Features
+
+* **api:** updated example ([72473ed](https://github.com/dodopayments/dodopayments-go/commit/72473ed7d4ad1c6639052839c6b3133d923b06d8))
+* **api:** updated openapi spec to v1.51.0 and added checkout sessions ([8a1e5e7](https://github.com/dodopayments/dodopayments-go/commit/8a1e5e7b5aef452a49dfc1033d223cb5321ee318))
+
 ## 1.49.0 (2025-08-19)
 
 Full Changelog: [v1.48.0...v1.49.0](https://github.com/dodopayments/dodopayments-go/compare/v1.48.0...v1.49.0)
