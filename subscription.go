@@ -134,22 +134,36 @@ func (r addonCartResponseItemJSON) RawJSON() string {
 	return r.raw
 }
 
-// Response struct representing subscription details
-type AddonCartResponseItemParam struct {
-	AddonID  param.Field[string] `json:"addon_id,required"`
-	Quantity param.Field[int64]  `json:"quantity,required"`
-}
-
-func (r AddonCartResponseItemParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 type AttachAddonParam struct {
 	AddonID  param.Field[string] `json:"addon_id,required"`
 	Quantity param.Field[int64]  `json:"quantity,required"`
 }
 
 func (r AttachAddonParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type OnDemandSubscriptionParam struct {
+	// If set as True, does not perform any charge and only authorizes payment method
+	// details for future use.
+	MandateOnly param.Field[bool] `json:"mandate_only,required"`
+	// Whether adaptive currency fees should be included in the product_price (true) or
+	// added on top (false). This field is ignored if adaptive pricing is not enabled
+	// for the business.
+	AdaptiveCurrencyFeesInclusive param.Field[bool] `json:"adaptive_currency_fees_inclusive"`
+	// Optional currency of the product price. If not specified, defaults to the
+	// currency of the product.
+	ProductCurrency param.Field[Currency] `json:"product_currency"`
+	// Optional product description override for billing and line items. If not
+	// specified, the stored description of the product will be used.
+	ProductDescription param.Field[string] `json:"product_description"`
+	// Product price for the initial charge to customer If not specified the stored
+	// price of the product will be used Represented in the lowest denomination of the
+	// currency (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	ProductPrice param.Field[int64] `json:"product_price"`
+}
+
+func (r OnDemandSubscriptionParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
@@ -204,8 +218,10 @@ type Subscription struct {
 	// Number of remaining discount cycles if discount is applied
 	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining,nullable"`
 	// The discount id if discount is applied
-	DiscountID string           `json:"discount_id,nullable"`
-	JSON       subscriptionJSON `json:"-"`
+	DiscountID string `json:"discount_id,nullable"`
+	// Timestamp when the subscription will expire
+	ExpiresAt time.Time        `json:"expires_at,nullable" format:"date-time"`
+	JSON      subscriptionJSON `json:"-"`
 }
 
 // subscriptionJSON contains the JSON metadata for the struct [Subscription]
@@ -234,6 +250,7 @@ type subscriptionJSON struct {
 	CancelledAt                apijson.Field
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
+	ExpiresAt                  apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
 }
@@ -244,64 +261,6 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 
 func (r subscriptionJSON) RawJSON() string {
 	return r.raw
-}
-
-// Response struct representing subscription details
-type SubscriptionParam struct {
-	// Addons associated with this subscription
-	Addons param.Field[[]AddonCartResponseItemParam] `json:"addons,required"`
-	// Billing address details for payments
-	Billing param.Field[BillingAddressParam] `json:"billing,required"`
-	// Indicates if the subscription will cancel at the next billing date
-	CancelAtNextBillingDate param.Field[bool] `json:"cancel_at_next_billing_date,required"`
-	// Timestamp when the subscription was created
-	CreatedAt param.Field[time.Time] `json:"created_at,required" format:"date-time"`
-	// Currency used for the subscription payments
-	Currency param.Field[Currency] `json:"currency,required"`
-	// Customer details associated with the subscription
-	Customer param.Field[CustomerLimitedDetailsParam] `json:"customer,required"`
-	// Additional custom data associated with the subscription
-	Metadata param.Field[map[string]string] `json:"metadata,required"`
-	// Timestamp of the next scheduled billing. Indicates the end of current billing
-	// period
-	NextBillingDate param.Field[time.Time] `json:"next_billing_date,required" format:"date-time"`
-	// Wether the subscription is on-demand or not
-	OnDemand param.Field[bool] `json:"on_demand,required"`
-	// Number of payment frequency intervals
-	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count,required"`
-	// Time interval for payment frequency (e.g. month, year)
-	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval,required"`
-	// Timestamp of the last payment. Indicates the start of current billing period
-	PreviousBillingDate param.Field[time.Time] `json:"previous_billing_date,required" format:"date-time"`
-	// Identifier of the product associated with this subscription
-	ProductID param.Field[string] `json:"product_id,required"`
-	// Number of units/items included in the subscription
-	Quantity param.Field[int64] `json:"quantity,required"`
-	// Amount charged before tax for each recurring payment in smallest currency unit
-	// (e.g. cents)
-	RecurringPreTaxAmount param.Field[int64] `json:"recurring_pre_tax_amount,required"`
-	// Current status of the subscription
-	Status param.Field[SubscriptionStatus] `json:"status,required"`
-	// Unique identifier for the subscription
-	SubscriptionID param.Field[string] `json:"subscription_id,required"`
-	// Number of subscription period intervals
-	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count,required"`
-	// Time interval for the subscription period (e.g. month, year)
-	SubscriptionPeriodInterval param.Field[TimeInterval] `json:"subscription_period_interval,required"`
-	// Indicates if the recurring_pre_tax_amount is tax inclusive
-	TaxInclusive param.Field[bool] `json:"tax_inclusive,required"`
-	// Number of days in the trial period (0 if no trial)
-	TrialPeriodDays param.Field[int64] `json:"trial_period_days,required"`
-	// Cancelled timestamp if the subscription is cancelled
-	CancelledAt param.Field[time.Time] `json:"cancelled_at" format:"date-time"`
-	// Number of remaining discount cycles if discount is applied
-	DiscountCyclesRemaining param.Field[int64] `json:"discount_cycles_remaining"`
-	// The discount id if discount is applied
-	DiscountID param.Field[string] `json:"discount_id"`
-}
-
-func (r SubscriptionParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 type SubscriptionStatus string
@@ -527,8 +486,8 @@ type SubscriptionNewParams struct {
 	// Discount Code to apply to the subscription
 	DiscountCode param.Field[string] `json:"discount_code"`
 	// Additional metadata for the subscription Defaults to empty if not specified
-	Metadata param.Field[map[string]string]             `json:"metadata"`
-	OnDemand param.Field[SubscriptionNewParamsOnDemand] `json:"on_demand"`
+	Metadata param.Field[map[string]string]         `json:"metadata"`
+	OnDemand param.Field[OnDemandSubscriptionParam] `json:"on_demand"`
 	// If true, generates a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional URL to redirect after successful subscription creation
@@ -547,32 +506,9 @@ func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-type SubscriptionNewParamsOnDemand struct {
-	// If set as True, does not perform any charge and only authorizes payment method
-	// details for future use.
-	MandateOnly param.Field[bool] `json:"mandate_only,required"`
-	// Whether adaptive currency fees should be included in the product_price (true) or
-	// added on top (false). This field is ignored if adaptive pricing is not enabled
-	// for the business.
-	AdaptiveCurrencyFeesInclusive param.Field[bool] `json:"adaptive_currency_fees_inclusive"`
-	// Optional currency of the product price. If not specified, defaults to the
-	// currency of the product.
-	ProductCurrency param.Field[Currency] `json:"product_currency"`
-	// Optional product description override for billing and line items. If not
-	// specified, the stored description of the product will be used.
-	ProductDescription param.Field[string] `json:"product_description"`
-	// Product price for the initial charge to customer If not specified the stored
-	// price of the product will be used Represented in the lowest denomination of the
-	// currency (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	ProductPrice param.Field[int64] `json:"product_price"`
-}
-
-func (r SubscriptionNewParamsOnDemand) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 type SubscriptionUpdateParams struct {
-	Billing                 param.Field[BillingAddressParam]                     `json:"billing"`
+	Billing param.Field[BillingAddressParam] `json:"billing"`
+	// When set, the subscription will remain active until the end of billing period
 	CancelAtNextBillingDate param.Field[bool]                                    `json:"cancel_at_next_billing_date"`
 	DisableOnDemand         param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
 	Metadata                param.Field[map[string]string]                       `json:"metadata"`
