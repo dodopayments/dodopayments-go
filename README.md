@@ -53,26 +53,18 @@ func main() {
 		option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("DODO_PAYMENTS_API_KEY")
 		option.WithEnvironmentTestMode(),          // defaults to option.WithEnvironmentLiveMode()
 	)
-	payment, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
-		Billing: dodopayments.F(dodopayments.BillingAddressParam{
-			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAf),
-			State:   dodopayments.F("state"),
-			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F("zipcode"),
-		}),
-		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
-			CustomerID: dodopayments.F("customer_id"),
-		}),
-		ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
-			ProductID: dodopayments.F("product_id"),
-			Quantity:  dodopayments.F(int64(0)),
-		}}),
+	checkoutSessionResponse, err := client.CheckoutSessions.New(context.TODO(), dodopayments.CheckoutSessionNewParams{
+		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
+		},
 	})
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v\n", payment.PaymentID)
+	fmt.Printf("%+v\n", checkoutSessionResponse.SessionID)
 }
 
 ```
@@ -161,7 +153,7 @@ client := dodopayments.NewClient(
 	option.WithHeader("X-Some-Header", "custom_header_info"),
 )
 
-client.Payments.New(context.TODO(), ...,
+client.CheckoutSessions.New(context.TODO(), ...,
 	// Override the header
 	option.WithHeader("X-Some-Header", "some_other_custom_header_info"),
 	// Add an undocumented field to the request body, using sjson syntax
@@ -215,21 +207,13 @@ When the API returns a non-success status code, we return an error with type
 To handle errors, we recommend that you use the `errors.As` pattern:
 
 ```go
-_, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
-	Billing: dodopayments.F(dodopayments.BillingAddressParam{
-		City:    dodopayments.F("city"),
-		Country: dodopayments.F(dodopayments.CountryCodeAf),
-		State:   dodopayments.F("state"),
-		Street:  dodopayments.F("street"),
-		Zipcode: dodopayments.F("zipcode"),
-	}),
-	Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
-		CustomerID: dodopayments.F("customer_id"),
-	}),
-	ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
-		ProductID: dodopayments.F("product_id"),
-		Quantity:  dodopayments.F(int64(0)),
-	}}),
+_, err := client.CheckoutSessions.New(context.TODO(), dodopayments.CheckoutSessionNewParams{
+	CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
+		ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductID: dodopayments.F("product_id"),
+			Quantity:  dodopayments.F(int64(0)),
+		}}),
+	},
 })
 if err != nil {
 	var apierr *dodopayments.Error
@@ -237,7 +221,7 @@ if err != nil {
 		println(string(apierr.DumpRequest(true)))  // Prints the serialized HTTP request
 		println(string(apierr.DumpResponse(true))) // Prints the serialized HTTP response
 	}
-	panic(err.Error()) // GET "/payments": 400 Bad Request { ... }
+	panic(err.Error()) // GET "/checkouts": 400 Bad Request { ... }
 }
 ```
 
@@ -255,23 +239,15 @@ To set a per-retry timeout, use `option.WithRequestTimeout()`.
 // This sets the timeout for the request, including all the retries.
 ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 defer cancel()
-client.Payments.New(
+client.CheckoutSessions.New(
 	ctx,
-	dodopayments.PaymentNewParams{
-		Billing: dodopayments.F(dodopayments.BillingAddressParam{
-			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAf),
-			State:   dodopayments.F("state"),
-			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F("zipcode"),
-		}),
-		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
-			CustomerID: dodopayments.F("customer_id"),
-		}),
-		ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
-			ProductID: dodopayments.F("product_id"),
-			Quantity:  dodopayments.F(int64(0)),
-		}}),
+	dodopayments.CheckoutSessionNewParams{
+		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
+		},
 	},
 	// This sets the per-retry timeout
 	option.WithRequestTimeout(20*time.Second),
@@ -306,23 +282,15 @@ client := dodopayments.NewClient(
 )
 
 // Override per-request:
-client.Payments.New(
+client.CheckoutSessions.New(
 	context.TODO(),
-	dodopayments.PaymentNewParams{
-		Billing: dodopayments.F(dodopayments.BillingAddressParam{
-			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAf),
-			State:   dodopayments.F("state"),
-			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F("zipcode"),
-		}),
-		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
-			CustomerID: dodopayments.F("customer_id"),
-		}),
-		ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
-			ProductID: dodopayments.F("product_id"),
-			Quantity:  dodopayments.F(int64(0)),
-		}}),
+	dodopayments.CheckoutSessionNewParams{
+		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
+		},
 	},
 	option.WithMaxRetries(5),
 )
@@ -336,30 +304,22 @@ you need to examine response headers, status codes, or other details.
 ```go
 // Create a variable to store the HTTP response
 var response *http.Response
-payment, err := client.Payments.New(
+checkoutSessionResponse, err := client.CheckoutSessions.New(
 	context.TODO(),
-	dodopayments.PaymentNewParams{
-		Billing: dodopayments.F(dodopayments.BillingAddressParam{
-			City:    dodopayments.F("city"),
-			Country: dodopayments.F(dodopayments.CountryCodeAf),
-			State:   dodopayments.F("state"),
-			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F("zipcode"),
-		}),
-		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
-			CustomerID: dodopayments.F("customer_id"),
-		}),
-		ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
-			ProductID: dodopayments.F("product_id"),
-			Quantity:  dodopayments.F(int64(0)),
-		}}),
+	dodopayments.CheckoutSessionNewParams{
+		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
+		},
 	},
 	option.WithResponseInto(&response),
 )
 if err != nil {
 	// handle error
 }
-fmt.Printf("%+v\n", payment)
+fmt.Printf("%+v\n", checkoutSessionResponse)
 
 fmt.Printf("Status Code: %d\n", response.StatusCode)
 fmt.Printf("Headers: %+#v\n", response.Header)
