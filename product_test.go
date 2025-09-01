@@ -173,7 +173,7 @@ func TestProductListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestProductDelete(t *testing.T) {
+func TestProductArchive(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -185,7 +185,7 @@ func TestProductDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Products.Delete(context.TODO(), "id")
+	err := client.Products.Archive(context.TODO(), "id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
