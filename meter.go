@@ -79,7 +79,7 @@ func (r *MeterService) ListAutoPaging(ctx context.Context, query MeterListParams
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
-func (r *MeterService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
+func (r *MeterService) Archive(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if id == "" {

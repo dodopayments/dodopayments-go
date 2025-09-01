@@ -92,7 +92,7 @@ func (r *ProductService) ListAutoPaging(ctx context.Context, query ProductListPa
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
-func (r *ProductService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
+func (r *ProductService) Archive(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if id == "" {

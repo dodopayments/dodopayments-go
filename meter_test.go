@@ -105,7 +105,7 @@ func TestMeterListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestMeterDelete(t *testing.T) {
+func TestMeterArchive(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -117,7 +117,7 @@ func TestMeterDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Meters.Delete(context.TODO(), "id")
+	err := client.Meters.Archive(context.TODO(), "id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
