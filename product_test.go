@@ -28,7 +28,7 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 	_, err := client.Products.New(context.TODO(), dodopayments.ProductNewParams{
 		Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
 			Currency:              dodopayments.F(dodopayments.CurrencyAed),
-			Discount:              dodopayments.F(0.000000),
+			Discount:              dodopayments.F(int64(0)),
 			Price:                 dodopayments.F(int64(0)),
 			PurchasingPowerParity: dodopayments.F(true),
 			Type:                  dodopayments.F(dodopayments.PriceOneTimePriceTypeOneTimePrice),
@@ -125,7 +125,7 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 			Name: dodopayments.F("name"),
 			Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
 				Currency:              dodopayments.F(dodopayments.CurrencyAed),
-				Discount:              dodopayments.F(0.000000),
+				Discount:              dodopayments.F(int64(0)),
 				Price:                 dodopayments.F(int64(0)),
 				PurchasingPowerParity: dodopayments.F(true),
 				Type:                  dodopayments.F(dodopayments.PriceOneTimePriceTypeOneTimePrice),

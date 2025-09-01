@@ -127,6 +127,59 @@ func (r *ProductService) UpdateFiles(ctx context.Context, id string, body Produc
 	return
 }
 
+type AddMeterToPrice struct {
+	MeterID string `json:"meter_id,required"`
+	// The price per unit in lowest denomination. Must be greater than zero. Supports
+	// up to 5 digits before decimal point and 12 decimal places.
+	PricePerUnit string `json:"price_per_unit,required"`
+	// Meter description. Will ignored on Request, but will be shown in response
+	Description   string `json:"description,nullable"`
+	FreeThreshold int64  `json:"free_threshold,nullable"`
+	// Meter measurement unit. Will ignored on Request, but will be shown in response
+	MeasurementUnit string `json:"measurement_unit,nullable"`
+	// Meter name. Will ignored on Request, but will be shown in response
+	Name string              `json:"name,nullable"`
+	JSON addMeterToPriceJSON `json:"-"`
+}
+
+// addMeterToPriceJSON contains the JSON metadata for the struct [AddMeterToPrice]
+type addMeterToPriceJSON struct {
+	MeterID         apijson.Field
+	PricePerUnit    apijson.Field
+	Description     apijson.Field
+	FreeThreshold   apijson.Field
+	MeasurementUnit apijson.Field
+	Name            apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *AddMeterToPrice) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r addMeterToPriceJSON) RawJSON() string {
+	return r.raw
+}
+
+type AddMeterToPriceParam struct {
+	MeterID param.Field[string] `json:"meter_id,required"`
+	// The price per unit in lowest denomination. Must be greater than zero. Supports
+	// up to 5 digits before decimal point and 12 decimal places.
+	PricePerUnit param.Field[string] `json:"price_per_unit,required"`
+	// Meter description. Will ignored on Request, but will be shown in response
+	Description   param.Field[string] `json:"description"`
+	FreeThreshold param.Field[int64]  `json:"free_threshold"`
+	// Meter measurement unit. Will ignored on Request, but will be shown in response
+	MeasurementUnit param.Field[string] `json:"measurement_unit"`
+	// Meter name. Will ignored on Request, but will be shown in response
+	Name param.Field[string] `json:"name"`
+}
+
+func (r AddMeterToPriceParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type LicenseKeyDuration struct {
 	Count    int64                  `json:"count,required"`
 	Interval TimeInterval           `json:"interval,required"`
@@ -164,17 +217,16 @@ type Price struct {
 	// The currency in which the payment is made.
 	Currency Currency `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount float64 `json:"discount,required"`
-	// The payment amount, in the smallest denomination of the currency (e.g., cents
-	// for USD). For example, to charge $1.00, pass `100`.
-	//
-	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
-	// represents the **minimum** amount the customer must pay.
-	Price int64 `json:"price,required"`
+	Discount int64 `json:"discount,required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
 	// Purchasing power parity feature is not available as of now.
 	PurchasingPowerParity bool      `json:"purchasing_power_parity,required"`
 	Type                  PriceType `json:"type,required"`
+	// The fixed payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	FixedPrice int64 `json:"fixed_price"`
+	// This field can have the runtime type of [[]AddMeterToPrice].
+	Meters interface{} `json:"meters"`
 	// Indicates whether the customer can pay any amount they choose. If set to `true`,
 	// the [`price`](Self::price) field is the minimum amount.
 	PayWhatYouWant bool `json:"pay_what_you_want"`
@@ -183,6 +235,12 @@ type Price struct {
 	PaymentFrequencyCount int64 `json:"payment_frequency_count"`
 	// The time interval for the payment frequency (e.g., day, month, year).
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval"`
+	// The payment amount, in the smallest denomination of the currency (e.g., cents
+	// for USD). For example, to charge $1.00, pass `100`.
+	//
+	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
+	// represents the **minimum** amount the customer must pay.
+	Price int64 `json:"price"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount int64 `json:"subscription_period_count"`
@@ -204,12 +262,14 @@ type Price struct {
 type priceJSON struct {
 	Currency                   apijson.Field
 	Discount                   apijson.Field
-	Price                      apijson.Field
 	PurchasingPowerParity      apijson.Field
 	Type                       apijson.Field
+	FixedPrice                 apijson.Field
+	Meters                     apijson.Field
 	PayWhatYouWant             apijson.Field
 	PaymentFrequencyCount      apijson.Field
 	PaymentFrequencyInterval   apijson.Field
+	Price                      apijson.Field
 	SubscriptionPeriodCount    apijson.Field
 	SubscriptionPeriodInterval apijson.Field
 	SuggestedPrice             apijson.Field
@@ -236,14 +296,15 @@ func (r *Price) UnmarshalJSON(data []byte) (err error) {
 // types for more type safety.
 //
 // Possible runtime types of the union are [PriceOneTimePrice],
-// [PriceRecurringPrice].
+// [PriceRecurringPrice], [PriceUsageBasedPrice].
 func (r Price) AsUnion() PriceUnion {
 	return r.union
 }
 
 // One-time price details.
 //
-// Union satisfied by [PriceOneTimePrice] or [PriceRecurringPrice].
+// Union satisfied by [PriceOneTimePrice], [PriceRecurringPrice] or
+// [PriceUsageBasedPrice].
 type PriceUnion interface {
 	implementsPrice()
 }
@@ -260,6 +321,10 @@ func init() {
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(PriceRecurringPrice{}),
 		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(PriceUsageBasedPrice{}),
+		},
 	)
 }
 
@@ -268,7 +333,7 @@ type PriceOneTimePrice struct {
 	// The currency in which the payment is made.
 	Currency Currency `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount float64 `json:"discount,required"`
+	Discount int64 `json:"discount,required"`
 	// The payment amount, in the smallest denomination of the currency (e.g., cents
 	// for USD). For example, to charge $1.00, pass `100`.
 	//
@@ -335,7 +400,7 @@ type PriceRecurringPrice struct {
 	// The currency in which the payment is made.
 	Currency Currency `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount float64 `json:"discount,required"`
+	Discount int64 `json:"discount,required"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
 	PaymentFrequencyCount int64 `json:"payment_frequency_count,required"`
@@ -402,16 +467,88 @@ func (r PriceRecurringPriceType) IsKnown() bool {
 	return false
 }
 
+// Usage Based price details.
+type PriceUsageBasedPrice struct {
+	// The currency in which the payment is made.
+	Currency Currency `json:"currency,required"`
+	// Discount applied to the price, represented as a percentage (0 to 100).
+	Discount int64 `json:"discount,required"`
+	// The fixed payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	FixedPrice int64 `json:"fixed_price,required"`
+	// Number of units for the payment frequency. For example, a value of `1` with a
+	// `payment_frequency_interval` of `month` represents monthly payments.
+	PaymentFrequencyCount int64 `json:"payment_frequency_count,required"`
+	// The time interval for the payment frequency (e.g., day, month, year).
+	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
+	// Indicates if purchasing power parity adjustments are applied to the price.
+	// Purchasing power parity feature is not available as of now
+	PurchasingPowerParity bool `json:"purchasing_power_parity,required"`
+	// Number of units for the subscription period. For example, a value of `12` with a
+	// `subscription_period_interval` of `month` represents a one-year subscription.
+	SubscriptionPeriodCount int64 `json:"subscription_period_count,required"`
+	// The time interval for the subscription period (e.g., day, month, year).
+	SubscriptionPeriodInterval TimeInterval             `json:"subscription_period_interval,required"`
+	Type                       PriceUsageBasedPriceType `json:"type,required"`
+	Meters                     []AddMeterToPrice        `json:"meters,nullable"`
+	// Indicates if the price is tax inclusive
+	TaxInclusive bool                     `json:"tax_inclusive,nullable"`
+	JSON         priceUsageBasedPriceJSON `json:"-"`
+}
+
+// priceUsageBasedPriceJSON contains the JSON metadata for the struct
+// [PriceUsageBasedPrice]
+type priceUsageBasedPriceJSON struct {
+	Currency                   apijson.Field
+	Discount                   apijson.Field
+	FixedPrice                 apijson.Field
+	PaymentFrequencyCount      apijson.Field
+	PaymentFrequencyInterval   apijson.Field
+	PurchasingPowerParity      apijson.Field
+	SubscriptionPeriodCount    apijson.Field
+	SubscriptionPeriodInterval apijson.Field
+	Type                       apijson.Field
+	Meters                     apijson.Field
+	TaxInclusive               apijson.Field
+	raw                        string
+	ExtraFields                map[string]apijson.Field
+}
+
+func (r *PriceUsageBasedPrice) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r priceUsageBasedPriceJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r PriceUsageBasedPrice) implementsPrice() {}
+
+type PriceUsageBasedPriceType string
+
+const (
+	PriceUsageBasedPriceTypeUsageBasedPrice PriceUsageBasedPriceType = "usage_based_price"
+)
+
+func (r PriceUsageBasedPriceType) IsKnown() bool {
+	switch r {
+	case PriceUsageBasedPriceTypeUsageBasedPrice:
+		return true
+	}
+	return false
+}
+
 type PriceType string
 
 const (
-	PriceTypeOneTimePrice   PriceType = "one_time_price"
-	PriceTypeRecurringPrice PriceType = "recurring_price"
+	PriceTypeOneTimePrice    PriceType = "one_time_price"
+	PriceTypeRecurringPrice  PriceType = "recurring_price"
+	PriceTypeUsageBasedPrice PriceType = "usage_based_price"
 )
 
 func (r PriceType) IsKnown() bool {
 	switch r {
-	case PriceTypeOneTimePrice, PriceTypeRecurringPrice:
+	case PriceTypeOneTimePrice, PriceTypeRecurringPrice, PriceTypeUsageBasedPrice:
 		return true
 	}
 	return false
@@ -422,17 +559,15 @@ type PriceParam struct {
 	// The currency in which the payment is made.
 	Currency param.Field[Currency] `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[float64] `json:"discount,required"`
-	// The payment amount, in the smallest denomination of the currency (e.g., cents
-	// for USD). For example, to charge $1.00, pass `100`.
-	//
-	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
-	// represents the **minimum** amount the customer must pay.
-	Price param.Field[int64] `json:"price,required"`
+	Discount param.Field[int64] `json:"discount,required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
 	// Purchasing power parity feature is not available as of now.
 	PurchasingPowerParity param.Field[bool]      `json:"purchasing_power_parity,required"`
 	Type                  param.Field[PriceType] `json:"type,required"`
+	// The fixed payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	FixedPrice param.Field[int64]       `json:"fixed_price"`
+	Meters     param.Field[interface{}] `json:"meters"`
 	// Indicates whether the customer can pay any amount they choose. If set to `true`,
 	// the [`price`](Self::price) field is the minimum amount.
 	PayWhatYouWant param.Field[bool] `json:"pay_what_you_want"`
@@ -441,6 +576,12 @@ type PriceParam struct {
 	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count"`
 	// The time interval for the payment frequency (e.g., day, month, year).
 	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval"`
+	// The payment amount, in the smallest denomination of the currency (e.g., cents
+	// for USD). For example, to charge $1.00, pass `100`.
+	//
+	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
+	// represents the **minimum** amount the customer must pay.
+	Price param.Field[int64] `json:"price"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count"`
@@ -464,7 +605,8 @@ func (r PriceParam) implementsPriceUnionParam() {}
 
 // One-time price details.
 //
-// Satisfied by [PriceOneTimePriceParam], [PriceRecurringPriceParam], [PriceParam].
+// Satisfied by [PriceOneTimePriceParam], [PriceRecurringPriceParam],
+// [PriceUsageBasedPriceParam], [PriceParam].
 type PriceUnionParam interface {
 	implementsPriceUnionParam()
 }
@@ -474,7 +616,7 @@ type PriceOneTimePriceParam struct {
 	// The currency in which the payment is made.
 	Currency param.Field[Currency] `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[float64] `json:"discount,required"`
+	Discount param.Field[int64] `json:"discount,required"`
 	// The payment amount, in the smallest denomination of the currency (e.g., cents
 	// for USD). For example, to charge $1.00, pass `100`.
 	//
@@ -507,7 +649,7 @@ type PriceRecurringPriceParam struct {
 	// The currency in which the payment is made.
 	Currency param.Field[Currency] `json:"currency,required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[float64] `json:"discount,required"`
+	Discount param.Field[int64] `json:"discount,required"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
 	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count,required"`
@@ -536,6 +678,40 @@ func (r PriceRecurringPriceParam) MarshalJSON() (data []byte, err error) {
 }
 
 func (r PriceRecurringPriceParam) implementsPriceUnionParam() {}
+
+// Usage Based price details.
+type PriceUsageBasedPriceParam struct {
+	// The currency in which the payment is made.
+	Currency param.Field[Currency] `json:"currency,required"`
+	// Discount applied to the price, represented as a percentage (0 to 100).
+	Discount param.Field[int64] `json:"discount,required"`
+	// The fixed payment amount. Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	FixedPrice param.Field[int64] `json:"fixed_price,required"`
+	// Number of units for the payment frequency. For example, a value of `1` with a
+	// `payment_frequency_interval` of `month` represents monthly payments.
+	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count,required"`
+	// The time interval for the payment frequency (e.g., day, month, year).
+	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval,required"`
+	// Indicates if purchasing power parity adjustments are applied to the price.
+	// Purchasing power parity feature is not available as of now
+	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity,required"`
+	// Number of units for the subscription period. For example, a value of `12` with a
+	// `subscription_period_interval` of `month` represents a one-year subscription.
+	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count,required"`
+	// The time interval for the subscription period (e.g., day, month, year).
+	SubscriptionPeriodInterval param.Field[TimeInterval]             `json:"subscription_period_interval,required"`
+	Type                       param.Field[PriceUsageBasedPriceType] `json:"type,required"`
+	Meters                     param.Field[[]AddMeterToPriceParam]   `json:"meters"`
+	// Indicates if the price is tax inclusive
+	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
+}
+
+func (r PriceUsageBasedPriceParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r PriceUsageBasedPriceParam) implementsPriceUnionParam() {}
 
 type Product struct {
 	BrandID string `json:"brand_id,required"`
