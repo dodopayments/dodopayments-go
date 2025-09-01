@@ -110,6 +110,115 @@ func (r *SubscriptionService) Charge(ctx context.Context, subscriptionID string,
 	return
 }
 
+// Get detailed usage history for a subscription that includes usage-based billing
+// (metered components). This endpoint provides insights into customer usage
+// patterns and billing calculations over time.
+//
+// ## What You'll Get:
+//
+//   - **Billing periods**: Each item represents a billing cycle with start and end
+//     dates
+//   - **Meter usage**: Detailed breakdown of usage for each meter configured on the
+//     subscription
+//   - **Usage calculations**: Total units consumed, free threshold units, and
+//     chargeable units
+//   - **Historical tracking**: Complete audit trail of usage-based charges
+//
+// ## Use Cases:
+//
+// - **Customer support**: Investigate billing questions and usage discrepancies
+// - **Usage analytics**: Analyze customer consumption patterns over time
+// - **Billing transparency**: Provide customers with detailed usage breakdowns
+// - **Revenue optimization**: Identify usage trends to optimize pricing strategies
+//
+// ## Filtering Options:
+//
+// - **Date range filtering**: Get usage history for specific time periods
+// - **Meter-specific filtering**: Focus on usage for a particular meter
+// - **Pagination**: Navigate through large usage histories efficiently
+//
+// ## Important Notes:
+//
+//   - Only returns data for subscriptions with usage-based (metered) components
+//   - Usage history is organized by billing periods (subscription cycles)
+//   - Free threshold units are calculated and displayed separately from chargeable
+//     units
+//   - Historical data is preserved even if meter configurations change
+//
+// ## Example Query Patterns:
+//
+//   - Get last 3 months:
+//     `?start_date=2024-01-01T00:00:00Z&end_date=2024-03-31T23:59:59Z`
+//   - Filter by meter: `?meter_id=mtr_api_requests`
+//   - Paginate results: `?page_size=20&page_number=1`
+//   - Recent usage: `?start_date=2024-03-01T00:00:00Z` (from March 1st to now)
+func (r *SubscriptionService) GetUsageHistory(ctx context.Context, subscriptionID string, query SubscriptionGetUsageHistoryParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[SubscriptionGetUsageHistoryResponse], err error) {
+	var raw *http.Response
+	opts = append(r.Options[:], opts...)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
+	if subscriptionID == "" {
+		err = errors.New("missing required subscription_id parameter")
+		return
+	}
+	path := fmt.Sprintf("subscriptions/%s/usage-history", subscriptionID)
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+// Get detailed usage history for a subscription that includes usage-based billing
+// (metered components). This endpoint provides insights into customer usage
+// patterns and billing calculations over time.
+//
+// ## What You'll Get:
+//
+//   - **Billing periods**: Each item represents a billing cycle with start and end
+//     dates
+//   - **Meter usage**: Detailed breakdown of usage for each meter configured on the
+//     subscription
+//   - **Usage calculations**: Total units consumed, free threshold units, and
+//     chargeable units
+//   - **Historical tracking**: Complete audit trail of usage-based charges
+//
+// ## Use Cases:
+//
+// - **Customer support**: Investigate billing questions and usage discrepancies
+// - **Usage analytics**: Analyze customer consumption patterns over time
+// - **Billing transparency**: Provide customers with detailed usage breakdowns
+// - **Revenue optimization**: Identify usage trends to optimize pricing strategies
+//
+// ## Filtering Options:
+//
+// - **Date range filtering**: Get usage history for specific time periods
+// - **Meter-specific filtering**: Focus on usage for a particular meter
+// - **Pagination**: Navigate through large usage histories efficiently
+//
+// ## Important Notes:
+//
+//   - Only returns data for subscriptions with usage-based (metered) components
+//   - Usage history is organized by billing periods (subscription cycles)
+//   - Free threshold units are calculated and displayed separately from chargeable
+//     units
+//   - Historical data is preserved even if meter configurations change
+//
+// ## Example Query Patterns:
+//
+//   - Get last 3 months:
+//     `?start_date=2024-01-01T00:00:00Z&end_date=2024-03-31T23:59:59Z`
+//   - Filter by meter: `?meter_id=mtr_api_requests`
+//   - Paginate results: `?page_size=20&page_number=1`
+//   - Recent usage: `?start_date=2024-03-01T00:00:00Z` (from March 1st to now)
+func (r *SubscriptionService) GetUsageHistoryAutoPaging(ctx context.Context, subscriptionID string, query SubscriptionGetUsageHistoryParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[SubscriptionGetUsageHistoryResponse] {
+	return pagination.NewDefaultPageNumberPaginationAutoPager(r.GetUsageHistory(ctx, subscriptionID, query, opts...))
+}
+
 // Response struct representing subscription details
 type AddonCartResponseItem struct {
 	AddonID  string                    `json:"addon_id,required"`
@@ -462,6 +571,77 @@ func (r subscriptionChargeResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type SubscriptionGetUsageHistoryResponse struct {
+	// End date of the billing period
+	EndDate time.Time `json:"end_date,required" format:"date-time"`
+	// List of meters and their usage for this billing period
+	Meters []SubscriptionGetUsageHistoryResponseMeter `json:"meters,required"`
+	// Start date of the billing period
+	StartDate time.Time                               `json:"start_date,required" format:"date-time"`
+	JSON      subscriptionGetUsageHistoryResponseJSON `json:"-"`
+}
+
+// subscriptionGetUsageHistoryResponseJSON contains the JSON metadata for the
+// struct [SubscriptionGetUsageHistoryResponse]
+type subscriptionGetUsageHistoryResponseJSON struct {
+	EndDate     apijson.Field
+	Meters      apijson.Field
+	StartDate   apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionGetUsageHistoryResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionGetUsageHistoryResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type SubscriptionGetUsageHistoryResponseMeter struct {
+	// Meter identifier
+	ID string `json:"id,required"`
+	// Chargeable units (after free threshold) as string for precision
+	ChargeableUnits string `json:"chargeable_units,required"`
+	// Total units consumed as string for precision
+	ConsumedUnits string `json:"consumed_units,required"`
+	// Currency for the price per unit
+	Currency Currency `json:"currency,required"`
+	// Free threshold units for this meter
+	FreeThreshold int64 `json:"free_threshold,required"`
+	// Meter name
+	Name string `json:"name,required"`
+	// Price per unit in string format for precision
+	PricePerUnit string `json:"price_per_unit,required"`
+	// Total price charged for this meter in smallest currency unit (cents)
+	TotalPrice int64                                        `json:"total_price,required"`
+	JSON       subscriptionGetUsageHistoryResponseMeterJSON `json:"-"`
+}
+
+// subscriptionGetUsageHistoryResponseMeterJSON contains the JSON metadata for the
+// struct [SubscriptionGetUsageHistoryResponseMeter]
+type subscriptionGetUsageHistoryResponseMeterJSON struct {
+	ID              apijson.Field
+	ChargeableUnits apijson.Field
+	ConsumedUnits   apijson.Field
+	Currency        apijson.Field
+	FreeThreshold   apijson.Field
+	Name            apijson.Field
+	PricePerUnit    apijson.Field
+	TotalPrice      apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *SubscriptionGetUsageHistoryResponseMeter) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionGetUsageHistoryResponseMeterJSON) RawJSON() string {
+	return r.raw
+}
+
 type SubscriptionNewParams struct {
 	// Billing address information for the subscription
 	Billing param.Field[BillingAddressParam] `json:"billing,required"`
@@ -628,4 +808,26 @@ type SubscriptionChargeParams struct {
 
 func (r SubscriptionChargeParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+type SubscriptionGetUsageHistoryParams struct {
+	// Filter by end date (inclusive)
+	EndDate param.Field[time.Time] `query:"end_date" format:"date-time"`
+	// Filter by specific meter ID
+	MeterID param.Field[string] `query:"meter_id"`
+	// Page number (default: 0)
+	PageNumber param.Field[int64] `query:"page_number"`
+	// Page size (default: 10, max: 100)
+	PageSize param.Field[int64] `query:"page_size"`
+	// Filter by start date (inclusive)
+	StartDate param.Field[time.Time] `query:"start_date" format:"date-time"`
+}
+
+// URLQuery serializes [SubscriptionGetUsageHistoryParams]'s query parameters as
+// `url.Values`.
+func (r SubscriptionGetUsageHistoryParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
