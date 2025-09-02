@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
@@ -16,6 +17,8 @@ import (
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
+	"github.com/dodopayments/dodopayments-go/shared"
+	"github.com/tidwall/gjson"
 )
 
 // UsageEventService contains methods and other services that help with interacting
@@ -211,13 +214,14 @@ func (r *UsageEventService) Ingest(ctx context.Context, body UsageEventIngestPar
 }
 
 type Event struct {
-	BusinessID string                 `json:"business_id,required"`
-	CustomerID string                 `json:"customer_id,required"`
-	EventID    string                 `json:"event_id,required"`
-	EventName  string                 `json:"event_name,required"`
-	Timestamp  time.Time              `json:"timestamp,required" format:"date-time"`
-	Metadata   map[string]interface{} `json:"metadata,nullable"`
-	JSON       eventJSON              `json:"-"`
+	BusinessID string    `json:"business_id,required"`
+	CustomerID string    `json:"customer_id,required"`
+	EventID    string    `json:"event_id,required"`
+	EventName  string    `json:"event_name,required"`
+	Timestamp  time.Time `json:"timestamp,required" format:"date-time"`
+	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
+	Metadata map[string]EventMetadataUnion `json:"metadata,nullable"`
+	JSON     eventJSON                     `json:"-"`
 }
 
 // eventJSON contains the JSON metadata for the struct [Event]
@@ -240,6 +244,37 @@ func (r eventJSON) RawJSON() string {
 	return r.raw
 }
 
+// Metadata value can be a string, integer, number, or boolean
+//
+// Union satisfied by [shared.UnionString], [shared.UnionFloat] or
+// [shared.UnionBool].
+type EventMetadataUnion interface {
+	ImplementsEventMetadataUnion()
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*EventMetadataUnion)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.String,
+			Type:       reflect.TypeOf(shared.UnionString("")),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.Number,
+			Type:       reflect.TypeOf(shared.UnionFloat(0)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.True,
+			Type:       reflect.TypeOf(shared.UnionBool(false)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.False,
+			Type:       reflect.TypeOf(shared.UnionBool(false)),
+		},
+	)
+}
+
 type EventInputParam struct {
 	// customer_id of the customer whose usage needs to be tracked
 	CustomerID param.Field[string] `json:"customer_id,required"`
@@ -250,7 +285,7 @@ type EventInputParam struct {
 	EventName param.Field[string] `json:"event_name,required"`
 	// Custom metadata. Only key value pairs are accepted, objects or arrays submitted
 	// will be rejected.
-	Metadata param.Field[map[string]interface{}] `json:"metadata"`
+	Metadata param.Field[map[string]EventInputMetadataUnionParam] `json:"metadata"`
 	// Custom Timestamp. Defaults to current timestamp in UTC. Timestamps that are
 	// older that 1 hour or after 5 mins, from current timestamp, will be rejected.
 	Timestamp param.Field[time.Time] `json:"timestamp" format:"date-time"`
@@ -258,6 +293,13 @@ type EventInputParam struct {
 
 func (r EventInputParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+// Metadata value can be a string, integer, number, or boolean
+//
+// Satisfied by [shared.UnionString], [shared.UnionFloat], [shared.UnionBool].
+type EventInputMetadataUnionParam interface {
+	ImplementsEventInputMetadataUnionParam()
 }
 
 type UsageEventIngestResponse struct {
