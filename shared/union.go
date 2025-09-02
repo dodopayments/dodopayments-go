@@ -4,6 +4,8 @@ package shared
 
 type UnionString string
 
+func (UnionString) ImplementsEventMetadataUnion()                                      {}
+func (UnionString) ImplementsEventInputMetadataUnionParam()                            {}
 func (UnionString) ImplementsMeterFilterClausesDirectFilterConditionsValueUnionParam() {}
 func (UnionString) ImplementsMeterFilterClausesDirectFilterConditionsValueUnion()      {}
 func (UnionString) ImplementsMeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnionParam() {
@@ -21,6 +23,8 @@ func (UnionString) ImplementsMeterFilterClausesNestedMeterFiltersClausesLevel1Ne
 
 type UnionBool bool
 
+func (UnionBool) ImplementsEventMetadataUnion()                                      {}
+func (UnionBool) ImplementsEventInputMetadataUnionParam()                            {}
 func (UnionBool) ImplementsMeterFilterClausesDirectFilterConditionsValueUnionParam() {}
 func (UnionBool) ImplementsMeterFilterClausesDirectFilterConditionsValueUnion()      {}
 func (UnionBool) ImplementsMeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnionParam() {
@@ -38,6 +42,8 @@ func (UnionBool) ImplementsMeterFilterClausesNestedMeterFiltersClausesLevel1Nest
 
 type UnionFloat float64
 
+func (UnionFloat) ImplementsEventMetadataUnion()                                      {}
+func (UnionFloat) ImplementsEventInputMetadataUnionParam()                            {}
 func (UnionFloat) ImplementsMeterFilterClausesDirectFilterConditionsValueUnionParam() {}
 func (UnionFloat) ImplementsMeterFilterClausesDirectFilterConditionsValueUnion()      {}
 func (UnionFloat) ImplementsMeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnionParam() {

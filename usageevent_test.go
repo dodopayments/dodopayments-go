@@ -12,6 +12,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestUsageEventGet(t *testing.T) {
@@ -83,8 +84,8 @@ func TestUsageEventIngest(t *testing.T) {
 			CustomerID: dodopayments.F("customer_id"),
 			EventID:    dodopayments.F("event_id"),
 			EventName:  dodopayments.F("event_name"),
-			Metadata: dodopayments.F(map[string]interface{}{
-				"foo": "bar",
+			Metadata: dodopayments.F(map[string]dodopayments.EventInputMetadataUnionParam{
+				"foo": shared.UnionString("string"),
 			}),
 			Timestamp: dodopayments.F(time.Now()),
 		}}),
