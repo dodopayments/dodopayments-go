@@ -176,16 +176,15 @@ func (r meterAggregationJSON) RawJSON() string {
 type MeterAggregationType string
 
 const (
-	MeterAggregationTypeCount       MeterAggregationType = "count"
-	MeterAggregationTypeSum         MeterAggregationType = "sum"
-	MeterAggregationTypeUniqueCount MeterAggregationType = "unique_count"
-	MeterAggregationTypeMax         MeterAggregationType = "max"
-	MeterAggregationTypeLast        MeterAggregationType = "last"
+	MeterAggregationTypeCount MeterAggregationType = "count"
+	MeterAggregationTypeSum   MeterAggregationType = "sum"
+	MeterAggregationTypeMax   MeterAggregationType = "max"
+	MeterAggregationTypeLast  MeterAggregationType = "last"
 )
 
 func (r MeterAggregationType) IsKnown() bool {
 	switch r {
-	case MeterAggregationTypeCount, MeterAggregationTypeSum, MeterAggregationTypeUniqueCount, MeterAggregationTypeMax, MeterAggregationTypeLast:
+	case MeterAggregationTypeCount, MeterAggregationTypeSum, MeterAggregationTypeMax, MeterAggregationTypeLast:
 		return true
 	}
 	return false

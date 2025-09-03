@@ -292,6 +292,8 @@ type Subscription struct {
 	Customer CustomerLimitedDetails `json:"customer,required"`
 	// Additional custom data associated with the subscription
 	Metadata map[string]string `json:"metadata,required"`
+	// Meters associated with this subscription (for usage-based billing)
+	Meters []SubscriptionMeter `json:"meters,required"`
 	// Timestamp of the next scheduled billing. Indicates the end of current billing
 	// period
 	NextBillingDate time.Time `json:"next_billing_date,required" format:"date-time"`
@@ -342,6 +344,7 @@ type subscriptionJSON struct {
 	Currency                   apijson.Field
 	Customer                   apijson.Field
 	Metadata                   apijson.Field
+	Meters                     apijson.Field
 	NextBillingDate            apijson.Field
 	OnDemand                   apijson.Field
 	PaymentFrequencyCount      apijson.Field
@@ -369,6 +372,40 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionJSON) RawJSON() string {
+	return r.raw
+}
+
+// Response struct representing usage-based meter cart details for a subscription
+type SubscriptionMeter struct {
+	Currency        Currency              `json:"currency,required"`
+	FreeThreshold   int64                 `json:"free_threshold,required"`
+	MeasurementUnit string                `json:"measurement_unit,required"`
+	MeterID         string                `json:"meter_id,required"`
+	Name            string                `json:"name,required"`
+	PricePerUnit    string                `json:"price_per_unit,required"`
+	Description     string                `json:"description,nullable"`
+	JSON            subscriptionMeterJSON `json:"-"`
+}
+
+// subscriptionMeterJSON contains the JSON metadata for the struct
+// [SubscriptionMeter]
+type subscriptionMeterJSON struct {
+	Currency        apijson.Field
+	FreeThreshold   apijson.Field
+	MeasurementUnit apijson.Field
+	MeterID         apijson.Field
+	Name            apijson.Field
+	PricePerUnit    apijson.Field
+	Description     apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *SubscriptionMeter) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionMeterJSON) RawJSON() string {
 	return r.raw
 }
 

@@ -313,6 +313,9 @@ type Payment struct {
 	CardNetwork string `json:"card_network,nullable"`
 	// The type of card DEBIT or CREDIT
 	CardType string `json:"card_type,nullable"`
+	// If payment is made using a checkout session, this field is set to the id of the
+	// session.
+	CheckoutSessionID string `json:"checkout_session_id,nullable"`
 	// The discount id if discount is applied
 	DiscountID string `json:"discount_id,nullable"`
 	// An error code if the payment failed
@@ -362,6 +365,7 @@ type paymentJSON struct {
 	CardLastFour             apijson.Field
 	CardNetwork              apijson.Field
 	CardType                 apijson.Field
+	CheckoutSessionID        apijson.Field
 	DiscountID               apijson.Field
 	ErrorCode                apijson.Field
 	ErrorMessage             apijson.Field
