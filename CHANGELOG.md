@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.52.4 (2025-09-03)
+
+Full Changelog: [v1.51.0...v1.52.4](https://github.com/dodopayments/dodopayments-go/compare/v1.51.0...v1.52.4)
+
+### Features
+
+* **api:** manual updates ([0cd9aea](https://github.com/dodopayments/dodopayments-go/commit/0cd9aeac621ccea109231f58378fabc325994d6e))
+* **api:** updated openapi spec ([d87f3f6](https://github.com/dodopayments/dodopayments-go/commit/d87f3f6352d3f9f2c8944a2f517d19c342ae3c57))
+* **api:** updated openapi spec to v1.52.4 ([74b7660](https://github.com/dodopayments/dodopayments-go/commit/74b7660886ffe171ffe1e5bd4d95adf67c2cdb0a))
+* updated openapi spec and added model and API functions for Usage Based Billing ([739de63](https://github.com/dodopayments/dodopayments-go/commit/739de632b6dc5dff71b99223cdcd6708534deccd))
+
+
+### Bug Fixes
+
+* close body before retrying ([9cb7396](https://github.com/dodopayments/dodopayments-go/commit/9cb7396c99f8177b8b7c484479bebcf3d17c180c))
+
 ## 1.51.0 (2025-08-22)
 
 Full Changelog: [v1.49.0...v1.51.0](https://github.com/dodopayments/dodopayments-go/compare/v1.49.0...v1.51.0)
