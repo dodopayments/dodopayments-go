@@ -219,6 +219,10 @@ func TestSubscriptionChargeWithOptionalParams(t *testing.T) {
 		dodopayments.SubscriptionChargeParams{
 			ProductPrice:                  dodopayments.F(int64(0)),
 			AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
+			CustomerBalanceConfig: dodopayments.F(dodopayments.SubscriptionChargeParamsCustomerBalanceConfig{
+				AllowCustomerCreditsPurchase: dodopayments.F(true),
+				AllowCustomerCreditsUsage:    dodopayments.F(true),
+			}),
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),
