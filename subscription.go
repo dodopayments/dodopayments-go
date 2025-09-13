@@ -832,6 +832,8 @@ type SubscriptionChargeParams struct {
 	// added on top (false). This field is ignored if adaptive pricing is not enabled
 	// for the business.
 	AdaptiveCurrencyFeesInclusive param.Field[bool] `json:"adaptive_currency_fees_inclusive"`
+	// Specify how customer balance is used for the payment
+	CustomerBalanceConfig param.Field[SubscriptionChargeParamsCustomerBalanceConfig] `json:"customer_balance_config"`
 	// Metadata for the payment. If not passed, the metadata of the subscription will
 	// be taken
 	Metadata param.Field[map[string]string] `json:"metadata"`
@@ -844,6 +846,18 @@ type SubscriptionChargeParams struct {
 }
 
 func (r SubscriptionChargeParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Specify how customer balance is used for the payment
+type SubscriptionChargeParamsCustomerBalanceConfig struct {
+	// Allows Customer Credit to be purchased to settle payments
+	AllowCustomerCreditsPurchase param.Field[bool] `json:"allow_customer_credits_purchase"`
+	// Allows Customer Credit Balance to be used to settle payments
+	AllowCustomerCreditsUsage param.Field[bool] `json:"allow_customer_credits_usage"`
+}
+
+func (r SubscriptionChargeParamsCustomerBalanceConfig) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 

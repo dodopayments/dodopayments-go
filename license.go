@@ -5,6 +5,7 @@ package dodopayments
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/param"
@@ -31,7 +32,7 @@ func NewLicenseService(opts ...option.RequestOption) (r *LicenseService) {
 	return
 }
 
-func (r *LicenseService) Activate(ctx context.Context, body LicenseActivateParams, opts ...option.RequestOption) (res *LicenseKeyInstance, err error) {
+func (r *LicenseService) Activate(ctx context.Context, body LicenseActivateParams, opts ...option.RequestOption) (res *LicenseActivateResponse, err error) {
 	opts = append(r.Options[:], opts...)
 	path := "licenses/activate"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
@@ -51,6 +52,72 @@ func (r *LicenseService) Validate(ctx context.Context, body LicenseValidateParam
 	path := "licenses/validate"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
+}
+
+type LicenseActivateResponse struct {
+	// License key instance ID
+	ID string `json:"id,required"`
+	// Business ID
+	BusinessID string `json:"business_id,required"`
+	// Creation timestamp
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// Limited customer details associated with the license key.
+	Customer CustomerLimitedDetails `json:"customer,required"`
+	// Associated license key ID
+	LicenseKeyID string `json:"license_key_id,required"`
+	// Instance name
+	Name string `json:"name,required"`
+	// Related product info. Present if the license key is tied to a product.
+	Product LicenseActivateResponseProduct `json:"product,required"`
+	JSON    licenseActivateResponseJSON    `json:"-"`
+}
+
+// licenseActivateResponseJSON contains the JSON metadata for the struct
+// [LicenseActivateResponse]
+type licenseActivateResponseJSON struct {
+	ID           apijson.Field
+	BusinessID   apijson.Field
+	CreatedAt    apijson.Field
+	Customer     apijson.Field
+	LicenseKeyID apijson.Field
+	Name         apijson.Field
+	Product      apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *LicenseActivateResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r licenseActivateResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+// Related product info. Present if the license key is tied to a product.
+type LicenseActivateResponseProduct struct {
+	// Unique identifier for the product.
+	ProductID string `json:"product_id,required"`
+	// Name of the product, if set by the merchant.
+	Name string                             `json:"name,nullable"`
+	JSON licenseActivateResponseProductJSON `json:"-"`
+}
+
+// licenseActivateResponseProductJSON contains the JSON metadata for the struct
+// [LicenseActivateResponseProduct]
+type licenseActivateResponseProductJSON struct {
+	ProductID   apijson.Field
+	Name        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *LicenseActivateResponseProduct) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r licenseActivateResponseProductJSON) RawJSON() string {
+	return r.raw
 }
 
 type LicenseValidateResponse struct {

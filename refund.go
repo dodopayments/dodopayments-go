@@ -55,7 +55,7 @@ func (r *RefundService) Get(ctx context.Context, refundID string, opts ...option
 	return
 }
 
-func (r *RefundService) List(ctx context.Context, query RefundListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[Refund], err error) {
+func (r *RefundService) List(ctx context.Context, query RefundListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[RefundListResponse], err error) {
 	var raw *http.Response
 	opts = append(r.Options[:], opts...)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
@@ -72,7 +72,7 @@ func (r *RefundService) List(ctx context.Context, query RefundListParams, opts .
 	return res, nil
 }
 
-func (r *RefundService) ListAutoPaging(ctx context.Context, query RefundListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[Refund] {
+func (r *RefundService) ListAutoPaging(ctx context.Context, query RefundListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[RefundListResponse] {
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
@@ -81,6 +81,8 @@ type Refund struct {
 	BusinessID string `json:"business_id,required"`
 	// The timestamp of when the refund was created in UTC.
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// Details about the customer for this refund (from the associated payment)
+	Customer CustomerLimitedDetails `json:"customer,required"`
 	// If true the refund is a partial refund
 	IsPartial bool `json:"is_partial,required"`
 	// The unique identifier of the payment associated with the refund.
@@ -102,6 +104,7 @@ type Refund struct {
 type refundJSON struct {
 	BusinessID  apijson.Field
 	CreatedAt   apijson.Field
+	Customer    apijson.Field
 	IsPartial   apijson.Field
 	PaymentID   apijson.Field
 	RefundID    apijson.Field
@@ -136,6 +139,52 @@ func (r RefundStatus) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+type RefundListResponse struct {
+	// The unique identifier of the business issuing the refund.
+	BusinessID string `json:"business_id,required"`
+	// The timestamp of when the refund was created in UTC.
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// If true the refund is a partial refund
+	IsPartial bool `json:"is_partial,required"`
+	// The unique identifier of the payment associated with the refund.
+	PaymentID string `json:"payment_id,required"`
+	// The unique identifier of the refund.
+	RefundID string `json:"refund_id,required"`
+	// The current status of the refund.
+	Status RefundStatus `json:"status,required"`
+	// The refunded amount.
+	Amount int64 `json:"amount,nullable"`
+	// The currency of the refund, represented as an ISO 4217 currency code.
+	Currency Currency `json:"currency,nullable"`
+	// The reason provided for the refund, if any. Optional.
+	Reason string                 `json:"reason,nullable"`
+	JSON   refundListResponseJSON `json:"-"`
+}
+
+// refundListResponseJSON contains the JSON metadata for the struct
+// [RefundListResponse]
+type refundListResponseJSON struct {
+	BusinessID  apijson.Field
+	CreatedAt   apijson.Field
+	IsPartial   apijson.Field
+	PaymentID   apijson.Field
+	RefundID    apijson.Field
+	Status      apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Reason      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *RefundListResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r refundListResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type RefundNewParams struct {
