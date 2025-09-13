@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.53.3 (2025-09-13)
+
+Full Changelog: [v1.53.2...v1.53.3](https://github.com/dodopayments/dodopayments-go/compare/v1.53.2...v1.53.3)
+
+### Features
+
+* **api:** added typescript sdk for migration and updated org info ([21b24fa](https://github.com/dodopayments/dodopayments-go/commit/21b24fa5acc71fb8bed1e9d484c393eef17a42e8))
+
 ## 1.53.2 (2025-09-13)
 
 Full Changelog: [v1.52.4...v1.53.2](https://github.com/dodopayments/dodopayments-go/compare/v1.52.4...v1.53.2)
