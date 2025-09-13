@@ -27,6 +27,7 @@ import (
 type CustomerService struct {
 	Options        []option.RequestOption
 	CustomerPortal *CustomerCustomerPortalService
+	Wallets        *CustomerWalletService
 }
 
 // NewCustomerService generates a new service that applies the given options to
@@ -36,6 +37,7 @@ func NewCustomerService(opts ...option.RequestOption) (r *CustomerService) {
 	r = &CustomerService{}
 	r.Options = opts
 	r.CustomerPortal = NewCustomerCustomerPortalService(opts...)
+	r.Wallets = NewCustomerWalletService(opts...)
 	return
 }
 

@@ -293,7 +293,7 @@ type Payment struct {
 	// Unique identifier for the payment
 	PaymentID string `json:"payment_id,required"`
 	// List of refunds issued for this payment
-	Refunds []Refund `json:"refunds,required"`
+	Refunds []PaymentRefund `json:"refunds,required"`
 	// The amount that will be credited to your Dodo balance after currency conversion
 	// and processing. Especially relevant for adaptive pricing where the customer's
 	// payment currency differs from your settlement currency.
@@ -387,6 +387,51 @@ func (r *Payment) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r paymentJSON) RawJSON() string {
+	return r.raw
+}
+
+type PaymentRefund struct {
+	// The unique identifier of the business issuing the refund.
+	BusinessID string `json:"business_id,required"`
+	// The timestamp of when the refund was created in UTC.
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// If true the refund is a partial refund
+	IsPartial bool `json:"is_partial,required"`
+	// The unique identifier of the payment associated with the refund.
+	PaymentID string `json:"payment_id,required"`
+	// The unique identifier of the refund.
+	RefundID string `json:"refund_id,required"`
+	// The current status of the refund.
+	Status RefundStatus `json:"status,required"`
+	// The refunded amount.
+	Amount int64 `json:"amount,nullable"`
+	// The currency of the refund, represented as an ISO 4217 currency code.
+	Currency Currency `json:"currency,nullable"`
+	// The reason provided for the refund, if any. Optional.
+	Reason string            `json:"reason,nullable"`
+	JSON   paymentRefundJSON `json:"-"`
+}
+
+// paymentRefundJSON contains the JSON metadata for the struct [PaymentRefund]
+type paymentRefundJSON struct {
+	BusinessID  apijson.Field
+	CreatedAt   apijson.Field
+	IsPartial   apijson.Field
+	PaymentID   apijson.Field
+	RefundID    apijson.Field
+	Status      apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Reason      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PaymentRefund) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentRefundJSON) RawJSON() string {
 	return r.raw
 }
 
