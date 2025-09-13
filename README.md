@@ -2,7 +2,7 @@
 
 <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go"><img src="https://pkg.go.dev/badge/github.com/dodopayments/dodopayments-go.svg" alt="Go Reference"></a>
 
-The Dodo Payments Go library provides convenient access to the [Dodo Payments REST API](https://docs.dodopayments.com)
+The Dodo Payments Go library provides convenient access to the [Dodo Payments REST API](https://docs.dodopayments.com/api-reference/introduction)
 from applications written in Go.
 
 It is generated with [Stainless](https://www.stainless.com/).
