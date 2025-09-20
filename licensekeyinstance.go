@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
@@ -38,7 +39,7 @@ func NewLicenseKeyInstanceService(opts ...option.RequestOption) (r *LicenseKeyIn
 }
 
 func (r *LicenseKeyInstanceService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *LicenseKeyInstance, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return
@@ -49,7 +50,7 @@ func (r *LicenseKeyInstanceService) Get(ctx context.Context, id string, opts ...
 }
 
 func (r *LicenseKeyInstanceService) Update(ctx context.Context, id string, body LicenseKeyInstanceUpdateParams, opts ...option.RequestOption) (res *LicenseKeyInstance, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return
@@ -61,7 +62,7 @@ func (r *LicenseKeyInstanceService) Update(ctx context.Context, id string, body 
 
 func (r *LicenseKeyInstanceService) List(ctx context.Context, query LicenseKeyInstanceListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[LicenseKeyInstance], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "license_key_instances"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)

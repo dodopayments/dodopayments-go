@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
@@ -32,7 +33,7 @@ func NewInvoicePaymentService(opts ...option.RequestOption) (r *InvoicePaymentSe
 }
 
 func (r *InvoicePaymentService) Get(ctx context.Context, paymentID string, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
 	if paymentID == "" {
 		err = errors.New("missing required payment_id parameter")
@@ -44,7 +45,7 @@ func (r *InvoicePaymentService) Get(ctx context.Context, paymentID string, opts 
 }
 
 func (r *InvoicePaymentService) GetRefund(ctx context.Context, refundID string, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
 	if refundID == "" {
 		err = errors.New("missing required refund_id parameter")
