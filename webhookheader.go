@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/param"
@@ -35,7 +36,7 @@ func NewWebhookHeaderService(opts ...option.RequestOption) (r *WebhookHeaderServ
 
 // Get a webhook by id
 func (r *WebhookHeaderService) Get(ctx context.Context, webhookID string, opts ...option.RequestOption) (res *WebhookHeaderGetResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
 		return
@@ -47,7 +48,7 @@ func (r *WebhookHeaderService) Get(ctx context.Context, webhookID string, opts .
 
 // Patch a webhook by id
 func (r *WebhookHeaderService) Update(ctx context.Context, webhookID string, body WebhookHeaderUpdateParams, opts ...option.RequestOption) (err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")

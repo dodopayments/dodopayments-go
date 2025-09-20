@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
@@ -38,7 +39,7 @@ func NewCustomerWalletLedgerEntryService(opts ...option.RequestOption) (r *Custo
 }
 
 func (r *CustomerWalletLedgerEntryService) New(ctx context.Context, customerID string, body CustomerWalletLedgerEntryNewParams, opts ...option.RequestOption) (res *CustomerWallet, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
 		return
@@ -50,7 +51,7 @@ func (r *CustomerWalletLedgerEntryService) New(ctx context.Context, customerID s
 
 func (r *CustomerWalletLedgerEntryService) List(ctx context.Context, customerID string, query CustomerWalletLedgerEntryListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[CustomerWalletTransaction], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
