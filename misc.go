@@ -5,6 +5,7 @@ package dodopayments
 import (
 	"context"
 	"net/http"
+	"slices"
 
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
@@ -30,7 +31,7 @@ func NewMiscService(opts ...option.RequestOption) (r *MiscService) {
 }
 
 func (r *MiscService) ListSupportedCountries(ctx context.Context, opts ...option.RequestOption) (res *[]CountryCode, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "checkout/supported_countries"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return

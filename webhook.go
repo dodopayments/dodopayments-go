@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
@@ -40,7 +41,7 @@ func NewWebhookService(opts ...option.RequestOption) (r *WebhookService) {
 
 // Create a new webhook
 func (r *WebhookService) New(ctx context.Context, body WebhookNewParams, opts ...option.RequestOption) (res *WebhookDetails, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "webhooks"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
@@ -48,7 +49,7 @@ func (r *WebhookService) New(ctx context.Context, body WebhookNewParams, opts ..
 
 // Get a webhook by id
 func (r *WebhookService) Get(ctx context.Context, webhookID string, opts ...option.RequestOption) (res *WebhookDetails, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
 		return
@@ -60,7 +61,7 @@ func (r *WebhookService) Get(ctx context.Context, webhookID string, opts ...opti
 
 // Patch a webhook by id
 func (r *WebhookService) Update(ctx context.Context, webhookID string, body WebhookUpdateParams, opts ...option.RequestOption) (res *WebhookDetails, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
 		return
@@ -73,7 +74,7 @@ func (r *WebhookService) Update(ctx context.Context, webhookID string, body Webh
 // List all webhooks
 func (r *WebhookService) List(ctx context.Context, query WebhookListParams, opts ...option.RequestOption) (res *pagination.CursorPagePagination[WebhookDetails], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "webhooks"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
@@ -95,7 +96,7 @@ func (r *WebhookService) ListAutoPaging(ctx context.Context, query WebhookListPa
 
 // Delete a webhook by id
 func (r *WebhookService) Delete(ctx context.Context, webhookID string, opts ...option.RequestOption) (err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
@@ -108,7 +109,7 @@ func (r *WebhookService) Delete(ctx context.Context, webhookID string, opts ...o
 
 // Get webhook secret by id
 func (r *WebhookService) GetSecret(ctx context.Context, webhookID string, opts ...option.RequestOption) (res *WebhookGetSecretResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
 		return

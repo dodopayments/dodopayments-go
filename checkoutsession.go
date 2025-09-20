@@ -5,6 +5,7 @@ package dodopayments
 import (
 	"context"
 	"net/http"
+	"slices"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/param"
@@ -32,7 +33,7 @@ func NewCheckoutSessionService(opts ...option.RequestOption) (r *CheckoutSession
 }
 
 func (r *CheckoutSessionService) New(ctx context.Context, body CheckoutSessionNewParams, opts ...option.RequestOption) (res *CheckoutSessionResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "checkouts"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return

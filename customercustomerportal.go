@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
 	"github.com/dodopayments/dodopayments-go/internal/param"
@@ -35,7 +36,7 @@ func NewCustomerCustomerPortalService(opts ...option.RequestOption) (r *Customer
 }
 
 func (r *CustomerCustomerPortalService) New(ctx context.Context, customerID string, body CustomerCustomerPortalNewParams, opts ...option.RequestOption) (res *CustomerPortalSession, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
 		return

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
@@ -36,7 +37,7 @@ func NewProductImageService(opts ...option.RequestOption) (r *ProductImageServic
 }
 
 func (r *ProductImageService) Update(ctx context.Context, id string, body ProductImageUpdateParams, opts ...option.RequestOption) (res *ProductImageUpdateResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return

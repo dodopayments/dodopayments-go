@@ -5,6 +5,7 @@ package dodopayments
 import (
 	"context"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
@@ -33,14 +34,14 @@ func NewLicenseService(opts ...option.RequestOption) (r *LicenseService) {
 }
 
 func (r *LicenseService) Activate(ctx context.Context, body LicenseActivateParams, opts ...option.RequestOption) (res *LicenseActivateResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "licenses/activate"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
 
 func (r *LicenseService) Deactivate(ctx context.Context, body LicenseDeactivateParams, opts ...option.RequestOption) (err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	path := "licenses/deactivate"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
@@ -48,7 +49,7 @@ func (r *LicenseService) Deactivate(ctx context.Context, body LicenseDeactivateP
 }
 
 func (r *LicenseService) Validate(ctx context.Context, body LicenseValidateParams, opts ...option.RequestOption) (res *LicenseValidateResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "licenses/validate"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return

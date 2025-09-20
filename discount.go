@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
@@ -40,7 +41,7 @@ func NewDiscountService(opts ...option.RequestOption) (r *DiscountService) {
 // POST /discounts If `code` is omitted or empty, a random 16-char uppercase code
 // is generated.
 func (r *DiscountService) New(ctx context.Context, body DiscountNewParams, opts ...option.RequestOption) (res *Discount, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "discounts"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
@@ -48,7 +49,7 @@ func (r *DiscountService) New(ctx context.Context, body DiscountNewParams, opts 
 
 // GET /discounts/{discount_id}
 func (r *DiscountService) Get(ctx context.Context, discountID string, opts ...option.RequestOption) (res *Discount, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if discountID == "" {
 		err = errors.New("missing required discount_id parameter")
 		return
@@ -60,7 +61,7 @@ func (r *DiscountService) Get(ctx context.Context, discountID string, opts ...op
 
 // PATCH /discounts/{discount_id}
 func (r *DiscountService) Update(ctx context.Context, discountID string, body DiscountUpdateParams, opts ...option.RequestOption) (res *Discount, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if discountID == "" {
 		err = errors.New("missing required discount_id parameter")
 		return
@@ -73,7 +74,7 @@ func (r *DiscountService) Update(ctx context.Context, discountID string, body Di
 // GET /discounts
 func (r *DiscountService) List(ctx context.Context, query DiscountListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[Discount], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "discounts"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
@@ -95,7 +96,7 @@ func (r *DiscountService) ListAutoPaging(ctx context.Context, query DiscountList
 
 // DELETE /discounts/{discount_id}
 func (r *DiscountService) Delete(ctx context.Context, discountID string, opts ...option.RequestOption) (err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if discountID == "" {
 		err = errors.New("missing required discount_id parameter")

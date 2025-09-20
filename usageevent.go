@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
@@ -69,7 +70,7 @@ func NewUsageEventService(opts ...option.RequestOption) (r *UsageEventService) {
 // GET /events/api_call_12345
 // ```
 func (r *UsageEventService) Get(ctx context.Context, eventID string, opts ...option.RequestOption) (res *Event, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if eventID == "" {
 		err = errors.New("missing required event_id parameter")
 		return
@@ -114,7 +115,7 @@ func (r *UsageEventService) Get(ctx context.Context, eventID string, opts ...opt
 //   - Paginate results: `?page_size=50&page_number=2`
 func (r *UsageEventService) List(ctx context.Context, query UsageEventListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[Event], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "events"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
@@ -207,7 +208,7 @@ func (r *UsageEventService) ListAutoPaging(ctx context.Context, query UsageEvent
 //
 // ```
 func (r *UsageEventService) Ingest(ctx context.Context, body UsageEventIngestParams, opts ...option.RequestOption) (res *UsageEventIngestResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "events/ingest"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return

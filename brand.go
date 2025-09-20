@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/param"
@@ -34,7 +35,7 @@ func NewBrandService(opts ...option.RequestOption) (r *BrandService) {
 }
 
 func (r *BrandService) New(ctx context.Context, body BrandNewParams, opts ...option.RequestOption) (res *Brand, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "brands"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
@@ -42,7 +43,7 @@ func (r *BrandService) New(ctx context.Context, body BrandNewParams, opts ...opt
 
 // Thin handler just calls `get_brand` and wraps in `Json(...)`
 func (r *BrandService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *Brand, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return
@@ -53,7 +54,7 @@ func (r *BrandService) Get(ctx context.Context, id string, opts ...option.Reques
 }
 
 func (r *BrandService) Update(ctx context.Context, id string, body BrandUpdateParams, opts ...option.RequestOption) (res *Brand, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return
@@ -64,14 +65,14 @@ func (r *BrandService) Update(ctx context.Context, id string, body BrandUpdatePa
 }
 
 func (r *BrandService) List(ctx context.Context, opts ...option.RequestOption) (res *BrandListResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "brands"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
 func (r *BrandService) UpdateImages(ctx context.Context, id string, opts ...option.RequestOption) (res *BrandUpdateImagesResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return

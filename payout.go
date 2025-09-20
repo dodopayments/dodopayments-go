@@ -6,6 +6,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
@@ -37,7 +38,7 @@ func NewPayoutService(opts ...option.RequestOption) (r *PayoutService) {
 
 func (r *PayoutService) List(ctx context.Context, query PayoutListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[PayoutListResponse], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "payouts"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
