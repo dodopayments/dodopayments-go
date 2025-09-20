@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
@@ -38,7 +39,7 @@ func NewDisputeService(opts ...option.RequestOption) (r *DisputeService) {
 }
 
 func (r *DisputeService) Get(ctx context.Context, disputeID string, opts ...option.RequestOption) (res *GetDispute, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if disputeID == "" {
 		err = errors.New("missing required dispute_id parameter")
 		return
@@ -50,7 +51,7 @@ func (r *DisputeService) Get(ctx context.Context, disputeID string, opts ...opti
 
 func (r *DisputeService) List(ctx context.Context, query DisputeListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[DisputeListResponse], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "disputes"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)

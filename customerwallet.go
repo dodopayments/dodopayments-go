@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
@@ -36,7 +37,7 @@ func NewCustomerWalletService(opts ...option.RequestOption) (r *CustomerWalletSe
 }
 
 func (r *CustomerWalletService) List(ctx context.Context, customerID string, opts ...option.RequestOption) (res *CustomerWalletListResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
 		return

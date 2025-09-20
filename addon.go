@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
@@ -38,14 +39,14 @@ func NewAddonService(opts ...option.RequestOption) (r *AddonService) {
 }
 
 func (r *AddonService) New(ctx context.Context, body AddonNewParams, opts ...option.RequestOption) (res *AddonResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "addons"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
 
 func (r *AddonService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *AddonResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return
@@ -56,7 +57,7 @@ func (r *AddonService) Get(ctx context.Context, id string, opts ...option.Reques
 }
 
 func (r *AddonService) Update(ctx context.Context, id string, body AddonUpdateParams, opts ...option.RequestOption) (res *AddonResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return
@@ -68,7 +69,7 @@ func (r *AddonService) Update(ctx context.Context, id string, body AddonUpdatePa
 
 func (r *AddonService) List(ctx context.Context, query AddonListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[AddonResponse], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "addons"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
@@ -88,7 +89,7 @@ func (r *AddonService) ListAutoPaging(ctx context.Context, query AddonListParams
 }
 
 func (r *AddonService) UpdateImages(ctx context.Context, id string, opts ...option.RequestOption) (res *AddonUpdateImagesResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return
