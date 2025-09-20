@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.53.4 (2025-09-20)
+
+Full Changelog: [v1.53.3...v1.53.4](https://github.com/dodopayments/dodopayments-go/compare/v1.53.3...v1.53.4)
+
+### Bug Fixes
+
+* use slices.Concat instead of sometimes modifying r.Options ([2ebebb3](https://github.com/dodopayments/dodopayments-go/commit/2ebebb3a22b5940f2bacc65c794d9a22452f3a96))
+
+
+### Chores
+
+* bump minimum go version to 1.22 ([fabab1a](https://github.com/dodopayments/dodopayments-go/commit/fabab1ac6bc85e7b37d956f4d5e4fd72ccf8f2c6))
+* do not install brew dependencies in ./scripts/bootstrap by default ([169fb71](https://github.com/dodopayments/dodopayments-go/commit/169fb7155995d659878a1fa28daf6f4b3d9b5caf))
+* update more docs for 1.22 ([1b71ec3](https://github.com/dodopayments/dodopayments-go/commit/1b71ec3b661439fa8519be344ca8c01f495a4f0f))
+
 ## 1.53.3 (2025-09-13)
 
 Full Changelog: [v1.53.2...v1.53.3](https://github.com/dodopayments/dodopayments-go/compare/v1.53.2...v1.53.3)
