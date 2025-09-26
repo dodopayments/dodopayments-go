@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.53.5 (2025-09-26)
+
+Full Changelog: [v1.53.4...v1.53.5](https://github.com/dodopayments/dodopayments-go/compare/v1.53.4...v1.53.5)
+
+### Bug Fixes
+
+* bugfix for setting JSON keys with special characters ([8d7da1c](https://github.com/dodopayments/dodopayments-go/commit/8d7da1cb92986ee60619bedf28aafa2302d6367a))
+
 ## 1.53.4 (2025-09-20)
 
 Full Changelog: [v1.53.3...v1.53.4](https://github.com/dodopayments/dodopayments-go/compare/v1.53.3...v1.53.4)
