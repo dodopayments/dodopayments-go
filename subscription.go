@@ -332,8 +332,10 @@ type Subscription struct {
 	// The discount id if discount is applied
 	DiscountID string `json:"discount_id,nullable"`
 	// Timestamp when the subscription will expire
-	ExpiresAt time.Time        `json:"expires_at,nullable" format:"date-time"`
-	JSON      subscriptionJSON `json:"-"`
+	ExpiresAt time.Time `json:"expires_at,nullable" format:"date-time"`
+	// Tax identifier provided for this subscription (if applicable)
+	TaxID string           `json:"tax_id,nullable"`
+	JSON  subscriptionJSON `json:"-"`
 }
 
 // subscriptionJSON contains the JSON metadata for the struct [Subscription]
@@ -364,6 +366,7 @@ type subscriptionJSON struct {
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
 	ExpiresAt                  apijson.Field
+	TaxID                      apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
 }
@@ -546,8 +549,10 @@ type SubscriptionListResponse struct {
 	// Number of remaining discount cycles if discount is applied
 	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining,nullable"`
 	// The discount id if discount is applied
-	DiscountID string                       `json:"discount_id,nullable"`
-	JSON       subscriptionListResponseJSON `json:"-"`
+	DiscountID string `json:"discount_id,nullable"`
+	// Tax identifier provided for this subscription (if applicable)
+	TaxID string                       `json:"tax_id,nullable"`
+	JSON  subscriptionListResponseJSON `json:"-"`
 }
 
 // subscriptionListResponseJSON contains the JSON metadata for the struct
@@ -576,6 +581,7 @@ type subscriptionListResponseJSON struct {
 	CancelledAt                apijson.Field
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
+	TaxID                      apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
 }
@@ -703,6 +709,8 @@ type SubscriptionNewParams struct {
 	BillingCurrency param.Field[Currency] `json:"billing_currency"`
 	// Discount Code to apply to the subscription
 	DiscountCode param.Field[string] `json:"discount_code"`
+	// Override merchant default 3DS behaviour for this subscription
+	Force3DS param.Field[bool] `json:"force_3ds"`
 	// Additional metadata for the subscription Defaults to empty if not specified
 	Metadata param.Field[map[string]string]         `json:"metadata"`
 	OnDemand param.Field[OnDemandSubscriptionParam] `json:"on_demand"`
