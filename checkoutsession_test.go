@@ -50,6 +50,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 				CustomerID: dodopayments.F("customer_id"),
 			}),
 			Customization: dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationParam{
+				ForceLanguage:    dodopayments.F("force_language"),
 				ShowOnDemandTag:  dodopayments.F(true),
 				ShowOrderDetails: dodopayments.F(true),
 				Theme:            dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeDark),
@@ -62,6 +63,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 				AllowTaxID:                 dodopayments.F(true),
 				AlwaysCreateNewCustomer:    dodopayments.F(true),
 			}),
+			Force3DS: dodopayments.F(true),
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),
