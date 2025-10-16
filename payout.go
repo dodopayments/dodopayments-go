@@ -63,6 +63,8 @@ type PayoutListResponse struct {
 	// The unique identifier of the business associated with the payout.
 	BusinessID string `json:"business_id,required"`
 	// The total value of chargebacks associated with the payout.
+	//
+	// Deprecated: deprecated
 	Chargebacks int64 `json:"chargebacks,required"`
 	// The timestamp when the payout was created, in UTC.
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
@@ -75,10 +77,14 @@ type PayoutListResponse struct {
 	// The unique identifier of the payout.
 	PayoutID string `json:"payout_id,required"`
 	// The total value of refunds associated with the payout.
+	//
+	// Deprecated: deprecated
 	Refunds int64 `json:"refunds,required"`
 	// The current status of the payout.
 	Status PayoutListResponseStatus `json:"status,required"`
 	// The tax applied to the payout.
+	//
+	// Deprecated: deprecated
 	Tax int64 `json:"tax,required"`
 	// The timestamp when the payout was last updated, in UTC.
 	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
@@ -141,6 +147,10 @@ func (r PayoutListResponseStatus) IsKnown() bool {
 }
 
 type PayoutListParams struct {
+	// Get payouts created after this time (inclusive)
+	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
+	// Get payouts created before this time (inclusive)
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100

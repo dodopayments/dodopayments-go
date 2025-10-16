@@ -61,6 +61,8 @@ type CheckoutSessionRequestParam struct {
 	Customization param.Field[CheckoutSessionRequestCustomizationParam] `json:"customization"`
 	DiscountCode  param.Field[string]                                   `json:"discount_code"`
 	FeatureFlags  param.Field[CheckoutSessionRequestFeatureFlagsParam]  `json:"feature_flags"`
+	// Override merchant default 3DS behaviour for this session
+	Force3DS param.Field[bool] `json:"force_3ds"`
 	// Additional metadata associated with the payment. Defaults to empty if not
 	// provided.
 	Metadata param.Field[map[string]string] `json:"metadata"`
@@ -115,6 +117,8 @@ func (r CheckoutSessionRequestBillingAddressParam) MarshalJSON() (data []byte, e
 
 // Customization for the checkout session page
 type CheckoutSessionRequestCustomizationParam struct {
+	// Force the checkout interface to render in a specific language (e.g. `en`, `es`)
+	ForceLanguage param.Field[string] `json:"force_language"`
 	// Show on demand tag
 	//
 	// Default is true

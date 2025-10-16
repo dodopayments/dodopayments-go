@@ -154,8 +154,10 @@ type CustomerLimitedDetails struct {
 	// Email address of the customer
 	Email string `json:"email,required"`
 	// Full name of the customer
-	Name string                     `json:"name,required"`
-	JSON customerLimitedDetailsJSON `json:"-"`
+	Name string `json:"name,required"`
+	// Phone number of the customer
+	PhoneNumber string                     `json:"phone_number,nullable"`
+	JSON        customerLimitedDetailsJSON `json:"-"`
 }
 
 // customerLimitedDetailsJSON contains the JSON metadata for the struct
@@ -164,6 +166,7 @@ type customerLimitedDetailsJSON struct {
 	CustomerID  apijson.Field
 	Email       apijson.Field
 	Name        apijson.Field
+	PhoneNumber apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -653,6 +656,8 @@ type PaymentNewParams struct {
 	BillingCurrency param.Field[Currency] `json:"billing_currency"`
 	// Discount Code to apply to the transaction
 	DiscountCode param.Field[string] `json:"discount_code"`
+	// Override merchant default 3DS behaviour for this payment
+	Force3DS param.Field[bool] `json:"force_3ds"`
 	// Additional metadata associated with the payment. Defaults to empty if not
 	// provided.
 	Metadata param.Field[map[string]string] `json:"metadata"`
