@@ -180,8 +180,12 @@ func (r customerLimitedDetailsJSON) RawJSON() string {
 }
 
 type CustomerRequestParam struct {
-	CustomerID  param.Field[string] `json:"customer_id"`
-	Email       param.Field[string] `json:"email"`
+	CustomerID param.Field[string] `json:"customer_id"`
+	// Email is required for creating a new customer
+	Email param.Field[string] `json:"email"`
+	// Optional full name of the customer. If provided during session creation, it is
+	// persisted and becomes immutable for the session. If omitted here, it can be
+	// provided later via the confirm API.
 	Name        param.Field[string] `json:"name"`
 	PhoneNumber param.Field[string] `json:"phone_number"`
 }
@@ -223,8 +227,12 @@ func (r IntentStatus) IsKnown() bool {
 }
 
 type NewCustomerParam struct {
-	Email       param.Field[string] `json:"email,required"`
-	Name        param.Field[string] `json:"name,required"`
+	// Email is required for creating a new customer
+	Email param.Field[string] `json:"email,required"`
+	// Optional full name of the customer. If provided during session creation, it is
+	// persisted and becomes immutable for the session. If omitted here, it can be
+	// provided later via the confirm API.
+	Name        param.Field[string] `json:"name"`
 	PhoneNumber param.Field[string] `json:"phone_number"`
 }
 
