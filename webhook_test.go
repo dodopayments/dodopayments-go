@@ -5,12 +5,16 @@ package dodopayments_test
 import (
 	"context"
 	"errors"
+	"net/http"
 	"os"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	standardwebhooks "github.com/standard-webhooks/standard-webhooks/libraries/go"
 )
 
 func TestWebhookNewWithOptionalParams(t *testing.T) {
@@ -171,5 +175,31 @@ func TestWebhookGetSecret(t *testing.T) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
 		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestWebhookUnwrap(t *testing.T) {
+	client := dodopayments.NewClient(
+		option.WithWebhookKey("whsec_c2VjcmV0Cg=="),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	payload := []byte(`{"business_id":"business_id","data":{"amount":"amount","business_id":"business_id","created_at":"2019-12-27T18:11:19.117Z","currency":"currency","dispute_id":"dispute_id","dispute_stage":"pre_dispute","dispute_status":"dispute_opened","payment_id":"payment_id","remarks":"remarks","payload_type":"Dispute"},"timestamp":"2019-12-27T18:11:19.117Z","type":"dispute.accepted"}`)
+	wh, err := standardwebhooks.NewWebhook("whsec_c2VjcmV0Cg==")
+	if err != nil {
+		t.Error("Failed to sign test webhook message")
+	}
+	msgID := "1"
+	now := time.Now()
+	sig, err := wh.Sign(msgID, now, payload)
+	if err != nil {
+		t.Error("Failed to sign test webhook message:", err)
+	}
+	headers := make(http.Header)
+	headers.Set("webhook-signature", sig)
+	headers.Set("webhook-id", msgID)
+	headers.Set("webhook-timestamp", strconv.FormatInt(now.Unix(), 10))
+	_, err = client.Webhooks.Unwrap(payload, headers)
+	if err != nil {
+		t.Error("Failed to unwrap webhook:", err)
 	}
 }

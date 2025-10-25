@@ -199,12 +199,6 @@ Methods:
 
 - <code title="get /payouts">client.Payouts.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PayoutService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PayoutListParams">PayoutListParams</a>) (<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go/packages/pagination">pagination</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go/packages/pagination#DefaultPageNumberPagination">DefaultPageNumberPagination</a>[<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PayoutListResponse">PayoutListResponse</a>], <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
-# WebhookEvents
-
-Params Types:
-
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#WebhookEventType">WebhookEventType</a>
-
 # Products
 
 Params Types:
@@ -316,6 +310,50 @@ Response Types:
 
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#WebhookDetails">WebhookDetails</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#WebhookGetSecretResponse">WebhookGetSecretResponse</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeAcceptedWebhookEvent">DisputeAcceptedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeCancelledWebhookEvent">DisputeCancelledWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeChallengedWebhookEvent">DisputeChallengedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeExpiredWebhookEvent">DisputeExpiredWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeLostWebhookEvent">DisputeLostWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeOpenedWebhookEvent">DisputeOpenedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeWonWebhookEvent">DisputeWonWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#LicenseKeyCreatedWebhookEvent">LicenseKeyCreatedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentCancelledWebhookEvent">PaymentCancelledWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentFailedWebhookEvent">PaymentFailedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentProcessingWebhookEvent">PaymentProcessingWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentSucceededWebhookEvent">PaymentSucceededWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#RefundFailedWebhookEvent">RefundFailedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#RefundSucceededWebhookEvent">RefundSucceededWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionActiveWebhookEvent">SubscriptionActiveWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionCancelledWebhookEvent">SubscriptionCancelledWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionExpiredWebhookEvent">SubscriptionExpiredWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionFailedWebhookEvent">SubscriptionFailedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionOnHoldWebhookEvent">SubscriptionOnHoldWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionPlanChangedWebhookEvent">SubscriptionPlanChangedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionRenewedWebhookEvent">SubscriptionRenewedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeAcceptedWebhookEvent">DisputeAcceptedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeCancelledWebhookEvent">DisputeCancelledWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeChallengedWebhookEvent">DisputeChallengedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeExpiredWebhookEvent">DisputeExpiredWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeLostWebhookEvent">DisputeLostWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeOpenedWebhookEvent">DisputeOpenedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeWonWebhookEvent">DisputeWonWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#LicenseKeyCreatedWebhookEvent">LicenseKeyCreatedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentCancelledWebhookEvent">PaymentCancelledWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentFailedWebhookEvent">PaymentFailedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentProcessingWebhookEvent">PaymentProcessingWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentSucceededWebhookEvent">PaymentSucceededWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#RefundFailedWebhookEvent">RefundFailedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#RefundSucceededWebhookEvent">RefundSucceededWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionActiveWebhookEvent">SubscriptionActiveWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionCancelledWebhookEvent">SubscriptionCancelledWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionExpiredWebhookEvent">SubscriptionExpiredWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionFailedWebhookEvent">SubscriptionFailedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionOnHoldWebhookEvent">SubscriptionOnHoldWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionPlanChangedWebhookEvent">SubscriptionPlanChangedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionRenewedWebhookEvent">SubscriptionRenewedWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#UnsafeUnwrapWebhookEvent">UnsafeUnwrapWebhookEvent</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#UnwrapWebhookEvent">UnwrapWebhookEvent</a>
 
 Methods:
 
@@ -336,6 +374,12 @@ Methods:
 
 - <code title="get /webhooks/{webhook_id}/headers">client.Webhooks.Headers.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#WebhookHeaderService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, webhookID <a href="https://pkg.go.dev/builtin#string">string</a>) (<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#WebhookHeaderGetResponse">WebhookHeaderGetResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="patch /webhooks/{webhook_id}/headers">client.Webhooks.Headers.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#WebhookHeaderService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, webhookID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#WebhookHeaderUpdateParams">WebhookHeaderUpdateParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
+
+# WebhookEvents
+
+Params Types:
+
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#WebhookEventType">WebhookEventType</a>
 
 # UsageEvents
 

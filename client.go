@@ -28,19 +28,20 @@ type Client struct {
 	Refunds             *RefundService
 	Disputes            *DisputeService
 	Payouts             *PayoutService
-	WebhookEvents       *WebhookEventService
 	Products            *ProductService
 	Misc                *MiscService
 	Discounts           *DiscountService
 	Addons              *AddonService
 	Brands              *BrandService
 	Webhooks            *WebhookService
+	WebhookEvents       *WebhookEventService
 	UsageEvents         *UsageEventService
 	Meters              *MeterService
 }
 
 // DefaultClientOptions read from the environment (DODO_PAYMENTS_API_KEY,
-// DODO_PAYMENTS_BASE_URL). This should be used to initialize new clients.
+// DODO_PAYMENTS_WEBHOOK_KEY, DODO_PAYMENTS_BASE_URL). This should be used to
+// initialize new clients.
 func DefaultClientOptions() []option.RequestOption {
 	defaults := []option.RequestOption{option.WithEnvironmentLiveMode()}
 	if o, ok := os.LookupEnv("DODO_PAYMENTS_BASE_URL"); ok {
@@ -49,13 +50,17 @@ func DefaultClientOptions() []option.RequestOption {
 	if o, ok := os.LookupEnv("DODO_PAYMENTS_API_KEY"); ok {
 		defaults = append(defaults, option.WithBearerToken(o))
 	}
+	if o, ok := os.LookupEnv("DODO_PAYMENTS_WEBHOOK_KEY"); ok {
+		defaults = append(defaults, option.WithWebhookKey(o))
+	}
 	return defaults
 }
 
 // NewClient generates a new client with the default option read from the
-// environment (DODO_PAYMENTS_API_KEY, DODO_PAYMENTS_BASE_URL). The option passed
-// in as arguments are applied after these default arguments, and all option will
-// be passed down to the services and requests that this client makes.
+// environment (DODO_PAYMENTS_API_KEY, DODO_PAYMENTS_WEBHOOK_KEY,
+// DODO_PAYMENTS_BASE_URL). The option passed in as arguments are applied after
+// these default arguments, and all option will be passed down to the services and
+// requests that this client makes.
 func NewClient(opts ...option.RequestOption) (r *Client) {
 	opts = append(DefaultClientOptions(), opts...)
 
@@ -72,13 +77,13 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Refunds = NewRefundService(opts...)
 	r.Disputes = NewDisputeService(opts...)
 	r.Payouts = NewPayoutService(opts...)
-	r.WebhookEvents = NewWebhookEventService(opts...)
 	r.Products = NewProductService(opts...)
 	r.Misc = NewMiscService(opts...)
 	r.Discounts = NewDiscountService(opts...)
 	r.Addons = NewAddonService(opts...)
 	r.Brands = NewBrandService(opts...)
 	r.Webhooks = NewWebhookService(opts...)
+	r.WebhookEvents = NewWebhookEventService(opts...)
 	r.UsageEvents = NewUsageEventService(opts...)
 	r.Meters = NewMeterService(opts...)
 
