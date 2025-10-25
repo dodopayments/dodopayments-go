@@ -280,3 +280,11 @@ func WithBearerToken(value string) RequestOption {
 		return r.Apply(WithHeader("authorization", fmt.Sprintf("Bearer %s", r.BearerToken)))
 	})
 }
+
+// WithWebhookKey returns a RequestOption that sets the client setting "webhook_key".
+func WithWebhookKey(value string) RequestOption {
+	return requestconfig.PreRequestOptionFunc(func(r *requestconfig.RequestConfig) error {
+		r.WebhookKey = value
+		return nil
+	})
+}
