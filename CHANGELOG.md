@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.56.0 (2025-10-25)
+
+Full Changelog: [v1.55.7...v1.56.0](https://github.com/dodopayments/dodopayments-go/compare/v1.55.7...v1.56.0)
+
+### Features
+
+* **api:** added unwrap functions for webhooks ([4ac0f36](https://github.com/dodopayments/dodopayments-go/commit/4ac0f36f8b345758728303fc0f37a5512b474aee))
+
 ## 1.55.7 (2025-10-17)
 
 Full Changelog: [v1.53.5...v1.55.7](https://github.com/dodopayments/dodopayments-go/compare/v1.53.5...v1.55.7)
