@@ -736,6 +736,7 @@ type SubscriptionUpdateParams struct {
 	Billing param.Field[BillingAddressParam] `json:"billing"`
 	// When set, the subscription will remain active until the end of billing period
 	CancelAtNextBillingDate param.Field[bool]                                    `json:"cancel_at_next_billing_date"`
+	CustomerName            param.Field[string]                                  `json:"customer_name"`
 	DisableOnDemand         param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
 	Metadata                param.Field[map[string]string]                       `json:"metadata"`
 	NextBillingDate         param.Field[time.Time]                               `json:"next_billing_date" format:"date-time"`

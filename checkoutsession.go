@@ -4,8 +4,11 @@ package dodopayments
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/http"
 	"slices"
+	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/param"
@@ -36,6 +39,17 @@ func (r *CheckoutSessionService) New(ctx context.Context, body CheckoutSessionNe
 	opts = slices.Concat(r.Options, opts)
 	path := "checkouts"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return
+}
+
+func (r *CheckoutSessionService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *CheckoutSessionStatus, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return
+	}
+	path := fmt.Sprintf("checkouts/%s", id)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
@@ -217,6 +231,47 @@ func (r *CheckoutSessionResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r checkoutSessionResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type CheckoutSessionStatus struct {
+	// Id of the checkout session
+	ID string `json:"id,required"`
+	// Created at timestamp
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// Customer email: prefers payment's customer, falls back to session
+	CustomerEmail string `json:"customer_email,nullable"`
+	// Customer name: prefers payment's customer, falls back to session
+	CustomerName string `json:"customer_name,nullable"`
+	// Id of the payment created by the checkout sessions.
+	//
+	// Null if checkout sessions is still at the details collection stage.
+	PaymentID string `json:"payment_id,nullable"`
+	// status of the payment.
+	//
+	// Null if checkout sessions is still at the details collection stage.
+	PaymentStatus IntentStatus              `json:"payment_status,nullable"`
+	JSON          checkoutSessionStatusJSON `json:"-"`
+}
+
+// checkoutSessionStatusJSON contains the JSON metadata for the struct
+// [CheckoutSessionStatus]
+type checkoutSessionStatusJSON struct {
+	ID            apijson.Field
+	CreatedAt     apijson.Field
+	CustomerEmail apijson.Field
+	CustomerName  apijson.Field
+	PaymentID     apijson.Field
+	PaymentStatus apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *CheckoutSessionStatus) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r checkoutSessionStatusJSON) RawJSON() string {
 	return r.raw
 }
 
