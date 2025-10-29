@@ -33,6 +33,9 @@ func TestRefundNewWithOptionalParams(t *testing.T) {
 			Amount:       dodopayments.F(int64(0)),
 			TaxInclusive: dodopayments.F(true),
 		}}),
+		Metadata: dodopayments.F(map[string]string{
+			"foo": "string",
+		}),
 		Reason: dodopayments.F("reason"),
 	})
 	if err != nil {
