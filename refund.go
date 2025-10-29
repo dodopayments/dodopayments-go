@@ -86,6 +86,8 @@ type Refund struct {
 	Customer CustomerLimitedDetails `json:"customer,required"`
 	// If true the refund is a partial refund
 	IsPartial bool `json:"is_partial,required"`
+	// Additional metadata stored with the refund.
+	Metadata map[string]string `json:"metadata,required"`
 	// The unique identifier of the payment associated with the refund.
 	PaymentID string `json:"payment_id,required"`
 	// The unique identifier of the refund.
@@ -107,6 +109,7 @@ type refundJSON struct {
 	CreatedAt   apijson.Field
 	Customer    apijson.Field
 	IsPartial   apijson.Field
+	Metadata    apijson.Field
 	PaymentID   apijson.Field
 	RefundID    apijson.Field
 	Status      apijson.Field
@@ -193,6 +196,8 @@ type RefundNewParams struct {
 	PaymentID param.Field[string] `json:"payment_id,required"`
 	// Partially Refund an Individual Item
 	Items param.Field[[]RefundNewParamsItem] `json:"items"`
+	// Additional metadata associated with the refund.
+	Metadata param.Field[map[string]string] `json:"metadata"`
 	// The reason for the refund, if any. Maximum length is 3000 characters. Optional.
 	Reason param.Field[string] `json:"reason"`
 }

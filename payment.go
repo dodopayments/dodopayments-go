@@ -485,6 +485,7 @@ const (
 	PaymentMethodTypesEps              PaymentMethodTypes = "eps"
 	PaymentMethodTypesIdeal            PaymentMethodTypes = "ideal"
 	PaymentMethodTypesPrzelewy24       PaymentMethodTypes = "przelewy24"
+	PaymentMethodTypesPaypal           PaymentMethodTypes = "paypal"
 	PaymentMethodTypesAffirm           PaymentMethodTypes = "affirm"
 	PaymentMethodTypesKlarna           PaymentMethodTypes = "klarna"
 	PaymentMethodTypesSepa             PaymentMethodTypes = "sepa"
@@ -495,7 +496,7 @@ const (
 
 func (r PaymentMethodTypes) IsKnown() bool {
 	switch r {
-	case PaymentMethodTypesCredit, PaymentMethodTypesDebit, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesApplePay, PaymentMethodTypesCashapp, PaymentMethodTypesGooglePay, PaymentMethodTypesMultibanco, PaymentMethodTypesBancontactCard, PaymentMethodTypesEps, PaymentMethodTypesIdeal, PaymentMethodTypesPrzelewy24, PaymentMethodTypesAffirm, PaymentMethodTypesKlarna, PaymentMethodTypesSepa, PaymentMethodTypesACH, PaymentMethodTypesAmazonPay, PaymentMethodTypesAfterpayClearpay:
+	case PaymentMethodTypesCredit, PaymentMethodTypesDebit, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesApplePay, PaymentMethodTypesCashapp, PaymentMethodTypesGooglePay, PaymentMethodTypesMultibanco, PaymentMethodTypesBancontactCard, PaymentMethodTypesEps, PaymentMethodTypesIdeal, PaymentMethodTypesPrzelewy24, PaymentMethodTypesPaypal, PaymentMethodTypesAffirm, PaymentMethodTypesKlarna, PaymentMethodTypesSepa, PaymentMethodTypesACH, PaymentMethodTypesAmazonPay, PaymentMethodTypesAfterpayClearpay:
 		return true
 	}
 	return false
