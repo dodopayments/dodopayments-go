@@ -155,6 +155,8 @@ type CustomerLimitedDetails struct {
 	Email string `json:"email,required"`
 	// Full name of the customer
 	Name string `json:"name,required"`
+	// Additional metadata associated with the customer
+	Metadata map[string]string `json:"metadata"`
 	// Phone number of the customer
 	PhoneNumber string                     `json:"phone_number,nullable"`
 	JSON        customerLimitedDetailsJSON `json:"-"`
@@ -166,6 +168,7 @@ type customerLimitedDetailsJSON struct {
 	CustomerID  apijson.Field
 	Email       apijson.Field
 	Name        apijson.Field
+	Metadata    apijson.Field
 	PhoneNumber apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field

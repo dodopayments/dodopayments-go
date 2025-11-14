@@ -220,6 +220,17 @@ func (r *SubscriptionService) GetUsageHistoryAutoPaging(ctx context.Context, sub
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.GetUsageHistory(ctx, subscriptionID, query, opts...))
 }
 
+func (r *SubscriptionService) UpdatePaymentMethod(ctx context.Context, subscriptionID string, body SubscriptionUpdatePaymentMethodParams, opts ...option.RequestOption) (res *SubscriptionUpdatePaymentMethodResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if subscriptionID == "" {
+		err = errors.New("missing required subscription_id parameter")
+		return
+	}
+	path := fmt.Sprintf("subscriptions/%s/update-payment-method", subscriptionID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return
+}
+
 // Response struct representing subscription details
 type AddonCartResponseItem struct {
 	AddonID  string                    `json:"addon_id,required"`
@@ -333,6 +344,8 @@ type Subscription struct {
 	DiscountID string `json:"discount_id,nullable"`
 	// Timestamp when the subscription will expire
 	ExpiresAt time.Time `json:"expires_at,nullable" format:"date-time"`
+	// Saved payment method id used for recurring charges
+	PaymentMethodID string `json:"payment_method_id,nullable"`
 	// Tax identifier provided for this subscription (if applicable)
 	TaxID string           `json:"tax_id,nullable"`
 	JSON  subscriptionJSON `json:"-"`
@@ -366,6 +379,7 @@ type subscriptionJSON struct {
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
 	ExpiresAt                  apijson.Field
+	PaymentMethodID            apijson.Field
 	TaxID                      apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
@@ -550,6 +564,8 @@ type SubscriptionListResponse struct {
 	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining,nullable"`
 	// The discount id if discount is applied
 	DiscountID string `json:"discount_id,nullable"`
+	// Saved payment method id used for recurring charges
+	PaymentMethodID string `json:"payment_method_id,nullable"`
 	// Tax identifier provided for this subscription (if applicable)
 	TaxID string                       `json:"tax_id,nullable"`
 	JSON  subscriptionListResponseJSON `json:"-"`
@@ -581,6 +597,7 @@ type subscriptionListResponseJSON struct {
 	CancelledAt                apijson.Field
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
+	PaymentMethodID            apijson.Field
 	TaxID                      apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
@@ -683,6 +700,33 @@ func (r *SubscriptionGetUsageHistoryResponseMeter) UnmarshalJSON(data []byte) (e
 }
 
 func (r subscriptionGetUsageHistoryResponseMeterJSON) RawJSON() string {
+	return r.raw
+}
+
+type SubscriptionUpdatePaymentMethodResponse struct {
+	ClientSecret string                                      `json:"client_secret,nullable"`
+	ExpiresOn    time.Time                                   `json:"expires_on,nullable" format:"date-time"`
+	PaymentID    string                                      `json:"payment_id,nullable"`
+	PaymentLink  string                                      `json:"payment_link,nullable"`
+	JSON         subscriptionUpdatePaymentMethodResponseJSON `json:"-"`
+}
+
+// subscriptionUpdatePaymentMethodResponseJSON contains the JSON metadata for the
+// struct [SubscriptionUpdatePaymentMethodResponse]
+type subscriptionUpdatePaymentMethodResponseJSON struct {
+	ClientSecret apijson.Field
+	ExpiresOn    apijson.Field
+	PaymentID    apijson.Field
+	PaymentLink  apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *SubscriptionUpdatePaymentMethodResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionUpdatePaymentMethodResponseJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -891,4 +935,73 @@ func (r SubscriptionGetUsageHistoryParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type SubscriptionUpdatePaymentMethodParams struct {
+	Body SubscriptionUpdatePaymentMethodParamsBodyUnion `json:"body,required"`
+}
+
+func (r SubscriptionUpdatePaymentMethodParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r.Body)
+}
+
+type SubscriptionUpdatePaymentMethodParamsBody struct {
+	Type            param.Field[SubscriptionUpdatePaymentMethodParamsBodyType] `json:"type,required"`
+	PaymentMethodID param.Field[string]                                        `json:"payment_method_id"`
+	ReturnURL       param.Field[string]                                        `json:"return_url"`
+}
+
+func (r SubscriptionUpdatePaymentMethodParamsBody) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r SubscriptionUpdatePaymentMethodParamsBody) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
+}
+
+// Satisfied by [SubscriptionUpdatePaymentMethodParamsBodyObject],
+// [SubscriptionUpdatePaymentMethodParamsBodyObject],
+// [SubscriptionUpdatePaymentMethodParamsBody].
+type SubscriptionUpdatePaymentMethodParamsBodyUnion interface {
+	implementsSubscriptionUpdatePaymentMethodParamsBodyUnion()
+}
+
+type SubscriptionUpdatePaymentMethodParamsBodyObject struct {
+	Type      param.Field[SubscriptionUpdatePaymentMethodParamsBodyObjectType] `json:"type,required"`
+	ReturnURL param.Field[string]                                              `json:"return_url"`
+}
+
+func (r SubscriptionUpdatePaymentMethodParamsBodyObject) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r SubscriptionUpdatePaymentMethodParamsBodyObject) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
+}
+
+type SubscriptionUpdatePaymentMethodParamsBodyObjectType string
+
+const (
+	SubscriptionUpdatePaymentMethodParamsBodyObjectTypeNew SubscriptionUpdatePaymentMethodParamsBodyObjectType = "new"
+)
+
+func (r SubscriptionUpdatePaymentMethodParamsBodyObjectType) IsKnown() bool {
+	switch r {
+	case SubscriptionUpdatePaymentMethodParamsBodyObjectTypeNew:
+		return true
+	}
+	return false
+}
+
+type SubscriptionUpdatePaymentMethodParamsBodyType string
+
+const (
+	SubscriptionUpdatePaymentMethodParamsBodyTypeNew      SubscriptionUpdatePaymentMethodParamsBodyType = "new"
+	SubscriptionUpdatePaymentMethodParamsBodyTypeExisting SubscriptionUpdatePaymentMethodParamsBodyType = "existing"
+)
+
+func (r SubscriptionUpdatePaymentMethodParamsBodyType) IsKnown() bool {
+	switch r {
+	case SubscriptionUpdatePaymentMethodParamsBodyTypeNew, SubscriptionUpdatePaymentMethodParamsBodyTypeExisting:
+		return true
+	}
+	return false
 }
