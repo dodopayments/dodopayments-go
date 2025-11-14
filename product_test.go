@@ -26,6 +26,7 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Products.New(context.TODO(), dodopayments.ProductNewParams{
+		Name: dodopayments.F("name"),
 		Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
 			Currency:              dodopayments.F(dodopayments.CurrencyAed),
 			Discount:              dodopayments.F(int64(0)),
@@ -54,7 +55,6 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
 		}),
-		Name: dodopayments.F("name"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

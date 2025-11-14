@@ -931,6 +931,8 @@ func (r productUpdateFilesResponseJSON) RawJSON() string {
 }
 
 type ProductNewParams struct {
+	// Name of the product
+	Name param.Field[string] `json:"name,required"`
 	// Price configuration for the product
 	Price param.Field[PriceUnionParam] `json:"price,required"`
 	// Tax category applied to this product
@@ -955,8 +957,6 @@ type ProductNewParams struct {
 	LicenseKeyEnabled param.Field[bool] `json:"license_key_enabled"`
 	// Additional metadata for the product
 	Metadata param.Field[map[string]string] `json:"metadata"`
-	// Optional name of the product
-	Name param.Field[string] `json:"name"`
 }
 
 func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
