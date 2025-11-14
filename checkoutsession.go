@@ -174,7 +174,14 @@ type CheckoutSessionRequestFeatureFlagsParam struct {
 	// if customer is allowed to change currency, set it to true
 	//
 	// Default is true
-	AllowCurrencySelection param.Field[bool] `json:"allow_currency_selection"`
+	AllowCurrencySelection      param.Field[bool] `json:"allow_currency_selection"`
+	AllowCustomerEditingCity    param.Field[bool] `json:"allow_customer_editing_city"`
+	AllowCustomerEditingCountry param.Field[bool] `json:"allow_customer_editing_country"`
+	AllowCustomerEditingEmail   param.Field[bool] `json:"allow_customer_editing_email"`
+	AllowCustomerEditingName    param.Field[bool] `json:"allow_customer_editing_name"`
+	AllowCustomerEditingState   param.Field[bool] `json:"allow_customer_editing_state"`
+	AllowCustomerEditingStreet  param.Field[bool] `json:"allow_customer_editing_street"`
+	AllowCustomerEditingZipcode param.Field[bool] `json:"allow_customer_editing_zipcode"`
 	// If the customer is allowed to apply discount code, set it to true.
 	//
 	// Default is true
