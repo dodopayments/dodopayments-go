@@ -289,8 +289,8 @@ func TestSubscriptionUpdatePaymentMethodWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionUpdatePaymentMethodParams{
-			Body: dodopayments.SubscriptionUpdatePaymentMethodParamsBodyObject{
-				Type:      dodopayments.F(dodopayments.SubscriptionUpdatePaymentMethodParamsBodyObjectTypeNew),
+			Body: dodopayments.SubscriptionUpdatePaymentMethodParamsBodyNew{
+				Type:      dodopayments.F(dodopayments.SubscriptionUpdatePaymentMethodParamsBodyNewTypeNew),
 				ReturnURL: dodopayments.F("return_url"),
 			},
 		},

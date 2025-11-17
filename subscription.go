@@ -958,34 +958,60 @@ func (r SubscriptionUpdatePaymentMethodParamsBody) MarshalJSON() (data []byte, e
 func (r SubscriptionUpdatePaymentMethodParamsBody) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
 }
 
-// Satisfied by [SubscriptionUpdatePaymentMethodParamsBodyObject],
-// [SubscriptionUpdatePaymentMethodParamsBodyObject],
+// Satisfied by [SubscriptionUpdatePaymentMethodParamsBodyNew],
+// [SubscriptionUpdatePaymentMethodParamsBodyExisting],
 // [SubscriptionUpdatePaymentMethodParamsBody].
 type SubscriptionUpdatePaymentMethodParamsBodyUnion interface {
 	implementsSubscriptionUpdatePaymentMethodParamsBodyUnion()
 }
 
-type SubscriptionUpdatePaymentMethodParamsBodyObject struct {
-	Type      param.Field[SubscriptionUpdatePaymentMethodParamsBodyObjectType] `json:"type,required"`
-	ReturnURL param.Field[string]                                              `json:"return_url"`
+type SubscriptionUpdatePaymentMethodParamsBodyNew struct {
+	Type      param.Field[SubscriptionUpdatePaymentMethodParamsBodyNewType] `json:"type,required"`
+	ReturnURL param.Field[string]                                           `json:"return_url"`
 }
 
-func (r SubscriptionUpdatePaymentMethodParamsBodyObject) MarshalJSON() (data []byte, err error) {
+func (r SubscriptionUpdatePaymentMethodParamsBodyNew) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r SubscriptionUpdatePaymentMethodParamsBodyObject) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
+func (r SubscriptionUpdatePaymentMethodParamsBodyNew) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
 }
 
-type SubscriptionUpdatePaymentMethodParamsBodyObjectType string
+type SubscriptionUpdatePaymentMethodParamsBodyNewType string
 
 const (
-	SubscriptionUpdatePaymentMethodParamsBodyObjectTypeNew SubscriptionUpdatePaymentMethodParamsBodyObjectType = "new"
+	SubscriptionUpdatePaymentMethodParamsBodyNewTypeNew SubscriptionUpdatePaymentMethodParamsBodyNewType = "new"
 )
 
-func (r SubscriptionUpdatePaymentMethodParamsBodyObjectType) IsKnown() bool {
+func (r SubscriptionUpdatePaymentMethodParamsBodyNewType) IsKnown() bool {
 	switch r {
-	case SubscriptionUpdatePaymentMethodParamsBodyObjectTypeNew:
+	case SubscriptionUpdatePaymentMethodParamsBodyNewTypeNew:
+		return true
+	}
+	return false
+}
+
+type SubscriptionUpdatePaymentMethodParamsBodyExisting struct {
+	PaymentMethodID param.Field[string]                                                `json:"payment_method_id,required"`
+	Type            param.Field[SubscriptionUpdatePaymentMethodParamsBodyExistingType] `json:"type,required"`
+}
+
+func (r SubscriptionUpdatePaymentMethodParamsBodyExisting) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r SubscriptionUpdatePaymentMethodParamsBodyExisting) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
+}
+
+type SubscriptionUpdatePaymentMethodParamsBodyExistingType string
+
+const (
+	SubscriptionUpdatePaymentMethodParamsBodyExistingTypeExisting SubscriptionUpdatePaymentMethodParamsBodyExistingType = "existing"
+)
+
+func (r SubscriptionUpdatePaymentMethodParamsBodyExistingType) IsKnown() bool {
+	switch r {
+	case SubscriptionUpdatePaymentMethodParamsBodyExistingTypeExisting:
 		return true
 	}
 	return false

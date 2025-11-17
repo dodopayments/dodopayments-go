@@ -179,31 +179,29 @@ func (r customerGetPaymentMethodsResponseJSON) RawJSON() string {
 }
 
 type CustomerGetPaymentMethodsResponseItem struct {
-	ConnectorPaymentMethods map[string]CustomerGetPaymentMethodsResponseItemsConnectorPaymentMethod `json:"connector_payment_methods,required"`
 	// PaymentMethod enum from hyperswitch
 	//
 	// https://github.com/juspay/hyperswitch/blob/ecd05d53c99ae701ac94893ec632a3988afe3238/crates/common_enums/src/enums.rs#L2097
-	PaymentMethod    CustomerGetPaymentMethodsResponseItemsPaymentMethod `json:"payment_method,required"`
-	PaymentMethodID  string                                              `json:"payment_method_id,required"`
-	ProfileMap       map[string]string                                   `json:"profile_map,required"`
-	Card             CustomerGetPaymentMethodsResponseItemsCard          `json:"card,nullable"`
-	LastUsedAt       time.Time                                           `json:"last_used_at,nullable" format:"date-time"`
-	RecurringEnabled bool                                                `json:"recurring_enabled,nullable"`
-	JSON             customerGetPaymentMethodsResponseItemJSON           `json:"-"`
+	PaymentMethod     CustomerGetPaymentMethodsResponseItemsPaymentMethod `json:"payment_method,required"`
+	PaymentMethodID   string                                              `json:"payment_method_id,required"`
+	Card              CustomerGetPaymentMethodsResponseItemsCard          `json:"card,nullable"`
+	LastUsedAt        time.Time                                           `json:"last_used_at,nullable" format:"date-time"`
+	PaymentMethodType PaymentMethodTypes                                  `json:"payment_method_type,nullable"`
+	RecurringEnabled  bool                                                `json:"recurring_enabled,nullable"`
+	JSON              customerGetPaymentMethodsResponseItemJSON           `json:"-"`
 }
 
 // customerGetPaymentMethodsResponseItemJSON contains the JSON metadata for the
 // struct [CustomerGetPaymentMethodsResponseItem]
 type customerGetPaymentMethodsResponseItemJSON struct {
-	ConnectorPaymentMethods apijson.Field
-	PaymentMethod           apijson.Field
-	PaymentMethodID         apijson.Field
-	ProfileMap              apijson.Field
-	Card                    apijson.Field
-	LastUsedAt              apijson.Field
-	RecurringEnabled        apijson.Field
-	raw                     string
-	ExtraFields             map[string]apijson.Field
+	PaymentMethod     apijson.Field
+	PaymentMethodID   apijson.Field
+	Card              apijson.Field
+	LastUsedAt        apijson.Field
+	PaymentMethodType apijson.Field
+	RecurringEnabled  apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
 }
 
 func (r *CustomerGetPaymentMethodsResponseItem) UnmarshalJSON(data []byte) (err error) {
@@ -211,34 +209,6 @@ func (r *CustomerGetPaymentMethodsResponseItem) UnmarshalJSON(data []byte) (err 
 }
 
 func (r customerGetPaymentMethodsResponseItemJSON) RawJSON() string {
-	return r.raw
-}
-
-type CustomerGetPaymentMethodsResponseItemsConnectorPaymentMethod struct {
-	ConnectorMandateID                string                                                           `json:"connector_mandate_id,required"`
-	OriginalPaymentAuthorizedAmount   int64                                                            `json:"original_payment_authorized_amount,required"`
-	OriginalPaymentAuthorizedCurrency Currency                                                         `json:"original_payment_authorized_currency,required"`
-	PaymentMethodType                 PaymentMethodTypes                                               `json:"payment_method_type,nullable"`
-	JSON                              customerGetPaymentMethodsResponseItemsConnectorPaymentMethodJSON `json:"-"`
-}
-
-// customerGetPaymentMethodsResponseItemsConnectorPaymentMethodJSON contains the
-// JSON metadata for the struct
-// [CustomerGetPaymentMethodsResponseItemsConnectorPaymentMethod]
-type customerGetPaymentMethodsResponseItemsConnectorPaymentMethodJSON struct {
-	ConnectorMandateID                apijson.Field
-	OriginalPaymentAuthorizedAmount   apijson.Field
-	OriginalPaymentAuthorizedCurrency apijson.Field
-	PaymentMethodType                 apijson.Field
-	raw                               string
-	ExtraFields                       map[string]apijson.Field
-}
-
-func (r *CustomerGetPaymentMethodsResponseItemsConnectorPaymentMethod) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r customerGetPaymentMethodsResponseItemsConnectorPaymentMethodJSON) RawJSON() string {
 	return r.raw
 }
 
