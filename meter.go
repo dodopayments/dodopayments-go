@@ -82,7 +82,7 @@ func (r *MeterService) ListAutoPaging(ctx context.Context, query MeterListParams
 
 func (r *MeterService) Archive(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return
@@ -94,7 +94,7 @@ func (r *MeterService) Archive(ctx context.Context, id string, opts ...option.Re
 
 func (r *MeterService) Unarchive(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return

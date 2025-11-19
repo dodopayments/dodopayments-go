@@ -101,7 +101,7 @@ func (r *WebhookService) ListAutoPaging(ctx context.Context, query WebhookListPa
 // Delete a webhook by id
 func (r *WebhookService) Delete(ctx context.Context, webhookID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
 		return
