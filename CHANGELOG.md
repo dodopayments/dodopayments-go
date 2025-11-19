@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.61.6 (2025-11-19)
+
+Full Changelog: [v1.61.5...v1.61.6](https://github.com/dodopayments/dodopayments-go/compare/v1.61.5...v1.61.6)
+
+### Bug Fixes
+
+* **client:** correctly specify Accept header with */* instead of empty ([4546d72](https://github.com/dodopayments/dodopayments-go/commit/4546d72a1d88c6305acd0ca62471041b4a915a46))
+
 ## 1.61.5 (2025-11-17)
 
 Full Changelog: [v1.60.0...v1.61.5](https://github.com/dodopayments/dodopayments-go/compare/v1.60.0...v1.61.5)
