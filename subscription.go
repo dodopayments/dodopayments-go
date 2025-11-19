@@ -90,7 +90,7 @@ func (r *SubscriptionService) ListAutoPaging(ctx context.Context, query Subscrip
 
 func (r *SubscriptionService) ChangePlan(ctx context.Context, subscriptionID string, body SubscriptionChangePlanParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if subscriptionID == "" {
 		err = errors.New("missing required subscription_id parameter")
 		return

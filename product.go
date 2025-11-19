@@ -62,7 +62,7 @@ func (r *ProductService) Get(ctx context.Context, id string, opts ...option.Requ
 
 func (r *ProductService) Update(ctx context.Context, id string, body ProductUpdateParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return
@@ -95,7 +95,7 @@ func (r *ProductService) ListAutoPaging(ctx context.Context, query ProductListPa
 
 func (r *ProductService) Archive(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return
@@ -107,7 +107,7 @@ func (r *ProductService) Archive(ctx context.Context, id string, opts ...option.
 
 func (r *ProductService) Unarchive(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return

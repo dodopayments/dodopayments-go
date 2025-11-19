@@ -97,7 +97,7 @@ func (r *DiscountService) ListAutoPaging(ctx context.Context, query DiscountList
 // DELETE /discounts/{discount_id}
 func (r *DiscountService) Delete(ctx context.Context, discountID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if discountID == "" {
 		err = errors.New("missing required discount_id parameter")
 		return
