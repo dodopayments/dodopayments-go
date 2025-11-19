@@ -42,7 +42,7 @@ func (r *LicenseService) Activate(ctx context.Context, body LicenseActivateParam
 
 func (r *LicenseService) Deactivate(ctx context.Context, body LicenseDeactivateParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	path := "licenses/deactivate"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
 	return

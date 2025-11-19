@@ -49,7 +49,7 @@ func (r *WebhookHeaderService) Get(ctx context.Context, webhookID string, opts .
 // Patch a webhook by id
 func (r *WebhookHeaderService) Update(ctx context.Context, webhookID string, body WebhookHeaderUpdateParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
 		return
