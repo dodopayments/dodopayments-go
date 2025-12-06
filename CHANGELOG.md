@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.61.7 (2025-12-06)
+
+Full Changelog: [v1.61.6...v1.61.7](https://github.com/dodopayments/dodopayments-go/compare/v1.61.6...v1.61.7)
+
+### Bug Fixes
+
+* **mcp:** correct code tool API endpoint ([7c1cb54](https://github.com/dodopayments/dodopayments-go/commit/7c1cb54845f31c7ad41040e96fb086ce9ea538ca))
+* rename param to avoid collision ([5fd982e](https://github.com/dodopayments/dodopayments-go/commit/5fd982eab7db61a19a0c32d1c113d08991335435))
+
+
+### Chores
+
+* elide duplicate aliases ([b2693b7](https://github.com/dodopayments/dodopayments-go/commit/b2693b7d41f56646210953f498a8c3153fb1872f))
+* **internal:** codegen related update ([6d76a4b](https://github.com/dodopayments/dodopayments-go/commit/6d76a4b0fbbabf0e97002cef4a6e7a644987b881))
+
 ## 1.61.6 (2025-11-19)
 
 Full Changelog: [v1.61.5...v1.61.6](https://github.com/dodopayments/dodopayments-go/compare/v1.61.5...v1.61.6)
