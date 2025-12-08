@@ -28,8 +28,8 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
 		Billing: dodopayments.F(dodopayments.BillingAddressParam{
-			City:    dodopayments.F("city"),
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
+			City:    dodopayments.F("city"),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F("zipcode"),

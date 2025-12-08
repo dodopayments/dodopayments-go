@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"slices"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
+	"github.com/tidwall/gjson"
 )
 
 // SubscriptionService contains methods and other services that help with
@@ -107,6 +109,17 @@ func (r *SubscriptionService) Charge(ctx context.Context, subscriptionID string,
 		return
 	}
 	path := fmt.Sprintf("subscriptions/%s/charge", subscriptionID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return
+}
+
+func (r *SubscriptionService) PreviewChangePlan(ctx context.Context, subscriptionID string, body SubscriptionPreviewChangePlanParams, opts ...option.RequestOption) (res *SubscriptionPreviewChangePlanResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if subscriptionID == "" {
+		err = errors.New("missing required subscription_id parameter")
+		return
+	}
+	path := fmt.Sprintf("subscriptions/%s/change-plan/preview", subscriptionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
@@ -632,6 +645,267 @@ func (r subscriptionChargeResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type SubscriptionPreviewChangePlanResponse struct {
+	ImmediateCharge SubscriptionPreviewChangePlanResponseImmediateCharge `json:"immediate_charge,required"`
+	// Response struct representing subscription details
+	NewPlan Subscription                              `json:"new_plan,required"`
+	JSON    subscriptionPreviewChangePlanResponseJSON `json:"-"`
+}
+
+// subscriptionPreviewChangePlanResponseJSON contains the JSON metadata for the
+// struct [SubscriptionPreviewChangePlanResponse]
+type subscriptionPreviewChangePlanResponseJSON struct {
+	ImmediateCharge apijson.Field
+	NewPlan         apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *SubscriptionPreviewChangePlanResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionPreviewChangePlanResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type SubscriptionPreviewChangePlanResponseImmediateCharge struct {
+	LineItems []SubscriptionPreviewChangePlanResponseImmediateChargeLineItem `json:"line_items,required"`
+	Summary   SubscriptionPreviewChangePlanResponseImmediateChargeSummary    `json:"summary,required"`
+	JSON      subscriptionPreviewChangePlanResponseImmediateChargeJSON       `json:"-"`
+}
+
+// subscriptionPreviewChangePlanResponseImmediateChargeJSON contains the JSON
+// metadata for the struct [SubscriptionPreviewChangePlanResponseImmediateCharge]
+type subscriptionPreviewChangePlanResponseImmediateChargeJSON struct {
+	LineItems   apijson.Field
+	Summary     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionPreviewChangePlanResponseImmediateCharge) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionPreviewChangePlanResponseImmediateChargeJSON) RawJSON() string {
+	return r.raw
+}
+
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItem struct {
+	ID              string                                                            `json:"id,required"`
+	Currency        Currency                                                          `json:"currency,required"`
+	TaxInclusive    bool                                                              `json:"tax_inclusive,required"`
+	Type            SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType `json:"type,required"`
+	ChargeableUnits string                                                            `json:"chargeable_units"`
+	Description     string                                                            `json:"description,nullable"`
+	FreeThreshold   int64                                                             `json:"free_threshold"`
+	Name            string                                                            `json:"name,nullable"`
+	PricePerUnit    string                                                            `json:"price_per_unit"`
+	ProductID       string                                                            `json:"product_id"`
+	ProrationFactor float64                                                           `json:"proration_factor"`
+	Quantity        int64                                                             `json:"quantity"`
+	Subtotal        int64                                                             `json:"subtotal"`
+	Tax             int64                                                             `json:"tax,nullable"`
+	// Represents the different categories of taxation applicable to various products
+	// and services.
+	TaxCategory   TaxCategory                                                      `json:"tax_category"`
+	TaxRate       float64                                                          `json:"tax_rate,nullable"`
+	UnitPrice     int64                                                            `json:"unit_price"`
+	UnitsConsumed string                                                           `json:"units_consumed"`
+	JSON          subscriptionPreviewChangePlanResponseImmediateChargeLineItemJSON `json:"-"`
+	union         SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion
+}
+
+// subscriptionPreviewChangePlanResponseImmediateChargeLineItemJSON contains the
+// JSON metadata for the struct
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItem]
+type subscriptionPreviewChangePlanResponseImmediateChargeLineItemJSON struct {
+	ID              apijson.Field
+	Currency        apijson.Field
+	TaxInclusive    apijson.Field
+	Type            apijson.Field
+	ChargeableUnits apijson.Field
+	Description     apijson.Field
+	FreeThreshold   apijson.Field
+	Name            apijson.Field
+	PricePerUnit    apijson.Field
+	ProductID       apijson.Field
+	ProrationFactor apijson.Field
+	Quantity        apijson.Field
+	Subtotal        apijson.Field
+	Tax             apijson.Field
+	TaxCategory     apijson.Field
+	TaxRate         apijson.Field
+	UnitPrice       apijson.Field
+	UnitsConsumed   apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r subscriptionPreviewChangePlanResponseImmediateChargeLineItemJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r *SubscriptionPreviewChangePlanResponseImmediateChargeLineItem) UnmarshalJSON(data []byte) (err error) {
+	*r = SubscriptionPreviewChangePlanResponseImmediateChargeLineItem{}
+	err = apijson.UnmarshalRoot(data, &r.union)
+	if err != nil {
+		return err
+	}
+	return apijson.Port(r.union, &r)
+}
+
+// AsUnion returns a
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion] interface
+// which you can cast to the specific types for more type safety.
+//
+// Possible runtime types of the union are
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject],
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject],
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject].
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItem) AsUnion() SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion {
+	return r.union
+}
+
+// Union satisfied by
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject],
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject] or
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject].
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion interface {
+	implementsSubscriptionPreviewChangePlanResponseImmediateChargeLineItem()
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject{}),
+		},
+	)
+}
+
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject struct {
+	ID              string                                                                  `json:"id,required"`
+	Currency        Currency                                                                `json:"currency,required"`
+	ProductID       string                                                                  `json:"product_id,required"`
+	ProrationFactor float64                                                                 `json:"proration_factor,required"`
+	Quantity        int64                                                                   `json:"quantity,required"`
+	TaxInclusive    bool                                                                    `json:"tax_inclusive,required"`
+	Type            SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObjectType `json:"type,required"`
+	UnitPrice       int64                                                                   `json:"unit_price,required"`
+	Description     string                                                                  `json:"description,nullable"`
+	Name            string                                                                  `json:"name,nullable"`
+	Tax             int64                                                                   `json:"tax,nullable"`
+	TaxRate         float64                                                                 `json:"tax_rate,nullable"`
+	JSON            subscriptionPreviewChangePlanResponseImmediateChargeLineItemsObjectJSON `json:"-"`
+}
+
+// subscriptionPreviewChangePlanResponseImmediateChargeLineItemsObjectJSON contains
+// the JSON metadata for the struct
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject]
+type subscriptionPreviewChangePlanResponseImmediateChargeLineItemsObjectJSON struct {
+	ID              apijson.Field
+	Currency        apijson.Field
+	ProductID       apijson.Field
+	ProrationFactor apijson.Field
+	Quantity        apijson.Field
+	TaxInclusive    apijson.Field
+	Type            apijson.Field
+	UnitPrice       apijson.Field
+	Description     apijson.Field
+	Name            apijson.Field
+	Tax             apijson.Field
+	TaxRate         apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionPreviewChangePlanResponseImmediateChargeLineItemsObjectJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObject) implementsSubscriptionPreviewChangePlanResponseImmediateChargeLineItem() {
+}
+
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObjectType string
+
+const (
+	SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObjectTypeSubscription SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObjectType = "subscription"
+)
+
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObjectType) IsKnown() bool {
+	switch r {
+	case SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsObjectTypeSubscription:
+		return true
+	}
+	return false
+}
+
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType string
+
+const (
+	SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeSubscription SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType = "subscription"
+	SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeAddon        SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType = "addon"
+	SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeMeter        SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType = "meter"
+)
+
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType) IsKnown() bool {
+	switch r {
+	case SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeSubscription, SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeAddon, SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeMeter:
+		return true
+	}
+	return false
+}
+
+type SubscriptionPreviewChangePlanResponseImmediateChargeSummary struct {
+	Currency           Currency                                                        `json:"currency,required"`
+	CustomerCredits    int64                                                           `json:"customer_credits,required"`
+	SettlementAmount   int64                                                           `json:"settlement_amount,required"`
+	SettlementCurrency Currency                                                        `json:"settlement_currency,required"`
+	TotalAmount        int64                                                           `json:"total_amount,required"`
+	SettlementTax      int64                                                           `json:"settlement_tax,nullable"`
+	Tax                int64                                                           `json:"tax,nullable"`
+	JSON               subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON `json:"-"`
+}
+
+// subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON contains the
+// JSON metadata for the struct
+// [SubscriptionPreviewChangePlanResponseImmediateChargeSummary]
+type subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON struct {
+	Currency           apijson.Field
+	CustomerCredits    apijson.Field
+	SettlementAmount   apijson.Field
+	SettlementCurrency apijson.Field
+	TotalAmount        apijson.Field
+	SettlementTax      apijson.Field
+	Tax                apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
+}
+
+func (r *SubscriptionPreviewChangePlanResponseImmediateChargeSummary) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON) RawJSON() string {
+	return r.raw
+}
+
 type SubscriptionGetUsageHistoryResponse struct {
 	// End date of the billing period
 	EndDate time.Time `json:"end_date,required" format:"date-time"`
@@ -913,6 +1187,39 @@ type SubscriptionChargeParamsCustomerBalanceConfig struct {
 
 func (r SubscriptionChargeParamsCustomerBalanceConfig) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+type SubscriptionPreviewChangePlanParams struct {
+	// Unique identifier of the product to subscribe to
+	ProductID param.Field[string] `json:"product_id,required"`
+	// Proration Billing Mode
+	ProrationBillingMode param.Field[SubscriptionPreviewChangePlanParamsProrationBillingMode] `json:"proration_billing_mode,required"`
+	// Number of units to subscribe for. Must be at least 1.
+	Quantity param.Field[int64] `json:"quantity,required"`
+	// Addons for the new plan. Note : Leaving this empty would remove any existing
+	// addons
+	Addons param.Field[[]AttachAddonParam] `json:"addons"`
+}
+
+func (r SubscriptionPreviewChangePlanParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Proration Billing Mode
+type SubscriptionPreviewChangePlanParamsProrationBillingMode string
+
+const (
+	SubscriptionPreviewChangePlanParamsProrationBillingModeProratedImmediately   SubscriptionPreviewChangePlanParamsProrationBillingMode = "prorated_immediately"
+	SubscriptionPreviewChangePlanParamsProrationBillingModeFullImmediately       SubscriptionPreviewChangePlanParamsProrationBillingMode = "full_immediately"
+	SubscriptionPreviewChangePlanParamsProrationBillingModeDifferenceImmediately SubscriptionPreviewChangePlanParamsProrationBillingMode = "difference_immediately"
+)
+
+func (r SubscriptionPreviewChangePlanParamsProrationBillingMode) IsKnown() bool {
+	switch r {
+	case SubscriptionPreviewChangePlanParamsProrationBillingModeProratedImmediately, SubscriptionPreviewChangePlanParamsProrationBillingModeFullImmediately, SubscriptionPreviewChangePlanParamsProrationBillingModeDifferenceImmediately:
+		return true
+	}
+	return false
 }
 
 type SubscriptionGetUsageHistoryParams struct {

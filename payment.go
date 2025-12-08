@@ -99,23 +99,23 @@ func (r AttachExistingCustomerParam) MarshalJSON() (data []byte, err error) {
 func (r AttachExistingCustomerParam) implementsCustomerRequestUnionParam() {}
 
 type BillingAddress struct {
-	// City name
-	City string `json:"city,required"`
 	// Two-letter ISO country code (ISO 3166-1 alpha-2)
 	Country CountryCode `json:"country,required"`
+	// City name
+	City string `json:"city,nullable"`
 	// State or province name
-	State string `json:"state,required"`
+	State string `json:"state,nullable"`
 	// Street address including house number and unit/apartment if applicable
-	Street string `json:"street,required"`
+	Street string `json:"street,nullable"`
 	// Postal code or ZIP code
-	Zipcode string             `json:"zipcode,required"`
+	Zipcode string             `json:"zipcode,nullable"`
 	JSON    billingAddressJSON `json:"-"`
 }
 
 // billingAddressJSON contains the JSON metadata for the struct [BillingAddress]
 type billingAddressJSON struct {
-	City        apijson.Field
 	Country     apijson.Field
+	City        apijson.Field
 	State       apijson.Field
 	Street      apijson.Field
 	Zipcode     apijson.Field
@@ -132,16 +132,16 @@ func (r billingAddressJSON) RawJSON() string {
 }
 
 type BillingAddressParam struct {
-	// City name
-	City param.Field[string] `json:"city,required"`
 	// Two-letter ISO country code (ISO 3166-1 alpha-2)
 	Country param.Field[CountryCode] `json:"country,required"`
+	// City name
+	City param.Field[string] `json:"city"`
 	// State or province name
-	State param.Field[string] `json:"state,required"`
+	State param.Field[string] `json:"state"`
 	// Street address including house number and unit/apartment if applicable
-	Street param.Field[string] `json:"street,required"`
+	Street param.Field[string] `json:"street"`
 	// Postal code or ZIP code
-	Zipcode param.Field[string] `json:"zipcode,required"`
+	Zipcode param.Field[string] `json:"zipcode"`
 }
 
 func (r BillingAddressParam) MarshalJSON() (data []byte, err error) {

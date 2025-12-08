@@ -28,8 +28,8 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Subscriptions.New(context.TODO(), dodopayments.SubscriptionNewParams{
 		Billing: dodopayments.F(dodopayments.BillingAddressParam{
-			City:    dodopayments.F("city"),
 			Country: dodopayments.F(dodopayments.CountryCodeAf),
+			City:    dodopayments.F("city"),
 			State:   dodopayments.F("state"),
 			Street:  dodopayments.F("street"),
 			Zipcode: dodopayments.F("zipcode"),
@@ -111,8 +111,8 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 		"subscription_id",
 		dodopayments.SubscriptionUpdateParams{
 			Billing: dodopayments.F(dodopayments.BillingAddressParam{
-				City:    dodopayments.F("city"),
 				Country: dodopayments.F(dodopayments.CountryCodeAf),
+				City:    dodopayments.F("city"),
 				State:   dodopayments.F("state"),
 				Street:  dodopayments.F("street"),
 				Zipcode: dodopayments.F("zipcode"),
@@ -230,6 +230,40 @@ func TestSubscriptionChargeWithOptionalParams(t *testing.T) {
 			}),
 			ProductCurrency:    dodopayments.F(dodopayments.CurrencyAed),
 			ProductDescription: dodopayments.F("product_description"),
+		},
+	)
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Subscriptions.PreviewChangePlan(
+		context.TODO(),
+		"subscription_id",
+		dodopayments.SubscriptionPreviewChangePlanParams{
+			ProductID:            dodopayments.F("product_id"),
+			ProrationBillingMode: dodopayments.F(dodopayments.SubscriptionPreviewChangePlanParamsProrationBillingModeProratedImmediately),
+			Quantity:             dodopayments.F(int64(0)),
+			Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
+				AddonID:  dodopayments.F("addon_id"),
+				Quantity: dodopayments.F(int64(0)),
+			}}),
 		},
 	)
 	if err != nil {
