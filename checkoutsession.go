@@ -80,6 +80,9 @@ type CheckoutSessionRequestParam struct {
 	// Additional metadata associated with the payment. Defaults to empty if not
 	// provided.
 	Metadata param.Field[map[string]string] `json:"metadata"`
+	// If true, only zipcode is required when confirm is true; other address fields
+	// remain optional
+	MinimalAddress param.Field[bool] `json:"minimal_address"`
 	// The url to redirect after payment failure or success.
 	ReturnURL param.Field[string] `json:"return_url"`
 	// Display saved payment methods of a returning customer False by default
