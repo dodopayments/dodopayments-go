@@ -2097,6 +2097,95 @@ func (r SubscriptionRenewedWebhookEventType) IsKnown() bool {
 	return false
 }
 
+type SubscriptionUpdatedWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id,required"`
+	// Event-specific data
+	Data SubscriptionUpdatedWebhookEventData `json:"data,required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	// The event type
+	Type SubscriptionUpdatedWebhookEventType `json:"type,required"`
+	JSON subscriptionUpdatedWebhookEventJSON `json:"-"`
+}
+
+// subscriptionUpdatedWebhookEventJSON contains the JSON metadata for the struct
+// [SubscriptionUpdatedWebhookEvent]
+type subscriptionUpdatedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionUpdatedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionUpdatedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r SubscriptionUpdatedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r SubscriptionUpdatedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// Event-specific data
+type SubscriptionUpdatedWebhookEventData struct {
+	// The type of payload in the data field
+	PayloadType SubscriptionUpdatedWebhookEventDataPayloadType `json:"payload_type"`
+	JSON        subscriptionUpdatedWebhookEventDataJSON        `json:"-"`
+	Subscription
+}
+
+// subscriptionUpdatedWebhookEventDataJSON contains the JSON metadata for the
+// struct [SubscriptionUpdatedWebhookEventData]
+type subscriptionUpdatedWebhookEventDataJSON struct {
+	PayloadType apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionUpdatedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionUpdatedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+// The type of payload in the data field
+type SubscriptionUpdatedWebhookEventDataPayloadType string
+
+const (
+	SubscriptionUpdatedWebhookEventDataPayloadTypeSubscription SubscriptionUpdatedWebhookEventDataPayloadType = "Subscription"
+)
+
+func (r SubscriptionUpdatedWebhookEventDataPayloadType) IsKnown() bool {
+	switch r {
+	case SubscriptionUpdatedWebhookEventDataPayloadTypeSubscription:
+		return true
+	}
+	return false
+}
+
+// The event type
+type SubscriptionUpdatedWebhookEventType string
+
+const (
+	SubscriptionUpdatedWebhookEventTypeSubscriptionUpdated SubscriptionUpdatedWebhookEventType = "subscription.updated"
+)
+
+func (r SubscriptionUpdatedWebhookEventType) IsKnown() bool {
+	switch r {
+	case SubscriptionUpdatedWebhookEventTypeSubscriptionUpdated:
+		return true
+	}
+	return false
+}
+
 type UnsafeUnwrapWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
@@ -2111,7 +2200,7 @@ type UnsafeUnwrapWebhookEvent struct {
 	// [SubscriptionCancelledWebhookEventData], [SubscriptionExpiredWebhookEventData],
 	// [SubscriptionFailedWebhookEventData], [SubscriptionOnHoldWebhookEventData],
 	// [SubscriptionPlanChangedWebhookEventData],
-	// [SubscriptionRenewedWebhookEventData].
+	// [SubscriptionRenewedWebhookEventData], [SubscriptionUpdatedWebhookEventData].
 	Data interface{} `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
@@ -2158,7 +2247,8 @@ func (r *UnsafeUnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
 // [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
 // [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent].
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
+// [SubscriptionUpdatedWebhookEvent].
 func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
 	return r.union
 }
@@ -2173,7 +2263,8 @@ func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
 // [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
 // [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
 // [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPlanChangedWebhookEvent] or [SubscriptionRenewedWebhookEvent].
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent] or
+// [SubscriptionUpdatedWebhookEvent].
 type UnsafeUnwrapWebhookEventUnion interface {
 	implementsUnsafeUnwrapWebhookEvent()
 }
@@ -2266,6 +2357,10 @@ func init() {
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(SubscriptionRenewedWebhookEvent{}),
 		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(SubscriptionUpdatedWebhookEvent{}),
+		},
 	)
 }
 
@@ -2294,11 +2389,12 @@ const (
 	UnsafeUnwrapWebhookEventTypeSubscriptionOnHold      UnsafeUnwrapWebhookEventType = "subscription.on_hold"
 	UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged UnsafeUnwrapWebhookEventType = "subscription.plan_changed"
 	UnsafeUnwrapWebhookEventTypeSubscriptionRenewed     UnsafeUnwrapWebhookEventType = "subscription.renewed"
+	UnsafeUnwrapWebhookEventTypeSubscriptionUpdated     UnsafeUnwrapWebhookEventType = "subscription.updated"
 )
 
 func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed:
+	case UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false
@@ -2318,7 +2414,7 @@ type UnwrapWebhookEvent struct {
 	// [SubscriptionCancelledWebhookEventData], [SubscriptionExpiredWebhookEventData],
 	// [SubscriptionFailedWebhookEventData], [SubscriptionOnHoldWebhookEventData],
 	// [SubscriptionPlanChangedWebhookEventData],
-	// [SubscriptionRenewedWebhookEventData].
+	// [SubscriptionRenewedWebhookEventData], [SubscriptionUpdatedWebhookEventData].
 	Data interface{} `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
@@ -2365,7 +2461,8 @@ func (r *UnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
 // [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
 // [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent].
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
+// [SubscriptionUpdatedWebhookEvent].
 func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
 	return r.union
 }
@@ -2380,7 +2477,8 @@ func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
 // [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
 // [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
 // [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPlanChangedWebhookEvent] or [SubscriptionRenewedWebhookEvent].
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent] or
+// [SubscriptionUpdatedWebhookEvent].
 type UnwrapWebhookEventUnion interface {
 	implementsUnwrapWebhookEvent()
 }
@@ -2473,6 +2571,10 @@ func init() {
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(SubscriptionRenewedWebhookEvent{}),
 		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(SubscriptionUpdatedWebhookEvent{}),
+		},
 	)
 }
 
@@ -2501,11 +2603,12 @@ const (
 	UnwrapWebhookEventTypeSubscriptionOnHold      UnwrapWebhookEventType = "subscription.on_hold"
 	UnwrapWebhookEventTypeSubscriptionPlanChanged UnwrapWebhookEventType = "subscription.plan_changed"
 	UnwrapWebhookEventTypeSubscriptionRenewed     UnwrapWebhookEventType = "subscription.renewed"
+	UnwrapWebhookEventTypeSubscriptionUpdated     UnwrapWebhookEventType = "subscription.updated"
 )
 
 func (r UnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed:
+	case UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false
