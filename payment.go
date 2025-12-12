@@ -38,6 +38,7 @@ func NewPaymentService(opts ...option.RequestOption) (r *PaymentService) {
 	return
 }
 
+// Deprecated: deprecated
 func (r *PaymentService) New(ctx context.Context, body PaymentNewParams, opts ...option.RequestOption) (res *PaymentNewResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "payments"
