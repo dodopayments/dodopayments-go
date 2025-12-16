@@ -338,6 +338,8 @@ type Payment struct {
 	ErrorCode string `json:"error_code,nullable"`
 	// An error message if the payment failed
 	ErrorMessage string `json:"error_message,nullable"`
+	// Invoice ID for this payment. Uses India-specific invoice ID if available.
+	InvoiceID string `json:"invoice_id,nullable"`
 	// Checkout URL
 	PaymentLink string `json:"payment_link,nullable"`
 	// Payment method used by customer (e.g. "card", "bank_transfer")
@@ -385,6 +387,7 @@ type paymentJSON struct {
 	DiscountID               apijson.Field
 	ErrorCode                apijson.Field
 	ErrorMessage             apijson.Field
+	InvoiceID                apijson.Field
 	PaymentLink              apijson.Field
 	PaymentMethod            apijson.Field
 	PaymentMethodType        apijson.Field
