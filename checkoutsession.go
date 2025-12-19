@@ -85,6 +85,8 @@ type CheckoutSessionRequestParam struct {
 	MinimalAddress param.Field[bool] `json:"minimal_address"`
 	// The url to redirect after payment failure or success.
 	ReturnURL param.Field[string] `json:"return_url"`
+	// If true, returns a shortened checkout URL. Defaults to false if not specified.
+	ShortLink param.Field[bool] `json:"short_link"`
 	// Display saved payment methods of a returning customer False by default
 	ShowSavedPaymentMethods param.Field[bool]                                        `json:"show_saved_payment_methods"`
 	SubscriptionData        param.Field[CheckoutSessionRequestSubscriptionDataParam] `json:"subscription_data"`
@@ -202,6 +204,10 @@ type CheckoutSessionRequestFeatureFlagsParam struct {
 	//
 	// Default is false
 	AlwaysCreateNewCustomer param.Field[bool] `json:"always_create_new_customer"`
+	// If true, redirects the customer immediately after payment completion
+	//
+	// Default is false
+	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`
 }
 
 func (r CheckoutSessionRequestFeatureFlagsParam) MarshalJSON() (data []byte, err error) {

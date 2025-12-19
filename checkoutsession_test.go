@@ -69,6 +69,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 				AllowPhoneNumberCollection:  dodopayments.F(true),
 				AllowTaxID:                  dodopayments.F(true),
 				AlwaysCreateNewCustomer:     dodopayments.F(true),
+				RedirectImmediately:         dodopayments.F(true),
 			}),
 			Force3DS: dodopayments.F(true),
 			Metadata: dodopayments.F(map[string]string{
@@ -76,6 +77,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 			}),
 			MinimalAddress:          dodopayments.F(true),
 			ReturnURL:               dodopayments.F("return_url"),
+			ShortLink:               dodopayments.F(true),
 			ShowSavedPaymentMethods: dodopayments.F(true),
 			SubscriptionData: dodopayments.F(dodopayments.CheckoutSessionRequestSubscriptionDataParam{
 				OnDemand: dodopayments.F(dodopayments.OnDemandSubscriptionParam{
