@@ -1190,8 +1190,13 @@ type SubscriptionNewParams struct {
 	OneTimeProductCart param.Field[[]OneTimeProductCartItemParam] `json:"one_time_product_cart"`
 	// If true, generates a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
+	// If true, redirects the customer immediately after payment completion False by
+	// default
+	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`
 	// Optional URL to redirect after successful subscription creation
 	ReturnURL param.Field[string] `json:"return_url"`
+	// If true, returns a shortened payment link. Defaults to false if not specified.
+	ShortLink param.Field[bool] `json:"short_link"`
 	// Display saved payment methods of a returning customer False by default
 	ShowSavedPaymentMethods param.Field[bool] `json:"show_saved_payment_methods"`
 	// Tax ID in case the payment is B2B. If tax id validation fails the payment
