@@ -83,6 +83,9 @@ type CheckoutSessionRequestParam struct {
 	// If true, only zipcode is required when confirm is true; other address fields
 	// remain optional
 	MinimalAddress param.Field[bool] `json:"minimal_address"`
+	// Optional payment method ID to use for this checkout session. Only allowed when
+	// `confirm` is true. If provided, existing customer id must also be provided.
+	PaymentMethodID param.Field[string] `json:"payment_method_id"`
 	// The url to redirect after payment failure or success.
 	ReturnURL param.Field[string] `json:"return_url"`
 	// If true, returns a shortened checkout URL. Defaults to false if not specified.
@@ -226,18 +229,18 @@ func (r CheckoutSessionRequestSubscriptionDataParam) MarshalJSON() (data []byte,
 }
 
 type CheckoutSessionResponse struct {
-	// Checkout url
-	CheckoutURL string `json:"checkout_url,required"`
 	// The ID of the created checkout session
-	SessionID string                      `json:"session_id,required"`
-	JSON      checkoutSessionResponseJSON `json:"-"`
+	SessionID string `json:"session_id,required"`
+	// Checkout url (None when payment_method_id is provided)
+	CheckoutURL string                      `json:"checkout_url,nullable"`
+	JSON        checkoutSessionResponseJSON `json:"-"`
 }
 
 // checkoutSessionResponseJSON contains the JSON metadata for the struct
 // [CheckoutSessionResponse]
 type checkoutSessionResponseJSON struct {
-	CheckoutURL apijson.Field
 	SessionID   apijson.Field
+	CheckoutURL apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
