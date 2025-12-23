@@ -26,15 +26,14 @@ func TestUsage(t *testing.T) {
 	)
 	checkoutSessionResponse, err := client.CheckoutSessions.New(context.TODO(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
-				ProductID: dodopayments.F("product_id"),
-				Quantity:  dodopayments.F(int64(0)),
-			}}),
+			ProductCart: []dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: "product_id",
+				Quantity:  0,
+			}},
 		},
 	})
 	if err != nil {
-		t.Error(err)
-		return
+		t.Fatalf("err should be nil: %s", err.Error())
 	}
 	t.Logf("%+v\n", checkoutSessionResponse.SessionID)
 }

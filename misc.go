@@ -24,8 +24,8 @@ type MiscService struct {
 // NewMiscService generates a new service that applies the given options to each
 // request. These options are applied after the parent client's options (if there
 // is one), and before any request-specific options.
-func NewMiscService(opts ...option.RequestOption) (r *MiscService) {
-	r = &MiscService{}
+func NewMiscService(opts ...option.RequestOption) (r MiscService) {
+	r = MiscService{}
 	r.Options = opts
 	return
 }
@@ -292,14 +292,6 @@ const (
 	CountryCodeZw CountryCode = "ZW"
 )
 
-func (r CountryCode) IsKnown() bool {
-	switch r {
-	case CountryCodeAf, CountryCodeAx, CountryCodeAl, CountryCodeDz, CountryCodeAs, CountryCodeAd, CountryCodeAo, CountryCodeAI, CountryCodeAq, CountryCodeAg, CountryCodeAr, CountryCodeAm, CountryCodeAw, CountryCodeAu, CountryCodeAt, CountryCodeAz, CountryCodeBs, CountryCodeBh, CountryCodeBd, CountryCodeBb, CountryCodeBy, CountryCodeBe, CountryCodeBz, CountryCodeBj, CountryCodeBm, CountryCodeBt, CountryCodeBo, CountryCodeBq, CountryCodeBa, CountryCodeBw, CountryCodeBv, CountryCodeBr, CountryCodeIo, CountryCodeBn, CountryCodeBg, CountryCodeBf, CountryCodeBi, CountryCodeKh, CountryCodeCm, CountryCodeCa, CountryCodeCv, CountryCodeKy, CountryCodeCf, CountryCodeTd, CountryCodeCl, CountryCodeCn, CountryCodeCx, CountryCodeCc, CountryCodeCo, CountryCodeKm, CountryCodeCg, CountryCodeCd, CountryCodeCk, CountryCodeCr, CountryCodeCi, CountryCodeHr, CountryCodeCu, CountryCodeCw, CountryCodeCy, CountryCodeCz, CountryCodeDk, CountryCodeDj, CountryCodeDm, CountryCodeDo, CountryCodeEc, CountryCodeEg, CountryCodeSv, CountryCodeGq, CountryCodeEr, CountryCodeEe, CountryCodeEt, CountryCodeFk, CountryCodeFo, CountryCodeFj, CountryCodeFi, CountryCodeFr, CountryCodeGf, CountryCodePf, CountryCodeTf, CountryCodeGa, CountryCodeGm, CountryCodeGe, CountryCodeDe, CountryCodeGh, CountryCodeGi, CountryCodeGr, CountryCodeGl, CountryCodeGd, CountryCodeGp, CountryCodeGu, CountryCodeGt, CountryCodeGg, CountryCodeGn, CountryCodeGw, CountryCodeGy, CountryCodeHt, CountryCodeHm, CountryCodeVa, CountryCodeHn, CountryCodeHk, CountryCodeHu, CountryCodeIs, CountryCodeIn, CountryCodeID, CountryCodeIr, CountryCodeIq, CountryCodeIe, CountryCodeIm, CountryCodeIl, CountryCodeIt, CountryCodeJm, CountryCodeJp, CountryCodeJe, CountryCodeJo, CountryCodeKz, CountryCodeKe, CountryCodeKi, CountryCodeKp, CountryCodeKr, CountryCodeKw, CountryCodeKg, CountryCodeLa, CountryCodeLv, CountryCodeLb, CountryCodeLs, CountryCodeLr, CountryCodeLy, CountryCodeLi, CountryCodeLt, CountryCodeLu, CountryCodeMo, CountryCodeMk, CountryCodeMg, CountryCodeMw, CountryCodeMy, CountryCodeMv, CountryCodeMl, CountryCodeMt, CountryCodeMh, CountryCodeMq, CountryCodeMr, CountryCodeMu, CountryCodeYt, CountryCodeMx, CountryCodeFm, CountryCodeMd, CountryCodeMc, CountryCodeMn, CountryCodeMe, CountryCodeMs, CountryCodeMa, CountryCodeMz, CountryCodeMm, CountryCodeNa, CountryCodeNr, CountryCodeNp, CountryCodeNl, CountryCodeNc, CountryCodeNz, CountryCodeNi, CountryCodeNe, CountryCodeNg, CountryCodeNu, CountryCodeNf, CountryCodeMp, CountryCodeNo, CountryCodeOm, CountryCodePk, CountryCodePw, CountryCodePs, CountryCodePa, CountryCodePg, CountryCodePy, CountryCodePe, CountryCodePh, CountryCodePn, CountryCodePl, CountryCodePt, CountryCodePr, CountryCodeQa, CountryCodeRe, CountryCodeRo, CountryCodeRu, CountryCodeRw, CountryCodeBl, CountryCodeSh, CountryCodeKn, CountryCodeLc, CountryCodeMf, CountryCodePm, CountryCodeVc, CountryCodeWs, CountryCodeSm, CountryCodeSt, CountryCodeSa, CountryCodeSn, CountryCodeRs, CountryCodeSc, CountryCodeSl, CountryCodeSg, CountryCodeSx, CountryCodeSk, CountryCodeSi, CountryCodeSb, CountryCodeSo, CountryCodeZa, CountryCodeGs, CountryCodeSS, CountryCodeEs, CountryCodeLk, CountryCodeSd, CountryCodeSr, CountryCodeSj, CountryCodeSz, CountryCodeSe, CountryCodeCh, CountryCodeSy, CountryCodeTw, CountryCodeTj, CountryCodeTz, CountryCodeTh, CountryCodeTl, CountryCodeTg, CountryCodeTk, CountryCodeTo, CountryCodeTt, CountryCodeTn, CountryCodeTr, CountryCodeTm, CountryCodeTc, CountryCodeTv, CountryCodeUg, CountryCodeUa, CountryCodeAe, CountryCodeGB, CountryCodeUm, CountryCodeUs, CountryCodeUy, CountryCodeUz, CountryCodeVu, CountryCodeVe, CountryCodeVn, CountryCodeVg, CountryCodeVi, CountryCodeWf, CountryCodeEh, CountryCodeYe, CountryCodeZm, CountryCodeZw:
-		return true
-	}
-	return false
-}
-
 type Currency string
 
 const (
@@ -450,14 +442,6 @@ const (
 	CurrencyZmw Currency = "ZMW"
 )
 
-func (r Currency) IsKnown() bool {
-	switch r {
-	case CurrencyAed, CurrencyAll, CurrencyAmd, CurrencyAng, CurrencyAoa, CurrencyArs, CurrencyAud, CurrencyAwg, CurrencyAzn, CurrencyBam, CurrencyBbd, CurrencyBdt, CurrencyBgn, CurrencyBhd, CurrencyBif, CurrencyBmd, CurrencyBnd, CurrencyBob, CurrencyBrl, CurrencyBsd, CurrencyBwp, CurrencyByn, CurrencyBzd, CurrencyCad, CurrencyChf, CurrencyClp, CurrencyCny, CurrencyCop, CurrencyCrc, CurrencyCup, CurrencyCve, CurrencyCzk, CurrencyDjf, CurrencyDkk, CurrencyDop, CurrencyDzd, CurrencyEgp, CurrencyEtb, CurrencyEur, CurrencyFjd, CurrencyFkp, CurrencyGbp, CurrencyGel, CurrencyGhs, CurrencyGip, CurrencyGmd, CurrencyGnf, CurrencyGtq, CurrencyGyd, CurrencyHkd, CurrencyHnl, CurrencyHrk, CurrencyHtg, CurrencyHuf, CurrencyIdr, CurrencyIls, CurrencyInr, CurrencyIqd, CurrencyJmd, CurrencyJod, CurrencyJpy, CurrencyKes, CurrencyKgs, CurrencyKhr, CurrencyKmf, CurrencyKrw, CurrencyKwd, CurrencyKyd, CurrencyKzt, CurrencyLak, CurrencyLbp, CurrencyLkr, CurrencyLrd, CurrencyLsl, CurrencyLyd, CurrencyMad, CurrencyMdl, CurrencyMga, CurrencyMkd, CurrencyMmk, CurrencyMnt, CurrencyMop, CurrencyMru, CurrencyMur, CurrencyMvr, CurrencyMwk, CurrencyMxn, CurrencyMyr, CurrencyMzn, CurrencyNad, CurrencyNgn, CurrencyNio, CurrencyNok, CurrencyNpr, CurrencyNzd, CurrencyOmr, CurrencyPab, CurrencyPen, CurrencyPgk, CurrencyPhp, CurrencyPkr, CurrencyPln, CurrencyPyg, CurrencyQar, CurrencyRon, CurrencyRsd, CurrencyRub, CurrencyRwf, CurrencySar, CurrencySbd, CurrencyScr, CurrencySek, CurrencySgd, CurrencyShp, CurrencySle, CurrencySll, CurrencySos, CurrencySrd, CurrencySsp, CurrencyStn, CurrencySvc, CurrencySzl, CurrencyThb, CurrencyTnd, CurrencyTop, CurrencyTry, CurrencyTtd, CurrencyTwd, CurrencyTzs, CurrencyUah, CurrencyUgx, CurrencyUsd, CurrencyUyu, CurrencyUzs, CurrencyVes, CurrencyVnd, CurrencyVuv, CurrencyWst, CurrencyXaf, CurrencyXcd, CurrencyXof, CurrencyXpf, CurrencyYer, CurrencyZar, CurrencyZmw:
-		return true
-	}
-	return false
-}
-
 // Represents the different categories of taxation applicable to various products
 // and services.
 type TaxCategory string
@@ -468,11 +452,3 @@ const (
 	TaxCategoryEBook           TaxCategory = "e_book"
 	TaxCategoryEdtech          TaxCategory = "edtech"
 )
-
-func (r TaxCategory) IsKnown() bool {
-	switch r {
-	case TaxCategoryDigitalProducts, TaxCategorySaas, TaxCategoryEBook, TaxCategoryEdtech:
-		return true
-	}
-	return false
-}

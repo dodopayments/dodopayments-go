@@ -29,11 +29,11 @@ func TestCustomerWalletLedgerEntryNewWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"customer_id",
 		dodopayments.CustomerWalletLedgerEntryNewParams{
-			Amount:         dodopayments.F(int64(0)),
-			Currency:       dodopayments.F(dodopayments.CurrencyAed),
-			EntryType:      dodopayments.F(dodopayments.CustomerWalletLedgerEntryNewParamsEntryTypeCredit),
-			IdempotencyKey: dodopayments.F("idempotency_key"),
-			Reason:         dodopayments.F("reason"),
+			Amount:         0,
+			Currency:       dodopayments.CurrencyAed,
+			EntryType:      dodopayments.CustomerWalletLedgerEntryNewParamsEntryTypeCredit,
+			IdempotencyKey: dodopayments.String("idempotency_key"),
+			Reason:         dodopayments.String("reason"),
 		},
 	)
 	if err != nil {
@@ -61,9 +61,9 @@ func TestCustomerWalletLedgerEntryListWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"customer_id",
 		dodopayments.CustomerWalletLedgerEntryListParams{
-			Currency:   dodopayments.F(dodopayments.CurrencyAed),
-			PageNumber: dodopayments.F(int64(0)),
-			PageSize:   dodopayments.F(int64(0)),
+			Currency:   dodopayments.CurrencyAed,
+			PageNumber: dodopayments.Int(0),
+			PageSize:   dodopayments.Int(0),
 		},
 	)
 	if err != nil {

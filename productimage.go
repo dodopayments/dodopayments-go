@@ -12,9 +12,10 @@ import (
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
-	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/packages/param"
+	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // ProductImageService contains methods and other services that help with
@@ -30,8 +31,8 @@ type ProductImageService struct {
 // NewProductImageService generates a new service that applies the given options to
 // each request. These options are applied after the parent client's options (if
 // there is one), and before any request-specific options.
-func NewProductImageService(opts ...option.RequestOption) (r *ProductImageService) {
-	r = &ProductImageService{}
+func NewProductImageService(opts ...option.RequestOption) (r ProductImageService) {
+	r = ProductImageService{}
 	r.Options = opts
 	return
 }
@@ -48,35 +49,31 @@ func (r *ProductImageService) Update(ctx context.Context, id string, body Produc
 }
 
 type ProductImageUpdateResponse struct {
-	URL     string                         `json:"url,required"`
-	ImageID string                         `json:"image_id,nullable" format:"uuid"`
-	JSON    productImageUpdateResponseJSON `json:"-"`
+	URL     string `json:"url,required"`
+	ImageID string `json:"image_id,nullable" format:"uuid"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		URL         respjson.Field
+		ImageID     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
 }
 
-// productImageUpdateResponseJSON contains the JSON metadata for the struct
-// [ProductImageUpdateResponse]
-type productImageUpdateResponseJSON struct {
-	URL         apijson.Field
-	ImageID     apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductImageUpdateResponse) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r ProductImageUpdateResponse) RawJSON() string { return r.JSON.raw }
+func (r *ProductImageUpdateResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r productImageUpdateResponseJSON) RawJSON() string {
-	return r.raw
-}
-
 type ProductImageUpdateParams struct {
-	ForceUpdate param.Field[bool] `query:"force_update"`
+	ForceUpdate param.Opt[bool] `query:"force_update,omitzero" json:"-"`
+	paramObj
 }
 
 // URLQuery serializes [ProductImageUpdateParams]'s query parameters as
 // `url.Values`.
-func (r ProductImageUpdateParams) URLQuery() (v url.Values) {
+func (r ProductImageUpdateParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

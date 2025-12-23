@@ -13,10 +13,11 @@ import (
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
-	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
+	"github.com/dodopayments/dodopayments-go/packages/param"
+	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // DisputeService contains methods and other services that help with interacting
@@ -32,8 +33,8 @@ type DisputeService struct {
 // NewDisputeService generates a new service that applies the given options to each
 // request. These options are applied after the parent client's options (if there
 // is one), and before any request-specific options.
-func NewDisputeService(opts ...option.RequestOption) (r *DisputeService) {
-	r = &DisputeService{}
+func NewDisputeService(opts ...option.RequestOption) (r DisputeService) {
+	r = DisputeService{}
 	r.Options = opts
 	return
 }
@@ -83,37 +84,38 @@ type Dispute struct {
 	// The unique identifier of the dispute.
 	DisputeID string `json:"dispute_id,required"`
 	// The current stage of the dispute process.
+	//
+	// Any of "pre_dispute", "dispute", "pre_arbitration".
 	DisputeStage DisputeStage `json:"dispute_stage,required"`
 	// The current status of the dispute.
+	//
+	// Any of "dispute_opened", "dispute_expired", "dispute_accepted",
+	// "dispute_cancelled", "dispute_challenged", "dispute_won", "dispute_lost".
 	DisputeStatus DisputeStatus `json:"dispute_status,required"`
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string `json:"payment_id,required"`
 	// Remarks
-	Remarks string      `json:"remarks,nullable"`
-	JSON    disputeJSON `json:"-"`
+	Remarks string `json:"remarks,nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount        respjson.Field
+		BusinessID    respjson.Field
+		CreatedAt     respjson.Field
+		Currency      respjson.Field
+		DisputeID     respjson.Field
+		DisputeStage  respjson.Field
+		DisputeStatus respjson.Field
+		PaymentID     respjson.Field
+		Remarks       respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
 }
 
-// disputeJSON contains the JSON metadata for the struct [Dispute]
-type disputeJSON struct {
-	Amount        apijson.Field
-	BusinessID    apijson.Field
-	CreatedAt     apijson.Field
-	Currency      apijson.Field
-	DisputeID     apijson.Field
-	DisputeStage  apijson.Field
-	DisputeStatus apijson.Field
-	PaymentID     apijson.Field
-	Remarks       apijson.Field
-	raw           string
-	ExtraFields   map[string]apijson.Field
-}
-
-func (r *Dispute) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r Dispute) RawJSON() string { return r.JSON.raw }
+func (r *Dispute) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r disputeJSON) RawJSON() string {
-	return r.raw
 }
 
 type DisputeStage string
@@ -123,14 +125,6 @@ const (
 	DisputeStageDispute        DisputeStage = "dispute"
 	DisputeStagePreArbitration DisputeStage = "pre_arbitration"
 )
-
-func (r DisputeStage) IsKnown() bool {
-	switch r {
-	case DisputeStagePreDispute, DisputeStageDispute, DisputeStagePreArbitration:
-		return true
-	}
-	return false
-}
 
 type DisputeStatus string
 
@@ -143,14 +137,6 @@ const (
 	DisputeStatusDisputeWon        DisputeStatus = "dispute_won"
 	DisputeStatusDisputeLost       DisputeStatus = "dispute_lost"
 )
-
-func (r DisputeStatus) IsKnown() bool {
-	switch r {
-	case DisputeStatusDisputeOpened, DisputeStatusDisputeExpired, DisputeStatusDisputeAccepted, DisputeStatusDisputeCancelled, DisputeStatusDisputeChallenged, DisputeStatusDisputeWon, DisputeStatusDisputeLost:
-		return true
-	}
-	return false
-}
 
 type GetDispute struct {
 	// The amount involved in the dispute, represented as a string to accommodate
@@ -167,41 +153,42 @@ type GetDispute struct {
 	// The unique identifier of the dispute.
 	DisputeID string `json:"dispute_id,required"`
 	// The current stage of the dispute process.
+	//
+	// Any of "pre_dispute", "dispute", "pre_arbitration".
 	DisputeStage DisputeStage `json:"dispute_stage,required"`
 	// The current status of the dispute.
+	//
+	// Any of "dispute_opened", "dispute_expired", "dispute_accepted",
+	// "dispute_cancelled", "dispute_challenged", "dispute_won", "dispute_lost".
 	DisputeStatus DisputeStatus `json:"dispute_status,required"`
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string `json:"payment_id,required"`
 	// Reason for the dispute
 	Reason string `json:"reason,nullable"`
 	// Remarks
-	Remarks string         `json:"remarks,nullable"`
-	JSON    getDisputeJSON `json:"-"`
+	Remarks string `json:"remarks,nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount        respjson.Field
+		BusinessID    respjson.Field
+		CreatedAt     respjson.Field
+		Currency      respjson.Field
+		Customer      respjson.Field
+		DisputeID     respjson.Field
+		DisputeStage  respjson.Field
+		DisputeStatus respjson.Field
+		PaymentID     respjson.Field
+		Reason        respjson.Field
+		Remarks       respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
 }
 
-// getDisputeJSON contains the JSON metadata for the struct [GetDispute]
-type getDisputeJSON struct {
-	Amount        apijson.Field
-	BusinessID    apijson.Field
-	CreatedAt     apijson.Field
-	Currency      apijson.Field
-	Customer      apijson.Field
-	DisputeID     apijson.Field
-	DisputeStage  apijson.Field
-	DisputeStatus apijson.Field
-	PaymentID     apijson.Field
-	Reason        apijson.Field
-	Remarks       apijson.Field
-	raw           string
-	ExtraFields   map[string]apijson.Field
-}
-
-func (r *GetDispute) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r GetDispute) RawJSON() string { return r.JSON.raw }
+func (r *GetDispute) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r getDisputeJSON) RawJSON() string {
-	return r.raw
 }
 
 type DisputeListResponse struct {
@@ -217,56 +204,62 @@ type DisputeListResponse struct {
 	// The unique identifier of the dispute.
 	DisputeID string `json:"dispute_id,required"`
 	// The current stage of the dispute process.
+	//
+	// Any of "pre_dispute", "dispute", "pre_arbitration".
 	DisputeStage DisputeStage `json:"dispute_stage,required"`
 	// The current status of the dispute.
+	//
+	// Any of "dispute_opened", "dispute_expired", "dispute_accepted",
+	// "dispute_cancelled", "dispute_challenged", "dispute_won", "dispute_lost".
 	DisputeStatus DisputeStatus `json:"dispute_status,required"`
 	// The unique identifier of the payment associated with the dispute.
-	PaymentID string                  `json:"payment_id,required"`
-	JSON      disputeListResponseJSON `json:"-"`
+	PaymentID string `json:"payment_id,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount        respjson.Field
+		BusinessID    respjson.Field
+		CreatedAt     respjson.Field
+		Currency      respjson.Field
+		DisputeID     respjson.Field
+		DisputeStage  respjson.Field
+		DisputeStatus respjson.Field
+		PaymentID     respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
 }
 
-// disputeListResponseJSON contains the JSON metadata for the struct
-// [DisputeListResponse]
-type disputeListResponseJSON struct {
-	Amount        apijson.Field
-	BusinessID    apijson.Field
-	CreatedAt     apijson.Field
-	Currency      apijson.Field
-	DisputeID     apijson.Field
-	DisputeStage  apijson.Field
-	DisputeStatus apijson.Field
-	PaymentID     apijson.Field
-	raw           string
-	ExtraFields   map[string]apijson.Field
-}
-
-func (r *DisputeListResponse) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r DisputeListResponse) RawJSON() string { return r.JSON.raw }
+func (r *DisputeListResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r disputeListResponseJSON) RawJSON() string {
-	return r.raw
 }
 
 type DisputeListParams struct {
 	// Get events after this created time
-	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
+	CreatedAtGte param.Opt[time.Time] `query:"created_at_gte,omitzero" format:"date-time" json:"-"`
 	// Get events created before this time
-	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
+	CreatedAtLte param.Opt[time.Time] `query:"created_at_lte,omitzero" format:"date-time" json:"-"`
 	// Filter by customer_id
-	CustomerID param.Field[string] `query:"customer_id"`
-	// Filter by dispute stage
-	DisputeStage param.Field[DisputeListParamsDisputeStage] `query:"dispute_stage"`
-	// Filter by dispute status
-	DisputeStatus param.Field[DisputeListParamsDisputeStatus] `query:"dispute_status"`
+	CustomerID param.Opt[string] `query:"customer_id,omitzero" json:"-"`
 	// Page number default is 0
-	PageNumber param.Field[int64] `query:"page_number"`
+	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
 	// Page size default is 10 max is 100
-	PageSize param.Field[int64] `query:"page_size"`
+	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
+	// Filter by dispute stage
+	//
+	// Any of "pre_dispute", "dispute", "pre_arbitration".
+	DisputeStage DisputeListParamsDisputeStage `query:"dispute_stage,omitzero" json:"-"`
+	// Filter by dispute status
+	//
+	// Any of "dispute_opened", "dispute_expired", "dispute_accepted",
+	// "dispute_cancelled", "dispute_challenged", "dispute_won", "dispute_lost".
+	DisputeStatus DisputeListParamsDisputeStatus `query:"dispute_status,omitzero" json:"-"`
+	paramObj
 }
 
 // URLQuery serializes [DisputeListParams]'s query parameters as `url.Values`.
-func (r DisputeListParams) URLQuery() (v url.Values) {
+func (r DisputeListParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
@@ -282,14 +275,6 @@ const (
 	DisputeListParamsDisputeStagePreArbitration DisputeListParamsDisputeStage = "pre_arbitration"
 )
 
-func (r DisputeListParamsDisputeStage) IsKnown() bool {
-	switch r {
-	case DisputeListParamsDisputeStagePreDispute, DisputeListParamsDisputeStageDispute, DisputeListParamsDisputeStagePreArbitration:
-		return true
-	}
-	return false
-}
-
 // Filter by dispute status
 type DisputeListParamsDisputeStatus string
 
@@ -302,11 +287,3 @@ const (
 	DisputeListParamsDisputeStatusDisputeWon        DisputeListParamsDisputeStatus = "dispute_won"
 	DisputeListParamsDisputeStatusDisputeLost       DisputeListParamsDisputeStatus = "dispute_lost"
 )
-
-func (r DisputeListParamsDisputeStatus) IsKnown() bool {
-	switch r {
-	case DisputeListParamsDisputeStatusDisputeOpened, DisputeListParamsDisputeStatusDisputeExpired, DisputeListParamsDisputeStatusDisputeAccepted, DisputeListParamsDisputeStatusDisputeCancelled, DisputeListParamsDisputeStatusDisputeChallenged, DisputeListParamsDisputeStatusDisputeWon, DisputeListParamsDisputeStatusDisputeLost:
-		return true
-	}
-	return false
-}
