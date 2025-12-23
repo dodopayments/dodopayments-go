@@ -28,8 +28,9 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewProductService] method instead.
 type ProductService struct {
-	Options []option.RequestOption
-	Images  ProductImageService
+	Options    []option.RequestOption
+	Images     ProductImageService
+	ShortLinks ProductShortLinkService
 }
 
 // NewProductService generates a new service that applies the given options to each
@@ -39,6 +40,7 @@ func NewProductService(opts ...option.RequestOption) (r ProductService) {
 	r = ProductService{}
 	r.Options = opts
 	r.Images = NewProductImageService(opts...)
+	r.ShortLinks = NewProductShortLinkService(opts...)
 	return
 }
 
