@@ -13,10 +13,11 @@ import (
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
-	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
+	"github.com/dodopayments/dodopayments-go/packages/param"
+	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // DiscountService contains methods and other services that help with interacting
@@ -32,8 +33,8 @@ type DiscountService struct {
 // NewDiscountService generates a new service that applies the given options to
 // each request. These options are applied after the parent client's options (if
 // there is one), and before any request-specific options.
-func NewDiscountService(opts ...option.RequestOption) (r *DiscountService) {
-	r = &DiscountService{}
+func NewDiscountService(opts ...option.RequestOption) (r DiscountService) {
+	r = DiscountService{}
 	r.Options = opts
 	return
 }
@@ -127,6 +128,8 @@ type Discount struct {
 	// How many times this discount has been used.
 	TimesUsed int64 `json:"times_used,required"`
 	// The type of discount, e.g. `percentage`, `flat`, or `flat_per_unit`.
+	//
+	// Any of "percentage".
 	Type DiscountType `json:"type,required"`
 	// Optional date/time after which discount is expired.
 	ExpiresAt time.Time `json:"expires_at,nullable" format:"date-time"`
@@ -137,34 +140,30 @@ type Discount struct {
 	// related to the subscription.
 	SubscriptionCycles int64 `json:"subscription_cycles,nullable"`
 	// Usage limit for this discount, if any.
-	UsageLimit int64        `json:"usage_limit,nullable"`
-	JSON       discountJSON `json:"-"`
+	UsageLimit int64 `json:"usage_limit,nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Amount             respjson.Field
+		BusinessID         respjson.Field
+		Code               respjson.Field
+		CreatedAt          respjson.Field
+		DiscountID         respjson.Field
+		RestrictedTo       respjson.Field
+		TimesUsed          respjson.Field
+		Type               respjson.Field
+		ExpiresAt          respjson.Field
+		Name               respjson.Field
+		SubscriptionCycles respjson.Field
+		UsageLimit         respjson.Field
+		ExtraFields        map[string]respjson.Field
+		raw                string
+	} `json:"-"`
 }
 
-// discountJSON contains the JSON metadata for the struct [Discount]
-type discountJSON struct {
-	Amount             apijson.Field
-	BusinessID         apijson.Field
-	Code               apijson.Field
-	CreatedAt          apijson.Field
-	DiscountID         apijson.Field
-	RestrictedTo       apijson.Field
-	TimesUsed          apijson.Field
-	Type               apijson.Field
-	ExpiresAt          apijson.Field
-	Name               apijson.Field
-	SubscriptionCycles apijson.Field
-	UsageLimit         apijson.Field
-	raw                string
-	ExtraFields        map[string]apijson.Field
-}
-
-func (r *Discount) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r Discount) RawJSON() string { return r.JSON.raw }
+func (r *Discount) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r discountJSON) RawJSON() string {
-	return r.raw
 }
 
 type DiscountType string
@@ -172,14 +171,6 @@ type DiscountType string
 const (
 	DiscountTypePercentage DiscountType = "percentage"
 )
-
-func (r DiscountType) IsKnown() bool {
-	switch r {
-	case DiscountTypePercentage:
-		return true
-	}
-	return false
-}
 
 type DiscountNewParams struct {
 	// The discount amount.
@@ -190,29 +181,36 @@ type DiscountNewParams struct {
 	//     example, `540` means `5.4%`.
 	//
 	// Must be at least 1.
-	Amount param.Field[int64] `json:"amount,required"`
+	Amount int64 `json:"amount,required"`
 	// The discount type (e.g. `percentage`, `flat`, or `flat_per_unit`).
-	Type param.Field[DiscountType] `json:"type,required"`
+	//
+	// Any of "percentage".
+	Type DiscountType `json:"type,omitzero,required"`
 	// Optionally supply a code (will be uppercased).
 	//
 	// - Must be at least 3 characters if provided.
 	// - If omitted, a random 16-character code is generated.
-	Code param.Field[string] `json:"code"`
+	Code param.Opt[string] `json:"code,omitzero"`
 	// When the discount expires, if ever.
-	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
-	Name      param.Field[string]    `json:"name"`
-	// List of product IDs to restrict usage (if any).
-	RestrictedTo param.Field[[]string] `json:"restricted_to"`
+	ExpiresAt param.Opt[time.Time] `json:"expires_at,omitzero" format:"date-time"`
+	Name      param.Opt[string]    `json:"name,omitzero"`
 	// Number of subscription billing cycles this discount is valid for. If not
 	// provided, the discount will be applied indefinitely to all recurring payments
 	// related to the subscription.
-	SubscriptionCycles param.Field[int64] `json:"subscription_cycles"`
+	SubscriptionCycles param.Opt[int64] `json:"subscription_cycles,omitzero"`
 	// How many times this discount can be used (if any). Must be >= 1 if provided.
-	UsageLimit param.Field[int64] `json:"usage_limit"`
+	UsageLimit param.Opt[int64] `json:"usage_limit,omitzero"`
+	// List of product IDs to restrict usage (if any).
+	RestrictedTo []string `json:"restricted_to,omitzero"`
+	paramObj
 }
 
 func (r DiscountNewParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	type shadow DiscountNewParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DiscountNewParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type DiscountUpdateParams struct {
@@ -223,36 +221,44 @@ type DiscountUpdateParams struct {
 	//   - Otherwise, this represents **USD cents** (e.g., `100` = `$1.00`).
 	//
 	// Must be at least 1 if provided.
-	Amount param.Field[int64] `json:"amount"`
+	Amount param.Opt[int64] `json:"amount,omitzero"`
 	// If present, update the discount code (uppercase).
-	Code      param.Field[string]    `json:"code"`
-	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
-	Name      param.Field[string]    `json:"name"`
-	// If present, replaces all restricted product IDs with this new set. To remove all
-	// restrictions, send empty array
-	RestrictedTo param.Field[[]string] `json:"restricted_to"`
+	Code      param.Opt[string]    `json:"code,omitzero"`
+	ExpiresAt param.Opt[time.Time] `json:"expires_at,omitzero" format:"date-time"`
+	Name      param.Opt[string]    `json:"name,omitzero"`
 	// Number of subscription billing cycles this discount is valid for. If not
 	// provided, the discount will be applied indefinitely to all recurring payments
 	// related to the subscription.
-	SubscriptionCycles param.Field[int64] `json:"subscription_cycles"`
+	SubscriptionCycles param.Opt[int64] `json:"subscription_cycles,omitzero"`
+	UsageLimit         param.Opt[int64] `json:"usage_limit,omitzero"`
+	// If present, replaces all restricted product IDs with this new set. To remove all
+	// restrictions, send empty array
+	RestrictedTo []string `json:"restricted_to,omitzero"`
 	// If present, update the discount type.
-	Type       param.Field[DiscountType] `json:"type"`
-	UsageLimit param.Field[int64]        `json:"usage_limit"`
+	//
+	// Any of "percentage".
+	Type DiscountType `json:"type,omitzero"`
+	paramObj
 }
 
 func (r DiscountUpdateParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	type shadow DiscountUpdateParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *DiscountUpdateParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type DiscountListParams struct {
 	// Page number (default = 0).
-	PageNumber param.Field[int64] `query:"page_number"`
+	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
 	// Page size (default = 10, max = 100).
-	PageSize param.Field[int64] `query:"page_size"`
+	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
+	paramObj
 }
 
 // URLQuery serializes [DiscountListParams]'s query parameters as `url.Values`.
-func (r DiscountListParams) URLQuery() (v url.Values) {
+func (r DiscountListParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

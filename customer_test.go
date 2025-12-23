@@ -26,12 +26,12 @@ func TestCustomerNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Customers.New(context.TODO(), dodopayments.CustomerNewParams{
-		Email: dodopayments.F("email"),
-		Name:  dodopayments.F("name"),
-		Metadata: dodopayments.F(map[string]string{
+		Email: "email",
+		Name:  "name",
+		Metadata: map[string]string{
 			"foo": "string",
-		}),
-		PhoneNumber: dodopayments.F("phone_number"),
+		},
+		PhoneNumber: dodopayments.String("phone_number"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -80,11 +80,11 @@ func TestCustomerUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"customer_id",
 		dodopayments.CustomerUpdateParams{
-			Metadata: dodopayments.F(map[string]string{
+			Metadata: map[string]string{
 				"foo": "string",
-			}),
-			Name:        dodopayments.F("name"),
-			PhoneNumber: dodopayments.F("phone_number"),
+			},
+			Name:        dodopayments.String("name"),
+			PhoneNumber: dodopayments.String("phone_number"),
 		},
 	)
 	if err != nil {
@@ -109,9 +109,9 @@ func TestCustomerListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Customers.List(context.TODO(), dodopayments.CustomerListParams{
-		Email:      dodopayments.F("email"),
-		PageNumber: dodopayments.F(int64(0)),
-		PageSize:   dodopayments.F(int64(0)),
+		Email:      dodopayments.String("email"),
+		PageNumber: dodopayments.Int(0),
+		PageSize:   dodopayments.Int(0),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

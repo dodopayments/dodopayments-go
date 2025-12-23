@@ -12,7 +12,6 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
-	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestUsageEventGet(t *testing.T) {
@@ -50,13 +49,13 @@ func TestUsageEventListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.UsageEvents.List(context.TODO(), dodopayments.UsageEventListParams{
-		CustomerID: dodopayments.F("customer_id"),
-		End:        dodopayments.F(time.Now()),
-		EventName:  dodopayments.F("event_name"),
-		MeterID:    dodopayments.F("meter_id"),
-		PageNumber: dodopayments.F(int64(0)),
-		PageSize:   dodopayments.F(int64(0)),
-		Start:      dodopayments.F(time.Now()),
+		CustomerID: dodopayments.String("customer_id"),
+		End:        dodopayments.Time(time.Now()),
+		EventName:  dodopayments.String("event_name"),
+		MeterID:    dodopayments.String("meter_id"),
+		PageNumber: dodopayments.Int(0),
+		PageSize:   dodopayments.Int(0),
+		Start:      dodopayments.Time(time.Now()),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -80,15 +79,17 @@ func TestUsageEventIngest(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.UsageEvents.Ingest(context.TODO(), dodopayments.UsageEventIngestParams{
-		Events: dodopayments.F([]dodopayments.EventInputParam{{
-			CustomerID: dodopayments.F("customer_id"),
-			EventID:    dodopayments.F("event_id"),
-			EventName:  dodopayments.F("event_name"),
-			Metadata: dodopayments.F(map[string]dodopayments.EventInputMetadataUnionParam{
-				"foo": shared.UnionString("string"),
-			}),
-			Timestamp: dodopayments.F(time.Now()),
-		}}),
+		Events: []dodopayments.EventInputParam{{
+			CustomerID: "customer_id",
+			EventID:    "event_id",
+			EventName:  "event_name",
+			Metadata: map[string]dodopayments.EventInputMetadataUnionParam{
+				"foo": {
+					OfString: dodopayments.String("string"),
+				},
+			},
+			Timestamp: dodopayments.Time(time.Now()),
+		}},
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

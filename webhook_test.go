@@ -30,18 +30,18 @@ func TestWebhookNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Webhooks.New(context.TODO(), dodopayments.WebhookNewParams{
-		URL:         dodopayments.F("url"),
-		Description: dodopayments.F("description"),
-		Disabled:    dodopayments.F(true),
-		FilterTypes: dodopayments.F([]dodopayments.WebhookEventType{dodopayments.WebhookEventTypePaymentSucceeded}),
-		Headers: dodopayments.F(map[string]string{
+		URL:         "url",
+		Description: dodopayments.String("description"),
+		Disabled:    dodopayments.Bool(true),
+		FilterTypes: []dodopayments.WebhookEventType{dodopayments.WebhookEventTypePaymentSucceeded},
+		Headers: map[string]string{
 			"foo": "string",
-		}),
-		IdempotencyKey: dodopayments.F("idempotency_key"),
-		Metadata: dodopayments.F(map[string]string{
+		},
+		IdempotencyKey: dodopayments.String("idempotency_key"),
+		Metadata: map[string]string{
 			"foo": "string",
-		}),
-		RateLimit: dodopayments.F(int64(0)),
+		},
+		RateLimit: dodopayments.Int(0),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -90,14 +90,14 @@ func TestWebhookUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"webhook_id",
 		dodopayments.WebhookUpdateParams{
-			Description: dodopayments.F("description"),
-			Disabled:    dodopayments.F(true),
-			FilterTypes: dodopayments.F([]dodopayments.WebhookEventType{dodopayments.WebhookEventTypePaymentSucceeded}),
-			Metadata: dodopayments.F(map[string]string{
+			Description: dodopayments.String("description"),
+			Disabled:    dodopayments.Bool(true),
+			FilterTypes: []dodopayments.WebhookEventType{dodopayments.WebhookEventTypePaymentSucceeded},
+			Metadata: map[string]string{
 				"foo": "string",
-			}),
-			RateLimit: dodopayments.F(int64(0)),
-			URL:       dodopayments.F("url"),
+			},
+			RateLimit: dodopayments.Int(0),
+			URL:       dodopayments.String("url"),
 		},
 	)
 	if err != nil {
@@ -122,8 +122,8 @@ func TestWebhookListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Webhooks.List(context.TODO(), dodopayments.WebhookListParams{
-		Iterator: dodopayments.F("iterator"),
-		Limit:    dodopayments.F(int64(0)),
+		Iterator: dodopayments.String("iterator"),
+		Limit:    dodopayments.Int(0),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

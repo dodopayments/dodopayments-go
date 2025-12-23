@@ -13,10 +13,11 @@ import (
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
-	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
+	"github.com/dodopayments/dodopayments-go/packages/param"
+	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // LicenseKeyService contains methods and other services that help with interacting
@@ -32,8 +33,8 @@ type LicenseKeyService struct {
 // NewLicenseKeyService generates a new service that applies the given options to
 // each request. These options are applied after the parent client's options (if
 // there is one), and before any request-specific options.
-func NewLicenseKeyService(opts ...option.RequestOption) (r *LicenseKeyService) {
-	r = &LicenseKeyService{}
+func NewLicenseKeyService(opts ...option.RequestOption) (r LicenseKeyService) {
+	r = LicenseKeyService{}
 	r.Options = opts
 	return
 }
@@ -99,6 +100,8 @@ type LicenseKey struct {
 	// The unique identifier of the product associated with the license key.
 	ProductID string `json:"product_id,required"`
 	// The current status of the license key (e.g., active, inactive, expired).
+	//
+	// Any of "active", "expired", "disabled".
 	Status LicenseKeyStatus `json:"status,required"`
 	// The maximum number of activations allowed for this license key.
 	ActivationsLimit int64 `json:"activations_limit,nullable"`
@@ -106,34 +109,30 @@ type LicenseKey struct {
 	ExpiresAt time.Time `json:"expires_at,nullable" format:"date-time"`
 	// The unique identifier of the subscription associated with the license key, if
 	// any.
-	SubscriptionID string         `json:"subscription_id,nullable"`
-	JSON           licenseKeyJSON `json:"-"`
+	SubscriptionID string `json:"subscription_id,nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID               respjson.Field
+		BusinessID       respjson.Field
+		CreatedAt        respjson.Field
+		CustomerID       respjson.Field
+		InstancesCount   respjson.Field
+		Key              respjson.Field
+		PaymentID        respjson.Field
+		ProductID        respjson.Field
+		Status           respjson.Field
+		ActivationsLimit respjson.Field
+		ExpiresAt        respjson.Field
+		SubscriptionID   respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
 }
 
-// licenseKeyJSON contains the JSON metadata for the struct [LicenseKey]
-type licenseKeyJSON struct {
-	ID               apijson.Field
-	BusinessID       apijson.Field
-	CreatedAt        apijson.Field
-	CustomerID       apijson.Field
-	InstancesCount   apijson.Field
-	Key              apijson.Field
-	PaymentID        apijson.Field
-	ProductID        apijson.Field
-	Status           apijson.Field
-	ActivationsLimit apijson.Field
-	ExpiresAt        apijson.Field
-	SubscriptionID   apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *LicenseKey) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r LicenseKey) RawJSON() string { return r.JSON.raw }
+func (r *LicenseKey) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r licenseKeyJSON) RawJSON() string {
-	return r.raw
 }
 
 type LicenseKeyStatus string
@@ -144,45 +143,45 @@ const (
 	LicenseKeyStatusDisabled LicenseKeyStatus = "disabled"
 )
 
-func (r LicenseKeyStatus) IsKnown() bool {
-	switch r {
-	case LicenseKeyStatusActive, LicenseKeyStatusExpired, LicenseKeyStatusDisabled:
-		return true
-	}
-	return false
-}
-
 type LicenseKeyUpdateParams struct {
 	// The updated activation limit for the license key. Use `null` to remove the
 	// limit, or omit this field to leave it unchanged.
-	ActivationsLimit param.Field[int64] `json:"activations_limit"`
+	ActivationsLimit param.Opt[int64] `json:"activations_limit,omitzero"`
 	// Indicates whether the license key should be disabled. A value of `true` disables
 	// the key, while `false` enables it. Omit this field to leave it unchanged.
-	Disabled param.Field[bool] `json:"disabled"`
+	Disabled param.Opt[bool] `json:"disabled,omitzero"`
 	// The updated expiration timestamp for the license key in UTC. Use `null` to
 	// remove the expiration date, or omit this field to leave it unchanged.
-	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
+	ExpiresAt param.Opt[time.Time] `json:"expires_at,omitzero" format:"date-time"`
+	paramObj
 }
 
 func (r LicenseKeyUpdateParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	type shadow LicenseKeyUpdateParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *LicenseKeyUpdateParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type LicenseKeyListParams struct {
 	// Filter by customer ID
-	CustomerID param.Field[string] `query:"customer_id"`
+	CustomerID param.Opt[string] `query:"customer_id,omitzero" json:"-"`
 	// Page number default is 0
-	PageNumber param.Field[int64] `query:"page_number"`
+	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
 	// Page size default is 10 max is 100
-	PageSize param.Field[int64] `query:"page_size"`
+	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
 	// Filter by product ID
-	ProductID param.Field[string] `query:"product_id"`
+	ProductID param.Opt[string] `query:"product_id,omitzero" json:"-"`
 	// Filter by license key status
-	Status param.Field[LicenseKeyListParamsStatus] `query:"status"`
+	//
+	// Any of "active", "expired", "disabled".
+	Status LicenseKeyListParamsStatus `query:"status,omitzero" json:"-"`
+	paramObj
 }
 
 // URLQuery serializes [LicenseKeyListParams]'s query parameters as `url.Values`.
-func (r LicenseKeyListParams) URLQuery() (v url.Values) {
+func (r LicenseKeyListParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
@@ -197,11 +196,3 @@ const (
 	LicenseKeyListParamsStatusExpired  LicenseKeyListParamsStatus = "expired"
 	LicenseKeyListParamsStatusDisabled LicenseKeyListParamsStatus = "disabled"
 )
-
-func (r LicenseKeyListParamsStatus) IsKnown() bool {
-	switch r {
-	case LicenseKeyListParamsStatusActive, LicenseKeyListParamsStatusExpired, LicenseKeyListParamsStatusDisabled:
-		return true
-	}
-	return false
-}
