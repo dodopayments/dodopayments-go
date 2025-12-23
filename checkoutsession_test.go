@@ -76,6 +76,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 				"foo": "string",
 			}),
 			MinimalAddress:          dodopayments.F(true),
+			PaymentMethodID:         dodopayments.F("payment_method_id"),
 			ReturnURL:               dodopayments.F("return_url"),
 			ShortLink:               dodopayments.F(true),
 			ShowSavedPaymentMethods: dodopayments.F(true),

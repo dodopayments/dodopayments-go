@@ -679,6 +679,10 @@ type PaymentNewParams struct {
 	Metadata param.Field[map[string]string] `json:"metadata"`
 	// Whether to generate a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
+	// Optional payment method ID to use for this payment. If provided, customer_id
+	// must also be provided. The payment method will be validated for eligibility with
+	// the payment's currency.
+	PaymentMethodID param.Field[string] `json:"payment_method_id"`
 	// If true, redirects the customer immediately after payment completion False by
 	// default
 	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`

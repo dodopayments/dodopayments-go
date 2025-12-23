@@ -1190,6 +1190,10 @@ type SubscriptionNewParams struct {
 	OneTimeProductCart param.Field[[]OneTimeProductCartItemParam] `json:"one_time_product_cart"`
 	// If true, generates a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
+	// Optional payment method ID to use for this subscription. If provided,
+	// customer_id must also be provided (via AttachExistingCustomer). The payment
+	// method will be validated for eligibility with the subscription's currency.
+	PaymentMethodID param.Field[string] `json:"payment_method_id"`
 	// If true, redirects the customer immediately after payment completion False by
 	// default
 	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`
