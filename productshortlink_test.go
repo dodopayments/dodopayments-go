@@ -29,10 +29,10 @@ func TestProductShortLinkNewWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.ProductShortLinkNewParams{
-			Slug: "slug",
-			StaticCheckoutParams: map[string]string{
+			Slug: dodopayments.F("slug"),
+			StaticCheckoutParams: dodopayments.F(map[string]string{
 				"foo": "string",
-			},
+			}),
 		},
 	)
 	if err != nil {
@@ -57,9 +57,9 @@ func TestProductShortLinkListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Products.ShortLinks.List(context.TODO(), dodopayments.ProductShortLinkListParams{
-		PageNumber: dodopayments.Int(0),
-		PageSize:   dodopayments.Int(0),
-		ProductID:  dodopayments.String("product_id"),
+		PageNumber: dodopayments.F(int64(0)),
+		PageSize:   dodopayments.F(int64(0)),
+		ProductID:  dodopayments.F("product_id"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

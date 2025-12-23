@@ -11,9 +11,9 @@ import (
 	"slices"
 
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
-	"github.com/dodopayments/dodopayments-go/packages/param"
 )
 
 // CustomerCustomerPortalService contains methods and other services that help with
@@ -29,8 +29,8 @@ type CustomerCustomerPortalService struct {
 // NewCustomerCustomerPortalService generates a new service that applies the given
 // options to each request. These options are applied after the parent client's
 // options (if there is one), and before any request-specific options.
-func NewCustomerCustomerPortalService(opts ...option.RequestOption) (r CustomerCustomerPortalService) {
-	r = CustomerCustomerPortalService{}
+func NewCustomerCustomerPortalService(opts ...option.RequestOption) (r *CustomerCustomerPortalService) {
+	r = &CustomerCustomerPortalService{}
 	r.Options = opts
 	return
 }
@@ -48,13 +48,12 @@ func (r *CustomerCustomerPortalService) New(ctx context.Context, customerID stri
 
 type CustomerCustomerPortalNewParams struct {
 	// If true, will send link to user.
-	SendEmail param.Opt[bool] `query:"send_email,omitzero" json:"-"`
-	paramObj
+	SendEmail param.Field[bool] `query:"send_email"`
 }
 
 // URLQuery serializes [CustomerCustomerPortalNewParams]'s query parameters as
 // `url.Values`.
-func (r CustomerCustomerPortalNewParams) URLQuery() (v url.Values, err error) {
+func (r CustomerCustomerPortalNewParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

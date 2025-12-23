@@ -27,36 +27,34 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Payments.New(context.TODO(), dodopayments.PaymentNewParams{
-		Billing: dodopayments.BillingAddressParam{
-			Country: dodopayments.CountryCodeAf,
-			City:    dodopayments.String("city"),
-			State:   dodopayments.String("state"),
-			Street:  dodopayments.String("street"),
-			Zipcode: dodopayments.String("zipcode"),
-		},
-		Customer: dodopayments.CustomerRequestUnionParam{
-			OfAttachExistingCustomer: &dodopayments.AttachExistingCustomerParam{
-				CustomerID: "customer_id",
-			},
-		},
-		ProductCart: []dodopayments.OneTimeProductCartItemParam{{
-			ProductID: "product_id",
-			Quantity:  0,
-			Amount:    dodopayments.Int(0),
-		}},
-		AllowedPaymentMethodTypes: []dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesCredit},
-		BillingCurrency:           dodopayments.CurrencyAed,
-		DiscountCode:              dodopayments.String("discount_code"),
-		Force3DS:                  dodopayments.Bool(true),
-		Metadata: map[string]string{
+		Billing: dodopayments.F(dodopayments.BillingAddressParam{
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
+			City:    dodopayments.F("city"),
+			State:   dodopayments.F("state"),
+			Street:  dodopayments.F("street"),
+			Zipcode: dodopayments.F("zipcode"),
+		}),
+		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
+			CustomerID: dodopayments.F("customer_id"),
+		}),
+		ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
+			ProductID: dodopayments.F("product_id"),
+			Quantity:  dodopayments.F(int64(0)),
+			Amount:    dodopayments.F(int64(0)),
+		}}),
+		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesCredit}),
+		BillingCurrency:           dodopayments.F(dodopayments.CurrencyAed),
+		DiscountCode:              dodopayments.F("discount_code"),
+		Force3DS:                  dodopayments.F(true),
+		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
-		},
-		PaymentLink:             dodopayments.Bool(true),
-		RedirectImmediately:     dodopayments.Bool(true),
-		ReturnURL:               dodopayments.String("return_url"),
-		ShortLink:               dodopayments.Bool(true),
-		ShowSavedPaymentMethods: dodopayments.Bool(true),
-		TaxID:                   dodopayments.String("tax_id"),
+		}),
+		PaymentLink:             dodopayments.F(true),
+		RedirectImmediately:     dodopayments.F(true),
+		ReturnURL:               dodopayments.F("return_url"),
+		ShortLink:               dodopayments.F(true),
+		ShowSavedPaymentMethods: dodopayments.F(true),
+		TaxID:                   dodopayments.F("tax_id"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -102,14 +100,14 @@ func TestPaymentListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Payments.List(context.TODO(), dodopayments.PaymentListParams{
-		BrandID:        dodopayments.String("brand_id"),
-		CreatedAtGte:   dodopayments.Time(time.Now()),
-		CreatedAtLte:   dodopayments.Time(time.Now()),
-		CustomerID:     dodopayments.String("customer_id"),
-		PageNumber:     dodopayments.Int(0),
-		PageSize:       dodopayments.Int(0),
-		Status:         dodopayments.PaymentListParamsStatusSucceeded,
-		SubscriptionID: dodopayments.String("subscription_id"),
+		BrandID:        dodopayments.F("brand_id"),
+		CreatedAtGte:   dodopayments.F(time.Now()),
+		CreatedAtLte:   dodopayments.F(time.Now()),
+		CustomerID:     dodopayments.F("customer_id"),
+		PageNumber:     dodopayments.F(int64(0)),
+		PageSize:       dodopayments.F(int64(0)),
+		Status:         dodopayments.F(dodopayments.PaymentListParamsStatusSucceeded),
+		SubscriptionID: dodopayments.F("subscription_id"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

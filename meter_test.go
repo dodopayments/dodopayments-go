@@ -11,6 +11,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestMeterNewWithOptionalParams(t *testing.T) {
@@ -26,32 +27,26 @@ func TestMeterNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Meters.New(context.TODO(), dodopayments.MeterNewParams{
-		Aggregation: dodopayments.MeterAggregationParam{
-			Type: dodopayments.MeterAggregationTypeCount,
-			Key:  dodopayments.String("key"),
-		},
-		EventName:       "event_name",
-		MeasurementUnit: "measurement_unit",
-		Name:            "name",
-		Description:     dodopayments.String("description"),
-		Filter: dodopayments.MeterFilterParam{
-			Clauses: dodopayments.MeterFilterClausesUnionParam{
-				OfDirectFilterConditions: []dodopayments.MeterFilterClausesDirectFilterConditionParam{{
-					Key:      "user_id",
-					Operator: "equals",
-					Value: dodopayments.MeterFilterClausesDirectFilterConditionValueUnionParam{
-						OfString: dodopayments.String("user123"),
-					},
-				}, {
-					Key:      "amount",
-					Operator: "greater_than",
-					Value: dodopayments.MeterFilterClausesDirectFilterConditionValueUnionParam{
-						OfFloat: dodopayments.Float(100),
-					},
-				}},
-			},
-			Conjunction: dodopayments.MeterFilterConjunctionAnd,
-		},
+		Aggregation: dodopayments.F(dodopayments.MeterAggregationParam{
+			Type: dodopayments.F(dodopayments.MeterAggregationTypeCount),
+			Key:  dodopayments.F("key"),
+		}),
+		EventName:       dodopayments.F("event_name"),
+		MeasurementUnit: dodopayments.F("measurement_unit"),
+		Name:            dodopayments.F("name"),
+		Description:     dodopayments.F("description"),
+		Filter: dodopayments.F(dodopayments.MeterFilterParam{
+			Clauses: dodopayments.F[dodopayments.MeterFilterClausesUnionParam](dodopayments.MeterFilterClausesDirectFilterConditionsParam([]dodopayments.MeterFilterClausesDirectFilterConditionParam{{
+				Key:      dodopayments.F("user_id"),
+				Operator: dodopayments.F(dodopayments.MeterFilterClausesDirectFilterConditionsOperatorEquals),
+				Value:    dodopayments.F[dodopayments.MeterFilterClausesDirectFilterConditionsValueUnionParam](shared.UnionString("user123")),
+			}, {
+				Key:      dodopayments.F("amount"),
+				Operator: dodopayments.F(dodopayments.MeterFilterClausesDirectFilterConditionsOperatorGreaterThan),
+				Value:    dodopayments.F[dodopayments.MeterFilterClausesDirectFilterConditionsValueUnionParam](shared.UnionFloat(100.000000)),
+			}})),
+			Conjunction: dodopayments.F(dodopayments.MeterFilterConjunctionAnd),
+		}),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -97,9 +92,9 @@ func TestMeterListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Meters.List(context.TODO(), dodopayments.MeterListParams{
-		Archived:   dodopayments.Bool(true),
-		PageNumber: dodopayments.Int(0),
-		PageSize:   dodopayments.Int(0),
+		Archived:   dodopayments.F(true),
+		PageNumber: dodopayments.F(int64(0)),
+		PageSize:   dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

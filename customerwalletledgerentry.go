@@ -13,11 +13,10 @@ import (
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
-	"github.com/dodopayments/dodopayments-go/packages/param"
-	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // CustomerWalletLedgerEntryService contains methods and other services that help
@@ -33,8 +32,8 @@ type CustomerWalletLedgerEntryService struct {
 // NewCustomerWalletLedgerEntryService generates a new service that applies the
 // given options to each request. These options are applied after the parent
 // client's options (if there is one), and before any request-specific options.
-func NewCustomerWalletLedgerEntryService(opts ...option.RequestOption) (r CustomerWalletLedgerEntryService) {
-	r = CustomerWalletLedgerEntryService{}
+func NewCustomerWalletLedgerEntryService(opts ...option.RequestOption) (r *CustomerWalletLedgerEntryService) {
+	r = &CustomerWalletLedgerEntryService{}
 	r.Options = opts
 	return
 }
@@ -76,57 +75,46 @@ func (r *CustomerWalletLedgerEntryService) ListAutoPaging(ctx context.Context, c
 }
 
 type CustomerWalletTransaction struct {
-	ID            string    `json:"id,required"`
-	AfterBalance  int64     `json:"after_balance,required"`
-	Amount        int64     `json:"amount,required"`
-	BeforeBalance int64     `json:"before_balance,required"`
-	BusinessID    string    `json:"business_id,required"`
-	CreatedAt     time.Time `json:"created_at,required" format:"date-time"`
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	Currency   Currency `json:"currency,required"`
-	CustomerID string   `json:"customer_id,required"`
-	// Any of "payment", "payment_reversal", "refund", "refund_reversal", "dispute",
-	// "dispute_reversal", "merchant_adjustment".
+	ID                string                             `json:"id,required"`
+	AfterBalance      int64                              `json:"after_balance,required"`
+	Amount            int64                              `json:"amount,required"`
+	BeforeBalance     int64                              `json:"before_balance,required"`
+	BusinessID        string                             `json:"business_id,required"`
+	CreatedAt         time.Time                          `json:"created_at,required" format:"date-time"`
+	Currency          Currency                           `json:"currency,required"`
+	CustomerID        string                             `json:"customer_id,required"`
 	EventType         CustomerWalletTransactionEventType `json:"event_type,required"`
 	IsCredit          bool                               `json:"is_credit,required"`
 	Reason            string                             `json:"reason,nullable"`
 	ReferenceObjectID string                             `json:"reference_object_id,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID                respjson.Field
-		AfterBalance      respjson.Field
-		Amount            respjson.Field
-		BeforeBalance     respjson.Field
-		BusinessID        respjson.Field
-		CreatedAt         respjson.Field
-		Currency          respjson.Field
-		CustomerID        respjson.Field
-		EventType         respjson.Field
-		IsCredit          respjson.Field
-		Reason            respjson.Field
-		ReferenceObjectID respjson.Field
-		ExtraFields       map[string]respjson.Field
-		raw               string
-	} `json:"-"`
+	JSON              customerWalletTransactionJSON      `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r CustomerWalletTransaction) RawJSON() string { return r.JSON.raw }
-func (r *CustomerWalletTransaction) UnmarshalJSON(data []byte) error {
+// customerWalletTransactionJSON contains the JSON metadata for the struct
+// [CustomerWalletTransaction]
+type customerWalletTransactionJSON struct {
+	ID                apijson.Field
+	AfterBalance      apijson.Field
+	Amount            apijson.Field
+	BeforeBalance     apijson.Field
+	BusinessID        apijson.Field
+	CreatedAt         apijson.Field
+	Currency          apijson.Field
+	CustomerID        apijson.Field
+	EventType         apijson.Field
+	IsCredit          apijson.Field
+	Reason            apijson.Field
+	ReferenceObjectID apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *CustomerWalletTransaction) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r customerWalletTransactionJSON) RawJSON() string {
+	return r.raw
 }
 
 type CustomerWalletTransactionEventType string
@@ -141,41 +129,27 @@ const (
 	CustomerWalletTransactionEventTypeMerchantAdjustment CustomerWalletTransactionEventType = "merchant_adjustment"
 )
 
+func (r CustomerWalletTransactionEventType) IsKnown() bool {
+	switch r {
+	case CustomerWalletTransactionEventTypePayment, CustomerWalletTransactionEventTypePaymentReversal, CustomerWalletTransactionEventTypeRefund, CustomerWalletTransactionEventTypeRefundReversal, CustomerWalletTransactionEventTypeDispute, CustomerWalletTransactionEventTypeDisputeReversal, CustomerWalletTransactionEventTypeMerchantAdjustment:
+		return true
+	}
+	return false
+}
+
 type CustomerWalletLedgerEntryNewParams struct {
-	Amount int64 `json:"amount,required"`
+	Amount param.Field[int64] `json:"amount,required"`
 	// Currency of the wallet to adjust
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	Currency Currency `json:"currency,omitzero,required"`
+	Currency param.Field[Currency] `json:"currency,required"`
 	// Type of ledger entry - credit or debit
-	//
-	// Any of "credit", "debit".
-	EntryType CustomerWalletLedgerEntryNewParamsEntryType `json:"entry_type,omitzero,required"`
+	EntryType param.Field[CustomerWalletLedgerEntryNewParamsEntryType] `json:"entry_type,required"`
 	// Optional idempotency key to prevent duplicate entries
-	IdempotencyKey param.Opt[string] `json:"idempotency_key,omitzero"`
-	Reason         param.Opt[string] `json:"reason,omitzero"`
-	paramObj
+	IdempotencyKey param.Field[string] `json:"idempotency_key"`
+	Reason         param.Field[string] `json:"reason"`
 }
 
 func (r CustomerWalletLedgerEntryNewParams) MarshalJSON() (data []byte, err error) {
-	type shadow CustomerWalletLedgerEntryNewParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *CustomerWalletLedgerEntryNewParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 // Type of ledger entry - credit or debit
@@ -186,32 +160,24 @@ const (
 	CustomerWalletLedgerEntryNewParamsEntryTypeDebit  CustomerWalletLedgerEntryNewParamsEntryType = "debit"
 )
 
+func (r CustomerWalletLedgerEntryNewParamsEntryType) IsKnown() bool {
+	switch r {
+	case CustomerWalletLedgerEntryNewParamsEntryTypeCredit, CustomerWalletLedgerEntryNewParamsEntryTypeDebit:
+		return true
+	}
+	return false
+}
+
 type CustomerWalletLedgerEntryListParams struct {
-	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
-	PageSize   param.Opt[int64] `query:"page_size,omitzero" json:"-"`
 	// Optional currency filter
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	Currency Currency `query:"currency,omitzero" json:"-"`
-	paramObj
+	Currency   param.Field[Currency] `query:"currency"`
+	PageNumber param.Field[int64]    `query:"page_number"`
+	PageSize   param.Field[int64]    `query:"page_size"`
 }
 
 // URLQuery serializes [CustomerWalletLedgerEntryListParams]'s query parameters as
 // `url.Values`.
-func (r CustomerWalletLedgerEntryListParams) URLQuery() (v url.Values, err error) {
+func (r CustomerWalletLedgerEntryListParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

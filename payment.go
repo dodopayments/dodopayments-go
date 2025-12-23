@@ -4,7 +4,6 @@ package dodopayments
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -14,11 +13,10 @@ import (
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
-	"github.com/dodopayments/dodopayments-go/packages/param"
-	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // PaymentService contains methods and other services that help with interacting
@@ -34,8 +32,8 @@ type PaymentService struct {
 // NewPaymentService generates a new service that applies the given options to each
 // request. These options are applied after the parent client's options (if there
 // is one), and before any request-specific options.
-func NewPaymentService(opts ...option.RequestOption) (r PaymentService) {
-	r = PaymentService{}
+func NewPaymentService(opts ...option.RequestOption) (r *PaymentService) {
+	r = &PaymentService{}
 	r.Options = opts
 	return
 }
@@ -91,43 +89,18 @@ func (r *PaymentService) GetLineItems(ctx context.Context, paymentID string, opt
 	return
 }
 
-// The property CustomerID is required.
 type AttachExistingCustomerParam struct {
-	CustomerID string `json:"customer_id,required"`
-	paramObj
+	CustomerID param.Field[string] `json:"customer_id,required"`
 }
 
 func (r AttachExistingCustomerParam) MarshalJSON() (data []byte, err error) {
-	type shadow AttachExistingCustomerParam
-	return param.MarshalObject(r, (*shadow)(&r))
+	return apijson.MarshalRoot(r)
 }
-func (r *AttachExistingCustomerParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
+
+func (r AttachExistingCustomerParam) implementsCustomerRequestUnionParam() {}
 
 type BillingAddress struct {
 	// Two-letter ISO country code (ISO 3166-1 alpha-2)
-	//
-	// Any of "AF", "AX", "AL", "DZ", "AS", "AD", "AO", "AI", "AQ", "AG", "AR", "AM",
-	// "AW", "AU", "AT", "AZ", "BS", "BH", "BD", "BB", "BY", "BE", "BZ", "BJ", "BM",
-	// "BT", "BO", "BQ", "BA", "BW", "BV", "BR", "IO", "BN", "BG", "BF", "BI", "KH",
-	// "CM", "CA", "CV", "KY", "CF", "TD", "CL", "CN", "CX", "CC", "CO", "KM", "CG",
-	// "CD", "CK", "CR", "CI", "HR", "CU", "CW", "CY", "CZ", "DK", "DJ", "DM", "DO",
-	// "EC", "EG", "SV", "GQ", "ER", "EE", "ET", "FK", "FO", "FJ", "FI", "FR", "GF",
-	// "PF", "TF", "GA", "GM", "GE", "DE", "GH", "GI", "GR", "GL", "GD", "GP", "GU",
-	// "GT", "GG", "GN", "GW", "GY", "HT", "HM", "VA", "HN", "HK", "HU", "IS", "IN",
-	// "ID", "IR", "IQ", "IE", "IM", "IL", "IT", "JM", "JP", "JE", "JO", "KZ", "KE",
-	// "KI", "KP", "KR", "KW", "KG", "LA", "LV", "LB", "LS", "LR", "LY", "LI", "LT",
-	// "LU", "MO", "MK", "MG", "MW", "MY", "MV", "ML", "MT", "MH", "MQ", "MR", "MU",
-	// "YT", "MX", "FM", "MD", "MC", "MN", "ME", "MS", "MA", "MZ", "MM", "NA", "NR",
-	// "NP", "NL", "NC", "NZ", "NI", "NE", "NG", "NU", "NF", "MP", "NO", "OM", "PK",
-	// "PW", "PS", "PA", "PG", "PY", "PE", "PH", "PN", "PL", "PT", "PR", "QA", "RE",
-	// "RO", "RU", "RW", "BL", "SH", "KN", "LC", "MF", "PM", "VC", "WS", "SM", "ST",
-	// "SA", "SN", "RS", "SC", "SL", "SG", "SX", "SK", "SI", "SB", "SO", "ZA", "GS",
-	// "SS", "ES", "LK", "SD", "SR", "SJ", "SZ", "SE", "CH", "SY", "TW", "TJ", "TZ",
-	// "TH", "TL", "TG", "TK", "TO", "TT", "TN", "TR", "TM", "TC", "TV", "UG", "UA",
-	// "AE", "GB", "UM", "US", "UY", "UZ", "VU", "VE", "VN", "VG", "VI", "WF", "EH",
-	// "YE", "ZM", "ZW".
 	Country CountryCode `json:"country,required"`
 	// City name
 	City string `json:"city,nullable"`
@@ -136,76 +109,44 @@ type BillingAddress struct {
 	// Street address including house number and unit/apartment if applicable
 	Street string `json:"street,nullable"`
 	// Postal code or ZIP code
-	Zipcode string `json:"zipcode,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Country     respjson.Field
-		City        respjson.Field
-		State       respjson.Field
-		Street      respjson.Field
-		Zipcode     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	Zipcode string             `json:"zipcode,nullable"`
+	JSON    billingAddressJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r BillingAddress) RawJSON() string { return r.JSON.raw }
-func (r *BillingAddress) UnmarshalJSON(data []byte) error {
+// billingAddressJSON contains the JSON metadata for the struct [BillingAddress]
+type billingAddressJSON struct {
+	Country     apijson.Field
+	City        apijson.Field
+	State       apijson.Field
+	Street      apijson.Field
+	Zipcode     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *BillingAddress) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// ToParam converts this BillingAddress to a BillingAddressParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// BillingAddressParam.Overrides()
-func (r BillingAddress) ToParam() BillingAddressParam {
-	return param.Override[BillingAddressParam](json.RawMessage(r.RawJSON()))
+func (r billingAddressJSON) RawJSON() string {
+	return r.raw
 }
 
-// The property Country is required.
 type BillingAddressParam struct {
 	// Two-letter ISO country code (ISO 3166-1 alpha-2)
-	//
-	// Any of "AF", "AX", "AL", "DZ", "AS", "AD", "AO", "AI", "AQ", "AG", "AR", "AM",
-	// "AW", "AU", "AT", "AZ", "BS", "BH", "BD", "BB", "BY", "BE", "BZ", "BJ", "BM",
-	// "BT", "BO", "BQ", "BA", "BW", "BV", "BR", "IO", "BN", "BG", "BF", "BI", "KH",
-	// "CM", "CA", "CV", "KY", "CF", "TD", "CL", "CN", "CX", "CC", "CO", "KM", "CG",
-	// "CD", "CK", "CR", "CI", "HR", "CU", "CW", "CY", "CZ", "DK", "DJ", "DM", "DO",
-	// "EC", "EG", "SV", "GQ", "ER", "EE", "ET", "FK", "FO", "FJ", "FI", "FR", "GF",
-	// "PF", "TF", "GA", "GM", "GE", "DE", "GH", "GI", "GR", "GL", "GD", "GP", "GU",
-	// "GT", "GG", "GN", "GW", "GY", "HT", "HM", "VA", "HN", "HK", "HU", "IS", "IN",
-	// "ID", "IR", "IQ", "IE", "IM", "IL", "IT", "JM", "JP", "JE", "JO", "KZ", "KE",
-	// "KI", "KP", "KR", "KW", "KG", "LA", "LV", "LB", "LS", "LR", "LY", "LI", "LT",
-	// "LU", "MO", "MK", "MG", "MW", "MY", "MV", "ML", "MT", "MH", "MQ", "MR", "MU",
-	// "YT", "MX", "FM", "MD", "MC", "MN", "ME", "MS", "MA", "MZ", "MM", "NA", "NR",
-	// "NP", "NL", "NC", "NZ", "NI", "NE", "NG", "NU", "NF", "MP", "NO", "OM", "PK",
-	// "PW", "PS", "PA", "PG", "PY", "PE", "PH", "PN", "PL", "PT", "PR", "QA", "RE",
-	// "RO", "RU", "RW", "BL", "SH", "KN", "LC", "MF", "PM", "VC", "WS", "SM", "ST",
-	// "SA", "SN", "RS", "SC", "SL", "SG", "SX", "SK", "SI", "SB", "SO", "ZA", "GS",
-	// "SS", "ES", "LK", "SD", "SR", "SJ", "SZ", "SE", "CH", "SY", "TW", "TJ", "TZ",
-	// "TH", "TL", "TG", "TK", "TO", "TT", "TN", "TR", "TM", "TC", "TV", "UG", "UA",
-	// "AE", "GB", "UM", "US", "UY", "UZ", "VU", "VE", "VN", "VG", "VI", "WF", "EH",
-	// "YE", "ZM", "ZW".
-	Country CountryCode `json:"country,omitzero,required"`
+	Country param.Field[CountryCode] `json:"country,required"`
 	// City name
-	City param.Opt[string] `json:"city,omitzero"`
+	City param.Field[string] `json:"city"`
 	// State or province name
-	State param.Opt[string] `json:"state,omitzero"`
+	State param.Field[string] `json:"state"`
 	// Street address including house number and unit/apartment if applicable
-	Street param.Opt[string] `json:"street,omitzero"`
+	Street param.Field[string] `json:"street"`
 	// Postal code or ZIP code
-	Zipcode param.Opt[string] `json:"zipcode,omitzero"`
-	paramObj
+	Zipcode param.Field[string] `json:"zipcode"`
 }
 
 func (r BillingAddressParam) MarshalJSON() (data []byte, err error) {
-	type shadow BillingAddressParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *BillingAddressParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type CustomerLimitedDetails struct {
@@ -218,60 +159,51 @@ type CustomerLimitedDetails struct {
 	// Additional metadata associated with the customer
 	Metadata map[string]string `json:"metadata"`
 	// Phone number of the customer
-	PhoneNumber string `json:"phone_number,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		CustomerID  respjson.Field
-		Email       respjson.Field
-		Name        respjson.Field
-		Metadata    respjson.Field
-		PhoneNumber respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	PhoneNumber string                     `json:"phone_number,nullable"`
+	JSON        customerLimitedDetailsJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r CustomerLimitedDetails) RawJSON() string { return r.JSON.raw }
-func (r *CustomerLimitedDetails) UnmarshalJSON(data []byte) error {
+// customerLimitedDetailsJSON contains the JSON metadata for the struct
+// [CustomerLimitedDetails]
+type customerLimitedDetailsJSON struct {
+	CustomerID  apijson.Field
+	Email       apijson.Field
+	Name        apijson.Field
+	Metadata    apijson.Field
+	PhoneNumber apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CustomerLimitedDetails) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func CustomerRequestParamOfAttachExistingCustomer(customerID string) CustomerRequestUnionParam {
-	var variant AttachExistingCustomerParam
-	variant.CustomerID = customerID
-	return CustomerRequestUnionParam{OfAttachExistingCustomer: &variant}
+func (r customerLimitedDetailsJSON) RawJSON() string {
+	return r.raw
 }
 
-func CustomerRequestParamOfNewCustomer(email string) CustomerRequestUnionParam {
-	var variant NewCustomerParam
-	variant.Email = email
-	return CustomerRequestUnionParam{OfNewCustomer: &variant}
+type CustomerRequestParam struct {
+	CustomerID param.Field[string] `json:"customer_id"`
+	// Email is required for creating a new customer
+	Email param.Field[string] `json:"email"`
+	// Optional full name of the customer. If provided during session creation, it is
+	// persisted and becomes immutable for the session. If omitted here, it can be
+	// provided later via the confirm API.
+	Name        param.Field[string] `json:"name"`
+	PhoneNumber param.Field[string] `json:"phone_number"`
 }
 
-// Only one field can be non-zero.
-//
-// Use [param.IsOmitted] to confirm if a field is set.
-type CustomerRequestUnionParam struct {
-	OfAttachExistingCustomer *AttachExistingCustomerParam `json:",omitzero,inline"`
-	OfNewCustomer            *NewCustomerParam            `json:",omitzero,inline"`
-	paramUnion
+func (r CustomerRequestParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
-func (u CustomerRequestUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfAttachExistingCustomer, u.OfNewCustomer)
-}
-func (u *CustomerRequestUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
+func (r CustomerRequestParam) implementsCustomerRequestUnionParam() {}
 
-func (u *CustomerRequestUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfAttachExistingCustomer) {
-		return u.OfAttachExistingCustomer
-	} else if !param.IsOmitted(u.OfNewCustomer) {
-		return u.OfNewCustomer
-	}
-	return nil
+// Satisfied by [AttachExistingCustomerParam], [NewCustomerParam],
+// [CustomerRequestParam].
+type CustomerRequestUnionParam interface {
+	implementsCustomerRequestUnionParam()
 }
 
 type IntentStatus string
@@ -290,25 +222,29 @@ const (
 	IntentStatusPartiallyCapturedAndCapturable IntentStatus = "partially_captured_and_capturable"
 )
 
-// The property Email is required.
+func (r IntentStatus) IsKnown() bool {
+	switch r {
+	case IntentStatusSucceeded, IntentStatusFailed, IntentStatusCancelled, IntentStatusProcessing, IntentStatusRequiresCustomerAction, IntentStatusRequiresMerchantAction, IntentStatusRequiresPaymentMethod, IntentStatusRequiresConfirmation, IntentStatusRequiresCapture, IntentStatusPartiallyCaptured, IntentStatusPartiallyCapturedAndCapturable:
+		return true
+	}
+	return false
+}
+
 type NewCustomerParam struct {
 	// Email is required for creating a new customer
-	Email string `json:"email,required"`
+	Email param.Field[string] `json:"email,required"`
 	// Optional full name of the customer. If provided during session creation, it is
 	// persisted and becomes immutable for the session. If omitted here, it can be
 	// provided later via the confirm API.
-	Name        param.Opt[string] `json:"name,omitzero"`
-	PhoneNumber param.Opt[string] `json:"phone_number,omitzero"`
-	paramObj
+	Name        param.Field[string] `json:"name"`
+	PhoneNumber param.Field[string] `json:"phone_number"`
 }
 
 func (r NewCustomerParam) MarshalJSON() (data []byte, err error) {
-	type shadow NewCustomerParam
-	return param.MarshalObject(r, (*shadow)(&r))
+	return apijson.MarshalRoot(r)
 }
-func (r *NewCustomerParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
+
+func (r NewCustomerParam) implementsCustomerRequestUnionParam() {}
 
 type OneTimeProductCartItem struct {
 	ProductID string `json:"product_id,required"`
@@ -316,49 +252,39 @@ type OneTimeProductCartItem struct {
 	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
 	// amount will be ignored Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Amount int64 `json:"amount,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ProductID   respjson.Field
-		Quantity    respjson.Field
-		Amount      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	Amount int64                      `json:"amount,nullable"`
+	JSON   oneTimeProductCartItemJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r OneTimeProductCartItem) RawJSON() string { return r.JSON.raw }
-func (r *OneTimeProductCartItem) UnmarshalJSON(data []byte) error {
+// oneTimeProductCartItemJSON contains the JSON metadata for the struct
+// [OneTimeProductCartItem]
+type oneTimeProductCartItemJSON struct {
+	ProductID   apijson.Field
+	Quantity    apijson.Field
+	Amount      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *OneTimeProductCartItem) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// ToParam converts this OneTimeProductCartItem to a OneTimeProductCartItemParam.
-//
-// Warning: the fields of the param type will not be present. ToParam should only
-// be used at the last possible moment before sending a request. Test for this with
-// OneTimeProductCartItemParam.Overrides()
-func (r OneTimeProductCartItem) ToParam() OneTimeProductCartItemParam {
-	return param.Override[OneTimeProductCartItemParam](json.RawMessage(r.RawJSON()))
+func (r oneTimeProductCartItemJSON) RawJSON() string {
+	return r.raw
 }
 
-// The properties ProductID, Quantity are required.
 type OneTimeProductCartItemParam struct {
-	ProductID string `json:"product_id,required"`
-	Quantity  int64  `json:"quantity,required"`
+	ProductID param.Field[string] `json:"product_id,required"`
+	Quantity  param.Field[int64]  `json:"quantity,required"`
 	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
 	// amount will be ignored Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Amount param.Opt[int64] `json:"amount,omitzero"`
-	paramObj
+	Amount param.Field[int64] `json:"amount"`
 }
 
 func (r OneTimeProductCartItemParam) MarshalJSON() (data []byte, err error) {
-	type shadow OneTimeProductCartItemParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *OneTimeProductCartItemParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type Payment struct {
@@ -371,21 +297,6 @@ type Payment struct {
 	// Timestamp when the payment was created
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
 	// Currency used for the payment
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
 	Currency Currency `json:"currency,required"`
 	// Details about the customer who made the payment
 	Customer CustomerLimitedDetails `json:"customer,required"`
@@ -406,47 +317,11 @@ type Payment struct {
 	// The currency in which the settlement_amount will be credited to your Dodo
 	// balance. This may differ from the customer's payment currency in adaptive
 	// pricing scenarios.
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
 	SettlementCurrency Currency `json:"settlement_currency,required"`
 	// Total amount charged to the customer including tax, in smallest currency unit
 	// (e.g. cents)
 	TotalAmount int64 `json:"total_amount,required"`
 	// ISO2 country code of the card
-	//
-	// Any of "AF", "AX", "AL", "DZ", "AS", "AD", "AO", "AI", "AQ", "AG", "AR", "AM",
-	// "AW", "AU", "AT", "AZ", "BS", "BH", "BD", "BB", "BY", "BE", "BZ", "BJ", "BM",
-	// "BT", "BO", "BQ", "BA", "BW", "BV", "BR", "IO", "BN", "BG", "BF", "BI", "KH",
-	// "CM", "CA", "CV", "KY", "CF", "TD", "CL", "CN", "CX", "CC", "CO", "KM", "CG",
-	// "CD", "CK", "CR", "CI", "HR", "CU", "CW", "CY", "CZ", "DK", "DJ", "DM", "DO",
-	// "EC", "EG", "SV", "GQ", "ER", "EE", "ET", "FK", "FO", "FJ", "FI", "FR", "GF",
-	// "PF", "TF", "GA", "GM", "GE", "DE", "GH", "GI", "GR", "GL", "GD", "GP", "GU",
-	// "GT", "GG", "GN", "GW", "GY", "HT", "HM", "VA", "HN", "HK", "HU", "IS", "IN",
-	// "ID", "IR", "IQ", "IE", "IM", "IL", "IT", "JM", "JP", "JE", "JO", "KZ", "KE",
-	// "KI", "KP", "KR", "KW", "KG", "LA", "LV", "LB", "LS", "LR", "LY", "LI", "LT",
-	// "LU", "MO", "MK", "MG", "MW", "MY", "MV", "ML", "MT", "MH", "MQ", "MR", "MU",
-	// "YT", "MX", "FM", "MD", "MC", "MN", "ME", "MS", "MA", "MZ", "MM", "NA", "NR",
-	// "NP", "NL", "NC", "NZ", "NI", "NE", "NG", "NU", "NF", "MP", "NO", "OM", "PK",
-	// "PW", "PS", "PA", "PG", "PY", "PE", "PH", "PN", "PL", "PT", "PR", "QA", "RE",
-	// "RO", "RU", "RW", "BL", "SH", "KN", "LC", "MF", "PM", "VC", "WS", "SM", "ST",
-	// "SA", "SN", "RS", "SC", "SL", "SG", "SX", "SK", "SI", "SB", "SO", "ZA", "GS",
-	// "SS", "ES", "LK", "SD", "SR", "SJ", "SZ", "SE", "CH", "SY", "TW", "TJ", "TZ",
-	// "TH", "TL", "TG", "TK", "TO", "TT", "TN", "TR", "TM", "TC", "TV", "UG", "UA",
-	// "AE", "GB", "UM", "US", "UY", "UZ", "VU", "VE", "VN", "VG", "VI", "WF", "EH",
-	// "YE", "ZM", "ZW".
 	CardIssuingCountry CountryCode `json:"card_issuing_country,nullable"`
 	// The last four digits of the card
 	CardLastFour string `json:"card_last_four,nullable"`
@@ -478,61 +353,60 @@ type Payment struct {
 	// be tracked separately in your Dodo balance.
 	SettlementTax int64 `json:"settlement_tax,nullable"`
 	// Current status of the payment intent
-	//
-	// Any of "succeeded", "failed", "cancelled", "processing",
-	// "requires_customer_action", "requires_merchant_action",
-	// "requires_payment_method", "requires_confirmation", "requires_capture",
-	// "partially_captured", "partially_captured_and_capturable".
 	Status IntentStatus `json:"status,nullable"`
 	// Identifier of the subscription if payment is part of a subscription
 	SubscriptionID string `json:"subscription_id,nullable"`
 	// Amount of tax collected in smallest currency unit (e.g. cents)
 	Tax int64 `json:"tax,nullable"`
 	// Timestamp when the payment was last updated
-	UpdatedAt time.Time `json:"updated_at,nullable" format:"date-time"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Billing                  respjson.Field
-		BrandID                  respjson.Field
-		BusinessID               respjson.Field
-		CreatedAt                respjson.Field
-		Currency                 respjson.Field
-		Customer                 respjson.Field
-		DigitalProductsDelivered respjson.Field
-		Disputes                 respjson.Field
-		Metadata                 respjson.Field
-		PaymentID                respjson.Field
-		Refunds                  respjson.Field
-		SettlementAmount         respjson.Field
-		SettlementCurrency       respjson.Field
-		TotalAmount              respjson.Field
-		CardIssuingCountry       respjson.Field
-		CardLastFour             respjson.Field
-		CardNetwork              respjson.Field
-		CardType                 respjson.Field
-		CheckoutSessionID        respjson.Field
-		DiscountID               respjson.Field
-		ErrorCode                respjson.Field
-		ErrorMessage             respjson.Field
-		InvoiceID                respjson.Field
-		PaymentLink              respjson.Field
-		PaymentMethod            respjson.Field
-		PaymentMethodType        respjson.Field
-		ProductCart              respjson.Field
-		SettlementTax            respjson.Field
-		Status                   respjson.Field
-		SubscriptionID           respjson.Field
-		Tax                      respjson.Field
-		UpdatedAt                respjson.Field
-		ExtraFields              map[string]respjson.Field
-		raw                      string
-	} `json:"-"`
+	UpdatedAt time.Time   `json:"updated_at,nullable" format:"date-time"`
+	JSON      paymentJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r Payment) RawJSON() string { return r.JSON.raw }
-func (r *Payment) UnmarshalJSON(data []byte) error {
+// paymentJSON contains the JSON metadata for the struct [Payment]
+type paymentJSON struct {
+	Billing                  apijson.Field
+	BrandID                  apijson.Field
+	BusinessID               apijson.Field
+	CreatedAt                apijson.Field
+	Currency                 apijson.Field
+	Customer                 apijson.Field
+	DigitalProductsDelivered apijson.Field
+	Disputes                 apijson.Field
+	Metadata                 apijson.Field
+	PaymentID                apijson.Field
+	Refunds                  apijson.Field
+	SettlementAmount         apijson.Field
+	SettlementCurrency       apijson.Field
+	TotalAmount              apijson.Field
+	CardIssuingCountry       apijson.Field
+	CardLastFour             apijson.Field
+	CardNetwork              apijson.Field
+	CardType                 apijson.Field
+	CheckoutSessionID        apijson.Field
+	DiscountID               apijson.Field
+	ErrorCode                apijson.Field
+	ErrorMessage             apijson.Field
+	InvoiceID                apijson.Field
+	PaymentLink              apijson.Field
+	PaymentMethod            apijson.Field
+	PaymentMethodType        apijson.Field
+	ProductCart              apijson.Field
+	SettlementTax            apijson.Field
+	Status                   apijson.Field
+	SubscriptionID           apijson.Field
+	Tax                      apijson.Field
+	UpdatedAt                apijson.Field
+	raw                      string
+	ExtraFields              map[string]apijson.Field
+}
+
+func (r *Payment) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentJSON) RawJSON() string {
+	return r.raw
 }
 
 type PaymentRefund struct {
@@ -547,68 +421,60 @@ type PaymentRefund struct {
 	// The unique identifier of the refund.
 	RefundID string `json:"refund_id,required"`
 	// The current status of the refund.
-	//
-	// Any of "succeeded", "failed", "pending", "review".
 	Status RefundStatus `json:"status,required"`
 	// The refunded amount.
 	Amount int64 `json:"amount,nullable"`
 	// The currency of the refund, represented as an ISO 4217 currency code.
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
 	Currency Currency `json:"currency,nullable"`
 	// The reason provided for the refund, if any. Optional.
-	Reason string `json:"reason,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		BusinessID  respjson.Field
-		CreatedAt   respjson.Field
-		IsPartial   respjson.Field
-		PaymentID   respjson.Field
-		RefundID    respjson.Field
-		Status      respjson.Field
-		Amount      respjson.Field
-		Currency    respjson.Field
-		Reason      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	Reason string            `json:"reason,nullable"`
+	JSON   paymentRefundJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r PaymentRefund) RawJSON() string { return r.JSON.raw }
-func (r *PaymentRefund) UnmarshalJSON(data []byte) error {
+// paymentRefundJSON contains the JSON metadata for the struct [PaymentRefund]
+type paymentRefundJSON struct {
+	BusinessID  apijson.Field
+	CreatedAt   apijson.Field
+	IsPartial   apijson.Field
+	PaymentID   apijson.Field
+	RefundID    apijson.Field
+	Status      apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Reason      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PaymentRefund) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentRefundJSON) RawJSON() string {
+	return r.raw
 }
 
 type PaymentProductCart struct {
-	ProductID string `json:"product_id,required"`
-	Quantity  int64  `json:"quantity,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ProductID   respjson.Field
-		Quantity    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	ProductID string                 `json:"product_id,required"`
+	Quantity  int64                  `json:"quantity,required"`
+	JSON      paymentProductCartJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r PaymentProductCart) RawJSON() string { return r.JSON.raw }
-func (r *PaymentProductCart) UnmarshalJSON(data []byte) error {
+// paymentProductCartJSON contains the JSON metadata for the struct
+// [PaymentProductCart]
+type paymentProductCartJSON struct {
+	ProductID   apijson.Field
+	Quantity    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PaymentProductCart) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentProductCartJSON) RawJSON() string {
+	return r.raw
 }
 
 type PaymentMethodTypes string
@@ -635,6 +501,14 @@ const (
 	PaymentMethodTypesAfterpayClearpay PaymentMethodTypes = "afterpay_clearpay"
 )
 
+func (r PaymentMethodTypes) IsKnown() bool {
+	switch r {
+	case PaymentMethodTypesCredit, PaymentMethodTypesDebit, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesApplePay, PaymentMethodTypesCashapp, PaymentMethodTypesGooglePay, PaymentMethodTypesMultibanco, PaymentMethodTypesBancontactCard, PaymentMethodTypesEps, PaymentMethodTypesIdeal, PaymentMethodTypesPrzelewy24, PaymentMethodTypesPaypal, PaymentMethodTypesAffirm, PaymentMethodTypesKlarna, PaymentMethodTypesSepa, PaymentMethodTypesACH, PaymentMethodTypesAmazonPay, PaymentMethodTypesAfterpayClearpay:
+		return true
+	}
+	return false
+}
+
 type PaymentNewResponse struct {
 	// Client secret used to load Dodo checkout SDK NOTE : Dodo checkout SDK will be
 	// coming soon
@@ -655,234 +529,196 @@ type PaymentNewResponse struct {
 	PaymentLink string `json:"payment_link,nullable"`
 	// Optional list of products included in the payment
 	ProductCart []OneTimeProductCartItem `json:"product_cart,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ClientSecret respjson.Field
-		Customer     respjson.Field
-		Metadata     respjson.Field
-		PaymentID    respjson.Field
-		TotalAmount  respjson.Field
-		DiscountID   respjson.Field
-		ExpiresOn    respjson.Field
-		PaymentLink  respjson.Field
-		ProductCart  respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
-	} `json:"-"`
+	JSON        paymentNewResponseJSON   `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r PaymentNewResponse) RawJSON() string { return r.JSON.raw }
-func (r *PaymentNewResponse) UnmarshalJSON(data []byte) error {
+// paymentNewResponseJSON contains the JSON metadata for the struct
+// [PaymentNewResponse]
+type paymentNewResponseJSON struct {
+	ClientSecret apijson.Field
+	Customer     apijson.Field
+	Metadata     apijson.Field
+	PaymentID    apijson.Field
+	TotalAmount  apijson.Field
+	DiscountID   apijson.Field
+	ExpiresOn    apijson.Field
+	PaymentLink  apijson.Field
+	ProductCart  apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *PaymentNewResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentNewResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type PaymentListResponse struct {
-	BrandID   string    `json:"brand_id,required"`
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	Currency                 Currency               `json:"currency,required"`
-	Customer                 CustomerLimitedDetails `json:"customer,required"`
-	DigitalProductsDelivered bool                   `json:"digital_products_delivered,required"`
-	Metadata                 map[string]string      `json:"metadata,required"`
-	PaymentID                string                 `json:"payment_id,required"`
-	TotalAmount              int64                  `json:"total_amount,required"`
-	PaymentMethod            string                 `json:"payment_method,nullable"`
-	PaymentMethodType        string                 `json:"payment_method_type,nullable"`
-	// Any of "succeeded", "failed", "cancelled", "processing",
-	// "requires_customer_action", "requires_merchant_action",
-	// "requires_payment_method", "requires_confirmation", "requires_capture",
-	// "partially_captured", "partially_captured_and_capturable".
-	Status         IntentStatus `json:"status,nullable"`
-	SubscriptionID string       `json:"subscription_id,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		BrandID                  respjson.Field
-		CreatedAt                respjson.Field
-		Currency                 respjson.Field
-		Customer                 respjson.Field
-		DigitalProductsDelivered respjson.Field
-		Metadata                 respjson.Field
-		PaymentID                respjson.Field
-		TotalAmount              respjson.Field
-		PaymentMethod            respjson.Field
-		PaymentMethodType        respjson.Field
-		Status                   respjson.Field
-		SubscriptionID           respjson.Field
-		ExtraFields              map[string]respjson.Field
-		raw                      string
-	} `json:"-"`
+	BrandID                  string                  `json:"brand_id,required"`
+	CreatedAt                time.Time               `json:"created_at,required" format:"date-time"`
+	Currency                 Currency                `json:"currency,required"`
+	Customer                 CustomerLimitedDetails  `json:"customer,required"`
+	DigitalProductsDelivered bool                    `json:"digital_products_delivered,required"`
+	Metadata                 map[string]string       `json:"metadata,required"`
+	PaymentID                string                  `json:"payment_id,required"`
+	TotalAmount              int64                   `json:"total_amount,required"`
+	PaymentMethod            string                  `json:"payment_method,nullable"`
+	PaymentMethodType        string                  `json:"payment_method_type,nullable"`
+	Status                   IntentStatus            `json:"status,nullable"`
+	SubscriptionID           string                  `json:"subscription_id,nullable"`
+	JSON                     paymentListResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r PaymentListResponse) RawJSON() string { return r.JSON.raw }
-func (r *PaymentListResponse) UnmarshalJSON(data []byte) error {
+// paymentListResponseJSON contains the JSON metadata for the struct
+// [PaymentListResponse]
+type paymentListResponseJSON struct {
+	BrandID                  apijson.Field
+	CreatedAt                apijson.Field
+	Currency                 apijson.Field
+	Customer                 apijson.Field
+	DigitalProductsDelivered apijson.Field
+	Metadata                 apijson.Field
+	PaymentID                apijson.Field
+	TotalAmount              apijson.Field
+	PaymentMethod            apijson.Field
+	PaymentMethodType        apijson.Field
+	Status                   apijson.Field
+	SubscriptionID           apijson.Field
+	raw                      string
+	ExtraFields              map[string]apijson.Field
+}
+
+func (r *PaymentListResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentListResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type PaymentGetLineItemsResponse struct {
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
 	Currency Currency                          `json:"currency,required"`
 	Items    []PaymentGetLineItemsResponseItem `json:"items,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Currency    respjson.Field
-		Items       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	JSON     paymentGetLineItemsResponseJSON   `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r PaymentGetLineItemsResponse) RawJSON() string { return r.JSON.raw }
-func (r *PaymentGetLineItemsResponse) UnmarshalJSON(data []byte) error {
+// paymentGetLineItemsResponseJSON contains the JSON metadata for the struct
+// [PaymentGetLineItemsResponse]
+type paymentGetLineItemsResponseJSON struct {
+	Currency    apijson.Field
+	Items       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PaymentGetLineItemsResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentGetLineItemsResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type PaymentGetLineItemsResponseItem struct {
-	Amount           int64  `json:"amount,required"`
-	ItemsID          string `json:"items_id,required"`
-	RefundableAmount int64  `json:"refundable_amount,required"`
-	Tax              int64  `json:"tax,required"`
-	Description      string `json:"description,nullable"`
-	Name             string `json:"name,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Amount           respjson.Field
-		ItemsID          respjson.Field
-		RefundableAmount respjson.Field
-		Tax              respjson.Field
-		Description      respjson.Field
-		Name             respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
+	Amount           int64                               `json:"amount,required"`
+	ItemsID          string                              `json:"items_id,required"`
+	RefundableAmount int64                               `json:"refundable_amount,required"`
+	Tax              int64                               `json:"tax,required"`
+	Description      string                              `json:"description,nullable"`
+	Name             string                              `json:"name,nullable"`
+	JSON             paymentGetLineItemsResponseItemJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r PaymentGetLineItemsResponseItem) RawJSON() string { return r.JSON.raw }
-func (r *PaymentGetLineItemsResponseItem) UnmarshalJSON(data []byte) error {
+// paymentGetLineItemsResponseItemJSON contains the JSON metadata for the struct
+// [PaymentGetLineItemsResponseItem]
+type paymentGetLineItemsResponseItemJSON struct {
+	Amount           apijson.Field
+	ItemsID          apijson.Field
+	RefundableAmount apijson.Field
+	Tax              apijson.Field
+	Description      apijson.Field
+	Name             apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *PaymentGetLineItemsResponseItem) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentGetLineItemsResponseItemJSON) RawJSON() string {
+	return r.raw
 }
 
 type PaymentNewParams struct {
 	// Billing address details for the payment
-	Billing BillingAddressParam `json:"billing,omitzero,required"`
+	Billing param.Field[BillingAddressParam] `json:"billing,required"`
 	// Customer information for the payment
-	Customer CustomerRequestUnionParam `json:"customer,omitzero,required"`
+	Customer param.Field[CustomerRequestUnionParam] `json:"customer,required"`
 	// List of products in the cart. Must contain at least 1 and at most 100 items.
-	ProductCart []OneTimeProductCartItemParam `json:"product_cart,omitzero,required"`
-	// Discount Code to apply to the transaction
-	DiscountCode param.Opt[string] `json:"discount_code,omitzero"`
-	// Override merchant default 3DS behaviour for this payment
-	Force3DS param.Opt[bool] `json:"force_3ds,omitzero"`
-	// Whether to generate a payment link. Defaults to false if not specified.
-	PaymentLink param.Opt[bool] `json:"payment_link,omitzero"`
-	// Optional URL to redirect the customer after payment. Must be a valid URL if
-	// provided.
-	ReturnURL param.Opt[string] `json:"return_url,omitzero"`
-	// If true, returns a shortened payment link. Defaults to false if not specified.
-	ShortLink param.Opt[bool] `json:"short_link,omitzero"`
-	// Tax ID in case the payment is B2B. If tax id validation fails the payment
-	// creation will fail
-	TaxID param.Opt[string] `json:"tax_id,omitzero"`
-	// If true, redirects the customer immediately after payment completion False by
-	// default
-	RedirectImmediately param.Opt[bool] `json:"redirect_immediately,omitzero"`
-	// Display saved payment methods of a returning customer False by default
-	ShowSavedPaymentMethods param.Opt[bool] `json:"show_saved_payment_methods,omitzero"`
+	ProductCart param.Field[[]OneTimeProductCartItemParam] `json:"product_cart,required"`
 	// List of payment methods allowed during checkout.
 	//
 	// Customers will **never** see payment methods that are **not** in this list.
 	// However, adding a method here **does not guarantee** customers will see it.
 	// Availability still depends on other factors (e.g., customer location, merchant
 	// settings).
-	AllowedPaymentMethodTypes []PaymentMethodTypes `json:"allowed_payment_method_types,omitzero"`
+	AllowedPaymentMethodTypes param.Field[[]PaymentMethodTypes] `json:"allowed_payment_method_types"`
 	// Fix the currency in which the end customer is billed. If Dodo Payments cannot
 	// support that currency for this transaction, it will not proceed
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	BillingCurrency Currency `json:"billing_currency,omitzero"`
+	BillingCurrency param.Field[Currency] `json:"billing_currency"`
+	// Discount Code to apply to the transaction
+	DiscountCode param.Field[string] `json:"discount_code"`
+	// Override merchant default 3DS behaviour for this payment
+	Force3DS param.Field[bool] `json:"force_3ds"`
 	// Additional metadata associated with the payment. Defaults to empty if not
 	// provided.
-	Metadata map[string]string `json:"metadata,omitzero"`
-	paramObj
+	Metadata param.Field[map[string]string] `json:"metadata"`
+	// Whether to generate a payment link. Defaults to false if not specified.
+	PaymentLink param.Field[bool] `json:"payment_link"`
+	// If true, redirects the customer immediately after payment completion False by
+	// default
+	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`
+	// Optional URL to redirect the customer after payment. Must be a valid URL if
+	// provided.
+	ReturnURL param.Field[string] `json:"return_url"`
+	// If true, returns a shortened payment link. Defaults to false if not specified.
+	ShortLink param.Field[bool] `json:"short_link"`
+	// Display saved payment methods of a returning customer False by default
+	ShowSavedPaymentMethods param.Field[bool] `json:"show_saved_payment_methods"`
+	// Tax ID in case the payment is B2B. If tax id validation fails the payment
+	// creation will fail
+	TaxID param.Field[string] `json:"tax_id"`
 }
 
 func (r PaymentNewParams) MarshalJSON() (data []byte, err error) {
-	type shadow PaymentNewParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *PaymentNewParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type PaymentListParams struct {
 	// filter by Brand id
-	BrandID param.Opt[string] `query:"brand_id,omitzero" json:"-"`
+	BrandID param.Field[string] `query:"brand_id"`
 	// Get events after this created time
-	CreatedAtGte param.Opt[time.Time] `query:"created_at_gte,omitzero" format:"date-time" json:"-"`
+	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
 	// Get events created before this time
-	CreatedAtLte param.Opt[time.Time] `query:"created_at_lte,omitzero" format:"date-time" json:"-"`
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
 	// Filter by customer id
-	CustomerID param.Opt[string] `query:"customer_id,omitzero" json:"-"`
+	CustomerID param.Field[string] `query:"customer_id"`
 	// Page number default is 0
-	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
+	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
-	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
-	// Filter by subscription id
-	SubscriptionID param.Opt[string] `query:"subscription_id,omitzero" json:"-"`
+	PageSize param.Field[int64] `query:"page_size"`
 	// Filter by status
-	//
-	// Any of "succeeded", "failed", "cancelled", "processing",
-	// "requires_customer_action", "requires_merchant_action",
-	// "requires_payment_method", "requires_confirmation", "requires_capture",
-	// "partially_captured", "partially_captured_and_capturable".
-	Status PaymentListParamsStatus `query:"status,omitzero" json:"-"`
-	paramObj
+	Status param.Field[PaymentListParamsStatus] `query:"status"`
+	// Filter by subscription id
+	SubscriptionID param.Field[string] `query:"subscription_id"`
 }
 
 // URLQuery serializes [PaymentListParams]'s query parameters as `url.Values`.
-func (r PaymentListParams) URLQuery() (v url.Values, err error) {
+func (r PaymentListParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
@@ -905,3 +741,11 @@ const (
 	PaymentListParamsStatusPartiallyCaptured              PaymentListParamsStatus = "partially_captured"
 	PaymentListParamsStatusPartiallyCapturedAndCapturable PaymentListParamsStatus = "partially_captured_and_capturable"
 )
+
+func (r PaymentListParamsStatus) IsKnown() bool {
+	switch r {
+	case PaymentListParamsStatusSucceeded, PaymentListParamsStatusFailed, PaymentListParamsStatusCancelled, PaymentListParamsStatusProcessing, PaymentListParamsStatusRequiresCustomerAction, PaymentListParamsStatusRequiresMerchantAction, PaymentListParamsStatusRequiresPaymentMethod, PaymentListParamsStatusRequiresConfirmation, PaymentListParamsStatusRequiresCapture, PaymentListParamsStatusPartiallyCaptured, PaymentListParamsStatusPartiallyCapturedAndCapturable:
+		return true
+	}
+	return false
+}

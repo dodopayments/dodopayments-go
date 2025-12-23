@@ -26,11 +26,11 @@ func TestAddonNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Addons.New(context.TODO(), dodopayments.AddonNewParams{
-		Currency:    dodopayments.CurrencyAed,
-		Name:        "name",
-		Price:       0,
-		TaxCategory: dodopayments.TaxCategoryDigitalProducts,
-		Description: dodopayments.String("description"),
+		Currency:    dodopayments.F(dodopayments.CurrencyAed),
+		Name:        dodopayments.F("name"),
+		Price:       dodopayments.F(int64(0)),
+		TaxCategory: dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
+		Description: dodopayments.F("description"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -79,12 +79,12 @@ func TestAddonUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.AddonUpdateParams{
-			Currency:    dodopayments.CurrencyAed,
-			Description: dodopayments.String("description"),
-			ImageID:     dodopayments.String("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
-			Name:        dodopayments.String("name"),
-			Price:       dodopayments.Int(0),
-			TaxCategory: dodopayments.TaxCategoryDigitalProducts,
+			Currency:    dodopayments.F(dodopayments.CurrencyAed),
+			Description: dodopayments.F("description"),
+			ImageID:     dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
+			Name:        dodopayments.F("name"),
+			Price:       dodopayments.F(int64(0)),
+			TaxCategory: dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
 		},
 	)
 	if err != nil {
@@ -109,8 +109,8 @@ func TestAddonListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Addons.List(context.TODO(), dodopayments.AddonListParams{
-		PageNumber: dodopayments.Int(0),
-		PageSize:   dodopayments.Int(0),
+		PageNumber: dodopayments.F(int64(0)),
+		PageSize:   dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

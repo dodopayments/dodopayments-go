@@ -19,8 +19,8 @@ type WebhookEventService struct {
 // NewWebhookEventService generates a new service that applies the given options to
 // each request. These options are applied after the parent client's options (if
 // there is one), and before any request-specific options.
-func NewWebhookEventService(opts ...option.RequestOption) (r WebhookEventService) {
-	r = WebhookEventService{}
+func NewWebhookEventService(opts ...option.RequestOption) (r *WebhookEventService) {
+	r = &WebhookEventService{}
 	r.Options = opts
 	return
 }
@@ -52,3 +52,11 @@ const (
 	WebhookEventTypeSubscriptionUpdated     WebhookEventType = "subscription.updated"
 	WebhookEventTypeLicenseKeyCreated       WebhookEventType = "license_key.created"
 )
+
+func (r WebhookEventType) IsKnown() bool {
+	switch r {
+	case WebhookEventTypePaymentSucceeded, WebhookEventTypePaymentFailed, WebhookEventTypePaymentProcessing, WebhookEventTypePaymentCancelled, WebhookEventTypeRefundSucceeded, WebhookEventTypeRefundFailed, WebhookEventTypeDisputeOpened, WebhookEventTypeDisputeExpired, WebhookEventTypeDisputeAccepted, WebhookEventTypeDisputeCancelled, WebhookEventTypeDisputeChallenged, WebhookEventTypeDisputeWon, WebhookEventTypeDisputeLost, WebhookEventTypeSubscriptionActive, WebhookEventTypeSubscriptionRenewed, WebhookEventTypeSubscriptionOnHold, WebhookEventTypeSubscriptionCancelled, WebhookEventTypeSubscriptionFailed, WebhookEventTypeSubscriptionExpired, WebhookEventTypeSubscriptionPlanChanged, WebhookEventTypeSubscriptionUpdated, WebhookEventTypeLicenseKeyCreated:
+		return true
+	}
+	return false
+}

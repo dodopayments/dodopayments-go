@@ -4,21 +4,21 @@ package dodopayments
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
-	"github.com/dodopayments/dodopayments-go/packages/param"
-	"github.com/dodopayments/dodopayments-go/packages/respjson"
+	"github.com/tidwall/gjson"
 )
 
 // SubscriptionService contains methods and other services that help with
@@ -34,8 +34,8 @@ type SubscriptionService struct {
 // NewSubscriptionService generates a new service that applies the given options to
 // each request. These options are applied after the parent client's options (if
 // there is one), and before any request-specific options.
-func NewSubscriptionService(opts ...option.RequestOption) (r SubscriptionService) {
-	r = SubscriptionService{}
+func NewSubscriptionService(opts ...option.RequestOption) (r *SubscriptionService) {
+	r = &SubscriptionService{}
 	r.Options = opts
 	return
 }
@@ -247,81 +247,59 @@ func (r *SubscriptionService) UpdatePaymentMethod(ctx context.Context, subscript
 
 // Response struct representing subscription details
 type AddonCartResponseItem struct {
-	AddonID  string `json:"addon_id,required"`
-	Quantity int64  `json:"quantity,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		AddonID     respjson.Field
-		Quantity    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	AddonID  string                    `json:"addon_id,required"`
+	Quantity int64                     `json:"quantity,required"`
+	JSON     addonCartResponseItemJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r AddonCartResponseItem) RawJSON() string { return r.JSON.raw }
-func (r *AddonCartResponseItem) UnmarshalJSON(data []byte) error {
+// addonCartResponseItemJSON contains the JSON metadata for the struct
+// [AddonCartResponseItem]
+type addonCartResponseItemJSON struct {
+	AddonID     apijson.Field
+	Quantity    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AddonCartResponseItem) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// The properties AddonID, Quantity are required.
+func (r addonCartResponseItemJSON) RawJSON() string {
+	return r.raw
+}
+
 type AttachAddonParam struct {
-	AddonID  string `json:"addon_id,required"`
-	Quantity int64  `json:"quantity,required"`
-	paramObj
+	AddonID  param.Field[string] `json:"addon_id,required"`
+	Quantity param.Field[int64]  `json:"quantity,required"`
 }
 
 func (r AttachAddonParam) MarshalJSON() (data []byte, err error) {
-	type shadow AttachAddonParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *AttachAddonParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
-// The property MandateOnly is required.
 type OnDemandSubscriptionParam struct {
 	// If set as True, does not perform any charge and only authorizes payment method
 	// details for future use.
-	MandateOnly bool `json:"mandate_only,required"`
+	MandateOnly param.Field[bool] `json:"mandate_only,required"`
 	// Whether adaptive currency fees should be included in the product_price (true) or
 	// added on top (false). This field is ignored if adaptive pricing is not enabled
 	// for the business.
-	AdaptiveCurrencyFeesInclusive param.Opt[bool] `json:"adaptive_currency_fees_inclusive,omitzero"`
+	AdaptiveCurrencyFeesInclusive param.Field[bool] `json:"adaptive_currency_fees_inclusive"`
+	// Optional currency of the product price. If not specified, defaults to the
+	// currency of the product.
+	ProductCurrency param.Field[Currency] `json:"product_currency"`
 	// Optional product description override for billing and line items. If not
 	// specified, the stored description of the product will be used.
-	ProductDescription param.Opt[string] `json:"product_description,omitzero"`
+	ProductDescription param.Field[string] `json:"product_description"`
 	// Product price for the initial charge to customer If not specified the stored
 	// price of the product will be used Represented in the lowest denomination of the
 	// currency (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	ProductPrice param.Opt[int64] `json:"product_price,omitzero"`
-	// Optional currency of the product price. If not specified, defaults to the
-	// currency of the product.
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	ProductCurrency Currency `json:"product_currency,omitzero"`
-	paramObj
+	ProductPrice param.Field[int64] `json:"product_price"`
 }
 
 func (r OnDemandSubscriptionParam) MarshalJSON() (data []byte, err error) {
-	type shadow OnDemandSubscriptionParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *OnDemandSubscriptionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 // Response struct representing subscription details
@@ -335,21 +313,6 @@ type Subscription struct {
 	// Timestamp when the subscription was created
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
 	// Currency used for the subscription payments
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
 	Currency Currency `json:"currency,required"`
 	// Customer details associated with the subscription
 	Customer CustomerLimitedDetails `json:"customer,required"`
@@ -365,8 +328,6 @@ type Subscription struct {
 	// Number of payment frequency intervals
 	PaymentFrequencyCount int64 `json:"payment_frequency_count,required"`
 	// Time interval for payment frequency (e.g. month, year)
-	//
-	// Any of "Day", "Week", "Month", "Year".
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
 	// Timestamp of the last payment. Indicates the start of current billing period
 	PreviousBillingDate time.Time `json:"previous_billing_date,required" format:"date-time"`
@@ -378,16 +339,12 @@ type Subscription struct {
 	// (e.g. cents)
 	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount,required"`
 	// Current status of the subscription
-	//
-	// Any of "pending", "active", "on_hold", "cancelled", "failed", "expired".
 	Status SubscriptionStatus `json:"status,required"`
 	// Unique identifier for the subscription
 	SubscriptionID string `json:"subscription_id,required"`
 	// Number of subscription period intervals
 	SubscriptionPeriodCount int64 `json:"subscription_period_count,required"`
 	// Time interval for the subscription period (e.g. month, year)
-	//
-	// Any of "Day", "Week", "Month", "Year".
 	SubscriptionPeriodInterval TimeInterval `json:"subscription_period_interval,required"`
 	// Indicates if the recurring_pre_tax_amount is tax inclusive
 	TaxInclusive bool `json:"tax_inclusive,required"`
@@ -404,89 +361,84 @@ type Subscription struct {
 	// Saved payment method id used for recurring charges
 	PaymentMethodID string `json:"payment_method_id,nullable"`
 	// Tax identifier provided for this subscription (if applicable)
-	TaxID string `json:"tax_id,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Addons                     respjson.Field
-		Billing                    respjson.Field
-		CancelAtNextBillingDate    respjson.Field
-		CreatedAt                  respjson.Field
-		Currency                   respjson.Field
-		Customer                   respjson.Field
-		Metadata                   respjson.Field
-		Meters                     respjson.Field
-		NextBillingDate            respjson.Field
-		OnDemand                   respjson.Field
-		PaymentFrequencyCount      respjson.Field
-		PaymentFrequencyInterval   respjson.Field
-		PreviousBillingDate        respjson.Field
-		ProductID                  respjson.Field
-		Quantity                   respjson.Field
-		RecurringPreTaxAmount      respjson.Field
-		Status                     respjson.Field
-		SubscriptionID             respjson.Field
-		SubscriptionPeriodCount    respjson.Field
-		SubscriptionPeriodInterval respjson.Field
-		TaxInclusive               respjson.Field
-		TrialPeriodDays            respjson.Field
-		CancelledAt                respjson.Field
-		DiscountCyclesRemaining    respjson.Field
-		DiscountID                 respjson.Field
-		ExpiresAt                  respjson.Field
-		PaymentMethodID            respjson.Field
-		TaxID                      respjson.Field
-		ExtraFields                map[string]respjson.Field
-		raw                        string
-	} `json:"-"`
+	TaxID string           `json:"tax_id,nullable"`
+	JSON  subscriptionJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r Subscription) RawJSON() string { return r.JSON.raw }
-func (r *Subscription) UnmarshalJSON(data []byte) error {
+// subscriptionJSON contains the JSON metadata for the struct [Subscription]
+type subscriptionJSON struct {
+	Addons                     apijson.Field
+	Billing                    apijson.Field
+	CancelAtNextBillingDate    apijson.Field
+	CreatedAt                  apijson.Field
+	Currency                   apijson.Field
+	Customer                   apijson.Field
+	Metadata                   apijson.Field
+	Meters                     apijson.Field
+	NextBillingDate            apijson.Field
+	OnDemand                   apijson.Field
+	PaymentFrequencyCount      apijson.Field
+	PaymentFrequencyInterval   apijson.Field
+	PreviousBillingDate        apijson.Field
+	ProductID                  apijson.Field
+	Quantity                   apijson.Field
+	RecurringPreTaxAmount      apijson.Field
+	Status                     apijson.Field
+	SubscriptionID             apijson.Field
+	SubscriptionPeriodCount    apijson.Field
+	SubscriptionPeriodInterval apijson.Field
+	TaxInclusive               apijson.Field
+	TrialPeriodDays            apijson.Field
+	CancelledAt                apijson.Field
+	DiscountCyclesRemaining    apijson.Field
+	DiscountID                 apijson.Field
+	ExpiresAt                  apijson.Field
+	PaymentMethodID            apijson.Field
+	TaxID                      apijson.Field
+	raw                        string
+	ExtraFields                map[string]apijson.Field
+}
+
+func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionJSON) RawJSON() string {
+	return r.raw
 }
 
 // Response struct representing usage-based meter cart details for a subscription
 type SubscriptionMeter struct {
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	Currency        Currency `json:"currency,required"`
-	FreeThreshold   int64    `json:"free_threshold,required"`
-	MeasurementUnit string   `json:"measurement_unit,required"`
-	MeterID         string   `json:"meter_id,required"`
-	Name            string   `json:"name,required"`
-	PricePerUnit    string   `json:"price_per_unit,required"`
-	Description     string   `json:"description,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Currency        respjson.Field
-		FreeThreshold   respjson.Field
-		MeasurementUnit respjson.Field
-		MeterID         respjson.Field
-		Name            respjson.Field
-		PricePerUnit    respjson.Field
-		Description     respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
+	Currency        Currency              `json:"currency,required"`
+	FreeThreshold   int64                 `json:"free_threshold,required"`
+	MeasurementUnit string                `json:"measurement_unit,required"`
+	MeterID         string                `json:"meter_id,required"`
+	Name            string                `json:"name,required"`
+	PricePerUnit    string                `json:"price_per_unit,required"`
+	Description     string                `json:"description,nullable"`
+	JSON            subscriptionMeterJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionMeter) RawJSON() string { return r.JSON.raw }
-func (r *SubscriptionMeter) UnmarshalJSON(data []byte) error {
+// subscriptionMeterJSON contains the JSON metadata for the struct
+// [SubscriptionMeter]
+type subscriptionMeterJSON struct {
+	Currency        apijson.Field
+	FreeThreshold   apijson.Field
+	MeasurementUnit apijson.Field
+	MeterID         apijson.Field
+	Name            apijson.Field
+	PricePerUnit    apijson.Field
+	Description     apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *SubscriptionMeter) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionMeterJSON) RawJSON() string {
+	return r.raw
 }
 
 type SubscriptionStatus string
@@ -500,6 +452,14 @@ const (
 	SubscriptionStatusExpired   SubscriptionStatus = "expired"
 )
 
+func (r SubscriptionStatus) IsKnown() bool {
+	switch r {
+	case SubscriptionStatusPending, SubscriptionStatusActive, SubscriptionStatusOnHold, SubscriptionStatusCancelled, SubscriptionStatusFailed, SubscriptionStatusExpired:
+		return true
+	}
+	return false
+}
+
 type TimeInterval string
 
 const (
@@ -508,6 +468,14 @@ const (
 	TimeIntervalMonth TimeInterval = "Month"
 	TimeIntervalYear  TimeInterval = "Year"
 )
+
+func (r TimeInterval) IsKnown() bool {
+	switch r {
+	case TimeIntervalDay, TimeIntervalWeek, TimeIntervalMonth, TimeIntervalYear:
+		return true
+	}
+	return false
+}
 
 type SubscriptionNewResponse struct {
 	// Addons associated with this subscription
@@ -533,47 +501,57 @@ type SubscriptionNewResponse struct {
 	// One time products associated with the purchase of subscription
 	OneTimeProductCart []SubscriptionNewResponseOneTimeProductCart `json:"one_time_product_cart,nullable"`
 	// URL to checkout page
-	PaymentLink string `json:"payment_link,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Addons                respjson.Field
-		Customer              respjson.Field
-		Metadata              respjson.Field
-		PaymentID             respjson.Field
-		RecurringPreTaxAmount respjson.Field
-		SubscriptionID        respjson.Field
-		ClientSecret          respjson.Field
-		DiscountID            respjson.Field
-		ExpiresOn             respjson.Field
-		OneTimeProductCart    respjson.Field
-		PaymentLink           respjson.Field
-		ExtraFields           map[string]respjson.Field
-		raw                   string
-	} `json:"-"`
+	PaymentLink string                      `json:"payment_link,nullable"`
+	JSON        subscriptionNewResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionNewResponse) RawJSON() string { return r.JSON.raw }
-func (r *SubscriptionNewResponse) UnmarshalJSON(data []byte) error {
+// subscriptionNewResponseJSON contains the JSON metadata for the struct
+// [SubscriptionNewResponse]
+type subscriptionNewResponseJSON struct {
+	Addons                apijson.Field
+	Customer              apijson.Field
+	Metadata              apijson.Field
+	PaymentID             apijson.Field
+	RecurringPreTaxAmount apijson.Field
+	SubscriptionID        apijson.Field
+	ClientSecret          apijson.Field
+	DiscountID            apijson.Field
+	ExpiresOn             apijson.Field
+	OneTimeProductCart    apijson.Field
+	PaymentLink           apijson.Field
+	raw                   string
+	ExtraFields           map[string]apijson.Field
+}
+
+func (r *SubscriptionNewResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionNewResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type SubscriptionNewResponseOneTimeProductCart struct {
-	ProductID string `json:"product_id,required"`
-	Quantity  int64  `json:"quantity,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ProductID   respjson.Field
-		Quantity    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	ProductID string                                        `json:"product_id,required"`
+	Quantity  int64                                         `json:"quantity,required"`
+	JSON      subscriptionNewResponseOneTimeProductCartJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionNewResponseOneTimeProductCart) RawJSON() string { return r.JSON.raw }
-func (r *SubscriptionNewResponseOneTimeProductCart) UnmarshalJSON(data []byte) error {
+// subscriptionNewResponseOneTimeProductCartJSON contains the JSON metadata for the
+// struct [SubscriptionNewResponseOneTimeProductCart]
+type subscriptionNewResponseOneTimeProductCartJSON struct {
+	ProductID   apijson.Field
+	Quantity    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionNewResponseOneTimeProductCart) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionNewResponseOneTimeProductCartJSON) RawJSON() string {
+	return r.raw
 }
 
 // Response struct representing subscription details
@@ -585,21 +563,6 @@ type SubscriptionListResponse struct {
 	// Timestamp when the subscription was created
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
 	// Currency used for the subscription payments
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
 	Currency Currency `json:"currency,required"`
 	// Customer details associated with the subscription
 	Customer CustomerLimitedDetails `json:"customer,required"`
@@ -613,8 +576,6 @@ type SubscriptionListResponse struct {
 	// Number of payment frequency intervals
 	PaymentFrequencyCount int64 `json:"payment_frequency_count,required"`
 	// Time interval for payment frequency (e.g. month, year)
-	//
-	// Any of "Day", "Week", "Month", "Year".
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
 	// Timestamp of the last payment. Indicates the start of current billing period
 	PreviousBillingDate time.Time `json:"previous_billing_date,required" format:"date-time"`
@@ -626,16 +587,12 @@ type SubscriptionListResponse struct {
 	// (e.g. cents)
 	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount,required"`
 	// Current status of the subscription
-	//
-	// Any of "pending", "active", "on_hold", "cancelled", "failed", "expired".
 	Status SubscriptionStatus `json:"status,required"`
 	// Unique identifier for the subscription
 	SubscriptionID string `json:"subscription_id,required"`
 	// Number of subscription period intervals
 	SubscriptionPeriodCount int64 `json:"subscription_period_count,required"`
 	// Time interval for the subscription period (e.g. month, year)
-	//
-	// Any of "Day", "Week", "Month", "Year".
 	SubscriptionPeriodInterval TimeInterval `json:"subscription_period_interval,required"`
 	// Indicates if the recurring_pre_tax_amount is tax inclusive
 	TaxInclusive bool `json:"tax_inclusive,required"`
@@ -650,414 +607,456 @@ type SubscriptionListResponse struct {
 	// Saved payment method id used for recurring charges
 	PaymentMethodID string `json:"payment_method_id,nullable"`
 	// Tax identifier provided for this subscription (if applicable)
-	TaxID string `json:"tax_id,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Billing                    respjson.Field
-		CancelAtNextBillingDate    respjson.Field
-		CreatedAt                  respjson.Field
-		Currency                   respjson.Field
-		Customer                   respjson.Field
-		Metadata                   respjson.Field
-		NextBillingDate            respjson.Field
-		OnDemand                   respjson.Field
-		PaymentFrequencyCount      respjson.Field
-		PaymentFrequencyInterval   respjson.Field
-		PreviousBillingDate        respjson.Field
-		ProductID                  respjson.Field
-		Quantity                   respjson.Field
-		RecurringPreTaxAmount      respjson.Field
-		Status                     respjson.Field
-		SubscriptionID             respjson.Field
-		SubscriptionPeriodCount    respjson.Field
-		SubscriptionPeriodInterval respjson.Field
-		TaxInclusive               respjson.Field
-		TrialPeriodDays            respjson.Field
-		CancelledAt                respjson.Field
-		DiscountCyclesRemaining    respjson.Field
-		DiscountID                 respjson.Field
-		PaymentMethodID            respjson.Field
-		TaxID                      respjson.Field
-		ExtraFields                map[string]respjson.Field
-		raw                        string
-	} `json:"-"`
+	TaxID string                       `json:"tax_id,nullable"`
+	JSON  subscriptionListResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionListResponse) RawJSON() string { return r.JSON.raw }
-func (r *SubscriptionListResponse) UnmarshalJSON(data []byte) error {
+// subscriptionListResponseJSON contains the JSON metadata for the struct
+// [SubscriptionListResponse]
+type subscriptionListResponseJSON struct {
+	Billing                    apijson.Field
+	CancelAtNextBillingDate    apijson.Field
+	CreatedAt                  apijson.Field
+	Currency                   apijson.Field
+	Customer                   apijson.Field
+	Metadata                   apijson.Field
+	NextBillingDate            apijson.Field
+	OnDemand                   apijson.Field
+	PaymentFrequencyCount      apijson.Field
+	PaymentFrequencyInterval   apijson.Field
+	PreviousBillingDate        apijson.Field
+	ProductID                  apijson.Field
+	Quantity                   apijson.Field
+	RecurringPreTaxAmount      apijson.Field
+	Status                     apijson.Field
+	SubscriptionID             apijson.Field
+	SubscriptionPeriodCount    apijson.Field
+	SubscriptionPeriodInterval apijson.Field
+	TaxInclusive               apijson.Field
+	TrialPeriodDays            apijson.Field
+	CancelledAt                apijson.Field
+	DiscountCyclesRemaining    apijson.Field
+	DiscountID                 apijson.Field
+	PaymentMethodID            apijson.Field
+	TaxID                      apijson.Field
+	raw                        string
+	ExtraFields                map[string]apijson.Field
+}
+
+func (r *SubscriptionListResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionListResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type SubscriptionChargeResponse struct {
-	PaymentID string `json:"payment_id,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		PaymentID   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	PaymentID string                         `json:"payment_id,required"`
+	JSON      subscriptionChargeResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionChargeResponse) RawJSON() string { return r.JSON.raw }
-func (r *SubscriptionChargeResponse) UnmarshalJSON(data []byte) error {
+// subscriptionChargeResponseJSON contains the JSON metadata for the struct
+// [SubscriptionChargeResponse]
+type subscriptionChargeResponseJSON struct {
+	PaymentID   apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionChargeResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionChargeResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type SubscriptionPreviewChangePlanResponse struct {
 	ImmediateCharge SubscriptionPreviewChangePlanResponseImmediateCharge `json:"immediate_charge,required"`
 	// Response struct representing subscription details
-	NewPlan Subscription `json:"new_plan,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ImmediateCharge respjson.Field
-		NewPlan         respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
+	NewPlan Subscription                              `json:"new_plan,required"`
+	JSON    subscriptionPreviewChangePlanResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionPreviewChangePlanResponse) RawJSON() string { return r.JSON.raw }
-func (r *SubscriptionPreviewChangePlanResponse) UnmarshalJSON(data []byte) error {
+// subscriptionPreviewChangePlanResponseJSON contains the JSON metadata for the
+// struct [SubscriptionPreviewChangePlanResponse]
+type subscriptionPreviewChangePlanResponseJSON struct {
+	ImmediateCharge apijson.Field
+	NewPlan         apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *SubscriptionPreviewChangePlanResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionPreviewChangePlanResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type SubscriptionPreviewChangePlanResponseImmediateCharge struct {
-	LineItems []SubscriptionPreviewChangePlanResponseImmediateChargeLineItemUnion `json:"line_items,required"`
-	Summary   SubscriptionPreviewChangePlanResponseImmediateChargeSummary         `json:"summary,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		LineItems   respjson.Field
-		Summary     respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	LineItems []SubscriptionPreviewChangePlanResponseImmediateChargeLineItem `json:"line_items,required"`
+	Summary   SubscriptionPreviewChangePlanResponseImmediateChargeSummary    `json:"summary,required"`
+	JSON      subscriptionPreviewChangePlanResponseImmediateChargeJSON       `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionPreviewChangePlanResponseImmediateCharge) RawJSON() string { return r.JSON.raw }
-func (r *SubscriptionPreviewChangePlanResponseImmediateCharge) UnmarshalJSON(data []byte) error {
+// subscriptionPreviewChangePlanResponseImmediateChargeJSON contains the JSON
+// metadata for the struct [SubscriptionPreviewChangePlanResponseImmediateCharge]
+type subscriptionPreviewChangePlanResponseImmediateChargeJSON struct {
+	LineItems   apijson.Field
+	Summary     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionPreviewChangePlanResponseImmediateCharge) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// SubscriptionPreviewChangePlanResponseImmediateChargeLineItemUnion contains all
-// possible properties and values from
-// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemSubscription],
-// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemAddon],
-// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemMeter].
+func (r subscriptionPreviewChangePlanResponseImmediateChargeJSON) RawJSON() string {
+	return r.raw
+}
+
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItem struct {
+	ID              string                                                            `json:"id,required"`
+	Currency        Currency                                                          `json:"currency,required"`
+	TaxInclusive    bool                                                              `json:"tax_inclusive,required"`
+	Type            SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType `json:"type,required"`
+	ChargeableUnits string                                                            `json:"chargeable_units"`
+	Description     string                                                            `json:"description,nullable"`
+	FreeThreshold   int64                                                             `json:"free_threshold"`
+	Name            string                                                            `json:"name,nullable"`
+	PricePerUnit    string                                                            `json:"price_per_unit"`
+	ProductID       string                                                            `json:"product_id"`
+	ProrationFactor float64                                                           `json:"proration_factor"`
+	Quantity        int64                                                             `json:"quantity"`
+	Subtotal        int64                                                             `json:"subtotal"`
+	Tax             int64                                                             `json:"tax,nullable"`
+	// Represents the different categories of taxation applicable to various products
+	// and services.
+	TaxCategory   TaxCategory                                                      `json:"tax_category"`
+	TaxRate       float64                                                          `json:"tax_rate,nullable"`
+	UnitPrice     int64                                                            `json:"unit_price"`
+	UnitsConsumed string                                                           `json:"units_consumed"`
+	JSON          subscriptionPreviewChangePlanResponseImmediateChargeLineItemJSON `json:"-"`
+	union         SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion
+}
+
+// subscriptionPreviewChangePlanResponseImmediateChargeLineItemJSON contains the
+// JSON metadata for the struct
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItem]
+type subscriptionPreviewChangePlanResponseImmediateChargeLineItemJSON struct {
+	ID              apijson.Field
+	Currency        apijson.Field
+	TaxInclusive    apijson.Field
+	Type            apijson.Field
+	ChargeableUnits apijson.Field
+	Description     apijson.Field
+	FreeThreshold   apijson.Field
+	Name            apijson.Field
+	PricePerUnit    apijson.Field
+	ProductID       apijson.Field
+	ProrationFactor apijson.Field
+	Quantity        apijson.Field
+	Subtotal        apijson.Field
+	Tax             apijson.Field
+	TaxCategory     apijson.Field
+	TaxRate         apijson.Field
+	UnitPrice       apijson.Field
+	UnitsConsumed   apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r subscriptionPreviewChangePlanResponseImmediateChargeLineItemJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r *SubscriptionPreviewChangePlanResponseImmediateChargeLineItem) UnmarshalJSON(data []byte) (err error) {
+	*r = SubscriptionPreviewChangePlanResponseImmediateChargeLineItem{}
+	err = apijson.UnmarshalRoot(data, &r.union)
+	if err != nil {
+		return err
+	}
+	return apijson.Port(r.union, &r)
+}
+
+// AsUnion returns a
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion] interface
+// which you can cast to the specific types for more type safety.
 //
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemUnion struct {
-	ID string `json:"id"`
-	// This field is from variant
-	// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemSubscription].
-	Currency Currency `json:"currency"`
-	// This field is from variant
-	// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemSubscription].
-	ProductID       string  `json:"product_id"`
-	ProrationFactor float64 `json:"proration_factor"`
-	Quantity        int64   `json:"quantity"`
-	TaxInclusive    bool    `json:"tax_inclusive"`
-	Type            string  `json:"type"`
-	UnitPrice       int64   `json:"unit_price"`
-	Description     string  `json:"description"`
-	Name            string  `json:"name"`
-	Tax             int64   `json:"tax"`
-	TaxRate         float64 `json:"tax_rate"`
-	// This field is from variant
-	// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemAddon].
-	TaxCategory TaxCategory `json:"tax_category"`
-	// This field is from variant
-	// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemMeter].
-	ChargeableUnits string `json:"chargeable_units"`
-	// This field is from variant
-	// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemMeter].
-	FreeThreshold int64 `json:"free_threshold"`
-	// This field is from variant
-	// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemMeter].
-	PricePerUnit string `json:"price_per_unit"`
-	// This field is from variant
-	// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemMeter].
-	Subtotal int64 `json:"subtotal"`
-	// This field is from variant
-	// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemMeter].
-	UnitsConsumed string `json:"units_consumed"`
-	JSON          struct {
-		ID              respjson.Field
-		Currency        respjson.Field
-		ProductID       respjson.Field
-		ProrationFactor respjson.Field
-		Quantity        respjson.Field
-		TaxInclusive    respjson.Field
-		Type            respjson.Field
-		UnitPrice       respjson.Field
-		Description     respjson.Field
-		Name            respjson.Field
-		Tax             respjson.Field
-		TaxRate         respjson.Field
-		TaxCategory     respjson.Field
-		ChargeableUnits respjson.Field
-		FreeThreshold   respjson.Field
-		PricePerUnit    respjson.Field
-		Subtotal        respjson.Field
-		UnitsConsumed   respjson.Field
-		raw             string
-	} `json:"-"`
+// Possible runtime types of the union are
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscription],
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddon],
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeter].
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItem) AsUnion() SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion {
+	return r.union
 }
 
-func (u SubscriptionPreviewChangePlanResponseImmediateChargeLineItemUnion) AsSubscription() (v SubscriptionPreviewChangePlanResponseImmediateChargeLineItemSubscription) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
+// Union satisfied by
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscription],
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddon] or
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeter].
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion interface {
+	implementsSubscriptionPreviewChangePlanResponseImmediateChargeLineItem()
 }
 
-func (u SubscriptionPreviewChangePlanResponseImmediateChargeLineItemUnion) AsAddon() (v SubscriptionPreviewChangePlanResponseImmediateChargeLineItemAddon) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscription{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddon{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeter{}),
+		},
+	)
 }
 
-func (u SubscriptionPreviewChangePlanResponseImmediateChargeLineItemUnion) AsMeter() (v SubscriptionPreviewChangePlanResponseImmediateChargeLineItemMeter) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscription struct {
+	ID              string                                                                        `json:"id,required"`
+	Currency        Currency                                                                      `json:"currency,required"`
+	ProductID       string                                                                        `json:"product_id,required"`
+	ProrationFactor float64                                                                       `json:"proration_factor,required"`
+	Quantity        int64                                                                         `json:"quantity,required"`
+	TaxInclusive    bool                                                                          `json:"tax_inclusive,required"`
+	Type            SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionType `json:"type,required"`
+	UnitPrice       int64                                                                         `json:"unit_price,required"`
+	Description     string                                                                        `json:"description,nullable"`
+	Name            string                                                                        `json:"name,nullable"`
+	Tax             int64                                                                         `json:"tax,nullable"`
+	TaxRate         float64                                                                       `json:"tax_rate,nullable"`
+	JSON            subscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (u SubscriptionPreviewChangePlanResponseImmediateChargeLineItemUnion) RawJSON() string {
-	return u.JSON.raw
+// subscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionJSON
+// contains the JSON metadata for the struct
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscription]
+type subscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionJSON struct {
+	ID              apijson.Field
+	Currency        apijson.Field
+	ProductID       apijson.Field
+	ProrationFactor apijson.Field
+	Quantity        apijson.Field
+	TaxInclusive    apijson.Field
+	Type            apijson.Field
+	UnitPrice       apijson.Field
+	Description     apijson.Field
+	Name            apijson.Field
+	Tax             apijson.Field
+	TaxRate         apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
 }
 
-func (r *SubscriptionPreviewChangePlanResponseImmediateChargeLineItemUnion) UnmarshalJSON(data []byte) error {
+func (r *SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscription) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemSubscription struct {
-	ID string `json:"id,required"`
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	Currency        Currency `json:"currency,required"`
-	ProductID       string   `json:"product_id,required"`
-	ProrationFactor float64  `json:"proration_factor,required"`
-	Quantity        int64    `json:"quantity,required"`
-	TaxInclusive    bool     `json:"tax_inclusive,required"`
-	// Any of "subscription".
-	Type        string  `json:"type,required"`
-	UnitPrice   int64   `json:"unit_price,required"`
-	Description string  `json:"description,nullable"`
-	Name        string  `json:"name,nullable"`
-	Tax         int64   `json:"tax,nullable"`
-	TaxRate     float64 `json:"tax_rate,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID              respjson.Field
-		Currency        respjson.Field
-		ProductID       respjson.Field
-		ProrationFactor respjson.Field
-		Quantity        respjson.Field
-		TaxInclusive    respjson.Field
-		Type            respjson.Field
-		UnitPrice       respjson.Field
-		Description     respjson.Field
-		Name            respjson.Field
-		Tax             respjson.Field
-		TaxRate         respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
+func (r subscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionJSON) RawJSON() string {
+	return r.raw
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemSubscription) RawJSON() string {
-	return r.JSON.raw
-}
-func (r *SubscriptionPreviewChangePlanResponseImmediateChargeLineItemSubscription) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscription) implementsSubscriptionPreviewChangePlanResponseImmediateChargeLineItem() {
 }
 
-type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemAddon struct {
-	ID string `json:"id,required"`
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionType string
+
+const (
+	SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionTypeSubscription SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionType = "subscription"
+)
+
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionType) IsKnown() bool {
+	switch r {
+	case SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionTypeSubscription:
+		return true
+	}
+	return false
+}
+
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddon struct {
+	ID              string   `json:"id,required"`
 	Currency        Currency `json:"currency,required"`
 	Name            string   `json:"name,required"`
 	ProrationFactor float64  `json:"proration_factor,required"`
 	Quantity        int64    `json:"quantity,required"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
-	//
-	// Any of "digital_products", "saas", "e_book", "edtech".
-	TaxCategory  TaxCategory `json:"tax_category,required"`
-	TaxInclusive bool        `json:"tax_inclusive,required"`
-	TaxRate      float64     `json:"tax_rate,required"`
-	// Any of "addon".
-	Type        string `json:"type,required"`
-	UnitPrice   int64  `json:"unit_price,required"`
-	Description string `json:"description,nullable"`
-	Tax         int64  `json:"tax,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID              respjson.Field
-		Currency        respjson.Field
-		Name            respjson.Field
-		ProrationFactor respjson.Field
-		Quantity        respjson.Field
-		TaxCategory     respjson.Field
-		TaxInclusive    respjson.Field
-		TaxRate         respjson.Field
-		Type            respjson.Field
-		UnitPrice       respjson.Field
-		Description     respjson.Field
-		Tax             respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
+	TaxCategory  TaxCategory                                                            `json:"tax_category,required"`
+	TaxInclusive bool                                                                   `json:"tax_inclusive,required"`
+	TaxRate      float64                                                                `json:"tax_rate,required"`
+	Type         SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonType `json:"type,required"`
+	UnitPrice    int64                                                                  `json:"unit_price,required"`
+	Description  string                                                                 `json:"description,nullable"`
+	Tax          int64                                                                  `json:"tax,nullable"`
+	JSON         subscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemAddon) RawJSON() string {
-	return r.JSON.raw
+// subscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonJSON contains
+// the JSON metadata for the struct
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddon]
+type subscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonJSON struct {
+	ID              apijson.Field
+	Currency        apijson.Field
+	Name            apijson.Field
+	ProrationFactor apijson.Field
+	Quantity        apijson.Field
+	TaxCategory     apijson.Field
+	TaxInclusive    apijson.Field
+	TaxRate         apijson.Field
+	Type            apijson.Field
+	UnitPrice       apijson.Field
+	Description     apijson.Field
+	Tax             apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
 }
-func (r *SubscriptionPreviewChangePlanResponseImmediateChargeLineItemAddon) UnmarshalJSON(data []byte) error {
+
+func (r *SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddon) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemMeter struct {
-	ID              string `json:"id,required"`
-	ChargeableUnits string `json:"chargeable_units,required"`
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	Currency      Currency `json:"currency,required"`
-	FreeThreshold int64    `json:"free_threshold,required"`
-	Name          string   `json:"name,required"`
-	PricePerUnit  string   `json:"price_per_unit,required"`
-	Subtotal      int64    `json:"subtotal,required"`
-	TaxInclusive  bool     `json:"tax_inclusive,required"`
-	TaxRate       float64  `json:"tax_rate,required"`
-	// Any of "meter".
-	Type          string `json:"type,required"`
-	UnitsConsumed string `json:"units_consumed,required"`
-	Description   string `json:"description,nullable"`
-	Tax           int64  `json:"tax,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID              respjson.Field
-		ChargeableUnits respjson.Field
-		Currency        respjson.Field
-		FreeThreshold   respjson.Field
-		Name            respjson.Field
-		PricePerUnit    respjson.Field
-		Subtotal        respjson.Field
-		TaxInclusive    respjson.Field
-		TaxRate         respjson.Field
-		Type            respjson.Field
-		UnitsConsumed   respjson.Field
-		Description     respjson.Field
-		Tax             respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
+func (r subscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonJSON) RawJSON() string {
+	return r.raw
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemMeter) RawJSON() string {
-	return r.JSON.raw
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddon) implementsSubscriptionPreviewChangePlanResponseImmediateChargeLineItem() {
 }
-func (r *SubscriptionPreviewChangePlanResponseImmediateChargeLineItemMeter) UnmarshalJSON(data []byte) error {
+
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonType string
+
+const (
+	SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonTypeAddon SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonType = "addon"
+)
+
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonType) IsKnown() bool {
+	switch r {
+	case SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonTypeAddon:
+		return true
+	}
+	return false
+}
+
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeter struct {
+	ID              string                                                                 `json:"id,required"`
+	ChargeableUnits string                                                                 `json:"chargeable_units,required"`
+	Currency        Currency                                                               `json:"currency,required"`
+	FreeThreshold   int64                                                                  `json:"free_threshold,required"`
+	Name            string                                                                 `json:"name,required"`
+	PricePerUnit    string                                                                 `json:"price_per_unit,required"`
+	Subtotal        int64                                                                  `json:"subtotal,required"`
+	TaxInclusive    bool                                                                   `json:"tax_inclusive,required"`
+	TaxRate         float64                                                                `json:"tax_rate,required"`
+	Type            SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterType `json:"type,required"`
+	UnitsConsumed   string                                                                 `json:"units_consumed,required"`
+	Description     string                                                                 `json:"description,nullable"`
+	Tax             int64                                                                  `json:"tax,nullable"`
+	JSON            subscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterJSON `json:"-"`
+}
+
+// subscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterJSON contains
+// the JSON metadata for the struct
+// [SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeter]
+type subscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterJSON struct {
+	ID              apijson.Field
+	ChargeableUnits apijson.Field
+	Currency        apijson.Field
+	FreeThreshold   apijson.Field
+	Name            apijson.Field
+	PricePerUnit    apijson.Field
+	Subtotal        apijson.Field
+	TaxInclusive    apijson.Field
+	TaxRate         apijson.Field
+	Type            apijson.Field
+	UnitsConsumed   apijson.Field
+	Description     apijson.Field
+	Tax             apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeter) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeter) implementsSubscriptionPreviewChangePlanResponseImmediateChargeLineItem() {
+}
+
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterType string
+
+const (
+	SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterTypeMeter SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterType = "meter"
+)
+
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterType) IsKnown() bool {
+	switch r {
+	case SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterTypeMeter:
+		return true
+	}
+	return false
+}
+
+type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType string
+
+const (
+	SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeSubscription SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType = "subscription"
+	SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeAddon        SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType = "addon"
+	SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeMeter        SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType = "meter"
+)
+
+func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType) IsKnown() bool {
+	switch r {
+	case SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeSubscription, SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeAddon, SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsTypeMeter:
+		return true
+	}
+	return false
 }
 
 type SubscriptionPreviewChangePlanResponseImmediateChargeSummary struct {
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	Currency         Currency `json:"currency,required"`
-	CustomerCredits  int64    `json:"customer_credits,required"`
-	SettlementAmount int64    `json:"settlement_amount,required"`
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	SettlementCurrency Currency `json:"settlement_currency,required"`
-	TotalAmount        int64    `json:"total_amount,required"`
-	SettlementTax      int64    `json:"settlement_tax,nullable"`
-	Tax                int64    `json:"tax,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Currency           respjson.Field
-		CustomerCredits    respjson.Field
-		SettlementAmount   respjson.Field
-		SettlementCurrency respjson.Field
-		TotalAmount        respjson.Field
-		SettlementTax      respjson.Field
-		Tax                respjson.Field
-		ExtraFields        map[string]respjson.Field
-		raw                string
-	} `json:"-"`
+	Currency           Currency                                                        `json:"currency,required"`
+	CustomerCredits    int64                                                           `json:"customer_credits,required"`
+	SettlementAmount   int64                                                           `json:"settlement_amount,required"`
+	SettlementCurrency Currency                                                        `json:"settlement_currency,required"`
+	TotalAmount        int64                                                           `json:"total_amount,required"`
+	SettlementTax      int64                                                           `json:"settlement_tax,nullable"`
+	Tax                int64                                                           `json:"tax,nullable"`
+	JSON               subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionPreviewChangePlanResponseImmediateChargeSummary) RawJSON() string {
-	return r.JSON.raw
+// subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON contains the
+// JSON metadata for the struct
+// [SubscriptionPreviewChangePlanResponseImmediateChargeSummary]
+type subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON struct {
+	Currency           apijson.Field
+	CustomerCredits    apijson.Field
+	SettlementAmount   apijson.Field
+	SettlementCurrency apijson.Field
+	TotalAmount        apijson.Field
+	SettlementTax      apijson.Field
+	Tax                apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
 }
-func (r *SubscriptionPreviewChangePlanResponseImmediateChargeSummary) UnmarshalJSON(data []byte) error {
+
+func (r *SubscriptionPreviewChangePlanResponseImmediateChargeSummary) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON) RawJSON() string {
+	return r.raw
 }
 
 type SubscriptionGetUsageHistoryResponse struct {
@@ -1066,21 +1065,26 @@ type SubscriptionGetUsageHistoryResponse struct {
 	// List of meters and their usage for this billing period
 	Meters []SubscriptionGetUsageHistoryResponseMeter `json:"meters,required"`
 	// Start date of the billing period
-	StartDate time.Time `json:"start_date,required" format:"date-time"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		EndDate     respjson.Field
-		Meters      respjson.Field
-		StartDate   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	StartDate time.Time                               `json:"start_date,required" format:"date-time"`
+	JSON      subscriptionGetUsageHistoryResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionGetUsageHistoryResponse) RawJSON() string { return r.JSON.raw }
-func (r *SubscriptionGetUsageHistoryResponse) UnmarshalJSON(data []byte) error {
+// subscriptionGetUsageHistoryResponseJSON contains the JSON metadata for the
+// struct [SubscriptionGetUsageHistoryResponse]
+type subscriptionGetUsageHistoryResponseJSON struct {
+	EndDate     apijson.Field
+	Meters      apijson.Field
+	StartDate   apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionGetUsageHistoryResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionGetUsageHistoryResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type SubscriptionGetUsageHistoryResponseMeter struct {
@@ -1091,21 +1095,6 @@ type SubscriptionGetUsageHistoryResponseMeter struct {
 	// Total units consumed as string for precision
 	ConsumedUnits string `json:"consumed_units,required"`
 	// Currency for the price per unit
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
 	Currency Currency `json:"currency,required"`
 	// Free threshold units for this meter
 	FreeThreshold int64 `json:"free_threshold,required"`
@@ -1114,182 +1103,157 @@ type SubscriptionGetUsageHistoryResponseMeter struct {
 	// Price per unit in string format for precision
 	PricePerUnit string `json:"price_per_unit,required"`
 	// Total price charged for this meter in smallest currency unit (cents)
-	TotalPrice int64 `json:"total_price,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID              respjson.Field
-		ChargeableUnits respjson.Field
-		ConsumedUnits   respjson.Field
-		Currency        respjson.Field
-		FreeThreshold   respjson.Field
-		Name            respjson.Field
-		PricePerUnit    respjson.Field
-		TotalPrice      respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
-	} `json:"-"`
+	TotalPrice int64                                        `json:"total_price,required"`
+	JSON       subscriptionGetUsageHistoryResponseMeterJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionGetUsageHistoryResponseMeter) RawJSON() string { return r.JSON.raw }
-func (r *SubscriptionGetUsageHistoryResponseMeter) UnmarshalJSON(data []byte) error {
+// subscriptionGetUsageHistoryResponseMeterJSON contains the JSON metadata for the
+// struct [SubscriptionGetUsageHistoryResponseMeter]
+type subscriptionGetUsageHistoryResponseMeterJSON struct {
+	ID              apijson.Field
+	ChargeableUnits apijson.Field
+	ConsumedUnits   apijson.Field
+	Currency        apijson.Field
+	FreeThreshold   apijson.Field
+	Name            apijson.Field
+	PricePerUnit    apijson.Field
+	TotalPrice      apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *SubscriptionGetUsageHistoryResponseMeter) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionGetUsageHistoryResponseMeterJSON) RawJSON() string {
+	return r.raw
 }
 
 type SubscriptionUpdatePaymentMethodResponse struct {
-	ClientSecret string    `json:"client_secret,nullable"`
-	ExpiresOn    time.Time `json:"expires_on,nullable" format:"date-time"`
-	PaymentID    string    `json:"payment_id,nullable"`
-	PaymentLink  string    `json:"payment_link,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ClientSecret respjson.Field
-		ExpiresOn    respjson.Field
-		PaymentID    respjson.Field
-		PaymentLink  respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
-	} `json:"-"`
+	ClientSecret string                                      `json:"client_secret,nullable"`
+	ExpiresOn    time.Time                                   `json:"expires_on,nullable" format:"date-time"`
+	PaymentID    string                                      `json:"payment_id,nullable"`
+	PaymentLink  string                                      `json:"payment_link,nullable"`
+	JSON         subscriptionUpdatePaymentMethodResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r SubscriptionUpdatePaymentMethodResponse) RawJSON() string { return r.JSON.raw }
-func (r *SubscriptionUpdatePaymentMethodResponse) UnmarshalJSON(data []byte) error {
+// subscriptionUpdatePaymentMethodResponseJSON contains the JSON metadata for the
+// struct [SubscriptionUpdatePaymentMethodResponse]
+type subscriptionUpdatePaymentMethodResponseJSON struct {
+	ClientSecret apijson.Field
+	ExpiresOn    apijson.Field
+	PaymentID    apijson.Field
+	PaymentLink  apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *SubscriptionUpdatePaymentMethodResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionUpdatePaymentMethodResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type SubscriptionNewParams struct {
 	// Billing address information for the subscription
-	Billing BillingAddressParam `json:"billing,omitzero,required"`
+	Billing param.Field[BillingAddressParam] `json:"billing,required"`
 	// Customer details for the subscription
-	Customer CustomerRequestUnionParam `json:"customer,omitzero,required"`
+	Customer param.Field[CustomerRequestUnionParam] `json:"customer,required"`
 	// Unique identifier of the product to subscribe to
-	ProductID string `json:"product_id,required"`
+	ProductID param.Field[string] `json:"product_id,required"`
 	// Number of units to subscribe for. Must be at least 1.
-	Quantity int64 `json:"quantity,required"`
-	// Discount Code to apply to the subscription
-	DiscountCode param.Opt[string] `json:"discount_code,omitzero"`
-	// Override merchant default 3DS behaviour for this subscription
-	Force3DS param.Opt[bool] `json:"force_3ds,omitzero"`
-	// If true, generates a payment link. Defaults to false if not specified.
-	PaymentLink param.Opt[bool] `json:"payment_link,omitzero"`
-	// Optional URL to redirect after successful subscription creation
-	ReturnURL param.Opt[string] `json:"return_url,omitzero"`
-	// If true, returns a shortened payment link. Defaults to false if not specified.
-	ShortLink param.Opt[bool] `json:"short_link,omitzero"`
-	// Tax ID in case the payment is B2B. If tax id validation fails the payment
-	// creation will fail
-	TaxID param.Opt[string] `json:"tax_id,omitzero"`
-	// Optional trial period in days If specified, this value overrides the trial
-	// period set in the product's price Must be between 0 and 10000 days
-	TrialPeriodDays param.Opt[int64] `json:"trial_period_days,omitzero"`
-	// If true, redirects the customer immediately after payment completion False by
-	// default
-	RedirectImmediately param.Opt[bool] `json:"redirect_immediately,omitzero"`
-	// Display saved payment methods of a returning customer False by default
-	ShowSavedPaymentMethods param.Opt[bool] `json:"show_saved_payment_methods,omitzero"`
+	Quantity param.Field[int64] `json:"quantity,required"`
 	// Attach addons to this subscription
-	Addons []AttachAddonParam `json:"addons,omitzero"`
+	Addons param.Field[[]AttachAddonParam] `json:"addons"`
 	// List of payment methods allowed during checkout.
 	//
 	// Customers will **never** see payment methods that are **not** in this list.
 	// However, adding a method here **does not guarantee** customers will see it.
 	// Availability still depends on other factors (e.g., customer location, merchant
 	// settings).
-	AllowedPaymentMethodTypes []PaymentMethodTypes `json:"allowed_payment_method_types,omitzero"`
-	// List of one time products that will be bundled with the first payment for this
-	// subscription
-	OneTimeProductCart []OneTimeProductCartItemParam `json:"one_time_product_cart,omitzero"`
+	AllowedPaymentMethodTypes param.Field[[]PaymentMethodTypes] `json:"allowed_payment_method_types"`
 	// Fix the currency in which the end customer is billed. If Dodo Payments cannot
 	// support that currency for this transaction, it will not proceed
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	BillingCurrency Currency `json:"billing_currency,omitzero"`
+	BillingCurrency param.Field[Currency] `json:"billing_currency"`
+	// Discount Code to apply to the subscription
+	DiscountCode param.Field[string] `json:"discount_code"`
+	// Override merchant default 3DS behaviour for this subscription
+	Force3DS param.Field[bool] `json:"force_3ds"`
 	// Additional metadata for the subscription Defaults to empty if not specified
-	Metadata map[string]string         `json:"metadata,omitzero"`
-	OnDemand OnDemandSubscriptionParam `json:"on_demand,omitzero"`
-	paramObj
+	Metadata param.Field[map[string]string]         `json:"metadata"`
+	OnDemand param.Field[OnDemandSubscriptionParam] `json:"on_demand"`
+	// List of one time products that will be bundled with the first payment for this
+	// subscription
+	OneTimeProductCart param.Field[[]OneTimeProductCartItemParam] `json:"one_time_product_cart"`
+	// If true, generates a payment link. Defaults to false if not specified.
+	PaymentLink param.Field[bool] `json:"payment_link"`
+	// If true, redirects the customer immediately after payment completion False by
+	// default
+	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`
+	// Optional URL to redirect after successful subscription creation
+	ReturnURL param.Field[string] `json:"return_url"`
+	// If true, returns a shortened payment link. Defaults to false if not specified.
+	ShortLink param.Field[bool] `json:"short_link"`
+	// Display saved payment methods of a returning customer False by default
+	ShowSavedPaymentMethods param.Field[bool] `json:"show_saved_payment_methods"`
+	// Tax ID in case the payment is B2B. If tax id validation fails the payment
+	// creation will fail
+	TaxID param.Field[string] `json:"tax_id"`
+	// Optional trial period in days If specified, this value overrides the trial
+	// period set in the product's price Must be between 0 and 10000 days
+	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
 
 func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
-	type shadow SubscriptionNewParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SubscriptionNewParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type SubscriptionUpdateParams struct {
+	Billing param.Field[BillingAddressParam] `json:"billing"`
 	// When set, the subscription will remain active until the end of billing period
-	CancelAtNextBillingDate param.Opt[bool]                         `json:"cancel_at_next_billing_date,omitzero"`
-	CustomerName            param.Opt[string]                       `json:"customer_name,omitzero"`
-	NextBillingDate         param.Opt[time.Time]                    `json:"next_billing_date,omitzero" format:"date-time"`
-	TaxID                   param.Opt[string]                       `json:"tax_id,omitzero"`
-	DisableOnDemand         SubscriptionUpdateParamsDisableOnDemand `json:"disable_on_demand,omitzero"`
-	Metadata                map[string]string                       `json:"metadata,omitzero"`
-	Billing                 BillingAddressParam                     `json:"billing,omitzero"`
-	// Any of "pending", "active", "on_hold", "cancelled", "failed", "expired".
-	Status SubscriptionStatus `json:"status,omitzero"`
-	paramObj
+	CancelAtNextBillingDate param.Field[bool]                                    `json:"cancel_at_next_billing_date"`
+	CustomerName            param.Field[string]                                  `json:"customer_name"`
+	DisableOnDemand         param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
+	Metadata                param.Field[map[string]string]                       `json:"metadata"`
+	NextBillingDate         param.Field[time.Time]                               `json:"next_billing_date" format:"date-time"`
+	Status                  param.Field[SubscriptionStatus]                      `json:"status"`
+	TaxID                   param.Field[string]                                  `json:"tax_id"`
 }
 
 func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {
-	type shadow SubscriptionUpdateParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SubscriptionUpdateParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
-// The property NextBillingDate is required.
 type SubscriptionUpdateParamsDisableOnDemand struct {
-	NextBillingDate time.Time `json:"next_billing_date,required" format:"date-time"`
-	paramObj
+	NextBillingDate param.Field[time.Time] `json:"next_billing_date,required" format:"date-time"`
 }
 
 func (r SubscriptionUpdateParamsDisableOnDemand) MarshalJSON() (data []byte, err error) {
-	type shadow SubscriptionUpdateParamsDisableOnDemand
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SubscriptionUpdateParamsDisableOnDemand) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type SubscriptionListParams struct {
 	// filter by Brand id
-	BrandID param.Opt[string] `query:"brand_id,omitzero" json:"-"`
+	BrandID param.Field[string] `query:"brand_id"`
 	// Get events after this created time
-	CreatedAtGte param.Opt[time.Time] `query:"created_at_gte,omitzero" format:"date-time" json:"-"`
+	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
 	// Get events created before this time
-	CreatedAtLte param.Opt[time.Time] `query:"created_at_lte,omitzero" format:"date-time" json:"-"`
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
 	// Filter by customer id
-	CustomerID param.Opt[string] `query:"customer_id,omitzero" json:"-"`
+	CustomerID param.Field[string] `query:"customer_id"`
 	// Page number default is 0
-	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
+	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
-	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
+	PageSize param.Field[int64] `query:"page_size"`
 	// Filter by status
-	//
-	// Any of "pending", "active", "on_hold", "cancelled", "failed", "expired".
-	Status SubscriptionListParamsStatus `query:"status,omitzero" json:"-"`
-	paramObj
+	Status param.Field[SubscriptionListParamsStatus] `query:"status"`
 }
 
 // URLQuery serializes [SubscriptionListParams]'s query parameters as `url.Values`.
-func (r SubscriptionListParams) URLQuery() (v url.Values, err error) {
+func (r SubscriptionListParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
@@ -1308,27 +1272,28 @@ const (
 	SubscriptionListParamsStatusExpired   SubscriptionListParamsStatus = "expired"
 )
 
+func (r SubscriptionListParamsStatus) IsKnown() bool {
+	switch r {
+	case SubscriptionListParamsStatusPending, SubscriptionListParamsStatusActive, SubscriptionListParamsStatusOnHold, SubscriptionListParamsStatusCancelled, SubscriptionListParamsStatusFailed, SubscriptionListParamsStatusExpired:
+		return true
+	}
+	return false
+}
+
 type SubscriptionChangePlanParams struct {
 	// Unique identifier of the product to subscribe to
-	ProductID string `json:"product_id,required"`
+	ProductID param.Field[string] `json:"product_id,required"`
 	// Proration Billing Mode
-	//
-	// Any of "prorated_immediately", "full_immediately", "difference_immediately".
-	ProrationBillingMode SubscriptionChangePlanParamsProrationBillingMode `json:"proration_billing_mode,omitzero,required"`
+	ProrationBillingMode param.Field[SubscriptionChangePlanParamsProrationBillingMode] `json:"proration_billing_mode,required"`
 	// Number of units to subscribe for. Must be at least 1.
-	Quantity int64 `json:"quantity,required"`
+	Quantity param.Field[int64] `json:"quantity,required"`
 	// Addons for the new plan. Note : Leaving this empty would remove any existing
 	// addons
-	Addons []AttachAddonParam `json:"addons,omitzero"`
-	paramObj
+	Addons param.Field[[]AttachAddonParam] `json:"addons"`
 }
 
 func (r SubscriptionChangePlanParams) MarshalJSON() (data []byte, err error) {
-	type shadow SubscriptionChangePlanParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SubscriptionChangePlanParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 // Proration Billing Mode
@@ -1340,89 +1305,65 @@ const (
 	SubscriptionChangePlanParamsProrationBillingModeDifferenceImmediately SubscriptionChangePlanParamsProrationBillingMode = "difference_immediately"
 )
 
+func (r SubscriptionChangePlanParamsProrationBillingMode) IsKnown() bool {
+	switch r {
+	case SubscriptionChangePlanParamsProrationBillingModeProratedImmediately, SubscriptionChangePlanParamsProrationBillingModeFullImmediately, SubscriptionChangePlanParamsProrationBillingModeDifferenceImmediately:
+		return true
+	}
+	return false
+}
+
 type SubscriptionChargeParams struct {
 	// The product price. Represented in the lowest denomination of the currency (e.g.,
 	// cents for USD). For example, to charge $1.00, pass `100`.
-	ProductPrice int64 `json:"product_price,required"`
+	ProductPrice param.Field[int64] `json:"product_price,required"`
 	// Whether adaptive currency fees should be included in the product_price (true) or
 	// added on top (false). This field is ignored if adaptive pricing is not enabled
 	// for the business.
-	AdaptiveCurrencyFeesInclusive param.Opt[bool] `json:"adaptive_currency_fees_inclusive,omitzero"`
-	// Optional product description override for billing and line items. If not
-	// specified, the stored description of the product will be used.
-	ProductDescription param.Opt[string] `json:"product_description,omitzero"`
+	AdaptiveCurrencyFeesInclusive param.Field[bool] `json:"adaptive_currency_fees_inclusive"`
 	// Specify how customer balance is used for the payment
-	CustomerBalanceConfig SubscriptionChargeParamsCustomerBalanceConfig `json:"customer_balance_config,omitzero"`
+	CustomerBalanceConfig param.Field[SubscriptionChargeParamsCustomerBalanceConfig] `json:"customer_balance_config"`
 	// Metadata for the payment. If not passed, the metadata of the subscription will
 	// be taken
-	Metadata map[string]string `json:"metadata,omitzero"`
+	Metadata param.Field[map[string]string] `json:"metadata"`
 	// Optional currency of the product price. If not specified, defaults to the
 	// currency of the product.
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	ProductCurrency Currency `json:"product_currency,omitzero"`
-	paramObj
+	ProductCurrency param.Field[Currency] `json:"product_currency"`
+	// Optional product description override for billing and line items. If not
+	// specified, the stored description of the product will be used.
+	ProductDescription param.Field[string] `json:"product_description"`
 }
 
 func (r SubscriptionChargeParams) MarshalJSON() (data []byte, err error) {
-	type shadow SubscriptionChargeParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SubscriptionChargeParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 // Specify how customer balance is used for the payment
 type SubscriptionChargeParamsCustomerBalanceConfig struct {
 	// Allows Customer Credit to be purchased to settle payments
-	AllowCustomerCreditsPurchase param.Opt[bool] `json:"allow_customer_credits_purchase,omitzero"`
+	AllowCustomerCreditsPurchase param.Field[bool] `json:"allow_customer_credits_purchase"`
 	// Allows Customer Credit Balance to be used to settle payments
-	AllowCustomerCreditsUsage param.Opt[bool] `json:"allow_customer_credits_usage,omitzero"`
-	paramObj
+	AllowCustomerCreditsUsage param.Field[bool] `json:"allow_customer_credits_usage"`
 }
 
 func (r SubscriptionChargeParamsCustomerBalanceConfig) MarshalJSON() (data []byte, err error) {
-	type shadow SubscriptionChargeParamsCustomerBalanceConfig
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SubscriptionChargeParamsCustomerBalanceConfig) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type SubscriptionPreviewChangePlanParams struct {
 	// Unique identifier of the product to subscribe to
-	ProductID string `json:"product_id,required"`
+	ProductID param.Field[string] `json:"product_id,required"`
 	// Proration Billing Mode
-	//
-	// Any of "prorated_immediately", "full_immediately", "difference_immediately".
-	ProrationBillingMode SubscriptionPreviewChangePlanParamsProrationBillingMode `json:"proration_billing_mode,omitzero,required"`
+	ProrationBillingMode param.Field[SubscriptionPreviewChangePlanParamsProrationBillingMode] `json:"proration_billing_mode,required"`
 	// Number of units to subscribe for. Must be at least 1.
-	Quantity int64 `json:"quantity,required"`
+	Quantity param.Field[int64] `json:"quantity,required"`
 	// Addons for the new plan. Note : Leaving this empty would remove any existing
 	// addons
-	Addons []AttachAddonParam `json:"addons,omitzero"`
-	paramObj
+	Addons param.Field[[]AttachAddonParam] `json:"addons"`
 }
 
 func (r SubscriptionPreviewChangePlanParams) MarshalJSON() (data []byte, err error) {
-	type shadow SubscriptionPreviewChangePlanParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SubscriptionPreviewChangePlanParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 // Proration Billing Mode
@@ -1434,23 +1375,30 @@ const (
 	SubscriptionPreviewChangePlanParamsProrationBillingModeDifferenceImmediately SubscriptionPreviewChangePlanParamsProrationBillingMode = "difference_immediately"
 )
 
+func (r SubscriptionPreviewChangePlanParamsProrationBillingMode) IsKnown() bool {
+	switch r {
+	case SubscriptionPreviewChangePlanParamsProrationBillingModeProratedImmediately, SubscriptionPreviewChangePlanParamsProrationBillingModeFullImmediately, SubscriptionPreviewChangePlanParamsProrationBillingModeDifferenceImmediately:
+		return true
+	}
+	return false
+}
+
 type SubscriptionGetUsageHistoryParams struct {
 	// Filter by end date (inclusive)
-	EndDate param.Opt[time.Time] `query:"end_date,omitzero" format:"date-time" json:"-"`
+	EndDate param.Field[time.Time] `query:"end_date" format:"date-time"`
 	// Filter by specific meter ID
-	MeterID param.Opt[string] `query:"meter_id,omitzero" json:"-"`
+	MeterID param.Field[string] `query:"meter_id"`
 	// Page number (default: 0)
-	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
+	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size (default: 10, max: 100)
-	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
+	PageSize param.Field[int64] `query:"page_size"`
 	// Filter by start date (inclusive)
-	StartDate param.Opt[time.Time] `query:"start_date,omitzero" format:"date-time" json:"-"`
-	paramObj
+	StartDate param.Field[time.Time] `query:"start_date" format:"date-time"`
 }
 
 // URLQuery serializes [SubscriptionGetUsageHistoryParams]'s query parameters as
 // `url.Values`.
-func (r SubscriptionGetUsageHistoryParams) URLQuery() (v url.Values, err error) {
+func (r SubscriptionGetUsageHistoryParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
@@ -1458,66 +1406,96 @@ func (r SubscriptionGetUsageHistoryParams) URLQuery() (v url.Values, err error) 
 }
 
 type SubscriptionUpdatePaymentMethodParams struct {
-
-	//
-	// Request body variants
-	//
-
-	// This field is a request body variant, only one variant field can be set.
-	OfNew *SubscriptionUpdatePaymentMethodParamsBodyNew `json:",inline"`
-	// This field is a request body variant, only one variant field can be set.
-	OfExisting *SubscriptionUpdatePaymentMethodParamsBodyExisting `json:",inline"`
-
-	paramObj
+	Body SubscriptionUpdatePaymentMethodParamsBodyUnion `json:"body,required"`
 }
 
-func (u SubscriptionUpdatePaymentMethodParams) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfNew, u.OfExisting)
-}
-func (r *SubscriptionUpdatePaymentMethodParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+func (r SubscriptionUpdatePaymentMethodParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r.Body)
 }
 
-// The property Type is required.
+type SubscriptionUpdatePaymentMethodParamsBody struct {
+	Type            param.Field[SubscriptionUpdatePaymentMethodParamsBodyType] `json:"type,required"`
+	PaymentMethodID param.Field[string]                                        `json:"payment_method_id"`
+	ReturnURL       param.Field[string]                                        `json:"return_url"`
+}
+
+func (r SubscriptionUpdatePaymentMethodParamsBody) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r SubscriptionUpdatePaymentMethodParamsBody) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
+}
+
+// Satisfied by [SubscriptionUpdatePaymentMethodParamsBodyNew],
+// [SubscriptionUpdatePaymentMethodParamsBodyExisting],
+// [SubscriptionUpdatePaymentMethodParamsBody].
+type SubscriptionUpdatePaymentMethodParamsBodyUnion interface {
+	implementsSubscriptionUpdatePaymentMethodParamsBodyUnion()
+}
+
 type SubscriptionUpdatePaymentMethodParamsBodyNew struct {
-	// Any of "new".
-	Type      string            `json:"type,omitzero,required"`
-	ReturnURL param.Opt[string] `json:"return_url,omitzero"`
-	paramObj
+	Type      param.Field[SubscriptionUpdatePaymentMethodParamsBodyNewType] `json:"type,required"`
+	ReturnURL param.Field[string]                                           `json:"return_url"`
 }
 
 func (r SubscriptionUpdatePaymentMethodParamsBodyNew) MarshalJSON() (data []byte, err error) {
-	type shadow SubscriptionUpdatePaymentMethodParamsBodyNew
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SubscriptionUpdatePaymentMethodParamsBodyNew) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
-func init() {
-	apijson.RegisterFieldValidator[SubscriptionUpdatePaymentMethodParamsBodyNew](
-		"type", "new",
-	)
+func (r SubscriptionUpdatePaymentMethodParamsBodyNew) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
 }
 
-// The properties PaymentMethodID, Type are required.
+type SubscriptionUpdatePaymentMethodParamsBodyNewType string
+
+const (
+	SubscriptionUpdatePaymentMethodParamsBodyNewTypeNew SubscriptionUpdatePaymentMethodParamsBodyNewType = "new"
+)
+
+func (r SubscriptionUpdatePaymentMethodParamsBodyNewType) IsKnown() bool {
+	switch r {
+	case SubscriptionUpdatePaymentMethodParamsBodyNewTypeNew:
+		return true
+	}
+	return false
+}
+
 type SubscriptionUpdatePaymentMethodParamsBodyExisting struct {
-	PaymentMethodID string `json:"payment_method_id,required"`
-	// Any of "existing".
-	Type string `json:"type,omitzero,required"`
-	paramObj
+	PaymentMethodID param.Field[string]                                                `json:"payment_method_id,required"`
+	Type            param.Field[SubscriptionUpdatePaymentMethodParamsBodyExistingType] `json:"type,required"`
 }
 
 func (r SubscriptionUpdatePaymentMethodParamsBodyExisting) MarshalJSON() (data []byte, err error) {
-	type shadow SubscriptionUpdatePaymentMethodParamsBodyExisting
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *SubscriptionUpdatePaymentMethodParamsBodyExisting) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
-func init() {
-	apijson.RegisterFieldValidator[SubscriptionUpdatePaymentMethodParamsBodyExisting](
-		"type", "existing",
-	)
+func (r SubscriptionUpdatePaymentMethodParamsBodyExisting) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
+}
+
+type SubscriptionUpdatePaymentMethodParamsBodyExistingType string
+
+const (
+	SubscriptionUpdatePaymentMethodParamsBodyExistingTypeExisting SubscriptionUpdatePaymentMethodParamsBodyExistingType = "existing"
+)
+
+func (r SubscriptionUpdatePaymentMethodParamsBodyExistingType) IsKnown() bool {
+	switch r {
+	case SubscriptionUpdatePaymentMethodParamsBodyExistingTypeExisting:
+		return true
+	}
+	return false
+}
+
+type SubscriptionUpdatePaymentMethodParamsBodyType string
+
+const (
+	SubscriptionUpdatePaymentMethodParamsBodyTypeNew      SubscriptionUpdatePaymentMethodParamsBodyType = "new"
+	SubscriptionUpdatePaymentMethodParamsBodyTypeExisting SubscriptionUpdatePaymentMethodParamsBodyType = "existing"
+)
+
+func (r SubscriptionUpdatePaymentMethodParamsBodyType) IsKnown() bool {
+	switch r {
+	case SubscriptionUpdatePaymentMethodParamsBodyTypeNew, SubscriptionUpdatePaymentMethodParamsBodyTypeExisting:
+		return true
+	}
+	return false
 }

@@ -26,11 +26,11 @@ func TestBrandNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Brands.New(context.TODO(), dodopayments.BrandNewParams{
-		Description:         dodopayments.String("description"),
-		Name:                dodopayments.String("name"),
-		StatementDescriptor: dodopayments.String("statement_descriptor"),
-		SupportEmail:        dodopayments.String("support_email"),
-		URL:                 dodopayments.String("url"),
+		Description:         dodopayments.F("description"),
+		Name:                dodopayments.F("name"),
+		StatementDescriptor: dodopayments.F("statement_descriptor"),
+		SupportEmail:        dodopayments.F("support_email"),
+		URL:                 dodopayments.F("url"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -79,10 +79,10 @@ func TestBrandUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.BrandUpdateParams{
-			ImageID:             dodopayments.String("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
-			Name:                dodopayments.String("name"),
-			StatementDescriptor: dodopayments.String("statement_descriptor"),
-			SupportEmail:        dodopayments.String("support_email"),
+			ImageID:             dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
+			Name:                dodopayments.F("name"),
+			StatementDescriptor: dodopayments.F("statement_descriptor"),
+			SupportEmail:        dodopayments.F("support_email"),
 		},
 	)
 	if err != nil {

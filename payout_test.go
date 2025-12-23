@@ -27,10 +27,10 @@ func TestPayoutListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Payouts.List(context.TODO(), dodopayments.PayoutListParams{
-		CreatedAtGte: dodopayments.Time(time.Now()),
-		CreatedAtLte: dodopayments.Time(time.Now()),
-		PageNumber:   dodopayments.Int(0),
-		PageSize:     dodopayments.Int(0),
+		CreatedAtGte: dodopayments.F(time.Now()),
+		CreatedAtLte: dodopayments.F(time.Now()),
+		PageNumber:   dodopayments.F(int64(0)),
+		PageSize:     dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
