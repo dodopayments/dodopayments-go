@@ -13,11 +13,10 @@ import (
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
-	"github.com/dodopayments/dodopayments-go/packages/param"
-	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // ProductShortLinkService contains methods and other services that help with
@@ -33,8 +32,8 @@ type ProductShortLinkService struct {
 // NewProductShortLinkService generates a new service that applies the given
 // options to each request. These options are applied after the parent client's
 // options (if there is one), and before any request-specific options.
-func NewProductShortLinkService(opts ...option.RequestOption) (r ProductShortLinkService) {
-	r = ProductShortLinkService{}
+func NewProductShortLinkService(opts ...option.RequestOption) (r *ProductShortLinkService) {
+	r = &ProductShortLinkService{}
 	r.Options = opts
 	return
 }
@@ -79,20 +78,25 @@ type ProductShortLinkNewResponse struct {
 	// Full URL.
 	FullURL string `json:"full_url,required"`
 	// Short URL.
-	ShortURL string `json:"short_url,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		FullURL     respjson.Field
-		ShortURL    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	ShortURL string                          `json:"short_url,required"`
+	JSON     productShortLinkNewResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r ProductShortLinkNewResponse) RawJSON() string { return r.JSON.raw }
-func (r *ProductShortLinkNewResponse) UnmarshalJSON(data []byte) error {
+// productShortLinkNewResponseJSON contains the JSON metadata for the struct
+// [ProductShortLinkNewResponse]
+type productShortLinkNewResponseJSON struct {
+	FullURL     apijson.Field
+	ShortURL    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductShortLinkNewResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productShortLinkNewResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type ProductShortLinkListResponse struct {
@@ -103,53 +107,52 @@ type ProductShortLinkListResponse struct {
 	// Product ID associated with the short link
 	ProductID string `json:"product_id,required"`
 	// Short URL
-	ShortURL string `json:"short_url,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		CreatedAt   respjson.Field
-		FullURL     respjson.Field
-		ProductID   respjson.Field
-		ShortURL    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	ShortURL string                           `json:"short_url,required"`
+	JSON     productShortLinkListResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r ProductShortLinkListResponse) RawJSON() string { return r.JSON.raw }
-func (r *ProductShortLinkListResponse) UnmarshalJSON(data []byte) error {
+// productShortLinkListResponseJSON contains the JSON metadata for the struct
+// [ProductShortLinkListResponse]
+type productShortLinkListResponseJSON struct {
+	CreatedAt   apijson.Field
+	FullURL     apijson.Field
+	ProductID   apijson.Field
+	ShortURL    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductShortLinkListResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productShortLinkListResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type ProductShortLinkNewParams struct {
 	// Slug for the short link.
-	Slug string `json:"slug,required"`
+	Slug param.Field[string] `json:"slug,required"`
 	// Static Checkout URL parameters to apply to the resulting short URL.
-	StaticCheckoutParams map[string]string `json:"static_checkout_params,omitzero"`
-	paramObj
+	StaticCheckoutParams param.Field[map[string]string] `json:"static_checkout_params"`
 }
 
 func (r ProductShortLinkNewParams) MarshalJSON() (data []byte, err error) {
-	type shadow ProductShortLinkNewParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *ProductShortLinkNewParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type ProductShortLinkListParams struct {
 	// Page number default is 0
-	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
+	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
-	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
+	PageSize param.Field[int64] `query:"page_size"`
 	// Filter by product ID
-	ProductID param.Opt[string] `query:"product_id,omitzero" json:"-"`
-	paramObj
+	ProductID param.Field[string] `query:"product_id"`
 }
 
 // URLQuery serializes [ProductShortLinkListParams]'s query parameters as
 // `url.Values`.
-func (r ProductShortLinkListParams) URLQuery() (v url.Values, err error) {
+func (r ProductShortLinkListParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

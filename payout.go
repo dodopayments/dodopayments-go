@@ -11,11 +11,10 @@ import (
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
-	"github.com/dodopayments/dodopayments-go/packages/param"
-	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // PayoutService contains methods and other services that help with interacting
@@ -31,8 +30,8 @@ type PayoutService struct {
 // NewPayoutService generates a new service that applies the given options to each
 // request. These options are applied after the parent client's options (if there
 // is one), and before any request-specific options.
-func NewPayoutService(opts ...option.RequestOption) (r PayoutService) {
-	r = PayoutService{}
+func NewPayoutService(opts ...option.RequestOption) (r *PayoutService) {
+	r = &PayoutService{}
 	r.Options = opts
 	return
 }
@@ -70,21 +69,6 @@ type PayoutListResponse struct {
 	// The timestamp when the payout was created, in UTC.
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
 	// The currency of the payout, represented as an ISO 4217 currency code.
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
 	Currency Currency `json:"currency,required"`
 	// The fee charged for processing the payout.
 	Fee int64 `json:"fee,required"`
@@ -97,8 +81,6 @@ type PayoutListResponse struct {
 	// Deprecated: deprecated
 	Refunds int64 `json:"refunds,required"`
 	// The current status of the payout.
-	//
-	// Any of "not_initiated", "in_progress", "on_hold", "failed", "success".
 	Status PayoutListResponseStatus `json:"status,required"`
 	// The tax applied to the payout.
 	//
@@ -111,33 +93,38 @@ type PayoutListResponse struct {
 	// The URL of the document associated with the payout.
 	PayoutDocumentURL string `json:"payout_document_url,nullable"`
 	// Any additional remarks or notes associated with the payout.
-	Remarks string `json:"remarks,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Amount            respjson.Field
-		BusinessID        respjson.Field
-		Chargebacks       respjson.Field
-		CreatedAt         respjson.Field
-		Currency          respjson.Field
-		Fee               respjson.Field
-		PaymentMethod     respjson.Field
-		PayoutID          respjson.Field
-		Refunds           respjson.Field
-		Status            respjson.Field
-		Tax               respjson.Field
-		UpdatedAt         respjson.Field
-		Name              respjson.Field
-		PayoutDocumentURL respjson.Field
-		Remarks           respjson.Field
-		ExtraFields       map[string]respjson.Field
-		raw               string
-	} `json:"-"`
+	Remarks string                 `json:"remarks,nullable"`
+	JSON    payoutListResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r PayoutListResponse) RawJSON() string { return r.JSON.raw }
-func (r *PayoutListResponse) UnmarshalJSON(data []byte) error {
+// payoutListResponseJSON contains the JSON metadata for the struct
+// [PayoutListResponse]
+type payoutListResponseJSON struct {
+	Amount            apijson.Field
+	BusinessID        apijson.Field
+	Chargebacks       apijson.Field
+	CreatedAt         apijson.Field
+	Currency          apijson.Field
+	Fee               apijson.Field
+	PaymentMethod     apijson.Field
+	PayoutID          apijson.Field
+	Refunds           apijson.Field
+	Status            apijson.Field
+	Tax               apijson.Field
+	UpdatedAt         apijson.Field
+	Name              apijson.Field
+	PayoutDocumentURL apijson.Field
+	Remarks           apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *PayoutListResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r payoutListResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 // The current status of the payout.
@@ -151,20 +138,27 @@ const (
 	PayoutListResponseStatusSuccess      PayoutListResponseStatus = "success"
 )
 
+func (r PayoutListResponseStatus) IsKnown() bool {
+	switch r {
+	case PayoutListResponseStatusNotInitiated, PayoutListResponseStatusInProgress, PayoutListResponseStatusOnHold, PayoutListResponseStatusFailed, PayoutListResponseStatusSuccess:
+		return true
+	}
+	return false
+}
+
 type PayoutListParams struct {
 	// Get payouts created after this time (inclusive)
-	CreatedAtGte param.Opt[time.Time] `query:"created_at_gte,omitzero" format:"date-time" json:"-"`
+	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
 	// Get payouts created before this time (inclusive)
-	CreatedAtLte param.Opt[time.Time] `query:"created_at_lte,omitzero" format:"date-time" json:"-"`
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
 	// Page number default is 0
-	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
+	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
-	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
-	paramObj
+	PageSize param.Field[int64] `query:"page_size"`
 }
 
 // URLQuery serializes [PayoutListParams]'s query parameters as `url.Values`.
-func (r PayoutListParams) URLQuery() (v url.Values, err error) {
+func (r PayoutListParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

@@ -9,10 +9,9 @@ import (
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
-	"github.com/dodopayments/dodopayments-go/packages/param"
-	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // LicenseService contains methods and other services that help with interacting
@@ -28,8 +27,8 @@ type LicenseService struct {
 // NewLicenseService generates a new service that applies the given options to each
 // request. These options are applied after the parent client's options (if there
 // is one), and before any request-specific options.
-func NewLicenseService(opts ...option.RequestOption) (r LicenseService) {
-	r = LicenseService{}
+func NewLicenseService(opts ...option.RequestOption) (r *LicenseService) {
+	r = &LicenseService{}
 	r.Options = opts
 	return
 }
@@ -71,24 +70,29 @@ type LicenseActivateResponse struct {
 	Name string `json:"name,required"`
 	// Related product info. Present if the license key is tied to a product.
 	Product LicenseActivateResponseProduct `json:"product,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID           respjson.Field
-		BusinessID   respjson.Field
-		CreatedAt    respjson.Field
-		Customer     respjson.Field
-		LicenseKeyID respjson.Field
-		Name         respjson.Field
-		Product      respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
-	} `json:"-"`
+	JSON    licenseActivateResponseJSON    `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r LicenseActivateResponse) RawJSON() string { return r.JSON.raw }
-func (r *LicenseActivateResponse) UnmarshalJSON(data []byte) error {
+// licenseActivateResponseJSON contains the JSON metadata for the struct
+// [LicenseActivateResponse]
+type licenseActivateResponseJSON struct {
+	ID           apijson.Field
+	BusinessID   apijson.Field
+	CreatedAt    apijson.Field
+	Customer     apijson.Field
+	LicenseKeyID apijson.Field
+	Name         apijson.Field
+	Product      apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *LicenseActivateResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r licenseActivateResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 // Related product info. Present if the license key is tied to a product.
@@ -96,76 +100,71 @@ type LicenseActivateResponseProduct struct {
 	// Unique identifier for the product.
 	ProductID string `json:"product_id,required"`
 	// Name of the product, if set by the merchant.
-	Name string `json:"name,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ProductID   respjson.Field
-		Name        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	Name string                             `json:"name,nullable"`
+	JSON licenseActivateResponseProductJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r LicenseActivateResponseProduct) RawJSON() string { return r.JSON.raw }
-func (r *LicenseActivateResponseProduct) UnmarshalJSON(data []byte) error {
+// licenseActivateResponseProductJSON contains the JSON metadata for the struct
+// [LicenseActivateResponseProduct]
+type licenseActivateResponseProductJSON struct {
+	ProductID   apijson.Field
+	Name        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *LicenseActivateResponseProduct) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r licenseActivateResponseProductJSON) RawJSON() string {
+	return r.raw
 }
 
 type LicenseValidateResponse struct {
-	Valid bool `json:"valid,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Valid       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	Valid bool                        `json:"valid,required"`
+	JSON  licenseValidateResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r LicenseValidateResponse) RawJSON() string { return r.JSON.raw }
-func (r *LicenseValidateResponse) UnmarshalJSON(data []byte) error {
+// licenseValidateResponseJSON contains the JSON metadata for the struct
+// [LicenseValidateResponse]
+type licenseValidateResponseJSON struct {
+	Valid       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *LicenseValidateResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r licenseValidateResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type LicenseActivateParams struct {
-	LicenseKey string `json:"license_key,required"`
-	Name       string `json:"name,required"`
-	paramObj
+	LicenseKey param.Field[string] `json:"license_key,required"`
+	Name       param.Field[string] `json:"name,required"`
 }
 
 func (r LicenseActivateParams) MarshalJSON() (data []byte, err error) {
-	type shadow LicenseActivateParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LicenseActivateParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type LicenseDeactivateParams struct {
-	LicenseKey           string `json:"license_key,required"`
-	LicenseKeyInstanceID string `json:"license_key_instance_id,required"`
-	paramObj
+	LicenseKey           param.Field[string] `json:"license_key,required"`
+	LicenseKeyInstanceID param.Field[string] `json:"license_key_instance_id,required"`
 }
 
 func (r LicenseDeactivateParams) MarshalJSON() (data []byte, err error) {
-	type shadow LicenseDeactivateParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LicenseDeactivateParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type LicenseValidateParams struct {
-	LicenseKey           string            `json:"license_key,required"`
-	LicenseKeyInstanceID param.Opt[string] `json:"license_key_instance_id,omitzero"`
-	paramObj
+	LicenseKey           param.Field[string] `json:"license_key,required"`
+	LicenseKeyInstanceID param.Field[string] `json:"license_key_instance_id"`
 }
 
 func (r LicenseValidateParams) MarshalJSON() (data []byte, err error) {
-	type shadow LicenseValidateParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *LicenseValidateParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }

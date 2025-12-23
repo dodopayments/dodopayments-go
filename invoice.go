@@ -14,14 +14,14 @@ import (
 // the [NewInvoiceService] method instead.
 type InvoiceService struct {
 	Options  []option.RequestOption
-	Payments InvoicePaymentService
+	Payments *InvoicePaymentService
 }
 
 // NewInvoiceService generates a new service that applies the given options to each
 // request. These options are applied after the parent client's options (if there
 // is one), and before any request-specific options.
-func NewInvoiceService(opts ...option.RequestOption) (r InvoiceService) {
-	r = InvoiceService{}
+func NewInvoiceService(opts ...option.RequestOption) (r *InvoiceService) {
+	r = &InvoiceService{}
 	r.Options = opts
 	r.Payments = NewInvoicePaymentService(opts...)
 	return

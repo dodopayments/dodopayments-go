@@ -29,7 +29,7 @@ func TestProductImageUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.ProductImageUpdateParams{
-			ForceUpdate: dodopayments.Bool(true),
+			ForceUpdate: dodopayments.F(true),
 		},
 	)
 	if err != nil {

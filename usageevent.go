@@ -4,21 +4,22 @@ package dodopayments
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
-	"github.com/dodopayments/dodopayments-go/packages/param"
-	"github.com/dodopayments/dodopayments-go/packages/respjson"
+	"github.com/dodopayments/dodopayments-go/shared"
+	"github.com/tidwall/gjson"
 )
 
 // UsageEventService contains methods and other services that help with interacting
@@ -34,8 +35,8 @@ type UsageEventService struct {
 // NewUsageEventService generates a new service that applies the given options to
 // each request. These options are applied after the parent client's options (if
 // there is one), and before any request-specific options.
-func NewUsageEventService(opts ...option.RequestOption) (r UsageEventService) {
-	r = UsageEventService{}
+func NewUsageEventService(opts ...option.RequestOption) (r *UsageEventService) {
+	r = &UsageEventService{}
 	r.Options = opts
 	return
 }
@@ -221,161 +222,129 @@ type Event struct {
 	Timestamp  time.Time `json:"timestamp,required" format:"date-time"`
 	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
 	Metadata map[string]EventMetadataUnion `json:"metadata,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		BusinessID  respjson.Field
-		CustomerID  respjson.Field
-		EventID     respjson.Field
-		EventName   respjson.Field
-		Timestamp   respjson.Field
-		Metadata    respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	JSON     eventJSON                     `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r Event) RawJSON() string { return r.JSON.raw }
-func (r *Event) UnmarshalJSON(data []byte) error {
+// eventJSON contains the JSON metadata for the struct [Event]
+type eventJSON struct {
+	BusinessID  apijson.Field
+	CustomerID  apijson.Field
+	EventID     apijson.Field
+	EventName   apijson.Field
+	Timestamp   apijson.Field
+	Metadata    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *Event) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// EventMetadataUnion contains all possible properties and values from [string],
-// [float64], [bool].
+func (r eventJSON) RawJSON() string {
+	return r.raw
+}
+
+// Metadata value can be a string, integer, number, or boolean
 //
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-//
-// If the underlying value is not a json object, one of the following properties
-// will be valid: OfString OfFloat OfBool]
-type EventMetadataUnion struct {
-	// This field will be present if the value is a [string] instead of an object.
-	OfString string `json:",inline"`
-	// This field will be present if the value is a [float64] instead of an object.
-	OfFloat float64 `json:",inline"`
-	// This field will be present if the value is a [bool] instead of an object.
-	OfBool bool `json:",inline"`
-	JSON   struct {
-		OfString respjson.Field
-		OfFloat  respjson.Field
-		OfBool   respjson.Field
-		raw      string
-	} `json:"-"`
+// Union satisfied by [shared.UnionString], [shared.UnionFloat] or
+// [shared.UnionBool].
+type EventMetadataUnion interface {
+	ImplementsEventMetadataUnion()
 }
 
-func (u EventMetadataUnion) AsString() (v string) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*EventMetadataUnion)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.String,
+			Type:       reflect.TypeOf(shared.UnionString("")),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.Number,
+			Type:       reflect.TypeOf(shared.UnionFloat(0)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.True,
+			Type:       reflect.TypeOf(shared.UnionBool(false)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.False,
+			Type:       reflect.TypeOf(shared.UnionBool(false)),
+		},
+	)
 }
 
-func (u EventMetadataUnion) AsFloat() (v float64) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u EventMetadataUnion) AsBool() (v bool) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u EventMetadataUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *EventMetadataUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// The properties CustomerID, EventID, EventName are required.
 type EventInputParam struct {
 	// customer_id of the customer whose usage needs to be tracked
-	CustomerID string `json:"customer_id,required"`
+	CustomerID param.Field[string] `json:"customer_id,required"`
 	// Event Id acts as an idempotency key. Any subsequent requests with the same
 	// event_id will be ignored
-	EventID string `json:"event_id,required"`
+	EventID param.Field[string] `json:"event_id,required"`
 	// Name of the event
-	EventName string `json:"event_name,required"`
-	// Custom Timestamp. Defaults to current timestamp in UTC. Timestamps that are
-	// older that 1 hour or after 5 mins, from current timestamp, will be rejected.
-	Timestamp param.Opt[time.Time] `json:"timestamp,omitzero" format:"date-time"`
+	EventName param.Field[string] `json:"event_name,required"`
 	// Custom metadata. Only key value pairs are accepted, objects or arrays submitted
 	// will be rejected.
-	Metadata map[string]EventInputMetadataUnionParam `json:"metadata,omitzero"`
-	paramObj
+	Metadata param.Field[map[string]EventInputMetadataUnionParam] `json:"metadata"`
+	// Custom Timestamp. Defaults to current timestamp in UTC. Timestamps that are
+	// older that 1 hour or after 5 mins, from current timestamp, will be rejected.
+	Timestamp param.Field[time.Time] `json:"timestamp" format:"date-time"`
 }
 
 func (r EventInputParam) MarshalJSON() (data []byte, err error) {
-	type shadow EventInputParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *EventInputParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
-// Only one field can be non-zero.
+// Metadata value can be a string, integer, number, or boolean
 //
-// Use [param.IsOmitted] to confirm if a field is set.
-type EventInputMetadataUnionParam struct {
-	OfString param.Opt[string]  `json:",omitzero,inline"`
-	OfFloat  param.Opt[float64] `json:",omitzero,inline"`
-	OfBool   param.Opt[bool]    `json:",omitzero,inline"`
-	paramUnion
-}
-
-func (u EventInputMetadataUnionParam) MarshalJSON() ([]byte, error) {
-	return param.MarshalUnion(u, u.OfString, u.OfFloat, u.OfBool)
-}
-func (u *EventInputMetadataUnionParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, u)
-}
-
-func (u *EventInputMetadataUnionParam) asAny() any {
-	if !param.IsOmitted(u.OfString) {
-		return &u.OfString.Value
-	} else if !param.IsOmitted(u.OfFloat) {
-		return &u.OfFloat.Value
-	} else if !param.IsOmitted(u.OfBool) {
-		return &u.OfBool.Value
-	}
-	return nil
+// Satisfied by [shared.UnionString], [shared.UnionFloat], [shared.UnionBool].
+type EventInputMetadataUnionParam interface {
+	ImplementsEventInputMetadataUnionParam()
 }
 
 type UsageEventIngestResponse struct {
-	IngestedCount int64 `json:"ingested_count,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		IngestedCount respjson.Field
-		ExtraFields   map[string]respjson.Field
-		raw           string
-	} `json:"-"`
+	IngestedCount int64                        `json:"ingested_count,required"`
+	JSON          usageEventIngestResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r UsageEventIngestResponse) RawJSON() string { return r.JSON.raw }
-func (r *UsageEventIngestResponse) UnmarshalJSON(data []byte) error {
+// usageEventIngestResponseJSON contains the JSON metadata for the struct
+// [UsageEventIngestResponse]
+type usageEventIngestResponseJSON struct {
+	IngestedCount apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *UsageEventIngestResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r usageEventIngestResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type UsageEventListParams struct {
 	// Filter events by customer ID
-	CustomerID param.Opt[string] `query:"customer_id,omitzero" json:"-"`
+	CustomerID param.Field[string] `query:"customer_id"`
 	// Filter events created before this timestamp
-	End param.Opt[time.Time] `query:"end,omitzero" format:"date-time" json:"-"`
+	End param.Field[time.Time] `query:"end" format:"date-time"`
 	// Filter events by event name. If both event_name and meter_id are provided, they
 	// must match the meter's configured event_name
-	EventName param.Opt[string] `query:"event_name,omitzero" json:"-"`
+	EventName param.Field[string] `query:"event_name"`
 	// Filter events by meter ID. When provided, only events that match the meter's
 	// event_name and filter criteria will be returned
-	MeterID param.Opt[string] `query:"meter_id,omitzero" json:"-"`
+	MeterID param.Field[string] `query:"meter_id"`
 	// Page number (0-based, default: 0)
-	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
+	PageNumber param.Field[int64] `query:"page_number"`
 	// Number of events to return per page (default: 10)
-	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
+	PageSize param.Field[int64] `query:"page_size"`
 	// Filter events created after this timestamp
-	Start param.Opt[time.Time] `query:"start,omitzero" format:"date-time" json:"-"`
-	paramObj
+	Start param.Field[time.Time] `query:"start" format:"date-time"`
 }
 
 // URLQuery serializes [UsageEventListParams]'s query parameters as `url.Values`.
-func (r UsageEventListParams) URLQuery() (v url.Values, err error) {
+func (r UsageEventListParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
@@ -384,14 +353,9 @@ func (r UsageEventListParams) URLQuery() (v url.Values, err error) {
 
 type UsageEventIngestParams struct {
 	// List of events to be pushed
-	Events []EventInputParam `json:"events,omitzero,required"`
-	paramObj
+	Events param.Field[[]EventInputParam] `json:"events,required"`
 }
 
 func (r UsageEventIngestParams) MarshalJSON() (data []byte, err error) {
-	type shadow UsageEventIngestParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *UsageEventIngestParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
