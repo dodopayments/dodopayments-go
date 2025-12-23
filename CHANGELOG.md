@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.70.0 (2025-12-23)
+
+Full Changelog: [v1.69.0...v1.70.0](https://github.com/dodopayments/dodopayments-go/compare/v1.69.0...v1.70.0)
+
+### Features
+
+* **api:** manual updates ([c853e71](https://github.com/dodopayments/dodopayments-go/commit/c853e71bd9f3e4933006198c14334c405f0b3414))
+
 ## 1.69.0 (2025-12-23)
 
 Full Changelog: [v1.68.0...v1.69.0](https://github.com/dodopayments/dodopayments-go/compare/v1.68.0...v1.69.0)
