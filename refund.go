@@ -13,11 +13,10 @@ import (
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
-	"github.com/dodopayments/dodopayments-go/packages/param"
-	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // RefundService contains methods and other services that help with interacting
@@ -33,8 +32,8 @@ type RefundService struct {
 // NewRefundService generates a new service that applies the given options to each
 // request. These options are applied after the parent client's options (if there
 // is one), and before any request-specific options.
-func NewRefundService(opts ...option.RequestOption) (r RefundService) {
-	r = RefundService{}
+func NewRefundService(opts ...option.RequestOption) (r *RefundService) {
+	r = &RefundService{}
 	r.Options = opts
 	return
 }
@@ -94,52 +93,39 @@ type Refund struct {
 	// The unique identifier of the refund.
 	RefundID string `json:"refund_id,required"`
 	// The current status of the refund.
-	//
-	// Any of "succeeded", "failed", "pending", "review".
 	Status RefundStatus `json:"status,required"`
 	// The refunded amount.
 	Amount int64 `json:"amount,nullable"`
 	// The currency of the refund, represented as an ISO 4217 currency code.
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
 	Currency Currency `json:"currency,nullable"`
 	// The reason provided for the refund, if any. Optional.
-	Reason string `json:"reason,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		BusinessID  respjson.Field
-		CreatedAt   respjson.Field
-		Customer    respjson.Field
-		IsPartial   respjson.Field
-		Metadata    respjson.Field
-		PaymentID   respjson.Field
-		RefundID    respjson.Field
-		Status      respjson.Field
-		Amount      respjson.Field
-		Currency    respjson.Field
-		Reason      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	Reason string     `json:"reason,nullable"`
+	JSON   refundJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r Refund) RawJSON() string { return r.JSON.raw }
-func (r *Refund) UnmarshalJSON(data []byte) error {
+// refundJSON contains the JSON metadata for the struct [Refund]
+type refundJSON struct {
+	BusinessID  apijson.Field
+	CreatedAt   apijson.Field
+	Customer    apijson.Field
+	IsPartial   apijson.Field
+	Metadata    apijson.Field
+	PaymentID   apijson.Field
+	RefundID    apijson.Field
+	Status      apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Reason      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *Refund) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r refundJSON) RawJSON() string {
+	return r.raw
 }
 
 type RefundStatus string
@@ -150,6 +136,14 @@ const (
 	RefundStatusPending   RefundStatus = "pending"
 	RefundStatusReview    RefundStatus = "review"
 )
+
+func (r RefundStatus) IsKnown() bool {
+	switch r {
+	case RefundStatusSucceeded, RefundStatusFailed, RefundStatusPending, RefundStatusReview:
+		return true
+	}
+	return false
+}
 
 type RefundListResponse struct {
 	// The unique identifier of the business issuing the refund.
@@ -163,111 +157,85 @@ type RefundListResponse struct {
 	// The unique identifier of the refund.
 	RefundID string `json:"refund_id,required"`
 	// The current status of the refund.
-	//
-	// Any of "succeeded", "failed", "pending", "review".
 	Status RefundStatus `json:"status,required"`
 	// The refunded amount.
 	Amount int64 `json:"amount,nullable"`
 	// The currency of the refund, represented as an ISO 4217 currency code.
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
 	Currency Currency `json:"currency,nullable"`
 	// The reason provided for the refund, if any. Optional.
-	Reason string `json:"reason,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		BusinessID  respjson.Field
-		CreatedAt   respjson.Field
-		IsPartial   respjson.Field
-		PaymentID   respjson.Field
-		RefundID    respjson.Field
-		Status      respjson.Field
-		Amount      respjson.Field
-		Currency    respjson.Field
-		Reason      respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	Reason string                 `json:"reason,nullable"`
+	JSON   refundListResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r RefundListResponse) RawJSON() string { return r.JSON.raw }
-func (r *RefundListResponse) UnmarshalJSON(data []byte) error {
+// refundListResponseJSON contains the JSON metadata for the struct
+// [RefundListResponse]
+type refundListResponseJSON struct {
+	BusinessID  apijson.Field
+	CreatedAt   apijson.Field
+	IsPartial   apijson.Field
+	PaymentID   apijson.Field
+	RefundID    apijson.Field
+	Status      apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Reason      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *RefundListResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r refundListResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type RefundNewParams struct {
 	// The unique identifier of the payment to be refunded.
-	PaymentID string `json:"payment_id,required"`
-	// The reason for the refund, if any. Maximum length is 3000 characters. Optional.
-	Reason param.Opt[string] `json:"reason,omitzero"`
+	PaymentID param.Field[string] `json:"payment_id,required"`
 	// Partially Refund an Individual Item
-	Items []RefundNewParamsItem `json:"items,omitzero"`
+	Items param.Field[[]RefundNewParamsItem] `json:"items"`
 	// Additional metadata associated with the refund.
-	Metadata map[string]string `json:"metadata,omitzero"`
-	paramObj
+	Metadata param.Field[map[string]string] `json:"metadata"`
+	// The reason for the refund, if any. Maximum length is 3000 characters. Optional.
+	Reason param.Field[string] `json:"reason"`
 }
 
 func (r RefundNewParams) MarshalJSON() (data []byte, err error) {
-	type shadow RefundNewParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *RefundNewParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
-// The property ItemID is required.
 type RefundNewParamsItem struct {
 	// The id of the item (i.e. `product_id` or `addon_id`)
-	ItemID string `json:"item_id,required"`
+	ItemID param.Field[string] `json:"item_id,required"`
 	// The amount to refund. if None the whole item is refunded
-	Amount param.Opt[int64] `json:"amount,omitzero"`
+	Amount param.Field[int64] `json:"amount"`
 	// Specify if tax is inclusive of the refund. Default true.
-	TaxInclusive param.Opt[bool] `json:"tax_inclusive,omitzero"`
-	paramObj
+	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 }
 
 func (r RefundNewParamsItem) MarshalJSON() (data []byte, err error) {
-	type shadow RefundNewParamsItem
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *RefundNewParamsItem) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type RefundListParams struct {
 	// Get events after this created time
-	CreatedAtGte param.Opt[time.Time] `query:"created_at_gte,omitzero" format:"date-time" json:"-"`
+	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
 	// Get events created before this time
-	CreatedAtLte param.Opt[time.Time] `query:"created_at_lte,omitzero" format:"date-time" json:"-"`
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
 	// Filter by customer_id
-	CustomerID param.Opt[string] `query:"customer_id,omitzero" json:"-"`
+	CustomerID param.Field[string] `query:"customer_id"`
 	// Page number default is 0
-	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
+	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
-	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
+	PageSize param.Field[int64] `query:"page_size"`
 	// Filter by status
-	//
-	// Any of "succeeded", "failed", "pending", "review".
-	Status RefundListParamsStatus `query:"status,omitzero" json:"-"`
-	paramObj
+	Status param.Field[RefundListParamsStatus] `query:"status"`
 }
 
 // URLQuery serializes [RefundListParams]'s query parameters as `url.Values`.
-func (r RefundListParams) URLQuery() (v url.Values, err error) {
+func (r RefundListParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
@@ -283,3 +251,11 @@ const (
 	RefundListParamsStatusPending   RefundListParamsStatus = "pending"
 	RefundListParamsStatusReview    RefundListParamsStatus = "review"
 )
+
+func (r RefundListParamsStatus) IsKnown() bool {
+	switch r {
+	case RefundListParamsStatusSucceeded, RefundListParamsStatusFailed, RefundListParamsStatusPending, RefundListParamsStatusReview:
+		return true
+	}
+	return false
+}

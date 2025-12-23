@@ -26,8 +26,8 @@ func TestLicenseActivate(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Licenses.Activate(context.TODO(), dodopayments.LicenseActivateParams{
-		LicenseKey: "license_key",
-		Name:       "name",
+		LicenseKey: dodopayments.F("license_key"),
+		Name:       dodopayments.F("name"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -51,8 +51,8 @@ func TestLicenseDeactivate(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	err := client.Licenses.Deactivate(context.TODO(), dodopayments.LicenseDeactivateParams{
-		LicenseKey:           "license_key",
-		LicenseKeyInstanceID: "license_key_instance_id",
+		LicenseKey:           dodopayments.F("license_key"),
+		LicenseKeyInstanceID: dodopayments.F("license_key_instance_id"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -76,8 +76,8 @@ func TestLicenseValidateWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Licenses.Validate(context.TODO(), dodopayments.LicenseValidateParams{
-		LicenseKey:           "2b1f8e2d-c41e-4e8f-b2d3-d9fd61c38f43",
-		LicenseKeyInstanceID: dodopayments.String("lki_123"),
+		LicenseKey:           dodopayments.F("2b1f8e2d-c41e-4e8f-b2d3-d9fd61c38f43"),
+		LicenseKeyInstanceID: dodopayments.F("lki_123"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

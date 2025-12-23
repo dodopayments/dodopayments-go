@@ -40,10 +40,10 @@ func TestUserAgentHeader(t *testing.T) {
 	)
 	client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: []dodopayments.CheckoutSessionRequestProductCartParam{{
-				ProductID: "product_id",
-				Quantity:  0,
-			}},
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
 		},
 	})
 	if userAgent != fmt.Sprintf("DodoPayments/Go %s", internal.PackageVersion) {
@@ -71,10 +71,10 @@ func TestRetryAfter(t *testing.T) {
 	)
 	_, err := client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: []dodopayments.CheckoutSessionRequestProductCartParam{{
-				ProductID: "product_id",
-				Quantity:  0,
-			}},
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
 		},
 	})
 	if err == nil {
@@ -113,10 +113,10 @@ func TestDeleteRetryCountHeader(t *testing.T) {
 	)
 	_, err := client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: []dodopayments.CheckoutSessionRequestProductCartParam{{
-				ProductID: "product_id",
-				Quantity:  0,
-			}},
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
 		},
 	})
 	if err == nil {
@@ -150,10 +150,10 @@ func TestOverwriteRetryCountHeader(t *testing.T) {
 	)
 	_, err := client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: []dodopayments.CheckoutSessionRequestProductCartParam{{
-				ProductID: "product_id",
-				Quantity:  0,
-			}},
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
 		},
 	})
 	if err == nil {
@@ -186,10 +186,10 @@ func TestRetryAfterMs(t *testing.T) {
 	)
 	_, err := client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: []dodopayments.CheckoutSessionRequestProductCartParam{{
-				ProductID: "product_id",
-				Quantity:  0,
-			}},
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
 		},
 	})
 	if err == nil {
@@ -216,10 +216,10 @@ func TestContextCancel(t *testing.T) {
 	cancel()
 	_, err := client.CheckoutSessions.New(cancelCtx, dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: []dodopayments.CheckoutSessionRequestProductCartParam{{
-				ProductID: "product_id",
-				Quantity:  0,
-			}},
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
 		},
 	})
 	if err == nil {
@@ -243,10 +243,10 @@ func TestContextCancelDelay(t *testing.T) {
 	defer cancel()
 	_, err := client.CheckoutSessions.New(cancelCtx, dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: []dodopayments.CheckoutSessionRequestProductCartParam{{
-				ProductID: "product_id",
-				Quantity:  0,
-			}},
+			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductID: dodopayments.F("product_id"),
+				Quantity:  dodopayments.F(int64(0)),
+			}}),
 		},
 	})
 	if err == nil {
@@ -276,10 +276,10 @@ func TestContextDeadline(t *testing.T) {
 		)
 		_, err := client.CheckoutSessions.New(deadlineCtx, dodopayments.CheckoutSessionNewParams{
 			CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-				ProductCart: []dodopayments.CheckoutSessionRequestProductCartParam{{
-					ProductID: "product_id",
-					Quantity:  0,
-				}},
+				ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+					ProductID: dodopayments.F("product_id"),
+					Quantity:  dodopayments.F(int64(0)),
+				}}),
 			},
 		})
 		if err == nil {

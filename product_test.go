@@ -26,37 +26,35 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Products.New(context.TODO(), dodopayments.ProductNewParams{
-		Name: "name",
-		Price: dodopayments.PriceUnionParam{
-			OfOneTimePrice: &dodopayments.PriceOneTimePriceParam{
-				Currency:              dodopayments.CurrencyAed,
-				Discount:              0,
-				Price:                 0,
-				PurchasingPowerParity: true,
-				Type:                  "one_time_price",
-				PayWhatYouWant:        dodopayments.Bool(true),
-				SuggestedPrice:        dodopayments.Int(0),
-				TaxInclusive:          dodopayments.Bool(true),
-			},
-		},
-		TaxCategory: dodopayments.TaxCategoryDigitalProducts,
-		Addons:      []string{"string"},
-		BrandID:     dodopayments.String("brand_id"),
-		Description: dodopayments.String("description"),
-		DigitalProductDelivery: dodopayments.ProductNewParamsDigitalProductDelivery{
-			ExternalURL:  dodopayments.String("external_url"),
-			Instructions: dodopayments.String("instructions"),
-		},
-		LicenseKeyActivationMessage: dodopayments.String("license_key_activation_message"),
-		LicenseKeyActivationsLimit:  dodopayments.Int(0),
-		LicenseKeyDuration: dodopayments.LicenseKeyDurationParam{
-			Count:    0,
-			Interval: dodopayments.TimeIntervalDay,
-		},
-		LicenseKeyEnabled: dodopayments.Bool(true),
-		Metadata: map[string]string{
+		Name: dodopayments.F("name"),
+		Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
+			Currency:              dodopayments.F(dodopayments.CurrencyAed),
+			Discount:              dodopayments.F(int64(0)),
+			Price:                 dodopayments.F(int64(0)),
+			PurchasingPowerParity: dodopayments.F(true),
+			Type:                  dodopayments.F(dodopayments.PriceOneTimePriceTypeOneTimePrice),
+			PayWhatYouWant:        dodopayments.F(true),
+			SuggestedPrice:        dodopayments.F(int64(0)),
+			TaxInclusive:          dodopayments.F(true),
+		}),
+		TaxCategory: dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
+		Addons:      dodopayments.F([]string{"string"}),
+		BrandID:     dodopayments.F("brand_id"),
+		Description: dodopayments.F("description"),
+		DigitalProductDelivery: dodopayments.F(dodopayments.ProductNewParamsDigitalProductDelivery{
+			ExternalURL:  dodopayments.F("external_url"),
+			Instructions: dodopayments.F("instructions"),
+		}),
+		LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
+		LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
+		LicenseKeyDuration: dodopayments.F(dodopayments.LicenseKeyDurationParam{
+			Count:    dodopayments.F(int64(0)),
+			Interval: dodopayments.F(dodopayments.TimeIntervalDay),
+		}),
+		LicenseKeyEnabled: dodopayments.F(true),
+		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
-		},
+		}),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -105,39 +103,37 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.ProductUpdateParams{
-			Addons:      []string{"string"},
-			BrandID:     dodopayments.String("brand_id"),
-			Description: dodopayments.String("description"),
-			DigitalProductDelivery: dodopayments.ProductUpdateParamsDigitalProductDelivery{
-				ExternalURL:  dodopayments.String("external_url"),
-				Files:        []string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"},
-				Instructions: dodopayments.String("instructions"),
-			},
-			ImageID:                     dodopayments.String("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
-			LicenseKeyActivationMessage: dodopayments.String("license_key_activation_message"),
-			LicenseKeyActivationsLimit:  dodopayments.Int(0),
-			LicenseKeyDuration: dodopayments.LicenseKeyDurationParam{
-				Count:    0,
-				Interval: dodopayments.TimeIntervalDay,
-			},
-			LicenseKeyEnabled: dodopayments.Bool(true),
-			Metadata: map[string]string{
+			Addons:      dodopayments.F([]string{"string"}),
+			BrandID:     dodopayments.F("brand_id"),
+			Description: dodopayments.F("description"),
+			DigitalProductDelivery: dodopayments.F(dodopayments.ProductUpdateParamsDigitalProductDelivery{
+				ExternalURL:  dodopayments.F("external_url"),
+				Files:        dodopayments.F([]string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"}),
+				Instructions: dodopayments.F("instructions"),
+			}),
+			ImageID:                     dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
+			LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
+			LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
+			LicenseKeyDuration: dodopayments.F(dodopayments.LicenseKeyDurationParam{
+				Count:    dodopayments.F(int64(0)),
+				Interval: dodopayments.F(dodopayments.TimeIntervalDay),
+			}),
+			LicenseKeyEnabled: dodopayments.F(true),
+			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
-			},
-			Name: dodopayments.String("name"),
-			Price: dodopayments.PriceUnionParam{
-				OfOneTimePrice: &dodopayments.PriceOneTimePriceParam{
-					Currency:              dodopayments.CurrencyAed,
-					Discount:              0,
-					Price:                 0,
-					PurchasingPowerParity: true,
-					Type:                  "one_time_price",
-					PayWhatYouWant:        dodopayments.Bool(true),
-					SuggestedPrice:        dodopayments.Int(0),
-					TaxInclusive:          dodopayments.Bool(true),
-				},
-			},
-			TaxCategory: dodopayments.TaxCategoryDigitalProducts,
+			}),
+			Name: dodopayments.F("name"),
+			Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
+				Currency:              dodopayments.F(dodopayments.CurrencyAed),
+				Discount:              dodopayments.F(int64(0)),
+				Price:                 dodopayments.F(int64(0)),
+				PurchasingPowerParity: dodopayments.F(true),
+				Type:                  dodopayments.F(dodopayments.PriceOneTimePriceTypeOneTimePrice),
+				PayWhatYouWant:        dodopayments.F(true),
+				SuggestedPrice:        dodopayments.F(int64(0)),
+				TaxInclusive:          dodopayments.F(true),
+			}),
+			TaxCategory: dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
 		},
 	)
 	if err != nil {
@@ -162,11 +158,11 @@ func TestProductListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Products.List(context.TODO(), dodopayments.ProductListParams{
-		Archived:   dodopayments.Bool(true),
-		BrandID:    dodopayments.String("brand_id"),
-		PageNumber: dodopayments.Int(0),
-		PageSize:   dodopayments.Int(0),
-		Recurring:  dodopayments.Bool(true),
+		Archived:   dodopayments.F(true),
+		BrandID:    dodopayments.F("brand_id"),
+		PageNumber: dodopayments.F(int64(0)),
+		PageSize:   dodopayments.F(int64(0)),
+		Recurring:  dodopayments.F(true),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -237,7 +233,7 @@ func TestProductUpdateFiles(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.ProductUpdateFilesParams{
-			FileName: "file_name",
+			FileName: dodopayments.F("file_name"),
 		},
 	)
 	if err != nil {

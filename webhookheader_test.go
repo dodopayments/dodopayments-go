@@ -51,9 +51,9 @@ func TestWebhookHeaderUpdate(t *testing.T) {
 		context.TODO(),
 		"webhook_id",
 		dodopayments.WebhookHeaderUpdateParams{
-			Headers: map[string]string{
+			Headers: dodopayments.F(map[string]string{
 				"foo": "string",
-			},
+			}),
 		},
 	)
 	if err != nil {

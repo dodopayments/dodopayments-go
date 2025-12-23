@@ -29,7 +29,7 @@ func TestCustomerCustomerPortalNewWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"customer_id",
 		dodopayments.CustomerCustomerPortalNewParams{
-			SendEmail: dodopayments.Bool(true),
+			SendEmail: dodopayments.F(true),
 		},
 	)
 	if err != nil {

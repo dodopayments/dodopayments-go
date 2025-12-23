@@ -13,11 +13,10 @@ import (
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
-	"github.com/dodopayments/dodopayments-go/packages/param"
-	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // AddonService contains methods and other services that help with interacting with
@@ -33,8 +32,8 @@ type AddonService struct {
 // NewAddonService generates a new service that applies the given options to each
 // request. These options are applied after the parent client's options (if there
 // is one), and before any request-specific options.
-func NewAddonService(opts ...option.RequestOption) (r AddonService) {
-	r = AddonService{}
+func NewAddonService(opts ...option.RequestOption) (r *AddonService) {
+	r = &AddonService{}
 	r.Options = opts
 	return
 }
@@ -108,167 +107,114 @@ type AddonResponse struct {
 	// Created time
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
 	// Currency of the Addon
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
 	Currency Currency `json:"currency,required"`
 	// Name of the Addon
 	Name string `json:"name,required"`
 	// Amount of the addon
 	Price int64 `json:"price,required"`
 	// Tax category applied to this Addon
-	//
-	// Any of "digital_products", "saas", "e_book", "edtech".
 	TaxCategory TaxCategory `json:"tax_category,required"`
 	// Updated time
 	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
 	// Optional description of the Addon
 	Description string `json:"description,nullable"`
 	// Image of the Addon
-	Image string `json:"image,nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		BusinessID  respjson.Field
-		CreatedAt   respjson.Field
-		Currency    respjson.Field
-		Name        respjson.Field
-		Price       respjson.Field
-		TaxCategory respjson.Field
-		UpdatedAt   respjson.Field
-		Description respjson.Field
-		Image       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	Image string            `json:"image,nullable"`
+	JSON  addonResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r AddonResponse) RawJSON() string { return r.JSON.raw }
-func (r *AddonResponse) UnmarshalJSON(data []byte) error {
+// addonResponseJSON contains the JSON metadata for the struct [AddonResponse]
+type addonResponseJSON struct {
+	ID          apijson.Field
+	BusinessID  apijson.Field
+	CreatedAt   apijson.Field
+	Currency    apijson.Field
+	Name        apijson.Field
+	Price       apijson.Field
+	TaxCategory apijson.Field
+	UpdatedAt   apijson.Field
+	Description apijson.Field
+	Image       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AddonResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r addonResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type AddonUpdateImagesResponse struct {
-	ImageID string `json:"image_id,required" format:"uuid"`
-	URL     string `json:"url,required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ImageID     respjson.Field
-		URL         respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
+	ImageID string                        `json:"image_id,required" format:"uuid"`
+	URL     string                        `json:"url,required"`
+	JSON    addonUpdateImagesResponseJSON `json:"-"`
 }
 
-// Returns the unmodified JSON received from the API
-func (r AddonUpdateImagesResponse) RawJSON() string { return r.JSON.raw }
-func (r *AddonUpdateImagesResponse) UnmarshalJSON(data []byte) error {
+// addonUpdateImagesResponseJSON contains the JSON metadata for the struct
+// [AddonUpdateImagesResponse]
+type addonUpdateImagesResponseJSON struct {
+	ImageID     apijson.Field
+	URL         apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AddonUpdateImagesResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r addonUpdateImagesResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type AddonNewParams struct {
 	// The currency of the Addon
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	Currency Currency `json:"currency,omitzero,required"`
+	Currency param.Field[Currency] `json:"currency,required"`
 	// Name of the Addon
-	Name string `json:"name,required"`
+	Name param.Field[string] `json:"name,required"`
 	// Amount of the addon
-	Price int64 `json:"price,required"`
+	Price param.Field[int64] `json:"price,required"`
 	// Tax category applied to this Addon
-	//
-	// Any of "digital_products", "saas", "e_book", "edtech".
-	TaxCategory TaxCategory `json:"tax_category,omitzero,required"`
+	TaxCategory param.Field[TaxCategory] `json:"tax_category,required"`
 	// Optional description of the Addon
-	Description param.Opt[string] `json:"description,omitzero"`
-	paramObj
+	Description param.Field[string] `json:"description"`
 }
 
 func (r AddonNewParams) MarshalJSON() (data []byte, err error) {
-	type shadow AddonNewParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *AddonNewParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type AddonUpdateParams struct {
-	// Description of the Addon, optional and must be at most 1000 characters.
-	Description param.Opt[string] `json:"description,omitzero"`
-	// Addon image id after its uploaded to S3
-	ImageID param.Opt[string] `json:"image_id,omitzero" format:"uuid"`
-	// Name of the Addon, optional and must be at most 100 characters.
-	Name param.Opt[string] `json:"name,omitzero"`
-	// Amount of the addon
-	Price param.Opt[int64] `json:"price,omitzero"`
 	// The currency of the Addon
-	//
-	// Any of "AED", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM",
-	// "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BWP",
-	// "BYN", "BZD", "CAD", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK",
-	// "DJF", "DKK", "DOP", "DZD", "EGP", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL",
-	// "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF",
-	// "IDR", "ILS", "INR", "IQD", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF",
-	// "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD",
-	// "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN",
-	// "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN",
-	// "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR",
-	// "SBD", "SCR", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN",
-	// "SVC", "SZL", "THB", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX",
-	// "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF",
-	// "YER", "ZAR", "ZMW".
-	Currency Currency `json:"currency,omitzero"`
+	Currency param.Field[Currency] `json:"currency"`
+	// Description of the Addon, optional and must be at most 1000 characters.
+	Description param.Field[string] `json:"description"`
+	// Addon image id after its uploaded to S3
+	ImageID param.Field[string] `json:"image_id" format:"uuid"`
+	// Name of the Addon, optional and must be at most 100 characters.
+	Name param.Field[string] `json:"name"`
+	// Amount of the addon
+	Price param.Field[int64] `json:"price"`
 	// Tax category of the Addon.
-	//
-	// Any of "digital_products", "saas", "e_book", "edtech".
-	TaxCategory TaxCategory `json:"tax_category,omitzero"`
-	paramObj
+	TaxCategory param.Field[TaxCategory] `json:"tax_category"`
 }
 
 func (r AddonUpdateParams) MarshalJSON() (data []byte, err error) {
-	type shadow AddonUpdateParams
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *AddonUpdateParams) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
+	return apijson.MarshalRoot(r)
 }
 
 type AddonListParams struct {
 	// Page number default is 0
-	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
+	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
-	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
-	paramObj
+	PageSize param.Field[int64] `query:"page_size"`
 }
 
 // URLQuery serializes [AddonListParams]'s query parameters as `url.Values`.
-func (r AddonListParams) URLQuery() (v url.Values, err error) {
+func (r AddonListParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
