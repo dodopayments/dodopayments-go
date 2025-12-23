@@ -50,6 +50,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 			"foo": "string",
 		}),
 		PaymentLink:             dodopayments.F(true),
+		PaymentMethodID:         dodopayments.F("payment_method_id"),
 		RedirectImmediately:     dodopayments.F(true),
 		ReturnURL:               dodopayments.F("return_url"),
 		ShortLink:               dodopayments.F(true),
