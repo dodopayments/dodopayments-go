@@ -27,16 +27,16 @@ func TestRefundNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Refunds.New(context.TODO(), dodopayments.RefundNewParams{
-		PaymentID: dodopayments.F("payment_id"),
-		Items: dodopayments.F([]dodopayments.RefundNewParamsItem{{
-			ItemID:       dodopayments.F("item_id"),
-			Amount:       dodopayments.F(int64(0)),
-			TaxInclusive: dodopayments.F(true),
-		}}),
-		Metadata: dodopayments.F(map[string]string{
+		PaymentID: "payment_id",
+		Items: []dodopayments.RefundNewParamsItem{{
+			ItemID:       "item_id",
+			Amount:       dodopayments.Int(0),
+			TaxInclusive: dodopayments.Bool(true),
+		}},
+		Metadata: map[string]string{
 			"foo": "string",
-		}),
-		Reason: dodopayments.F("reason"),
+		},
+		Reason: dodopayments.String("reason"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -82,12 +82,12 @@ func TestRefundListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Refunds.List(context.TODO(), dodopayments.RefundListParams{
-		CreatedAtGte: dodopayments.F(time.Now()),
-		CreatedAtLte: dodopayments.F(time.Now()),
-		CustomerID:   dodopayments.F("customer_id"),
-		PageNumber:   dodopayments.F(int64(0)),
-		PageSize:     dodopayments.F(int64(0)),
-		Status:       dodopayments.F(dodopayments.RefundListParamsStatusSucceeded),
+		CreatedAtGte: dodopayments.Time(time.Now()),
+		CreatedAtLte: dodopayments.Time(time.Now()),
+		CustomerID:   dodopayments.String("customer_id"),
+		PageNumber:   dodopayments.Int(0),
+		PageSize:     dodopayments.Int(0),
+		Status:       dodopayments.RefundListParamsStatusSucceeded,
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

@@ -4,22 +4,21 @@ package dodopayments
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
-	"reflect"
 	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
-	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 	"github.com/dodopayments/dodopayments-go/packages/pagination"
-	"github.com/dodopayments/dodopayments-go/shared"
-	"github.com/tidwall/gjson"
+	"github.com/dodopayments/dodopayments-go/packages/param"
+	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // MeterService contains methods and other services that help with interacting with
@@ -35,8 +34,8 @@ type MeterService struct {
 // NewMeterService generates a new service that applies the given options to each
 // request. These options are applied after the parent client's options (if there
 // is one), and before any request-specific options.
-func NewMeterService(opts ...option.RequestOption) (r *MeterService) {
-	r = &MeterService{}
+func NewMeterService(opts ...option.RequestOption) (r MeterService) {
+	r = MeterService{}
 	r.Options = opts
 	return
 }
@@ -121,56 +120,58 @@ type Meter struct {
 	// filter has a conjunction (and/or) and clauses that can be either direct
 	// conditions or nested filters.
 	Filter MeterFilter `json:"filter,nullable"`
-	JSON   meterJSON   `json:"-"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID              respjson.Field
+		Aggregation     respjson.Field
+		BusinessID      respjson.Field
+		CreatedAt       respjson.Field
+		EventName       respjson.Field
+		MeasurementUnit respjson.Field
+		Name            respjson.Field
+		UpdatedAt       respjson.Field
+		Description     respjson.Field
+		Filter          respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
+	} `json:"-"`
 }
 
-// meterJSON contains the JSON metadata for the struct [Meter]
-type meterJSON struct {
-	ID              apijson.Field
-	Aggregation     apijson.Field
-	BusinessID      apijson.Field
-	CreatedAt       apijson.Field
-	EventName       apijson.Field
-	MeasurementUnit apijson.Field
-	Name            apijson.Field
-	UpdatedAt       apijson.Field
-	Description     apijson.Field
-	Filter          apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
-}
-
-func (r *Meter) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r Meter) RawJSON() string { return r.JSON.raw }
+func (r *Meter) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r meterJSON) RawJSON() string {
-	return r.raw
 }
 
 type MeterAggregation struct {
 	// Aggregation type for the meter
+	//
+	// Any of "count", "sum", "max", "last".
 	Type MeterAggregationType `json:"type,required"`
 	// Required when type is not COUNT
-	Key  string               `json:"key,nullable"`
-	JSON meterAggregationJSON `json:"-"`
+	Key string `json:"key,nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Type        respjson.Field
+		Key         respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
 }
 
-// meterAggregationJSON contains the JSON metadata for the struct
-// [MeterAggregation]
-type meterAggregationJSON struct {
-	Type        apijson.Field
-	Key         apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *MeterAggregation) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r MeterAggregation) RawJSON() string { return r.JSON.raw }
+func (r *MeterAggregation) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r meterAggregationJSON) RawJSON() string {
-	return r.raw
+// ToParam converts this MeterAggregation to a MeterAggregationParam.
+//
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// MeterAggregationParam.Overrides()
+func (r MeterAggregation) ToParam() MeterAggregationParam {
+	return param.Override[MeterAggregationParam](json.RawMessage(r.RawJSON()))
 }
 
 // Aggregation type for the meter
@@ -183,23 +184,23 @@ const (
 	MeterAggregationTypeLast  MeterAggregationType = "last"
 )
 
-func (r MeterAggregationType) IsKnown() bool {
-	switch r {
-	case MeterAggregationTypeCount, MeterAggregationTypeSum, MeterAggregationTypeMax, MeterAggregationTypeLast:
-		return true
-	}
-	return false
-}
-
+// The property Type is required.
 type MeterAggregationParam struct {
 	// Aggregation type for the meter
-	Type param.Field[MeterAggregationType] `json:"type,required"`
+	//
+	// Any of "count", "sum", "max", "last".
+	Type MeterAggregationType `json:"type,omitzero,required"`
 	// Required when type is not COUNT
-	Key param.Field[string] `json:"key"`
+	Key param.Opt[string] `json:"key,omitzero"`
+	paramObj
 }
 
 func (r MeterAggregationParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	type shadow MeterAggregationParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *MeterAggregationParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // A filter structure that combines multiple conditions with logical conjunctions
@@ -213,570 +214,511 @@ type MeterFilter struct {
 	// deep)
 	Clauses MeterFilterClausesUnion `json:"clauses,required"`
 	// Logical conjunction to apply between clauses (and/or)
+	//
+	// Any of "and", "or".
 	Conjunction MeterFilterConjunction `json:"conjunction,required"`
-	JSON        meterFilterJSON        `json:"-"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Clauses     respjson.Field
+		Conjunction respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
 }
 
-// meterFilterJSON contains the JSON metadata for the struct [MeterFilter]
-type meterFilterJSON struct {
-	Clauses     apijson.Field
-	Conjunction apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *MeterFilter) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r MeterFilter) RawJSON() string { return r.JSON.raw }
+func (r *MeterFilter) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r meterFilterJSON) RawJSON() string {
-	return r.raw
-}
-
-// Filter clauses - can be direct conditions or nested filters (up to 3 levels
-// deep)
+// ToParam converts this MeterFilter to a MeterFilterParam.
 //
-// Union satisfied by [MeterFilterClausesDirectFilterConditions] or
-// [MeterFilterClausesNestedMeterFilters].
-type MeterFilterClausesUnion interface {
-	implementsMeterFilterClausesUnion()
+// Warning: the fields of the param type will not be present. ToParam should only
+// be used at the last possible moment before sending a request. Test for this with
+// MeterFilterParam.Overrides()
+func (r MeterFilter) ToParam() MeterFilterParam {
+	return param.Override[MeterFilterParam](json.RawMessage(r.RawJSON()))
 }
 
-func init() {
-	apijson.RegisterUnion(
-		reflect.TypeOf((*MeterFilterClausesUnion)(nil)).Elem(),
-		"",
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(MeterFilterClausesDirectFilterConditions{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(MeterFilterClausesNestedMeterFilters{}),
-		},
-	)
+// MeterFilterClausesUnion contains all possible properties and values from
+// [[]MeterFilterClausesDirectFilterCondition],
+// [[]MeterFilterClausesNestedMeterFilter].
+//
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfDirectFilterConditions OfNestedMeterFilters]
+type MeterFilterClausesUnion struct {
+	// This field will be present if the value is a
+	// [[]MeterFilterClausesDirectFilterCondition] instead of an object.
+	OfDirectFilterConditions []MeterFilterClausesDirectFilterCondition `json:",inline"`
+	// This field will be present if the value is a
+	// [[]MeterFilterClausesNestedMeterFilter] instead of an object.
+	OfNestedMeterFilters []MeterFilterClausesNestedMeterFilter `json:",inline"`
+	JSON                 struct {
+		OfDirectFilterConditions respjson.Field
+		OfNestedMeterFilters     respjson.Field
+		raw                      string
+	} `json:"-"`
 }
 
-type MeterFilterClausesDirectFilterConditions []MeterFilterClausesDirectFilterCondition
+func (u MeterFilterClausesUnion) AsDirectFilterConditions() (v []MeterFilterClausesDirectFilterCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
 
-func (r MeterFilterClausesDirectFilterConditions) implementsMeterFilterClausesUnion() {}
+func (u MeterFilterClausesUnion) AsNestedMeterFilters() (v []MeterFilterClausesNestedMeterFilter) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u MeterFilterClausesUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *MeterFilterClausesUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // Filter condition with key, operator, and value
 type MeterFilterClausesDirectFilterCondition struct {
 	// Filter key to apply
-	Key      string                                           `json:"key,required"`
-	Operator MeterFilterClausesDirectFilterConditionsOperator `json:"operator,required"`
+	Key string `json:"key,required"`
+	// Any of "equals", "not_equals", "greater_than", "greater_than_or_equals",
+	// "less_than", "less_than_or_equals", "contains", "does_not_contain".
+	Operator string `json:"operator,required"`
 	// Filter value - can be string, number, or boolean
-	Value MeterFilterClausesDirectFilterConditionsValueUnion `json:"value,required"`
-	JSON  meterFilterClausesDirectFilterConditionJSON        `json:"-"`
+	Value MeterFilterClausesDirectFilterConditionValueUnion `json:"value,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Key         respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
 }
 
-// meterFilterClausesDirectFilterConditionJSON contains the JSON metadata for the
-// struct [MeterFilterClausesDirectFilterCondition]
-type meterFilterClausesDirectFilterConditionJSON struct {
-	Key         apijson.Field
-	Operator    apijson.Field
-	Value       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *MeterFilterClausesDirectFilterCondition) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r MeterFilterClausesDirectFilterCondition) RawJSON() string { return r.JSON.raw }
+func (r *MeterFilterClausesDirectFilterCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r meterFilterClausesDirectFilterConditionJSON) RawJSON() string {
-	return r.raw
-}
-
-type MeterFilterClausesDirectFilterConditionsOperator string
-
-const (
-	MeterFilterClausesDirectFilterConditionsOperatorEquals              MeterFilterClausesDirectFilterConditionsOperator = "equals"
-	MeterFilterClausesDirectFilterConditionsOperatorNotEquals           MeterFilterClausesDirectFilterConditionsOperator = "not_equals"
-	MeterFilterClausesDirectFilterConditionsOperatorGreaterThan         MeterFilterClausesDirectFilterConditionsOperator = "greater_than"
-	MeterFilterClausesDirectFilterConditionsOperatorGreaterThanOrEquals MeterFilterClausesDirectFilterConditionsOperator = "greater_than_or_equals"
-	MeterFilterClausesDirectFilterConditionsOperatorLessThan            MeterFilterClausesDirectFilterConditionsOperator = "less_than"
-	MeterFilterClausesDirectFilterConditionsOperatorLessThanOrEquals    MeterFilterClausesDirectFilterConditionsOperator = "less_than_or_equals"
-	MeterFilterClausesDirectFilterConditionsOperatorContains            MeterFilterClausesDirectFilterConditionsOperator = "contains"
-	MeterFilterClausesDirectFilterConditionsOperatorDoesNotContain      MeterFilterClausesDirectFilterConditionsOperator = "does_not_contain"
-)
-
-func (r MeterFilterClausesDirectFilterConditionsOperator) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesDirectFilterConditionsOperatorEquals, MeterFilterClausesDirectFilterConditionsOperatorNotEquals, MeterFilterClausesDirectFilterConditionsOperatorGreaterThan, MeterFilterClausesDirectFilterConditionsOperatorGreaterThanOrEquals, MeterFilterClausesDirectFilterConditionsOperatorLessThan, MeterFilterClausesDirectFilterConditionsOperatorLessThanOrEquals, MeterFilterClausesDirectFilterConditionsOperatorContains, MeterFilterClausesDirectFilterConditionsOperatorDoesNotContain:
-		return true
-	}
-	return false
-}
-
-// Filter value - can be string, number, or boolean
+// MeterFilterClausesDirectFilterConditionValueUnion contains all possible
+// properties and values from [string], [float64], [bool].
 //
-// Union satisfied by [shared.UnionString], [shared.UnionFloat] or
-// [shared.UnionBool].
-type MeterFilterClausesDirectFilterConditionsValueUnion interface {
-	ImplementsMeterFilterClausesDirectFilterConditionsValueUnion()
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfFloat OfBool]
+type MeterFilterClausesDirectFilterConditionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [float64] instead of an object.
+	OfFloat float64 `json:",inline"`
+	// This field will be present if the value is a [bool] instead of an object.
+	OfBool bool `json:",inline"`
+	JSON   struct {
+		OfString respjson.Field
+		OfFloat  respjson.Field
+		OfBool   respjson.Field
+		raw      string
+	} `json:"-"`
 }
 
-func init() {
-	apijson.RegisterUnion(
-		reflect.TypeOf((*MeterFilterClausesDirectFilterConditionsValueUnion)(nil)).Elem(),
-		"",
-		apijson.UnionVariant{
-			TypeFilter: gjson.String,
-			Type:       reflect.TypeOf(shared.UnionString("")),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.Number,
-			Type:       reflect.TypeOf(shared.UnionFloat(0)),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.True,
-			Type:       reflect.TypeOf(shared.UnionBool(false)),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.False,
-			Type:       reflect.TypeOf(shared.UnionBool(false)),
-		},
-	)
+func (u MeterFilterClausesDirectFilterConditionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
 }
 
-type MeterFilterClausesNestedMeterFilters []MeterFilterClausesNestedMeterFilter
+func (u MeterFilterClausesDirectFilterConditionValueUnion) AsFloat() (v float64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
 
-func (r MeterFilterClausesNestedMeterFilters) implementsMeterFilterClausesUnion() {}
+func (u MeterFilterClausesDirectFilterConditionValueUnion) AsBool() (v bool) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u MeterFilterClausesDirectFilterConditionValueUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *MeterFilterClausesDirectFilterConditionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 // Level 1 nested filter - can contain Level 2 filters
 type MeterFilterClausesNestedMeterFilter struct {
 	// Level 1: Can be conditions or nested filters (2 more levels allowed)
-	Clauses     MeterFilterClausesNestedMeterFiltersClausesUnion `json:"clauses,required"`
-	Conjunction MeterFilterClausesNestedMeterFiltersConjunction  `json:"conjunction,required"`
-	JSON        meterFilterClausesNestedMeterFilterJSON          `json:"-"`
+	Clauses MeterFilterClausesNestedMeterFilterClausesUnion `json:"clauses,required"`
+	// Any of "and", "or".
+	Conjunction string `json:"conjunction,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Clauses     respjson.Field
+		Conjunction respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
 }
 
-// meterFilterClausesNestedMeterFilterJSON contains the JSON metadata for the
-// struct [MeterFilterClausesNestedMeterFilter]
-type meterFilterClausesNestedMeterFilterJSON struct {
-	Clauses     apijson.Field
-	Conjunction apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *MeterFilterClausesNestedMeterFilter) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r MeterFilterClausesNestedMeterFilter) RawJSON() string { return r.JSON.raw }
+func (r *MeterFilterClausesNestedMeterFilter) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r meterFilterClausesNestedMeterFilterJSON) RawJSON() string {
-	return r.raw
-}
-
-// Level 1: Can be conditions or nested filters (2 more levels allowed)
+// MeterFilterClausesNestedMeterFilterClausesUnion contains all possible properties
+// and values from
+// [[]MeterFilterClausesNestedMeterFilterClausesLevel1FilterCondition],
+// [[]MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilter].
 //
-// Union satisfied by
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditions] or
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilters].
-type MeterFilterClausesNestedMeterFiltersClausesUnion interface {
-	implementsMeterFilterClausesNestedMeterFiltersClausesUnion()
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfLevel1FilterConditions OfLevel1NestedFilters]
+type MeterFilterClausesNestedMeterFilterClausesUnion struct {
+	// This field will be present if the value is a
+	// [[]MeterFilterClausesNestedMeterFilterClausesLevel1FilterCondition] instead of
+	// an object.
+	OfLevel1FilterConditions []MeterFilterClausesNestedMeterFilterClausesLevel1FilterCondition `json:",inline"`
+	// This field will be present if the value is a
+	// [[]MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilter] instead of an
+	// object.
+	OfLevel1NestedFilters []MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilter `json:",inline"`
+	JSON                  struct {
+		OfLevel1FilterConditions respjson.Field
+		OfLevel1NestedFilters    respjson.Field
+		raw                      string
+	} `json:"-"`
 }
 
-func init() {
-	apijson.RegisterUnion(
-		reflect.TypeOf((*MeterFilterClausesNestedMeterFiltersClausesUnion)(nil)).Elem(),
-		"",
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditions{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilters{}),
-		},
-	)
+func (u MeterFilterClausesNestedMeterFilterClausesUnion) AsLevel1FilterConditions() (v []MeterFilterClausesNestedMeterFilterClausesLevel1FilterCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
 }
 
-type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditions []MeterFilterClausesNestedMeterFiltersClausesLevel1FilterCondition
+func (u MeterFilterClausesNestedMeterFilterClausesUnion) AsLevel1NestedFilters() (v []MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilter) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
 
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditions) implementsMeterFilterClausesNestedMeterFiltersClausesUnion() {
+// Returns the unmodified JSON received from the API
+func (u MeterFilterClausesNestedMeterFilterClausesUnion) RawJSON() string { return u.JSON.raw }
+
+func (r *MeterFilterClausesNestedMeterFilterClausesUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // Filter condition with key, operator, and value
-type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterCondition struct {
+type MeterFilterClausesNestedMeterFilterClausesLevel1FilterCondition struct {
 	// Filter key to apply
-	Key      string                                                                    `json:"key,required"`
-	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator `json:"operator,required"`
+	Key string `json:"key,required"`
+	// Any of "equals", "not_equals", "greater_than", "greater_than_or_equals",
+	// "less_than", "less_than_or_equals", "contains", "does_not_contain".
+	Operator string `json:"operator,required"`
 	// Filter value - can be string, number, or boolean
-	Value MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnion `json:"value,required"`
-	JSON  meterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionJSON        `json:"-"`
+	Value MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnion `json:"value,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Key         respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
 }
 
-// meterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionJSON contains
-// the JSON metadata for the struct
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1FilterCondition]
-type meterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionJSON struct {
-	Key         apijson.Field
-	Operator    apijson.Field
-	Value       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+// Returns the unmodified JSON received from the API
+func (r MeterFilterClausesNestedMeterFilterClausesLevel1FilterCondition) RawJSON() string {
+	return r.JSON.raw
 }
-
-func (r *MeterFilterClausesNestedMeterFiltersClausesLevel1FilterCondition) UnmarshalJSON(data []byte) (err error) {
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1FilterCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r meterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionJSON) RawJSON() string {
-	return r.raw
-}
-
-type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator string
-
-const (
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorEquals              MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorNotEquals           MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "not_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorGreaterThan         MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "greater_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorGreaterThanOrEquals MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "greater_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorLessThan            MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "less_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorLessThanOrEquals    MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "less_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorContains            MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "contains"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorDoesNotContain      MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "does_not_contain"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorNotEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorGreaterThan, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorGreaterThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorLessThan, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorLessThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorContains, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorDoesNotContain:
-		return true
-	}
-	return false
-}
-
-// Filter value - can be string, number, or boolean
+// MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnion
+// contains all possible properties and values from [string], [float64], [bool].
 //
-// Union satisfied by [shared.UnionString], [shared.UnionFloat] or
-// [shared.UnionBool].
-type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnion interface {
-	ImplementsMeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnion()
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfFloat OfBool]
+type MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [float64] instead of an object.
+	OfFloat float64 `json:",inline"`
+	// This field will be present if the value is a [bool] instead of an object.
+	OfBool bool `json:",inline"`
+	JSON   struct {
+		OfString respjson.Field
+		OfFloat  respjson.Field
+		OfBool   respjson.Field
+		raw      string
+	} `json:"-"`
 }
 
-func init() {
-	apijson.RegisterUnion(
-		reflect.TypeOf((*MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnion)(nil)).Elem(),
-		"",
-		apijson.UnionVariant{
-			TypeFilter: gjson.String,
-			Type:       reflect.TypeOf(shared.UnionString("")),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.Number,
-			Type:       reflect.TypeOf(shared.UnionFloat(0)),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.True,
-			Type:       reflect.TypeOf(shared.UnionBool(false)),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.False,
-			Type:       reflect.TypeOf(shared.UnionBool(false)),
-		},
-	)
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
 }
 
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilters []MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilter
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnion) AsFloat() (v float64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
 
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilters) implementsMeterFilterClausesNestedMeterFiltersClausesUnion() {
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnion) AsBool() (v bool) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // Level 2 nested filter
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilter struct {
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilter struct {
 	// Level 2: Can be conditions or nested filters (1 more level allowed)
-	Clauses     MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnion `json:"clauses,required"`
-	Conjunction MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction  `json:"conjunction,required"`
-	JSON        meterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterJSON          `json:"-"`
+	Clauses MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnion `json:"clauses,required"`
+	// Any of "and", "or".
+	Conjunction string `json:"conjunction,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Clauses     respjson.Field
+		Conjunction respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
 }
 
-// meterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterJSON contains the
-// JSON metadata for the struct
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilter]
-type meterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterJSON struct {
-	Clauses     apijson.Field
-	Conjunction apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+// Returns the unmodified JSON received from the API
+func (r MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilter) RawJSON() string {
+	return r.JSON.raw
 }
-
-func (r *MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilter) UnmarshalJSON(data []byte) (err error) {
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilter) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r meterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterJSON) RawJSON() string {
-	return r.raw
-}
-
-// Level 2: Can be conditions or nested filters (1 more level allowed)
+// MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnion
+// contains all possible properties and values from
+// [[]MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterCondition],
+// [[]MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilter].
 //
-// Union satisfied by
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditions]
-// or
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilters].
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnion interface {
-	implementsMeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnion()
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfLevel2FilterConditions OfLevel2NestedFilters]
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnion struct {
+	// This field will be present if the value is a
+	// [[]MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterCondition]
+	// instead of an object.
+	OfLevel2FilterConditions []MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterCondition `json:",inline"`
+	// This field will be present if the value is a
+	// [[]MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilter]
+	// instead of an object.
+	OfLevel2NestedFilters []MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilter `json:",inline"`
+	JSON                  struct {
+		OfLevel2FilterConditions respjson.Field
+		OfLevel2NestedFilters    respjson.Field
+		raw                      string
+	} `json:"-"`
 }
 
-func init() {
-	apijson.RegisterUnion(
-		reflect.TypeOf((*MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnion)(nil)).Elem(),
-		"",
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditions{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilters{}),
-		},
-	)
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnion) AsLevel2FilterConditions() (v []MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterCondition) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
 }
 
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditions []MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterCondition
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnion) AsLevel2NestedFilters() (v []MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilter) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
 
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditions) implementsMeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnion() {
+// Returns the unmodified JSON received from the API
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // Filter condition with key, operator, and value
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterCondition struct {
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterCondition struct {
 	// Filter key to apply
-	Key      string                                                                                              `json:"key,required"`
-	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator `json:"operator,required"`
+	Key string `json:"key,required"`
+	// Any of "equals", "not_equals", "greater_than", "greater_than_or_equals",
+	// "less_than", "less_than_or_equals", "contains", "does_not_contain".
+	Operator string `json:"operator,required"`
 	// Filter value - can be string, number, or boolean
-	Value MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnion `json:"value,required"`
-	JSON  meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionJSON        `json:"-"`
+	Value MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnion `json:"value,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Key         respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
 }
 
-// meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionJSON
-// contains the JSON metadata for the struct
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterCondition]
-type meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionJSON struct {
-	Key         apijson.Field
-	Operator    apijson.Field
-	Value       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+// Returns the unmodified JSON received from the API
+func (r MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterCondition) RawJSON() string {
+	return r.JSON.raw
 }
-
-func (r *MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterCondition) UnmarshalJSON(data []byte) (err error) {
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterCondition) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionJSON) RawJSON() string {
-	return r.raw
-}
-
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator string
-
-const (
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorEquals              MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorNotEquals           MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "not_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorGreaterThan         MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "greater_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorGreaterThanOrEquals MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "greater_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorLessThan            MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "less_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorLessThanOrEquals    MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "less_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorContains            MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "contains"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorDoesNotContain      MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "does_not_contain"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorNotEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorGreaterThan, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorGreaterThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorLessThan, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorLessThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorContains, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorDoesNotContain:
-		return true
-	}
-	return false
-}
-
-// Filter value - can be string, number, or boolean
+// MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnion
+// contains all possible properties and values from [string], [float64], [bool].
 //
-// Union satisfied by [shared.UnionString], [shared.UnionFloat] or
-// [shared.UnionBool].
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnion interface {
-	ImplementsMeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnion()
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfFloat OfBool]
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [float64] instead of an object.
+	OfFloat float64 `json:",inline"`
+	// This field will be present if the value is a [bool] instead of an object.
+	OfBool bool `json:",inline"`
+	JSON   struct {
+		OfString respjson.Field
+		OfFloat  respjson.Field
+		OfBool   respjson.Field
+		raw      string
+	} `json:"-"`
 }
 
-func init() {
-	apijson.RegisterUnion(
-		reflect.TypeOf((*MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnion)(nil)).Elem(),
-		"",
-		apijson.UnionVariant{
-			TypeFilter: gjson.String,
-			Type:       reflect.TypeOf(shared.UnionString("")),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.Number,
-			Type:       reflect.TypeOf(shared.UnionFloat(0)),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.True,
-			Type:       reflect.TypeOf(shared.UnionBool(false)),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.False,
-			Type:       reflect.TypeOf(shared.UnionBool(false)),
-		},
-	)
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
 }
 
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilters []MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilter
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnion) AsFloat() (v float64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
 
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilters) implementsMeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnion() {
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnion) AsBool() (v bool) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
+}
+
+// Returns the unmodified JSON received from the API
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
+
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // Level 3 nested filter (final nesting level)
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilter struct {
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilter struct {
 	// Level 3: Filter conditions only (max depth reached)
-	Clauses     []MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClause    `json:"clauses,required"`
-	Conjunction MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction `json:"conjunction,required"`
-	JSON        meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterJSON         `json:"-"`
+	Clauses []MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClause `json:"clauses,required"`
+	// Any of "and", "or".
+	Conjunction string `json:"conjunction,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Clauses     respjson.Field
+		Conjunction respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
 }
 
-// meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterJSON
-// contains the JSON metadata for the struct
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilter]
-type meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterJSON struct {
-	Clauses     apijson.Field
-	Conjunction apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+// Returns the unmodified JSON received from the API
+func (r MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilter) RawJSON() string {
+	return r.JSON.raw
 }
-
-func (r *MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilter) UnmarshalJSON(data []byte) (err error) {
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilter) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterJSON) RawJSON() string {
-	return r.raw
 }
 
 // Filter condition with key, operator, and value
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClause struct {
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClause struct {
 	// Filter key to apply
-	Key      string                                                                                                  `json:"key,required"`
-	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator `json:"operator,required"`
+	Key string `json:"key,required"`
+	// Any of "equals", "not_equals", "greater_than", "greater_than_or_equals",
+	// "less_than", "less_than_or_equals", "contains", "does_not_contain".
+	Operator string `json:"operator,required"`
 	// Filter value - can be string, number, or boolean
-	Value MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnion `json:"value,required"`
-	JSON  meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseJSON        `json:"-"`
+	Value MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnion `json:"value,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Key         respjson.Field
+		Operator    respjson.Field
+		Value       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
 }
 
-// meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseJSON
-// contains the JSON metadata for the struct
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClause]
-type meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseJSON struct {
-	Key         apijson.Field
-	Operator    apijson.Field
-	Value       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+// Returns the unmodified JSON received from the API
+func (r MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClause) RawJSON() string {
+	return r.JSON.raw
 }
-
-func (r *MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClause) UnmarshalJSON(data []byte) (err error) {
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClause) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseJSON) RawJSON() string {
-	return r.raw
-}
-
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator string
-
-const (
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorEquals              MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorNotEquals           MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "not_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorGreaterThan         MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "greater_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorGreaterThanOrEquals MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "greater_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorLessThan            MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "less_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorLessThanOrEquals    MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "less_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorContains            MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "contains"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorDoesNotContain      MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "does_not_contain"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorNotEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorGreaterThan, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorGreaterThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorLessThan, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorLessThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorContains, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorDoesNotContain:
-		return true
-	}
-	return false
-}
-
-// Filter value - can be string, number, or boolean
+// MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnion
+// contains all possible properties and values from [string], [float64], [bool].
 //
-// Union satisfied by [shared.UnionString], [shared.UnionFloat] or
-// [shared.UnionBool].
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnion interface {
-	ImplementsMeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnion()
+// Use the methods beginning with 'As' to cast the union to one of its variants.
+//
+// If the underlying value is not a json object, one of the following properties
+// will be valid: OfString OfFloat OfBool]
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnion struct {
+	// This field will be present if the value is a [string] instead of an object.
+	OfString string `json:",inline"`
+	// This field will be present if the value is a [float64] instead of an object.
+	OfFloat float64 `json:",inline"`
+	// This field will be present if the value is a [bool] instead of an object.
+	OfBool bool `json:",inline"`
+	JSON   struct {
+		OfString respjson.Field
+		OfFloat  respjson.Field
+		OfBool   respjson.Field
+		raw      string
+	} `json:"-"`
 }
 
-func init() {
-	apijson.RegisterUnion(
-		reflect.TypeOf((*MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnion)(nil)).Elem(),
-		"",
-		apijson.UnionVariant{
-			TypeFilter: gjson.String,
-			Type:       reflect.TypeOf(shared.UnionString("")),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.Number,
-			Type:       reflect.TypeOf(shared.UnionFloat(0)),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.True,
-			Type:       reflect.TypeOf(shared.UnionBool(false)),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.False,
-			Type:       reflect.TypeOf(shared.UnionBool(false)),
-		},
-	)
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnion) AsString() (v string) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
 }
 
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction string
-
-const (
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunctionAnd MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction = "and"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunctionOr  MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction = "or"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunctionAnd, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunctionOr:
-		return true
-	}
-	return false
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnion) AsFloat() (v float64) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
 }
 
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction string
-
-const (
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunctionAnd MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction = "and"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunctionOr  MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction = "or"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunctionAnd, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunctionOr:
-		return true
-	}
-	return false
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnion) AsBool() (v bool) {
+	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
+	return
 }
 
-type MeterFilterClausesNestedMeterFiltersConjunction string
+// Returns the unmodified JSON received from the API
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnion) RawJSON() string {
+	return u.JSON.raw
+}
 
-const (
-	MeterFilterClausesNestedMeterFiltersConjunctionAnd MeterFilterClausesNestedMeterFiltersConjunction = "and"
-	MeterFilterClausesNestedMeterFiltersConjunctionOr  MeterFilterClausesNestedMeterFiltersConjunction = "or"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersConjunction) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersConjunctionAnd, MeterFilterClausesNestedMeterFiltersConjunctionOr:
-		return true
-	}
-	return false
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnion) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // Logical conjunction to apply between clauses (and/or)
@@ -787,230 +729,443 @@ const (
 	MeterFilterConjunctionOr  MeterFilterConjunction = "or"
 )
 
-func (r MeterFilterConjunction) IsKnown() bool {
-	switch r {
-	case MeterFilterConjunctionAnd, MeterFilterConjunctionOr:
-		return true
-	}
-	return false
-}
-
 // A filter structure that combines multiple conditions with logical conjunctions
 // (AND/OR).
 //
 // Supports up to 3 levels of nesting to create complex filter expressions. Each
 // filter has a conjunction (and/or) and clauses that can be either direct
 // conditions or nested filters.
+//
+// The properties Clauses, Conjunction are required.
 type MeterFilterParam struct {
 	// Filter clauses - can be direct conditions or nested filters (up to 3 levels
 	// deep)
-	Clauses param.Field[MeterFilterClausesUnionParam] `json:"clauses,required"`
+	Clauses MeterFilterClausesUnionParam `json:"clauses,omitzero,required"`
 	// Logical conjunction to apply between clauses (and/or)
-	Conjunction param.Field[MeterFilterConjunction] `json:"conjunction,required"`
+	//
+	// Any of "and", "or".
+	Conjunction MeterFilterConjunction `json:"conjunction,omitzero,required"`
+	paramObj
 }
 
 func (r MeterFilterParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	type shadow MeterFilterParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *MeterFilterParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
-// Filter clauses - can be direct conditions or nested filters (up to 3 levels
-// deep)
+// Only one field can be non-zero.
 //
-// Satisfied by [MeterFilterClausesDirectFilterConditionsParam],
-// [MeterFilterClausesNestedMeterFiltersParam].
-type MeterFilterClausesUnionParam interface {
-	implementsMeterFilterClausesUnionParam()
+// Use [param.IsOmitted] to confirm if a field is set.
+type MeterFilterClausesUnionParam struct {
+	OfDirectFilterConditions []MeterFilterClausesDirectFilterConditionParam `json:",omitzero,inline"`
+	OfNestedMeterFilters     []MeterFilterClausesNestedMeterFilterParam     `json:",omitzero,inline"`
+	paramUnion
 }
 
-type MeterFilterClausesDirectFilterConditionsParam []MeterFilterClausesDirectFilterConditionParam
+func (u MeterFilterClausesUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfDirectFilterConditions, u.OfNestedMeterFilters)
+}
+func (u *MeterFilterClausesUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
 
-func (r MeterFilterClausesDirectFilterConditionsParam) implementsMeterFilterClausesUnionParam() {}
+func (u *MeterFilterClausesUnionParam) asAny() any {
+	if !param.IsOmitted(u.OfDirectFilterConditions) {
+		return &u.OfDirectFilterConditions
+	} else if !param.IsOmitted(u.OfNestedMeterFilters) {
+		return &u.OfNestedMeterFilters
+	}
+	return nil
+}
 
 // Filter condition with key, operator, and value
+//
+// The properties Key, Operator, Value are required.
 type MeterFilterClausesDirectFilterConditionParam struct {
 	// Filter key to apply
-	Key      param.Field[string]                                           `json:"key,required"`
-	Operator param.Field[MeterFilterClausesDirectFilterConditionsOperator] `json:"operator,required"`
+	Key string `json:"key,required"`
+	// Any of "equals", "not_equals", "greater_than", "greater_than_or_equals",
+	// "less_than", "less_than_or_equals", "contains", "does_not_contain".
+	Operator string `json:"operator,omitzero,required"`
 	// Filter value - can be string, number, or boolean
-	Value param.Field[MeterFilterClausesDirectFilterConditionsValueUnionParam] `json:"value,required"`
+	Value MeterFilterClausesDirectFilterConditionValueUnionParam `json:"value,omitzero,required"`
+	paramObj
 }
 
 func (r MeterFilterClausesDirectFilterConditionParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	type shadow MeterFilterClausesDirectFilterConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *MeterFilterClausesDirectFilterConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
-// Filter value - can be string, number, or boolean
+func init() {
+	apijson.RegisterFieldValidator[MeterFilterClausesDirectFilterConditionParam](
+		"operator", "equals", "not_equals", "greater_than", "greater_than_or_equals", "less_than", "less_than_or_equals", "contains", "does_not_contain",
+	)
+}
+
+// Only one field can be non-zero.
 //
-// Satisfied by [shared.UnionString], [shared.UnionFloat], [shared.UnionBool].
-type MeterFilterClausesDirectFilterConditionsValueUnionParam interface {
-	ImplementsMeterFilterClausesDirectFilterConditionsValueUnionParam()
+// Use [param.IsOmitted] to confirm if a field is set.
+type MeterFilterClausesDirectFilterConditionValueUnionParam struct {
+	OfString param.Opt[string]  `json:",omitzero,inline"`
+	OfFloat  param.Opt[float64] `json:",omitzero,inline"`
+	OfBool   param.Opt[bool]    `json:",omitzero,inline"`
+	paramUnion
 }
 
-type MeterFilterClausesNestedMeterFiltersParam []MeterFilterClausesNestedMeterFilterParam
+func (u MeterFilterClausesDirectFilterConditionValueUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfFloat, u.OfBool)
+}
+func (u *MeterFilterClausesDirectFilterConditionValueUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
 
-func (r MeterFilterClausesNestedMeterFiltersParam) implementsMeterFilterClausesUnionParam() {}
+func (u *MeterFilterClausesDirectFilterConditionValueUnionParam) asAny() any {
+	if !param.IsOmitted(u.OfString) {
+		return &u.OfString.Value
+	} else if !param.IsOmitted(u.OfFloat) {
+		return &u.OfFloat.Value
+	} else if !param.IsOmitted(u.OfBool) {
+		return &u.OfBool.Value
+	}
+	return nil
+}
 
 // Level 1 nested filter - can contain Level 2 filters
+//
+// The properties Clauses, Conjunction are required.
 type MeterFilterClausesNestedMeterFilterParam struct {
 	// Level 1: Can be conditions or nested filters (2 more levels allowed)
-	Clauses     param.Field[MeterFilterClausesNestedMeterFiltersClausesUnionParam] `json:"clauses,required"`
-	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersConjunction]       `json:"conjunction,required"`
+	Clauses MeterFilterClausesNestedMeterFilterClausesUnionParam `json:"clauses,omitzero,required"`
+	// Any of "and", "or".
+	Conjunction string `json:"conjunction,omitzero,required"`
+	paramObj
 }
 
 func (r MeterFilterClausesNestedMeterFilterParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	type shadow MeterFilterClausesNestedMeterFilterParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *MeterFilterClausesNestedMeterFilterParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
-// Level 1: Can be conditions or nested filters (2 more levels allowed)
+func init() {
+	apijson.RegisterFieldValidator[MeterFilterClausesNestedMeterFilterParam](
+		"conjunction", "and", "or",
+	)
+}
+
+// Only one field can be non-zero.
 //
-// Satisfied by
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsParam],
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersParam].
-type MeterFilterClausesNestedMeterFiltersClausesUnionParam interface {
-	implementsMeterFilterClausesNestedMeterFiltersClausesUnionParam()
+// Use [param.IsOmitted] to confirm if a field is set.
+type MeterFilterClausesNestedMeterFilterClausesUnionParam struct {
+	OfLevel1FilterConditions []MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionParam `json:",omitzero,inline"`
+	OfLevel1NestedFilters    []MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterParam    `json:",omitzero,inline"`
+	paramUnion
 }
 
-type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsParam []MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionParam
+func (u MeterFilterClausesNestedMeterFilterClausesUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfLevel1FilterConditions, u.OfLevel1NestedFilters)
+}
+func (u *MeterFilterClausesNestedMeterFilterClausesUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
 
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsParam) implementsMeterFilterClausesNestedMeterFiltersClausesUnionParam() {
+func (u *MeterFilterClausesNestedMeterFilterClausesUnionParam) asAny() any {
+	if !param.IsOmitted(u.OfLevel1FilterConditions) {
+		return &u.OfLevel1FilterConditions
+	} else if !param.IsOmitted(u.OfLevel1NestedFilters) {
+		return &u.OfLevel1NestedFilters
+	}
+	return nil
 }
 
 // Filter condition with key, operator, and value
-type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionParam struct {
-	// Filter key to apply
-	Key      param.Field[string]                                                                    `json:"key,required"`
-	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator] `json:"operator,required"`
-	// Filter value - can be string, number, or boolean
-	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnionParam] `json:"value,required"`
-}
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Filter value - can be string, number, or boolean
 //
-// Satisfied by [shared.UnionString], [shared.UnionFloat], [shared.UnionBool].
-type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnionParam interface {
-	ImplementsMeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnionParam()
+// The properties Key, Operator, Value are required.
+type MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionParam struct {
+	// Filter key to apply
+	Key string `json:"key,required"`
+	// Any of "equals", "not_equals", "greater_than", "greater_than_or_equals",
+	// "less_than", "less_than_or_equals", "contains", "does_not_contain".
+	Operator string `json:"operator,omitzero,required"`
+	// Filter value - can be string, number, or boolean
+	Value MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnionParam `json:"value,omitzero,required"`
+	paramObj
 }
 
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersParam []MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterParam
+func (r MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersParam) implementsMeterFilterClausesNestedMeterFiltersClausesUnionParam() {
+func init() {
+	apijson.RegisterFieldValidator[MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionParam](
+		"operator", "equals", "not_equals", "greater_than", "greater_than_or_equals", "less_than", "less_than_or_equals", "contains", "does_not_contain",
+	)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnionParam struct {
+	OfString param.Opt[string]  `json:",omitzero,inline"`
+	OfFloat  param.Opt[float64] `json:",omitzero,inline"`
+	OfBool   param.Opt[bool]    `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfFloat, u.OfBool)
+}
+func (u *MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func (u *MeterFilterClausesNestedMeterFilterClausesLevel1FilterConditionValueUnionParam) asAny() any {
+	if !param.IsOmitted(u.OfString) {
+		return &u.OfString.Value
+	} else if !param.IsOmitted(u.OfFloat) {
+		return &u.OfFloat.Value
+	} else if !param.IsOmitted(u.OfBool) {
+		return &u.OfBool.Value
+	}
+	return nil
 }
 
 // Level 2 nested filter
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterParam struct {
-	// Level 2: Can be conditions or nested filters (1 more level allowed)
-	Clauses     param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnionParam] `json:"clauses,required"`
-	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction]       `json:"conjunction,required"`
-}
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Level 2: Can be conditions or nested filters (1 more level allowed)
 //
-// Satisfied by
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsParam],
-// [MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersParam].
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnionParam interface {
-	implementsMeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnionParam()
+// The properties Clauses, Conjunction are required.
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterParam struct {
+	// Level 2: Can be conditions or nested filters (1 more level allowed)
+	Clauses MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnionParam `json:"clauses,omitzero,required"`
+	// Any of "and", "or".
+	Conjunction string `json:"conjunction,omitzero,required"`
+	paramObj
 }
 
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsParam []MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionParam
+func (r MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterParam) MarshalJSON() (data []byte, err error) {
+	type shadow MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsParam) implementsMeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnionParam() {
+func init() {
+	apijson.RegisterFieldValidator[MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterParam](
+		"conjunction", "and", "or",
+	)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnionParam struct {
+	OfLevel2FilterConditions []MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionParam `json:",omitzero,inline"`
+	OfLevel2NestedFilters    []MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterParam    `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfLevel2FilterConditions, u.OfLevel2NestedFilters)
+}
+func (u *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func (u *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesUnionParam) asAny() any {
+	if !param.IsOmitted(u.OfLevel2FilterConditions) {
+		return &u.OfLevel2FilterConditions
+	} else if !param.IsOmitted(u.OfLevel2NestedFilters) {
+		return &u.OfLevel2NestedFilters
+	}
+	return nil
 }
 
 // Filter condition with key, operator, and value
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionParam struct {
-	// Filter key to apply
-	Key      param.Field[string]                                                                                              `json:"key,required"`
-	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator] `json:"operator,required"`
-	// Filter value - can be string, number, or boolean
-	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnionParam] `json:"value,required"`
-}
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Filter value - can be string, number, or boolean
 //
-// Satisfied by [shared.UnionString], [shared.UnionFloat], [shared.UnionBool].
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnionParam interface {
-	ImplementsMeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnionParam()
+// The properties Key, Operator, Value are required.
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionParam struct {
+	// Filter key to apply
+	Key string `json:"key,required"`
+	// Any of "equals", "not_equals", "greater_than", "greater_than_or_equals",
+	// "less_than", "less_than_or_equals", "contains", "does_not_contain".
+	Operator string `json:"operator,omitzero,required"`
+	// Filter value - can be string, number, or boolean
+	Value MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnionParam `json:"value,omitzero,required"`
+	paramObj
 }
 
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersParam []MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterParam
+func (r MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionParam) MarshalJSON() (data []byte, err error) {
+	type shadow MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersParam) implementsMeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnionParam() {
+func init() {
+	apijson.RegisterFieldValidator[MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionParam](
+		"operator", "equals", "not_equals", "greater_than", "greater_than_or_equals", "less_than", "less_than_or_equals", "contains", "does_not_contain",
+	)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnionParam struct {
+	OfString param.Opt[string]  `json:",omitzero,inline"`
+	OfFloat  param.Opt[float64] `json:",omitzero,inline"`
+	OfBool   param.Opt[bool]    `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfFloat, u.OfBool)
+}
+func (u *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func (u *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2FilterConditionValueUnionParam) asAny() any {
+	if !param.IsOmitted(u.OfString) {
+		return &u.OfString.Value
+	} else if !param.IsOmitted(u.OfFloat) {
+		return &u.OfFloat.Value
+	} else if !param.IsOmitted(u.OfBool) {
+		return &u.OfBool.Value
+	}
+	return nil
 }
 
 // Level 3 nested filter (final nesting level)
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterParam struct {
+//
+// The properties Clauses, Conjunction are required.
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterParam struct {
 	// Level 3: Filter conditions only (max depth reached)
-	Clauses     param.Field[[]MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseParam] `json:"clauses,required"`
-	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction]   `json:"conjunction,required"`
+	Clauses []MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseParam `json:"clauses,omitzero,required"`
+	// Any of "and", "or".
+	Conjunction string `json:"conjunction,omitzero,required"`
+	paramObj
 }
 
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+func (r MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterParam) MarshalJSON() (data []byte, err error) {
+	type shadow MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func init() {
+	apijson.RegisterFieldValidator[MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterParam](
+		"conjunction", "and", "or",
+	)
 }
 
 // Filter condition with key, operator, and value
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseParam struct {
-	// Filter key to apply
-	Key      param.Field[string]                                                                                                  `json:"key,required"`
-	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator] `json:"operator,required"`
-	// Filter value - can be string, number, or boolean
-	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnionParam] `json:"value,required"`
-}
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Filter value - can be string, number, or boolean
 //
-// Satisfied by [shared.UnionString], [shared.UnionFloat], [shared.UnionBool].
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnionParam interface {
-	ImplementsMeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnionParam()
+// The properties Key, Operator, Value are required.
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseParam struct {
+	// Filter key to apply
+	Key string `json:"key,required"`
+	// Any of "equals", "not_equals", "greater_than", "greater_than_or_equals",
+	// "less_than", "less_than_or_equals", "contains", "does_not_contain".
+	Operator string `json:"operator,omitzero,required"`
+	// Filter value - can be string, number, or boolean
+	Value MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnionParam `json:"value,omitzero,required"`
+	paramObj
+}
+
+func (r MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseParam) MarshalJSON() (data []byte, err error) {
+	type shadow MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseParam
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func init() {
+	apijson.RegisterFieldValidator[MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseParam](
+		"operator", "equals", "not_equals", "greater_than", "greater_than_or_equals", "less_than", "less_than_or_equals", "contains", "does_not_contain",
+	)
+}
+
+// Only one field can be non-zero.
+//
+// Use [param.IsOmitted] to confirm if a field is set.
+type MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnionParam struct {
+	OfString param.Opt[string]  `json:",omitzero,inline"`
+	OfFloat  param.Opt[float64] `json:",omitzero,inline"`
+	OfBool   param.Opt[bool]    `json:",omitzero,inline"`
+	paramUnion
+}
+
+func (u MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnionParam) MarshalJSON() ([]byte, error) {
+	return param.MarshalUnion(u, u.OfString, u.OfFloat, u.OfBool)
+}
+func (u *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnionParam) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, u)
+}
+
+func (u *MeterFilterClausesNestedMeterFilterClausesLevel1NestedFilterClausesLevel2NestedFilterClauseValueUnionParam) asAny() any {
+	if !param.IsOmitted(u.OfString) {
+		return &u.OfString.Value
+	} else if !param.IsOmitted(u.OfFloat) {
+		return &u.OfFloat.Value
+	} else if !param.IsOmitted(u.OfBool) {
+		return &u.OfBool.Value
+	}
+	return nil
 }
 
 type MeterNewParams struct {
 	// Aggregation configuration for the meter
-	Aggregation param.Field[MeterAggregationParam] `json:"aggregation,required"`
+	Aggregation MeterAggregationParam `json:"aggregation,omitzero,required"`
 	// Event name to track
-	EventName param.Field[string] `json:"event_name,required"`
+	EventName string `json:"event_name,required"`
 	// measurement unit
-	MeasurementUnit param.Field[string] `json:"measurement_unit,required"`
+	MeasurementUnit string `json:"measurement_unit,required"`
 	// Name of the meter
-	Name param.Field[string] `json:"name,required"`
+	Name string `json:"name,required"`
 	// Optional description of the meter
-	Description param.Field[string] `json:"description"`
+	Description param.Opt[string] `json:"description,omitzero"`
 	// Optional filter to apply to the meter
-	Filter param.Field[MeterFilterParam] `json:"filter"`
+	Filter MeterFilterParam `json:"filter,omitzero"`
+	paramObj
 }
 
 func (r MeterNewParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	type shadow MeterNewParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *MeterNewParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type MeterListParams struct {
 	// List archived meters
-	Archived param.Field[bool] `query:"archived"`
+	Archived param.Opt[bool] `query:"archived,omitzero" json:"-"`
 	// Page number default is 0
-	PageNumber param.Field[int64] `query:"page_number"`
+	PageNumber param.Opt[int64] `query:"page_number,omitzero" json:"-"`
 	// Page size default is 10 max is 100
-	PageSize param.Field[int64] `query:"page_size"`
+	PageSize param.Opt[int64] `query:"page_size,omitzero" json:"-"`
+	paramObj
 }
 
 // URLQuery serializes [MeterListParams]'s query parameters as `url.Values`.
-func (r MeterListParams) URLQuery() (v url.Values) {
+func (r MeterListParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

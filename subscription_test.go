@@ -27,48 +27,50 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.New(context.TODO(), dodopayments.SubscriptionNewParams{
-		Billing: dodopayments.F(dodopayments.BillingAddressParam{
-			Country: dodopayments.F(dodopayments.CountryCodeAf),
-			City:    dodopayments.F("city"),
-			State:   dodopayments.F("state"),
-			Street:  dodopayments.F("street"),
-			Zipcode: dodopayments.F("zipcode"),
-		}),
-		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
-			CustomerID: dodopayments.F("customer_id"),
-		}),
-		ProductID: dodopayments.F("product_id"),
-		Quantity:  dodopayments.F(int64(0)),
-		Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
-			AddonID:  dodopayments.F("addon_id"),
-			Quantity: dodopayments.F(int64(0)),
-		}}),
-		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesCredit}),
-		BillingCurrency:           dodopayments.F(dodopayments.CurrencyAed),
-		DiscountCode:              dodopayments.F("discount_code"),
-		Force3DS:                  dodopayments.F(true),
-		Metadata: dodopayments.F(map[string]string{
+		Billing: dodopayments.BillingAddressParam{
+			Country: dodopayments.CountryCodeAf,
+			City:    dodopayments.String("city"),
+			State:   dodopayments.String("state"),
+			Street:  dodopayments.String("street"),
+			Zipcode: dodopayments.String("zipcode"),
+		},
+		Customer: dodopayments.CustomerRequestUnionParam{
+			OfAttachExistingCustomer: &dodopayments.AttachExistingCustomerParam{
+				CustomerID: "customer_id",
+			},
+		},
+		ProductID: "product_id",
+		Quantity:  0,
+		Addons: []dodopayments.AttachAddonParam{{
+			AddonID:  "addon_id",
+			Quantity: 0,
+		}},
+		AllowedPaymentMethodTypes: []dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesCredit},
+		BillingCurrency:           dodopayments.CurrencyAed,
+		DiscountCode:              dodopayments.String("discount_code"),
+		Force3DS:                  dodopayments.Bool(true),
+		Metadata: map[string]string{
 			"foo": "string",
-		}),
-		OnDemand: dodopayments.F(dodopayments.OnDemandSubscriptionParam{
-			MandateOnly:                   dodopayments.F(true),
-			AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
-			ProductCurrency:               dodopayments.F(dodopayments.CurrencyAed),
-			ProductDescription:            dodopayments.F("product_description"),
-			ProductPrice:                  dodopayments.F(int64(0)),
-		}),
-		OneTimeProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
-			ProductID: dodopayments.F("product_id"),
-			Quantity:  dodopayments.F(int64(0)),
-			Amount:    dodopayments.F(int64(0)),
-		}}),
-		PaymentLink:             dodopayments.F(true),
-		RedirectImmediately:     dodopayments.F(true),
-		ReturnURL:               dodopayments.F("return_url"),
-		ShortLink:               dodopayments.F(true),
-		ShowSavedPaymentMethods: dodopayments.F(true),
-		TaxID:                   dodopayments.F("tax_id"),
-		TrialPeriodDays:         dodopayments.F(int64(0)),
+		},
+		OnDemand: dodopayments.OnDemandSubscriptionParam{
+			MandateOnly:                   true,
+			AdaptiveCurrencyFeesInclusive: dodopayments.Bool(true),
+			ProductCurrency:               dodopayments.CurrencyAed,
+			ProductDescription:            dodopayments.String("product_description"),
+			ProductPrice:                  dodopayments.Int(0),
+		},
+		OneTimeProductCart: []dodopayments.OneTimeProductCartItemParam{{
+			ProductID: "product_id",
+			Quantity:  0,
+			Amount:    dodopayments.Int(0),
+		}},
+		PaymentLink:             dodopayments.Bool(true),
+		RedirectImmediately:     dodopayments.Bool(true),
+		ReturnURL:               dodopayments.String("return_url"),
+		ShortLink:               dodopayments.Bool(true),
+		ShowSavedPaymentMethods: dodopayments.Bool(true),
+		TaxID:                   dodopayments.String("tax_id"),
+		TrialPeriodDays:         dodopayments.Int(0),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -117,24 +119,24 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionUpdateParams{
-			Billing: dodopayments.F(dodopayments.BillingAddressParam{
-				Country: dodopayments.F(dodopayments.CountryCodeAf),
-				City:    dodopayments.F("city"),
-				State:   dodopayments.F("state"),
-				Street:  dodopayments.F("street"),
-				Zipcode: dodopayments.F("zipcode"),
-			}),
-			CancelAtNextBillingDate: dodopayments.F(true),
-			CustomerName:            dodopayments.F("customer_name"),
-			DisableOnDemand: dodopayments.F(dodopayments.SubscriptionUpdateParamsDisableOnDemand{
-				NextBillingDate: dodopayments.F(time.Now()),
-			}),
-			Metadata: dodopayments.F(map[string]string{
+			Billing: dodopayments.BillingAddressParam{
+				Country: dodopayments.CountryCodeAf,
+				City:    dodopayments.String("city"),
+				State:   dodopayments.String("state"),
+				Street:  dodopayments.String("street"),
+				Zipcode: dodopayments.String("zipcode"),
+			},
+			CancelAtNextBillingDate: dodopayments.Bool(true),
+			CustomerName:            dodopayments.String("customer_name"),
+			DisableOnDemand: dodopayments.SubscriptionUpdateParamsDisableOnDemand{
+				NextBillingDate: time.Now(),
+			},
+			Metadata: map[string]string{
 				"foo": "string",
-			}),
-			NextBillingDate: dodopayments.F(time.Now()),
-			Status:          dodopayments.F(dodopayments.SubscriptionStatusPending),
-			TaxID:           dodopayments.F("tax_id"),
+			},
+			NextBillingDate: dodopayments.Time(time.Now()),
+			Status:          dodopayments.SubscriptionStatusPending,
+			TaxID:           dodopayments.String("tax_id"),
 		},
 	)
 	if err != nil {
@@ -159,13 +161,13 @@ func TestSubscriptionListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.List(context.TODO(), dodopayments.SubscriptionListParams{
-		BrandID:      dodopayments.F("brand_id"),
-		CreatedAtGte: dodopayments.F(time.Now()),
-		CreatedAtLte: dodopayments.F(time.Now()),
-		CustomerID:   dodopayments.F("customer_id"),
-		PageNumber:   dodopayments.F(int64(0)),
-		PageSize:     dodopayments.F(int64(0)),
-		Status:       dodopayments.F(dodopayments.SubscriptionListParamsStatusPending),
+		BrandID:      dodopayments.String("brand_id"),
+		CreatedAtGte: dodopayments.Time(time.Now()),
+		CreatedAtLte: dodopayments.Time(time.Now()),
+		CustomerID:   dodopayments.String("customer_id"),
+		PageNumber:   dodopayments.Int(0),
+		PageSize:     dodopayments.Int(0),
+		Status:       dodopayments.SubscriptionListParamsStatusPending,
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -192,13 +194,13 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionChangePlanParams{
-			ProductID:            dodopayments.F("product_id"),
-			ProrationBillingMode: dodopayments.F(dodopayments.SubscriptionChangePlanParamsProrationBillingModeProratedImmediately),
-			Quantity:             dodopayments.F(int64(0)),
-			Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
-				AddonID:  dodopayments.F("addon_id"),
-				Quantity: dodopayments.F(int64(0)),
-			}}),
+			ProductID:            "product_id",
+			ProrationBillingMode: dodopayments.SubscriptionChangePlanParamsProrationBillingModeProratedImmediately,
+			Quantity:             0,
+			Addons: []dodopayments.AttachAddonParam{{
+				AddonID:  "addon_id",
+				Quantity: 0,
+			}},
 		},
 	)
 	if err != nil {
@@ -226,17 +228,17 @@ func TestSubscriptionChargeWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionChargeParams{
-			ProductPrice:                  dodopayments.F(int64(0)),
-			AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
-			CustomerBalanceConfig: dodopayments.F(dodopayments.SubscriptionChargeParamsCustomerBalanceConfig{
-				AllowCustomerCreditsPurchase: dodopayments.F(true),
-				AllowCustomerCreditsUsage:    dodopayments.F(true),
-			}),
-			Metadata: dodopayments.F(map[string]string{
+			ProductPrice:                  0,
+			AdaptiveCurrencyFeesInclusive: dodopayments.Bool(true),
+			CustomerBalanceConfig: dodopayments.SubscriptionChargeParamsCustomerBalanceConfig{
+				AllowCustomerCreditsPurchase: dodopayments.Bool(true),
+				AllowCustomerCreditsUsage:    dodopayments.Bool(true),
+			},
+			Metadata: map[string]string{
 				"foo": "string",
-			}),
-			ProductCurrency:    dodopayments.F(dodopayments.CurrencyAed),
-			ProductDescription: dodopayments.F("product_description"),
+			},
+			ProductCurrency:    dodopayments.CurrencyAed,
+			ProductDescription: dodopayments.String("product_description"),
 		},
 	)
 	if err != nil {
@@ -264,13 +266,13 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionPreviewChangePlanParams{
-			ProductID:            dodopayments.F("product_id"),
-			ProrationBillingMode: dodopayments.F(dodopayments.SubscriptionPreviewChangePlanParamsProrationBillingModeProratedImmediately),
-			Quantity:             dodopayments.F(int64(0)),
-			Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
-				AddonID:  dodopayments.F("addon_id"),
-				Quantity: dodopayments.F(int64(0)),
-			}}),
+			ProductID:            "product_id",
+			ProrationBillingMode: dodopayments.SubscriptionPreviewChangePlanParamsProrationBillingModeProratedImmediately,
+			Quantity:             0,
+			Addons: []dodopayments.AttachAddonParam{{
+				AddonID:  "addon_id",
+				Quantity: 0,
+			}},
 		},
 	)
 	if err != nil {
@@ -298,11 +300,11 @@ func TestSubscriptionGetUsageHistoryWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionGetUsageHistoryParams{
-			EndDate:    dodopayments.F(time.Now()),
-			MeterID:    dodopayments.F("meter_id"),
-			PageNumber: dodopayments.F(int64(0)),
-			PageSize:   dodopayments.F(int64(0)),
-			StartDate:  dodopayments.F(time.Now()),
+			EndDate:    dodopayments.Time(time.Now()),
+			MeterID:    dodopayments.String("meter_id"),
+			PageNumber: dodopayments.Int(0),
+			PageSize:   dodopayments.Int(0),
+			StartDate:  dodopayments.Time(time.Now()),
 		},
 	)
 	if err != nil {
@@ -330,9 +332,9 @@ func TestSubscriptionUpdatePaymentMethodWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionUpdatePaymentMethodParams{
-			Body: dodopayments.SubscriptionUpdatePaymentMethodParamsBodyNew{
-				Type:      dodopayments.F(dodopayments.SubscriptionUpdatePaymentMethodParamsBodyNewTypeNew),
-				ReturnURL: dodopayments.F("return_url"),
+			OfNew: &dodopayments.SubscriptionUpdatePaymentMethodParamsBodyNew{
+				Type:      "new",
+				ReturnURL: dodopayments.String("return_url"),
 			},
 		},
 	)

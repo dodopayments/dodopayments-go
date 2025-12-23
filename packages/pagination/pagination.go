@@ -11,29 +11,32 @@ import (
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/packages/param"
+	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
+// aliased to make [param.APIUnion] private when embedding
+type paramUnion = param.APIUnion
+
+// aliased to make [param.APIObject] private when embedding
+type paramObj = param.APIObject
+
 type DefaultPageNumberPagination[T any] struct {
-	Items []T                             `json:"items"`
-	JSON  defaultPageNumberPaginationJSON `json:"-"`
-	cfg   *requestconfig.RequestConfig
-	res   *http.Response
+	Items []T `json:"items"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Items       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+	cfg *requestconfig.RequestConfig
+	res *http.Response
 }
 
-// defaultPageNumberPaginationJSON contains the JSON metadata for the struct
-// [DefaultPageNumberPagination[T]]
-type defaultPageNumberPaginationJSON struct {
-	Items       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *DefaultPageNumberPagination[T]) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r DefaultPageNumberPagination[T]) RawJSON() string { return r.JSON.raw }
+func (r *DefaultPageNumberPagination[T]) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r defaultPageNumberPaginationJSON) RawJSON() string {
-	return r.raw
 }
 
 // GetNextPage returns the next page as defined by this pagination style. When
@@ -77,6 +80,7 @@ type DefaultPageNumberPaginationAutoPager[T any] struct {
 	idx  int
 	run  int
 	err  error
+	paramObj
 }
 
 func NewDefaultPageNumberPaginationAutoPager[T any](page *DefaultPageNumberPagination[T], err error) *DefaultPageNumberPaginationAutoPager[T] {
@@ -116,30 +120,25 @@ func (r *DefaultPageNumberPaginationAutoPager[T]) Index() int {
 }
 
 type CursorPagePagination[T any] struct {
-	Data     []T                      `json:"data"`
-	Iterator string                   `json:"iterator"`
-	Done     bool                     `json:"done"`
-	JSON     cursorPagePaginationJSON `json:"-"`
-	cfg      *requestconfig.RequestConfig
-	res      *http.Response
+	Data     []T    `json:"data"`
+	Iterator string `json:"iterator"`
+	Done     bool   `json:"done"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		Iterator    respjson.Field
+		Done        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+	cfg *requestconfig.RequestConfig
+	res *http.Response
 }
 
-// cursorPagePaginationJSON contains the JSON metadata for the struct
-// [CursorPagePagination[T]]
-type cursorPagePaginationJSON struct {
-	Data        apijson.Field
-	Iterator    apijson.Field
-	Done        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *CursorPagePagination[T]) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r CursorPagePagination[T]) RawJSON() string { return r.JSON.raw }
+func (r *CursorPagePagination[T]) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r cursorPagePaginationJSON) RawJSON() string {
-	return r.raw
 }
 
 // GetNextPage returns the next page as defined by this pagination style. When
@@ -150,7 +149,7 @@ func (r *CursorPagePagination[T]) GetNextPage() (res *CursorPagePagination[T], e
 		return nil, nil
 	}
 
-	if !r.JSON.Done.IsMissing() && r.Done == false {
+	if r.JSON.Done.Valid() && r.Done == false {
 		return nil, nil
 	}
 	next := r.Iterator
@@ -187,6 +186,7 @@ type CursorPagePaginationAutoPager[T any] struct {
 	idx  int
 	run  int
 	err  error
+	paramObj
 }
 
 func NewCursorPagePaginationAutoPager[T any](page *CursorPagePagination[T], err error) *CursorPagePaginationAutoPager[T] {

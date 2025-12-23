@@ -49,13 +49,13 @@ func TestDisputeListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Disputes.List(context.TODO(), dodopayments.DisputeListParams{
-		CreatedAtGte:  dodopayments.F(time.Now()),
-		CreatedAtLte:  dodopayments.F(time.Now()),
-		CustomerID:    dodopayments.F("customer_id"),
-		DisputeStage:  dodopayments.F(dodopayments.DisputeListParamsDisputeStagePreDispute),
-		DisputeStatus: dodopayments.F(dodopayments.DisputeListParamsDisputeStatusDisputeOpened),
-		PageNumber:    dodopayments.F(int64(0)),
-		PageSize:      dodopayments.F(int64(0)),
+		CreatedAtGte:  dodopayments.Time(time.Now()),
+		CreatedAtLte:  dodopayments.Time(time.Now()),
+		CustomerID:    dodopayments.String("customer_id"),
+		DisputeStage:  dodopayments.DisputeListParamsDisputeStagePreDispute,
+		DisputeStatus: dodopayments.DisputeListParamsDisputeStatusDisputeOpened,
+		PageNumber:    dodopayments.Int(0),
+		PageSize:      dodopayments.Int(0),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

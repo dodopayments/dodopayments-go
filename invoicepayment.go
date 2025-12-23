@@ -26,8 +26,8 @@ type InvoicePaymentService struct {
 // NewInvoicePaymentService generates a new service that applies the given options
 // to each request. These options are applied after the parent client's options (if
 // there is one), and before any request-specific options.
-func NewInvoicePaymentService(opts ...option.RequestOption) (r *InvoicePaymentService) {
-	r = &InvoicePaymentService{}
+func NewInvoicePaymentService(opts ...option.RequestOption) (r InvoicePaymentService) {
+	r = InvoicePaymentService{}
 	r.Options = opts
 	return
 }

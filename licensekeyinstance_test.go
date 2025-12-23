@@ -51,7 +51,7 @@ func TestLicenseKeyInstanceUpdate(t *testing.T) {
 		context.TODO(),
 		"lki_123",
 		dodopayments.LicenseKeyInstanceUpdateParams{
-			Name: dodopayments.F("name"),
+			Name: "name",
 		},
 	)
 	if err != nil {
@@ -76,9 +76,9 @@ func TestLicenseKeyInstanceListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.LicenseKeyInstances.List(context.TODO(), dodopayments.LicenseKeyInstanceListParams{
-		LicenseKeyID: dodopayments.F("license_key_id"),
-		PageNumber:   dodopayments.F(int64(0)),
-		PageSize:     dodopayments.F(int64(0)),
+		LicenseKeyID: dodopayments.String("license_key_id"),
+		PageNumber:   dodopayments.Int(0),
+		PageSize:     dodopayments.Int(0),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

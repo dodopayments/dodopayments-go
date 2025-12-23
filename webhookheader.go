@@ -10,9 +10,10 @@ import (
 	"slices"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
-	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/packages/param"
+	"github.com/dodopayments/dodopayments-go/packages/respjson"
 )
 
 // WebhookHeaderService contains methods and other services that help with
@@ -28,8 +29,8 @@ type WebhookHeaderService struct {
 // NewWebhookHeaderService generates a new service that applies the given options
 // to each request. These options are applied after the parent client's options (if
 // there is one), and before any request-specific options.
-func NewWebhookHeaderService(opts ...option.RequestOption) (r *WebhookHeaderService) {
-	r = &WebhookHeaderService{}
+func NewWebhookHeaderService(opts ...option.RequestOption) (r WebhookHeaderService) {
+	r = WebhookHeaderService{}
 	r.Options = opts
 	return
 }
@@ -66,32 +67,32 @@ type WebhookHeaderGetResponse struct {
 	// List of headers configured
 	Headers map[string]string `json:"headers,required"`
 	// Sensitive headers without the value
-	Sensitive []string                     `json:"sensitive,required"`
-	JSON      webhookHeaderGetResponseJSON `json:"-"`
+	Sensitive []string `json:"sensitive,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Headers     respjson.Field
+		Sensitive   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
 }
 
-// webhookHeaderGetResponseJSON contains the JSON metadata for the struct
-// [WebhookHeaderGetResponse]
-type webhookHeaderGetResponseJSON struct {
-	Headers     apijson.Field
-	Sensitive   apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *WebhookHeaderGetResponse) UnmarshalJSON(data []byte) (err error) {
+// Returns the unmodified JSON received from the API
+func (r WebhookHeaderGetResponse) RawJSON() string { return r.JSON.raw }
+func (r *WebhookHeaderGetResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r webhookHeaderGetResponseJSON) RawJSON() string {
-	return r.raw
 }
 
 type WebhookHeaderUpdateParams struct {
 	// Object of header-value pair to update or add
-	Headers param.Field[map[string]string] `json:"headers,required"`
+	Headers map[string]string `json:"headers,omitzero,required"`
+	paramObj
 }
 
 func (r WebhookHeaderUpdateParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	type shadow WebhookHeaderUpdateParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *WebhookHeaderUpdateParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
