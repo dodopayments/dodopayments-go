@@ -230,9 +230,8 @@ func (r webhookGetSecretResponseJSON) RawJSON() string {
 
 type DisputeAcceptedWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data DisputeAcceptedWebhookEventData `json:"data,required"`
+	BusinessID string  `json:"business_id,required"`
+	Data       Dispute `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -263,45 +262,6 @@ func (r DisputeAcceptedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r DisputeAcceptedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type DisputeAcceptedWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType DisputeAcceptedWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        disputeAcceptedWebhookEventDataJSON        `json:"-"`
-	Dispute
-}
-
-// disputeAcceptedWebhookEventDataJSON contains the JSON metadata for the struct
-// [DisputeAcceptedWebhookEventData]
-type disputeAcceptedWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *DisputeAcceptedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r disputeAcceptedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type DisputeAcceptedWebhookEventDataPayloadType string
-
-const (
-	DisputeAcceptedWebhookEventDataPayloadTypeDispute DisputeAcceptedWebhookEventDataPayloadType = "Dispute"
-)
-
-func (r DisputeAcceptedWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case DisputeAcceptedWebhookEventDataPayloadTypeDispute:
-		return true
-	}
-	return false
-}
-
 // The event type
 type DisputeAcceptedWebhookEventType string
 
@@ -319,9 +279,8 @@ func (r DisputeAcceptedWebhookEventType) IsKnown() bool {
 
 type DisputeCancelledWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data DisputeCancelledWebhookEventData `json:"data,required"`
+	BusinessID string  `json:"business_id,required"`
+	Data       Dispute `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -352,45 +311,6 @@ func (r DisputeCancelledWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r DisputeCancelledWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type DisputeCancelledWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType DisputeCancelledWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        disputeCancelledWebhookEventDataJSON        `json:"-"`
-	Dispute
-}
-
-// disputeCancelledWebhookEventDataJSON contains the JSON metadata for the struct
-// [DisputeCancelledWebhookEventData]
-type disputeCancelledWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *DisputeCancelledWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r disputeCancelledWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type DisputeCancelledWebhookEventDataPayloadType string
-
-const (
-	DisputeCancelledWebhookEventDataPayloadTypeDispute DisputeCancelledWebhookEventDataPayloadType = "Dispute"
-)
-
-func (r DisputeCancelledWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case DisputeCancelledWebhookEventDataPayloadTypeDispute:
-		return true
-	}
-	return false
-}
-
 // The event type
 type DisputeCancelledWebhookEventType string
 
@@ -408,9 +328,8 @@ func (r DisputeCancelledWebhookEventType) IsKnown() bool {
 
 type DisputeChallengedWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data DisputeChallengedWebhookEventData `json:"data,required"`
+	BusinessID string  `json:"business_id,required"`
+	Data       Dispute `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -441,45 +360,6 @@ func (r DisputeChallengedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r DisputeChallengedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type DisputeChallengedWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType DisputeChallengedWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        disputeChallengedWebhookEventDataJSON        `json:"-"`
-	Dispute
-}
-
-// disputeChallengedWebhookEventDataJSON contains the JSON metadata for the struct
-// [DisputeChallengedWebhookEventData]
-type disputeChallengedWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *DisputeChallengedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r disputeChallengedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type DisputeChallengedWebhookEventDataPayloadType string
-
-const (
-	DisputeChallengedWebhookEventDataPayloadTypeDispute DisputeChallengedWebhookEventDataPayloadType = "Dispute"
-)
-
-func (r DisputeChallengedWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case DisputeChallengedWebhookEventDataPayloadTypeDispute:
-		return true
-	}
-	return false
-}
-
 // The event type
 type DisputeChallengedWebhookEventType string
 
@@ -497,9 +377,8 @@ func (r DisputeChallengedWebhookEventType) IsKnown() bool {
 
 type DisputeExpiredWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data DisputeExpiredWebhookEventData `json:"data,required"`
+	BusinessID string  `json:"business_id,required"`
+	Data       Dispute `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -530,45 +409,6 @@ func (r DisputeExpiredWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r DisputeExpiredWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type DisputeExpiredWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType DisputeExpiredWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        disputeExpiredWebhookEventDataJSON        `json:"-"`
-	Dispute
-}
-
-// disputeExpiredWebhookEventDataJSON contains the JSON metadata for the struct
-// [DisputeExpiredWebhookEventData]
-type disputeExpiredWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *DisputeExpiredWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r disputeExpiredWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type DisputeExpiredWebhookEventDataPayloadType string
-
-const (
-	DisputeExpiredWebhookEventDataPayloadTypeDispute DisputeExpiredWebhookEventDataPayloadType = "Dispute"
-)
-
-func (r DisputeExpiredWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case DisputeExpiredWebhookEventDataPayloadTypeDispute:
-		return true
-	}
-	return false
-}
-
 // The event type
 type DisputeExpiredWebhookEventType string
 
@@ -586,9 +426,8 @@ func (r DisputeExpiredWebhookEventType) IsKnown() bool {
 
 type DisputeLostWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data DisputeLostWebhookEventData `json:"data,required"`
+	BusinessID string  `json:"business_id,required"`
+	Data       Dispute `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -619,45 +458,6 @@ func (r DisputeLostWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r DisputeLostWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type DisputeLostWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType DisputeLostWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        disputeLostWebhookEventDataJSON        `json:"-"`
-	Dispute
-}
-
-// disputeLostWebhookEventDataJSON contains the JSON metadata for the struct
-// [DisputeLostWebhookEventData]
-type disputeLostWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *DisputeLostWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r disputeLostWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type DisputeLostWebhookEventDataPayloadType string
-
-const (
-	DisputeLostWebhookEventDataPayloadTypeDispute DisputeLostWebhookEventDataPayloadType = "Dispute"
-)
-
-func (r DisputeLostWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case DisputeLostWebhookEventDataPayloadTypeDispute:
-		return true
-	}
-	return false
-}
-
 // The event type
 type DisputeLostWebhookEventType string
 
@@ -675,9 +475,8 @@ func (r DisputeLostWebhookEventType) IsKnown() bool {
 
 type DisputeOpenedWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data DisputeOpenedWebhookEventData `json:"data,required"`
+	BusinessID string  `json:"business_id,required"`
+	Data       Dispute `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -708,45 +507,6 @@ func (r DisputeOpenedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r DisputeOpenedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type DisputeOpenedWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType DisputeOpenedWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        disputeOpenedWebhookEventDataJSON        `json:"-"`
-	Dispute
-}
-
-// disputeOpenedWebhookEventDataJSON contains the JSON metadata for the struct
-// [DisputeOpenedWebhookEventData]
-type disputeOpenedWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *DisputeOpenedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r disputeOpenedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type DisputeOpenedWebhookEventDataPayloadType string
-
-const (
-	DisputeOpenedWebhookEventDataPayloadTypeDispute DisputeOpenedWebhookEventDataPayloadType = "Dispute"
-)
-
-func (r DisputeOpenedWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case DisputeOpenedWebhookEventDataPayloadTypeDispute:
-		return true
-	}
-	return false
-}
-
 // The event type
 type DisputeOpenedWebhookEventType string
 
@@ -764,9 +524,8 @@ func (r DisputeOpenedWebhookEventType) IsKnown() bool {
 
 type DisputeWonWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data DisputeWonWebhookEventData `json:"data,required"`
+	BusinessID string  `json:"business_id,required"`
+	Data       Dispute `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -797,45 +556,6 @@ func (r DisputeWonWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r DisputeWonWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type DisputeWonWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType DisputeWonWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        disputeWonWebhookEventDataJSON        `json:"-"`
-	Dispute
-}
-
-// disputeWonWebhookEventDataJSON contains the JSON metadata for the struct
-// [DisputeWonWebhookEventData]
-type disputeWonWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *DisputeWonWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r disputeWonWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type DisputeWonWebhookEventDataPayloadType string
-
-const (
-	DisputeWonWebhookEventDataPayloadTypeDispute DisputeWonWebhookEventDataPayloadType = "Dispute"
-)
-
-func (r DisputeWonWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case DisputeWonWebhookEventDataPayloadTypeDispute:
-		return true
-	}
-	return false
-}
-
 // The event type
 type DisputeWonWebhookEventType string
 
@@ -853,9 +573,8 @@ func (r DisputeWonWebhookEventType) IsKnown() bool {
 
 type LicenseKeyCreatedWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data LicenseKeyCreatedWebhookEventData `json:"data,required"`
+	BusinessID string     `json:"business_id,required"`
+	Data       LicenseKey `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -886,45 +605,6 @@ func (r LicenseKeyCreatedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r LicenseKeyCreatedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type LicenseKeyCreatedWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType LicenseKeyCreatedWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        licenseKeyCreatedWebhookEventDataJSON        `json:"-"`
-	LicenseKey
-}
-
-// licenseKeyCreatedWebhookEventDataJSON contains the JSON metadata for the struct
-// [LicenseKeyCreatedWebhookEventData]
-type licenseKeyCreatedWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *LicenseKeyCreatedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r licenseKeyCreatedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type LicenseKeyCreatedWebhookEventDataPayloadType string
-
-const (
-	LicenseKeyCreatedWebhookEventDataPayloadTypeLicenseKey LicenseKeyCreatedWebhookEventDataPayloadType = "LicenseKey"
-)
-
-func (r LicenseKeyCreatedWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case LicenseKeyCreatedWebhookEventDataPayloadTypeLicenseKey:
-		return true
-	}
-	return false
-}
-
 // The event type
 type LicenseKeyCreatedWebhookEventType string
 
@@ -942,9 +622,8 @@ func (r LicenseKeyCreatedWebhookEventType) IsKnown() bool {
 
 type PaymentCancelledWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data PaymentCancelledWebhookEventData `json:"data,required"`
+	BusinessID string  `json:"business_id,required"`
+	Data       Payment `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -975,45 +654,6 @@ func (r PaymentCancelledWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r PaymentCancelledWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type PaymentCancelledWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType PaymentCancelledWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        paymentCancelledWebhookEventDataJSON        `json:"-"`
-	Payment
-}
-
-// paymentCancelledWebhookEventDataJSON contains the JSON metadata for the struct
-// [PaymentCancelledWebhookEventData]
-type paymentCancelledWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PaymentCancelledWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentCancelledWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type PaymentCancelledWebhookEventDataPayloadType string
-
-const (
-	PaymentCancelledWebhookEventDataPayloadTypePayment PaymentCancelledWebhookEventDataPayloadType = "Payment"
-)
-
-func (r PaymentCancelledWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case PaymentCancelledWebhookEventDataPayloadTypePayment:
-		return true
-	}
-	return false
-}
-
 // The event type
 type PaymentCancelledWebhookEventType string
 
@@ -1031,9 +671,8 @@ func (r PaymentCancelledWebhookEventType) IsKnown() bool {
 
 type PaymentFailedWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data PaymentFailedWebhookEventData `json:"data,required"`
+	BusinessID string  `json:"business_id,required"`
+	Data       Payment `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -1064,45 +703,6 @@ func (r PaymentFailedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r PaymentFailedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type PaymentFailedWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType PaymentFailedWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        paymentFailedWebhookEventDataJSON        `json:"-"`
-	Payment
-}
-
-// paymentFailedWebhookEventDataJSON contains the JSON metadata for the struct
-// [PaymentFailedWebhookEventData]
-type paymentFailedWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PaymentFailedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentFailedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type PaymentFailedWebhookEventDataPayloadType string
-
-const (
-	PaymentFailedWebhookEventDataPayloadTypePayment PaymentFailedWebhookEventDataPayloadType = "Payment"
-)
-
-func (r PaymentFailedWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case PaymentFailedWebhookEventDataPayloadTypePayment:
-		return true
-	}
-	return false
-}
-
 // The event type
 type PaymentFailedWebhookEventType string
 
@@ -1120,9 +720,8 @@ func (r PaymentFailedWebhookEventType) IsKnown() bool {
 
 type PaymentProcessingWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data PaymentProcessingWebhookEventData `json:"data,required"`
+	BusinessID string  `json:"business_id,required"`
+	Data       Payment `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -1153,45 +752,6 @@ func (r PaymentProcessingWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r PaymentProcessingWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type PaymentProcessingWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType PaymentProcessingWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        paymentProcessingWebhookEventDataJSON        `json:"-"`
-	Payment
-}
-
-// paymentProcessingWebhookEventDataJSON contains the JSON metadata for the struct
-// [PaymentProcessingWebhookEventData]
-type paymentProcessingWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PaymentProcessingWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentProcessingWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type PaymentProcessingWebhookEventDataPayloadType string
-
-const (
-	PaymentProcessingWebhookEventDataPayloadTypePayment PaymentProcessingWebhookEventDataPayloadType = "Payment"
-)
-
-func (r PaymentProcessingWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case PaymentProcessingWebhookEventDataPayloadTypePayment:
-		return true
-	}
-	return false
-}
-
 // The event type
 type PaymentProcessingWebhookEventType string
 
@@ -1209,9 +769,8 @@ func (r PaymentProcessingWebhookEventType) IsKnown() bool {
 
 type PaymentSucceededWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data PaymentSucceededWebhookEventData `json:"data,required"`
+	BusinessID string  `json:"business_id,required"`
+	Data       Payment `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -1242,45 +801,6 @@ func (r PaymentSucceededWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r PaymentSucceededWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type PaymentSucceededWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType PaymentSucceededWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        paymentSucceededWebhookEventDataJSON        `json:"-"`
-	Payment
-}
-
-// paymentSucceededWebhookEventDataJSON contains the JSON metadata for the struct
-// [PaymentSucceededWebhookEventData]
-type paymentSucceededWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PaymentSucceededWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentSucceededWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type PaymentSucceededWebhookEventDataPayloadType string
-
-const (
-	PaymentSucceededWebhookEventDataPayloadTypePayment PaymentSucceededWebhookEventDataPayloadType = "Payment"
-)
-
-func (r PaymentSucceededWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case PaymentSucceededWebhookEventDataPayloadTypePayment:
-		return true
-	}
-	return false
-}
-
 // The event type
 type PaymentSucceededWebhookEventType string
 
@@ -1299,8 +819,7 @@ func (r PaymentSucceededWebhookEventType) IsKnown() bool {
 type RefundFailedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data RefundFailedWebhookEventData `json:"data,required"`
+	Data       Refund `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -1331,45 +850,6 @@ func (r RefundFailedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r RefundFailedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type RefundFailedWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType RefundFailedWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        refundFailedWebhookEventDataJSON        `json:"-"`
-	Refund
-}
-
-// refundFailedWebhookEventDataJSON contains the JSON metadata for the struct
-// [RefundFailedWebhookEventData]
-type refundFailedWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *RefundFailedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r refundFailedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type RefundFailedWebhookEventDataPayloadType string
-
-const (
-	RefundFailedWebhookEventDataPayloadTypeRefund RefundFailedWebhookEventDataPayloadType = "Refund"
-)
-
-func (r RefundFailedWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case RefundFailedWebhookEventDataPayloadTypeRefund:
-		return true
-	}
-	return false
-}
-
 // The event type
 type RefundFailedWebhookEventType string
 
@@ -1388,8 +868,7 @@ func (r RefundFailedWebhookEventType) IsKnown() bool {
 type RefundSucceededWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data RefundSucceededWebhookEventData `json:"data,required"`
+	Data       Refund `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -1420,45 +899,6 @@ func (r RefundSucceededWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r RefundSucceededWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type RefundSucceededWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType RefundSucceededWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        refundSucceededWebhookEventDataJSON        `json:"-"`
-	Refund
-}
-
-// refundSucceededWebhookEventDataJSON contains the JSON metadata for the struct
-// [RefundSucceededWebhookEventData]
-type refundSucceededWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *RefundSucceededWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r refundSucceededWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type RefundSucceededWebhookEventDataPayloadType string
-
-const (
-	RefundSucceededWebhookEventDataPayloadTypeRefund RefundSucceededWebhookEventDataPayloadType = "Refund"
-)
-
-func (r RefundSucceededWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case RefundSucceededWebhookEventDataPayloadTypeRefund:
-		return true
-	}
-	return false
-}
-
 // The event type
 type RefundSucceededWebhookEventType string
 
@@ -1477,8 +917,8 @@ func (r RefundSucceededWebhookEventType) IsKnown() bool {
 type SubscriptionActiveWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data SubscriptionActiveWebhookEventData `json:"data,required"`
+	// Response struct representing subscription details
+	Data Subscription `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -1509,45 +949,6 @@ func (r SubscriptionActiveWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionActiveWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type SubscriptionActiveWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType SubscriptionActiveWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        subscriptionActiveWebhookEventDataJSON        `json:"-"`
-	Subscription
-}
-
-// subscriptionActiveWebhookEventDataJSON contains the JSON metadata for the struct
-// [SubscriptionActiveWebhookEventData]
-type subscriptionActiveWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionActiveWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionActiveWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type SubscriptionActiveWebhookEventDataPayloadType string
-
-const (
-	SubscriptionActiveWebhookEventDataPayloadTypeSubscription SubscriptionActiveWebhookEventDataPayloadType = "Subscription"
-)
-
-func (r SubscriptionActiveWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case SubscriptionActiveWebhookEventDataPayloadTypeSubscription:
-		return true
-	}
-	return false
-}
-
 // The event type
 type SubscriptionActiveWebhookEventType string
 
@@ -1566,8 +967,8 @@ func (r SubscriptionActiveWebhookEventType) IsKnown() bool {
 type SubscriptionCancelledWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data SubscriptionCancelledWebhookEventData `json:"data,required"`
+	// Response struct representing subscription details
+	Data Subscription `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -1598,45 +999,6 @@ func (r SubscriptionCancelledWebhookEvent) implementsUnsafeUnwrapWebhookEvent() 
 
 func (r SubscriptionCancelledWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type SubscriptionCancelledWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType SubscriptionCancelledWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        subscriptionCancelledWebhookEventDataJSON        `json:"-"`
-	Subscription
-}
-
-// subscriptionCancelledWebhookEventDataJSON contains the JSON metadata for the
-// struct [SubscriptionCancelledWebhookEventData]
-type subscriptionCancelledWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionCancelledWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionCancelledWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type SubscriptionCancelledWebhookEventDataPayloadType string
-
-const (
-	SubscriptionCancelledWebhookEventDataPayloadTypeSubscription SubscriptionCancelledWebhookEventDataPayloadType = "Subscription"
-)
-
-func (r SubscriptionCancelledWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case SubscriptionCancelledWebhookEventDataPayloadTypeSubscription:
-		return true
-	}
-	return false
-}
-
 // The event type
 type SubscriptionCancelledWebhookEventType string
 
@@ -1655,8 +1017,8 @@ func (r SubscriptionCancelledWebhookEventType) IsKnown() bool {
 type SubscriptionExpiredWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data SubscriptionExpiredWebhookEventData `json:"data,required"`
+	// Response struct representing subscription details
+	Data Subscription `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -1687,45 +1049,6 @@ func (r SubscriptionExpiredWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionExpiredWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type SubscriptionExpiredWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType SubscriptionExpiredWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        subscriptionExpiredWebhookEventDataJSON        `json:"-"`
-	Subscription
-}
-
-// subscriptionExpiredWebhookEventDataJSON contains the JSON metadata for the
-// struct [SubscriptionExpiredWebhookEventData]
-type subscriptionExpiredWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionExpiredWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionExpiredWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type SubscriptionExpiredWebhookEventDataPayloadType string
-
-const (
-	SubscriptionExpiredWebhookEventDataPayloadTypeSubscription SubscriptionExpiredWebhookEventDataPayloadType = "Subscription"
-)
-
-func (r SubscriptionExpiredWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case SubscriptionExpiredWebhookEventDataPayloadTypeSubscription:
-		return true
-	}
-	return false
-}
-
 // The event type
 type SubscriptionExpiredWebhookEventType string
 
@@ -1744,8 +1067,8 @@ func (r SubscriptionExpiredWebhookEventType) IsKnown() bool {
 type SubscriptionFailedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data SubscriptionFailedWebhookEventData `json:"data,required"`
+	// Response struct representing subscription details
+	Data Subscription `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -1776,45 +1099,6 @@ func (r SubscriptionFailedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionFailedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type SubscriptionFailedWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType SubscriptionFailedWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        subscriptionFailedWebhookEventDataJSON        `json:"-"`
-	Subscription
-}
-
-// subscriptionFailedWebhookEventDataJSON contains the JSON metadata for the struct
-// [SubscriptionFailedWebhookEventData]
-type subscriptionFailedWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionFailedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionFailedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type SubscriptionFailedWebhookEventDataPayloadType string
-
-const (
-	SubscriptionFailedWebhookEventDataPayloadTypeSubscription SubscriptionFailedWebhookEventDataPayloadType = "Subscription"
-)
-
-func (r SubscriptionFailedWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case SubscriptionFailedWebhookEventDataPayloadTypeSubscription:
-		return true
-	}
-	return false
-}
-
 // The event type
 type SubscriptionFailedWebhookEventType string
 
@@ -1833,8 +1117,8 @@ func (r SubscriptionFailedWebhookEventType) IsKnown() bool {
 type SubscriptionOnHoldWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data SubscriptionOnHoldWebhookEventData `json:"data,required"`
+	// Response struct representing subscription details
+	Data Subscription `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -1865,45 +1149,6 @@ func (r SubscriptionOnHoldWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionOnHoldWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type SubscriptionOnHoldWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType SubscriptionOnHoldWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        subscriptionOnHoldWebhookEventDataJSON        `json:"-"`
-	Subscription
-}
-
-// subscriptionOnHoldWebhookEventDataJSON contains the JSON metadata for the struct
-// [SubscriptionOnHoldWebhookEventData]
-type subscriptionOnHoldWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionOnHoldWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionOnHoldWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type SubscriptionOnHoldWebhookEventDataPayloadType string
-
-const (
-	SubscriptionOnHoldWebhookEventDataPayloadTypeSubscription SubscriptionOnHoldWebhookEventDataPayloadType = "Subscription"
-)
-
-func (r SubscriptionOnHoldWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case SubscriptionOnHoldWebhookEventDataPayloadTypeSubscription:
-		return true
-	}
-	return false
-}
-
 // The event type
 type SubscriptionOnHoldWebhookEventType string
 
@@ -1922,8 +1167,8 @@ func (r SubscriptionOnHoldWebhookEventType) IsKnown() bool {
 type SubscriptionPlanChangedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data SubscriptionPlanChangedWebhookEventData `json:"data,required"`
+	// Response struct representing subscription details
+	Data Subscription `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -1954,45 +1199,6 @@ func (r SubscriptionPlanChangedWebhookEvent) implementsUnsafeUnwrapWebhookEvent(
 
 func (r SubscriptionPlanChangedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type SubscriptionPlanChangedWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType SubscriptionPlanChangedWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        subscriptionPlanChangedWebhookEventDataJSON        `json:"-"`
-	Subscription
-}
-
-// subscriptionPlanChangedWebhookEventDataJSON contains the JSON metadata for the
-// struct [SubscriptionPlanChangedWebhookEventData]
-type subscriptionPlanChangedWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionPlanChangedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionPlanChangedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type SubscriptionPlanChangedWebhookEventDataPayloadType string
-
-const (
-	SubscriptionPlanChangedWebhookEventDataPayloadTypeSubscription SubscriptionPlanChangedWebhookEventDataPayloadType = "Subscription"
-)
-
-func (r SubscriptionPlanChangedWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case SubscriptionPlanChangedWebhookEventDataPayloadTypeSubscription:
-		return true
-	}
-	return false
-}
-
 // The event type
 type SubscriptionPlanChangedWebhookEventType string
 
@@ -2011,8 +1217,8 @@ func (r SubscriptionPlanChangedWebhookEventType) IsKnown() bool {
 type SubscriptionRenewedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data SubscriptionRenewedWebhookEventData `json:"data,required"`
+	// Response struct representing subscription details
+	Data Subscription `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -2043,45 +1249,6 @@ func (r SubscriptionRenewedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionRenewedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type SubscriptionRenewedWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType SubscriptionRenewedWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        subscriptionRenewedWebhookEventDataJSON        `json:"-"`
-	Subscription
-}
-
-// subscriptionRenewedWebhookEventDataJSON contains the JSON metadata for the
-// struct [SubscriptionRenewedWebhookEventData]
-type subscriptionRenewedWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionRenewedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionRenewedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type SubscriptionRenewedWebhookEventDataPayloadType string
-
-const (
-	SubscriptionRenewedWebhookEventDataPayloadTypeSubscription SubscriptionRenewedWebhookEventDataPayloadType = "Subscription"
-)
-
-func (r SubscriptionRenewedWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case SubscriptionRenewedWebhookEventDataPayloadTypeSubscription:
-		return true
-	}
-	return false
-}
-
 // The event type
 type SubscriptionRenewedWebhookEventType string
 
@@ -2100,8 +1267,8 @@ func (r SubscriptionRenewedWebhookEventType) IsKnown() bool {
 type SubscriptionUpdatedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// Event-specific data
-	Data SubscriptionUpdatedWebhookEventData `json:"data,required"`
+	// Response struct representing subscription details
+	Data Subscription `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
 	// The event type
@@ -2132,45 +1299,6 @@ func (r SubscriptionUpdatedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionUpdatedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-// Event-specific data
-type SubscriptionUpdatedWebhookEventData struct {
-	// The type of payload in the data field
-	PayloadType SubscriptionUpdatedWebhookEventDataPayloadType `json:"payload_type"`
-	JSON        subscriptionUpdatedWebhookEventDataJSON        `json:"-"`
-	Subscription
-}
-
-// subscriptionUpdatedWebhookEventDataJSON contains the JSON metadata for the
-// struct [SubscriptionUpdatedWebhookEventData]
-type subscriptionUpdatedWebhookEventDataJSON struct {
-	PayloadType apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionUpdatedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionUpdatedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-// The type of payload in the data field
-type SubscriptionUpdatedWebhookEventDataPayloadType string
-
-const (
-	SubscriptionUpdatedWebhookEventDataPayloadTypeSubscription SubscriptionUpdatedWebhookEventDataPayloadType = "Subscription"
-)
-
-func (r SubscriptionUpdatedWebhookEventDataPayloadType) IsKnown() bool {
-	switch r {
-	case SubscriptionUpdatedWebhookEventDataPayloadTypeSubscription:
-		return true
-	}
-	return false
-}
-
 // The event type
 type SubscriptionUpdatedWebhookEventType string
 
@@ -2189,18 +1317,8 @@ func (r SubscriptionUpdatedWebhookEventType) IsKnown() bool {
 type UnsafeUnwrapWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// This field can have the runtime type of [DisputeAcceptedWebhookEventData],
-	// [DisputeCancelledWebhookEventData], [DisputeChallengedWebhookEventData],
-	// [DisputeExpiredWebhookEventData], [DisputeLostWebhookEventData],
-	// [DisputeOpenedWebhookEventData], [DisputeWonWebhookEventData],
-	// [LicenseKeyCreatedWebhookEventData], [PaymentCancelledWebhookEventData],
-	// [PaymentFailedWebhookEventData], [PaymentProcessingWebhookEventData],
-	// [PaymentSucceededWebhookEventData], [RefundFailedWebhookEventData],
-	// [RefundSucceededWebhookEventData], [SubscriptionActiveWebhookEventData],
-	// [SubscriptionCancelledWebhookEventData], [SubscriptionExpiredWebhookEventData],
-	// [SubscriptionFailedWebhookEventData], [SubscriptionOnHoldWebhookEventData],
-	// [SubscriptionPlanChangedWebhookEventData],
-	// [SubscriptionRenewedWebhookEventData], [SubscriptionUpdatedWebhookEventData].
+	// This field can have the runtime type of [Dispute], [LicenseKey], [Payment],
+	// [Refund], [Subscription].
 	Data interface{} `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
@@ -2403,18 +1521,8 @@ func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 type UnwrapWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id,required"`
-	// This field can have the runtime type of [DisputeAcceptedWebhookEventData],
-	// [DisputeCancelledWebhookEventData], [DisputeChallengedWebhookEventData],
-	// [DisputeExpiredWebhookEventData], [DisputeLostWebhookEventData],
-	// [DisputeOpenedWebhookEventData], [DisputeWonWebhookEventData],
-	// [LicenseKeyCreatedWebhookEventData], [PaymentCancelledWebhookEventData],
-	// [PaymentFailedWebhookEventData], [PaymentProcessingWebhookEventData],
-	// [PaymentSucceededWebhookEventData], [RefundFailedWebhookEventData],
-	// [RefundSucceededWebhookEventData], [SubscriptionActiveWebhookEventData],
-	// [SubscriptionCancelledWebhookEventData], [SubscriptionExpiredWebhookEventData],
-	// [SubscriptionFailedWebhookEventData], [SubscriptionOnHoldWebhookEventData],
-	// [SubscriptionPlanChangedWebhookEventData],
-	// [SubscriptionRenewedWebhookEventData], [SubscriptionUpdatedWebhookEventData].
+	// This field can have the runtime type of [Dispute], [LicenseKey], [Payment],
+	// [Refund], [Subscription].
 	Data interface{} `json:"data,required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
