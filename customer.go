@@ -179,9 +179,6 @@ func (r customerGetPaymentMethodsResponseJSON) RawJSON() string {
 }
 
 type CustomerGetPaymentMethodsResponseItem struct {
-	// PaymentMethod enum from hyperswitch
-	//
-	// https://github.com/juspay/hyperswitch/blob/ecd05d53c99ae701ac94893ec632a3988afe3238/crates/common_enums/src/enums.rs#L2097
 	PaymentMethod     CustomerGetPaymentMethodsResponseItemsPaymentMethod `json:"payment_method,required"`
 	PaymentMethodID   string                                              `json:"payment_method_id,required"`
 	Card              CustomerGetPaymentMethodsResponseItemsCard          `json:"card,nullable"`
@@ -212,9 +209,6 @@ func (r customerGetPaymentMethodsResponseItemJSON) RawJSON() string {
 	return r.raw
 }
 
-// PaymentMethod enum from hyperswitch
-//
-// https://github.com/juspay/hyperswitch/blob/ecd05d53c99ae701ac94893ec632a3988afe3238/crates/common_enums/src/enums.rs#L2097
 type CustomerGetPaymentMethodsResponseItemsPaymentMethod string
 
 const (
@@ -244,6 +238,7 @@ func (r CustomerGetPaymentMethodsResponseItemsPaymentMethod) IsKnown() bool {
 }
 
 type CustomerGetPaymentMethodsResponseItemsCard struct {
+	CardHolderName string `json:"card_holder_name,nullable"`
 	// ISO country code alpha2 variant
 	CardIssuingCountry CountryCode                                    `json:"card_issuing_country,nullable"`
 	CardNetwork        string                                         `json:"card_network,nullable"`
@@ -257,6 +252,7 @@ type CustomerGetPaymentMethodsResponseItemsCard struct {
 // customerGetPaymentMethodsResponseItemsCardJSON contains the JSON metadata for
 // the struct [CustomerGetPaymentMethodsResponseItemsCard]
 type customerGetPaymentMethodsResponseItemsCardJSON struct {
+	CardHolderName     apijson.Field
 	CardIssuingCountry apijson.Field
 	CardNetwork        apijson.Field
 	CardType           apijson.Field

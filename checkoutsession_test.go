@@ -36,7 +36,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 				}}),
 				Amount: dodopayments.F(int64(0)),
 			}}),
-			AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesCredit}),
+			AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
 			BillingAddress: dodopayments.F(dodopayments.CheckoutSessionRequestBillingAddressParam{
 				Country: dodopayments.F(dodopayments.CountryCodeAf),
 				City:    dodopayments.F("city"),

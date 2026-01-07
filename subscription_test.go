@@ -43,7 +43,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 			AddonID:  dodopayments.F("addon_id"),
 			Quantity: dodopayments.F(int64(0)),
 		}}),
-		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesCredit}),
+		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
 		BillingCurrency:           dodopayments.F(dodopayments.CurrencyAed),
 		DiscountCode:              dodopayments.F("discount_code"),
 		Force3DS:                  dodopayments.F(true),
