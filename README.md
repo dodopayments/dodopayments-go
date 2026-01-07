@@ -33,7 +33,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/dodopayments/dodopayments-go@v1.70.0'
+go get -u 'github.com/dodopayments/dodopayments-go@v1.71.0'
 ```
 
 <!-- x-release-please-end -->
