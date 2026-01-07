@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.71.0 (2026-01-07)
+
+Full Changelog: [v1.70.0...v1.71.0](https://github.com/dodopayments/dodopayments-go/compare/v1.70.0...v1.71.0)
+
+### Features
+
+* **api:** updated openapi spec to v1.70.0 ([7280a6c](https://github.com/dodopayments/dodopayments-go/commit/7280a6c16395aa050f2e8a662f04aac2d59eac0c))
+
+
+### Chores
+
+* **internal:** codegen related update ([31c83ae](https://github.com/dodopayments/dodopayments-go/commit/31c83aeb264f6f793c217f49093371b32cc22f60))
+
+
+### Documentation
+
+* prominently feature MCP server setup in root SDK readmes ([9409040](https://github.com/dodopayments/dodopayments-go/commit/94090402a509a6cb6ed8162af12b08ab15a4a3d6))
+
 ## 1.70.0 (2025-12-23)
 
 Full Changelog: [v1.69.0...v1.70.0](https://github.com/dodopayments/dodopayments-go/compare/v1.69.0...v1.70.0)
