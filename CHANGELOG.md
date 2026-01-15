@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.71.1 (2026-01-15)
+
+Full Changelog: [v1.71.0...v1.71.1](https://github.com/dodopayments/dodopayments-go/compare/v1.71.0...v1.71.1)
+
+### Chores
+
+* **internal:** codegen related update ([9c19962](https://github.com/dodopayments/dodopayments-go/commit/9c199625083b9c62e5fbb4ebd2c2c9ff7b9c2a5f))
+* **internal:** codegen related update ([a89dc99](https://github.com/dodopayments/dodopayments-go/commit/a89dc995a31f27fda83061f7a514ef9ee8a7bf37))
+
 ## 1.71.0 (2026-01-07)
 
 Full Changelog: [v1.70.0...v1.71.0](https://github.com/dodopayments/dodopayments-go/compare/v1.70.0...v1.71.0)
