@@ -107,6 +107,20 @@ func (r *DiscountService) Delete(ctx context.Context, discountID string, opts ..
 	return
 }
 
+// Validate and fetch a discount by its code name (e.g., "SAVE20"). This allows
+// real-time validation directly against the API using the human-readable discount
+// code instead of requiring the internal discount_id.
+func (r *DiscountService) GetByCode(ctx context.Context, code string, opts ...option.RequestOption) (res *Discount, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if code == "" {
+		err = errors.New("missing required code parameter")
+		return
+	}
+	path := fmt.Sprintf("discounts/code/%s", code)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
 type Discount struct {
 	// The discount amount.
 	//

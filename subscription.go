@@ -1294,6 +1294,9 @@ type SubscriptionChangePlanParams struct {
 	// Addons for the new plan. Note : Leaving this empty would remove any existing
 	// addons
 	Addons param.Field[[]AttachAddonParam] `json:"addons"`
+	// Metadata for the payment. If not passed, the metadata of the subscription will
+	// be taken
+	Metadata param.Field[map[string]string] `json:"metadata"`
 }
 
 func (r SubscriptionChangePlanParams) MarshalJSON() (data []byte, err error) {
@@ -1364,6 +1367,9 @@ type SubscriptionPreviewChangePlanParams struct {
 	// Addons for the new plan. Note : Leaving this empty would remove any existing
 	// addons
 	Addons param.Field[[]AttachAddonParam] `json:"addons"`
+	// Metadata for the payment. If not passed, the metadata of the subscription will
+	// be taken
+	Metadata param.Field[map[string]string] `json:"metadata"`
 }
 
 func (r SubscriptionPreviewChangePlanParams) MarshalJSON() (data []byte, err error) {
