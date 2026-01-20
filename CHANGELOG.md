@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.73.0 (2026-01-20)
+
+Full Changelog: [v1.71.1...v1.73.0](https://github.com/dodopayments/dodopayments-go/compare/v1.71.1...v1.73.0)
+
+### Features
+
+* **api:** update openapi spec to v1.73.0 ([355de7c](https://github.com/dodopayments/dodopayments-go/commit/355de7cfa3825067dc6eec5175b583874598ab17))
+
+
+### Bug Fixes
+
+* **docs:** add missing pointer prefix to api.md return types ([310ba3e](https://github.com/dodopayments/dodopayments-go/commit/310ba3ea1c28143af9fea282e5d56113109165dc))
+
+
+### Chores
+
+* **internal:** update `actions/checkout` version ([513f313](https://github.com/dodopayments/dodopayments-go/commit/513f313919ad3da3a625b0ce66c94ea6bb37836a))
+
 ## 1.71.1 (2026-01-15)
 
 Full Changelog: [v1.71.0...v1.71.1](https://github.com/dodopayments/dodopayments-go/compare/v1.71.0...v1.71.1)
