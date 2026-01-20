@@ -750,8 +750,10 @@ type Product struct {
 	// Duration of the license key validity, if enabled.
 	LicenseKeyDuration LicenseKeyDuration `json:"license_key_duration,nullable"`
 	// Name of the product, optional.
-	Name string      `json:"name,nullable"`
-	JSON productJSON `json:"-"`
+	Name string `json:"name,nullable"`
+	// The product collection ID this product belongs to, if any
+	ProductCollectionID string      `json:"product_collection_id,nullable"`
+	JSON                productJSON `json:"-"`
 }
 
 // productJSON contains the JSON metadata for the struct [Product]
@@ -774,6 +776,7 @@ type productJSON struct {
 	LicenseKeyActivationsLimit  apijson.Field
 	LicenseKeyDuration          apijson.Field
 	Name                        apijson.Field
+	ProductCollectionID         apijson.Field
 	raw                         string
 	ExtraFields                 map[string]apijson.Field
 }

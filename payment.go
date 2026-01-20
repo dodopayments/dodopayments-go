@@ -342,6 +342,8 @@ type Payment struct {
 	ErrorMessage string `json:"error_message,nullable"`
 	// Invoice ID for this payment. Uses India-specific invoice ID if available.
 	InvoiceID string `json:"invoice_id,nullable"`
+	// URL to download the invoice PDF for this payment.
+	InvoiceURL string `json:"invoice_url,nullable"`
 	// Checkout URL
 	PaymentLink string `json:"payment_link,nullable"`
 	// Payment method used by customer (e.g. "card", "bank_transfer")
@@ -391,6 +393,7 @@ type paymentJSON struct {
 	ErrorCode                apijson.Field
 	ErrorMessage             apijson.Field
 	InvoiceID                apijson.Field
+	InvoiceURL               apijson.Field
 	PaymentLink              apijson.Field
 	PaymentMethod            apijson.Field
 	PaymentMethodType        apijson.Field
@@ -483,115 +486,30 @@ func (r paymentProductCartJSON) RawJSON() string {
 type PaymentMethodTypes string
 
 const (
-	PaymentMethodTypesACH                        PaymentMethodTypes = "ach"
-	PaymentMethodTypesAffirm                     PaymentMethodTypes = "affirm"
-	PaymentMethodTypesAfterpayClearpay           PaymentMethodTypes = "afterpay_clearpay"
-	PaymentMethodTypesAlfamart                   PaymentMethodTypes = "alfamart"
-	PaymentMethodTypesAliPay                     PaymentMethodTypes = "ali_pay"
-	PaymentMethodTypesAliPayHk                   PaymentMethodTypes = "ali_pay_hk"
-	PaymentMethodTypesAlma                       PaymentMethodTypes = "alma"
-	PaymentMethodTypesAmazonPay                  PaymentMethodTypes = "amazon_pay"
-	PaymentMethodTypesApplePay                   PaymentMethodTypes = "apple_pay"
-	PaymentMethodTypesAtome                      PaymentMethodTypes = "atome"
-	PaymentMethodTypesBacs                       PaymentMethodTypes = "bacs"
-	PaymentMethodTypesBancontactCard             PaymentMethodTypes = "bancontact_card"
-	PaymentMethodTypesBecs                       PaymentMethodTypes = "becs"
-	PaymentMethodTypesBenefit                    PaymentMethodTypes = "benefit"
-	PaymentMethodTypesBizum                      PaymentMethodTypes = "bizum"
-	PaymentMethodTypesBlik                       PaymentMethodTypes = "blik"
-	PaymentMethodTypesBoleto                     PaymentMethodTypes = "boleto"
-	PaymentMethodTypesBcaBankTransfer            PaymentMethodTypes = "bca_bank_transfer"
-	PaymentMethodTypesBniVa                      PaymentMethodTypes = "bni_va"
-	PaymentMethodTypesBriVa                      PaymentMethodTypes = "bri_va"
-	PaymentMethodTypesCardRedirect               PaymentMethodTypes = "card_redirect"
-	PaymentMethodTypesCimbVa                     PaymentMethodTypes = "cimb_va"
-	PaymentMethodTypesClassic                    PaymentMethodTypes = "classic"
-	PaymentMethodTypesCredit                     PaymentMethodTypes = "credit"
-	PaymentMethodTypesCryptoCurrency             PaymentMethodTypes = "crypto_currency"
-	PaymentMethodTypesCashapp                    PaymentMethodTypes = "cashapp"
-	PaymentMethodTypesDana                       PaymentMethodTypes = "dana"
-	PaymentMethodTypesDanamonVa                  PaymentMethodTypes = "danamon_va"
-	PaymentMethodTypesDebit                      PaymentMethodTypes = "debit"
-	PaymentMethodTypesDuitNow                    PaymentMethodTypes = "duit_now"
-	PaymentMethodTypesEfecty                     PaymentMethodTypes = "efecty"
-	PaymentMethodTypesEft                        PaymentMethodTypes = "eft"
-	PaymentMethodTypesEps                        PaymentMethodTypes = "eps"
-	PaymentMethodTypesFps                        PaymentMethodTypes = "fps"
-	PaymentMethodTypesEvoucher                   PaymentMethodTypes = "evoucher"
-	PaymentMethodTypesGiropay                    PaymentMethodTypes = "giropay"
-	PaymentMethodTypesGivex                      PaymentMethodTypes = "givex"
-	PaymentMethodTypesGooglePay                  PaymentMethodTypes = "google_pay"
-	PaymentMethodTypesGoPay                      PaymentMethodTypes = "go_pay"
-	PaymentMethodTypesGcash                      PaymentMethodTypes = "gcash"
-	PaymentMethodTypesIdeal                      PaymentMethodTypes = "ideal"
-	PaymentMethodTypesInterac                    PaymentMethodTypes = "interac"
-	PaymentMethodTypesIndomaret                  PaymentMethodTypes = "indomaret"
-	PaymentMethodTypesKlarna                     PaymentMethodTypes = "klarna"
-	PaymentMethodTypesKakaoPay                   PaymentMethodTypes = "kakao_pay"
-	PaymentMethodTypesLocalBankRedirect          PaymentMethodTypes = "local_bank_redirect"
-	PaymentMethodTypesMandiriVa                  PaymentMethodTypes = "mandiri_va"
-	PaymentMethodTypesKnet                       PaymentMethodTypes = "knet"
-	PaymentMethodTypesMBWay                      PaymentMethodTypes = "mb_way"
-	PaymentMethodTypesMobilePay                  PaymentMethodTypes = "mobile_pay"
-	PaymentMethodTypesMomo                       PaymentMethodTypes = "momo"
-	PaymentMethodTypesMomoAtm                    PaymentMethodTypes = "momo_atm"
-	PaymentMethodTypesMultibanco                 PaymentMethodTypes = "multibanco"
-	PaymentMethodTypesOnlineBankingThailand      PaymentMethodTypes = "online_banking_thailand"
-	PaymentMethodTypesOnlineBankingCzechRepublic PaymentMethodTypes = "online_banking_czech_republic"
-	PaymentMethodTypesOnlineBankingFinland       PaymentMethodTypes = "online_banking_finland"
-	PaymentMethodTypesOnlineBankingFpx           PaymentMethodTypes = "online_banking_fpx"
-	PaymentMethodTypesOnlineBankingPoland        PaymentMethodTypes = "online_banking_poland"
-	PaymentMethodTypesOnlineBankingSlovakia      PaymentMethodTypes = "online_banking_slovakia"
-	PaymentMethodTypesOxxo                       PaymentMethodTypes = "oxxo"
-	PaymentMethodTypesPagoEfectivo               PaymentMethodTypes = "pago_efectivo"
-	PaymentMethodTypesPermataBankTransfer        PaymentMethodTypes = "permata_bank_transfer"
-	PaymentMethodTypesOpenBankingUk              PaymentMethodTypes = "open_banking_uk"
-	PaymentMethodTypesPayBright                  PaymentMethodTypes = "pay_bright"
-	PaymentMethodTypesPaypal                     PaymentMethodTypes = "paypal"
-	PaymentMethodTypesPaze                       PaymentMethodTypes = "paze"
-	PaymentMethodTypesPix                        PaymentMethodTypes = "pix"
-	PaymentMethodTypesPaySafeCard                PaymentMethodTypes = "pay_safe_card"
-	PaymentMethodTypesPrzelewy24                 PaymentMethodTypes = "przelewy24"
-	PaymentMethodTypesPromptPay                  PaymentMethodTypes = "prompt_pay"
-	PaymentMethodTypesPse                        PaymentMethodTypes = "pse"
-	PaymentMethodTypesRedCompra                  PaymentMethodTypes = "red_compra"
-	PaymentMethodTypesRedPagos                   PaymentMethodTypes = "red_pagos"
-	PaymentMethodTypesSamsungPay                 PaymentMethodTypes = "samsung_pay"
-	PaymentMethodTypesSepa                       PaymentMethodTypes = "sepa"
-	PaymentMethodTypesSepaBankTransfer           PaymentMethodTypes = "sepa_bank_transfer"
-	PaymentMethodTypesSofort                     PaymentMethodTypes = "sofort"
-	PaymentMethodTypesSwish                      PaymentMethodTypes = "swish"
-	PaymentMethodTypesTouchNGo                   PaymentMethodTypes = "touch_n_go"
-	PaymentMethodTypesTrustly                    PaymentMethodTypes = "trustly"
-	PaymentMethodTypesTwint                      PaymentMethodTypes = "twint"
-	PaymentMethodTypesUpiCollect                 PaymentMethodTypes = "upi_collect"
-	PaymentMethodTypesUpiIntent                  PaymentMethodTypes = "upi_intent"
-	PaymentMethodTypesVipps                      PaymentMethodTypes = "vipps"
-	PaymentMethodTypesVietQr                     PaymentMethodTypes = "viet_qr"
-	PaymentMethodTypesVenmo                      PaymentMethodTypes = "venmo"
-	PaymentMethodTypesWalley                     PaymentMethodTypes = "walley"
-	PaymentMethodTypesWeChatPay                  PaymentMethodTypes = "we_chat_pay"
-	PaymentMethodTypesSevenEleven                PaymentMethodTypes = "seven_eleven"
-	PaymentMethodTypesLawson                     PaymentMethodTypes = "lawson"
-	PaymentMethodTypesMiniStop                   PaymentMethodTypes = "mini_stop"
-	PaymentMethodTypesFamilyMart                 PaymentMethodTypes = "family_mart"
-	PaymentMethodTypesSeicomart                  PaymentMethodTypes = "seicomart"
-	PaymentMethodTypesPayEasy                    PaymentMethodTypes = "pay_easy"
-	PaymentMethodTypesLocalBankTransfer          PaymentMethodTypes = "local_bank_transfer"
-	PaymentMethodTypesMifinity                   PaymentMethodTypes = "mifinity"
-	PaymentMethodTypesOpenBankingPis             PaymentMethodTypes = "open_banking_pis"
-	PaymentMethodTypesDirectCarrierBilling       PaymentMethodTypes = "direct_carrier_billing"
-	PaymentMethodTypesInstantBankTransfer        PaymentMethodTypes = "instant_bank_transfer"
-	PaymentMethodTypesBillie                     PaymentMethodTypes = "billie"
-	PaymentMethodTypesZip                        PaymentMethodTypes = "zip"
-	PaymentMethodTypesRevolutPay                 PaymentMethodTypes = "revolut_pay"
-	PaymentMethodTypesNaverPay                   PaymentMethodTypes = "naver_pay"
-	PaymentMethodTypesPayco                      PaymentMethodTypes = "payco"
+	PaymentMethodTypesCredit           PaymentMethodTypes = "credit"
+	PaymentMethodTypesDebit            PaymentMethodTypes = "debit"
+	PaymentMethodTypesUpiCollect       PaymentMethodTypes = "upi_collect"
+	PaymentMethodTypesUpiIntent        PaymentMethodTypes = "upi_intent"
+	PaymentMethodTypesApplePay         PaymentMethodTypes = "apple_pay"
+	PaymentMethodTypesCashapp          PaymentMethodTypes = "cashapp"
+	PaymentMethodTypesGooglePay        PaymentMethodTypes = "google_pay"
+	PaymentMethodTypesMultibanco       PaymentMethodTypes = "multibanco"
+	PaymentMethodTypesBancontactCard   PaymentMethodTypes = "bancontact_card"
+	PaymentMethodTypesEps              PaymentMethodTypes = "eps"
+	PaymentMethodTypesIdeal            PaymentMethodTypes = "ideal"
+	PaymentMethodTypesPrzelewy24       PaymentMethodTypes = "przelewy24"
+	PaymentMethodTypesPaypal           PaymentMethodTypes = "paypal"
+	PaymentMethodTypesAffirm           PaymentMethodTypes = "affirm"
+	PaymentMethodTypesKlarna           PaymentMethodTypes = "klarna"
+	PaymentMethodTypesSepa             PaymentMethodTypes = "sepa"
+	PaymentMethodTypesACH              PaymentMethodTypes = "ach"
+	PaymentMethodTypesAmazonPay        PaymentMethodTypes = "amazon_pay"
+	PaymentMethodTypesAfterpayClearpay PaymentMethodTypes = "afterpay_clearpay"
 )
 
 func (r PaymentMethodTypes) IsKnown() bool {
 	switch r {
-	case PaymentMethodTypesACH, PaymentMethodTypesAffirm, PaymentMethodTypesAfterpayClearpay, PaymentMethodTypesAlfamart, PaymentMethodTypesAliPay, PaymentMethodTypesAliPayHk, PaymentMethodTypesAlma, PaymentMethodTypesAmazonPay, PaymentMethodTypesApplePay, PaymentMethodTypesAtome, PaymentMethodTypesBacs, PaymentMethodTypesBancontactCard, PaymentMethodTypesBecs, PaymentMethodTypesBenefit, PaymentMethodTypesBizum, PaymentMethodTypesBlik, PaymentMethodTypesBoleto, PaymentMethodTypesBcaBankTransfer, PaymentMethodTypesBniVa, PaymentMethodTypesBriVa, PaymentMethodTypesCardRedirect, PaymentMethodTypesCimbVa, PaymentMethodTypesClassic, PaymentMethodTypesCredit, PaymentMethodTypesCryptoCurrency, PaymentMethodTypesCashapp, PaymentMethodTypesDana, PaymentMethodTypesDanamonVa, PaymentMethodTypesDebit, PaymentMethodTypesDuitNow, PaymentMethodTypesEfecty, PaymentMethodTypesEft, PaymentMethodTypesEps, PaymentMethodTypesFps, PaymentMethodTypesEvoucher, PaymentMethodTypesGiropay, PaymentMethodTypesGivex, PaymentMethodTypesGooglePay, PaymentMethodTypesGoPay, PaymentMethodTypesGcash, PaymentMethodTypesIdeal, PaymentMethodTypesInterac, PaymentMethodTypesIndomaret, PaymentMethodTypesKlarna, PaymentMethodTypesKakaoPay, PaymentMethodTypesLocalBankRedirect, PaymentMethodTypesMandiriVa, PaymentMethodTypesKnet, PaymentMethodTypesMBWay, PaymentMethodTypesMobilePay, PaymentMethodTypesMomo, PaymentMethodTypesMomoAtm, PaymentMethodTypesMultibanco, PaymentMethodTypesOnlineBankingThailand, PaymentMethodTypesOnlineBankingCzechRepublic, PaymentMethodTypesOnlineBankingFinland, PaymentMethodTypesOnlineBankingFpx, PaymentMethodTypesOnlineBankingPoland, PaymentMethodTypesOnlineBankingSlovakia, PaymentMethodTypesOxxo, PaymentMethodTypesPagoEfectivo, PaymentMethodTypesPermataBankTransfer, PaymentMethodTypesOpenBankingUk, PaymentMethodTypesPayBright, PaymentMethodTypesPaypal, PaymentMethodTypesPaze, PaymentMethodTypesPix, PaymentMethodTypesPaySafeCard, PaymentMethodTypesPrzelewy24, PaymentMethodTypesPromptPay, PaymentMethodTypesPse, PaymentMethodTypesRedCompra, PaymentMethodTypesRedPagos, PaymentMethodTypesSamsungPay, PaymentMethodTypesSepa, PaymentMethodTypesSepaBankTransfer, PaymentMethodTypesSofort, PaymentMethodTypesSwish, PaymentMethodTypesTouchNGo, PaymentMethodTypesTrustly, PaymentMethodTypesTwint, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesVipps, PaymentMethodTypesVietQr, PaymentMethodTypesVenmo, PaymentMethodTypesWalley, PaymentMethodTypesWeChatPay, PaymentMethodTypesSevenEleven, PaymentMethodTypesLawson, PaymentMethodTypesMiniStop, PaymentMethodTypesFamilyMart, PaymentMethodTypesSeicomart, PaymentMethodTypesPayEasy, PaymentMethodTypesLocalBankTransfer, PaymentMethodTypesMifinity, PaymentMethodTypesOpenBankingPis, PaymentMethodTypesDirectCarrierBilling, PaymentMethodTypesInstantBankTransfer, PaymentMethodTypesBillie, PaymentMethodTypesZip, PaymentMethodTypesRevolutPay, PaymentMethodTypesNaverPay, PaymentMethodTypesPayco:
+	case PaymentMethodTypesCredit, PaymentMethodTypesDebit, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesApplePay, PaymentMethodTypesCashapp, PaymentMethodTypesGooglePay, PaymentMethodTypesMultibanco, PaymentMethodTypesBancontactCard, PaymentMethodTypesEps, PaymentMethodTypesIdeal, PaymentMethodTypesPrzelewy24, PaymentMethodTypesPaypal, PaymentMethodTypesAffirm, PaymentMethodTypesKlarna, PaymentMethodTypesSepa, PaymentMethodTypesACH, PaymentMethodTypesAmazonPay, PaymentMethodTypesAfterpayClearpay:
 		return true
 	}
 	return false
