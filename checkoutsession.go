@@ -53,6 +53,13 @@ func (r *CheckoutSessionService) Get(ctx context.Context, id string, opts ...opt
 	return
 }
 
+func (r *CheckoutSessionService) Preview(ctx context.Context, body CheckoutSessionPreviewParams, opts ...option.RequestOption) (res *CheckoutSessionPreviewResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "checkouts/preview"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return
+}
+
 type CheckoutSessionRequestParam struct {
 	ProductCart param.Field[[]CheckoutSessionRequestProductCartParam] `json:"product_cart,required"`
 	// Customers will never see payment methods that are not in this list. However,
@@ -86,6 +93,8 @@ type CheckoutSessionRequestParam struct {
 	// Optional payment method ID to use for this checkout session. Only allowed when
 	// `confirm` is true. If provided, existing customer id must also be provided.
 	PaymentMethodID param.Field[string] `json:"payment_method_id"`
+	// Product collection ID for collection-based checkout flow
+	ProductCollectionID param.Field[string] `json:"product_collection_id"`
 	// The url to redirect after payment failure or success.
 	ReturnURL param.Field[string] `json:"return_url"`
 	// If true, returns a shortened checkout URL. Defaults to false if not specified.
@@ -294,10 +303,268 @@ func (r checkoutSessionStatusJSON) RawJSON() string {
 	return r.raw
 }
 
+// Data returned by the calculate checkout session API
+type CheckoutSessionPreviewResponse struct {
+	// Billing country
+	BillingCountry CountryCode `json:"billing_country,required"`
+	// Currency in which the calculations were made
+	Currency Currency `json:"currency,required"`
+	// Breakup of the current payment
+	CurrentBreakup CheckoutSessionPreviewResponseCurrentBreakup `json:"current_breakup,required"`
+	// The total product cart
+	ProductCart []CheckoutSessionPreviewResponseProductCart `json:"product_cart,required"`
+	// Total calculate price of the product cart
+	TotalPrice int64 `json:"total_price,required"`
+	// Breakup of recurring payments (None for one-time only)
+	RecurringBreakup CheckoutSessionPreviewResponseRecurringBreakup `json:"recurring_breakup,nullable"`
+	// Total tax
+	TotalTax int64                              `json:"total_tax,nullable"`
+	JSON     checkoutSessionPreviewResponseJSON `json:"-"`
+}
+
+// checkoutSessionPreviewResponseJSON contains the JSON metadata for the struct
+// [CheckoutSessionPreviewResponse]
+type checkoutSessionPreviewResponseJSON struct {
+	BillingCountry   apijson.Field
+	Currency         apijson.Field
+	CurrentBreakup   apijson.Field
+	ProductCart      apijson.Field
+	TotalPrice       apijson.Field
+	RecurringBreakup apijson.Field
+	TotalTax         apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *CheckoutSessionPreviewResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r checkoutSessionPreviewResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+// Breakup of the current payment
+type CheckoutSessionPreviewResponseCurrentBreakup struct {
+	// Total discount amount
+	Discount int64 `json:"discount,required"`
+	// Subtotal before discount (pre-tax original prices)
+	Subtotal int64 `json:"subtotal,required"`
+	// Total amount to be charged (final amount after all calculations)
+	TotalAmount int64 `json:"total_amount,required"`
+	// Total tax amount
+	Tax  int64                                            `json:"tax,nullable"`
+	JSON checkoutSessionPreviewResponseCurrentBreakupJSON `json:"-"`
+}
+
+// checkoutSessionPreviewResponseCurrentBreakupJSON contains the JSON metadata for
+// the struct [CheckoutSessionPreviewResponseCurrentBreakup]
+type checkoutSessionPreviewResponseCurrentBreakupJSON struct {
+	Discount    apijson.Field
+	Subtotal    apijson.Field
+	TotalAmount apijson.Field
+	Tax         apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CheckoutSessionPreviewResponseCurrentBreakup) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r checkoutSessionPreviewResponseCurrentBreakupJSON) RawJSON() string {
+	return r.raw
+}
+
+type CheckoutSessionPreviewResponseProductCart struct {
+	// the currency in which the calculatiosn were made
+	Currency Currency `json:"currency,required"`
+	// discounted price
+	DiscountedPrice int64 `json:"discounted_price,required"`
+	// Whether this is a subscription product (affects tax calculation in breakup)
+	IsSubscription bool                                             `json:"is_subscription,required"`
+	IsUsageBased   bool                                             `json:"is_usage_based,required"`
+	Meters         []CheckoutSessionPreviewResponseProductCartMeter `json:"meters,required"`
+	// the product currency
+	OgCurrency Currency `json:"og_currency,required"`
+	// original price of the product
+	OgPrice int64 `json:"og_price,required"`
+	// unique id of the product
+	ProductID string `json:"product_id,required"`
+	// Quanitity
+	Quantity int64 `json:"quantity,required"`
+	// tax category
+	TaxCategory TaxCategory `json:"tax_category,required"`
+	// Whether tax is included in the price
+	TaxInclusive bool `json:"tax_inclusive,required"`
+	// tax rate
+	TaxRate     int64                                            `json:"tax_rate,required"`
+	Addons      []CheckoutSessionPreviewResponseProductCartAddon `json:"addons,nullable"`
+	Description string                                           `json:"description,nullable"`
+	// discount percentage
+	DiscountAmount int64 `json:"discount_amount,nullable"`
+	// number of cycles the discount will apply
+	DiscountCycle int64 `json:"discount_cycle,nullable"`
+	// name of the product
+	Name string `json:"name,nullable"`
+	// total tax
+	Tax  int64                                         `json:"tax,nullable"`
+	JSON checkoutSessionPreviewResponseProductCartJSON `json:"-"`
+}
+
+// checkoutSessionPreviewResponseProductCartJSON contains the JSON metadata for the
+// struct [CheckoutSessionPreviewResponseProductCart]
+type checkoutSessionPreviewResponseProductCartJSON struct {
+	Currency        apijson.Field
+	DiscountedPrice apijson.Field
+	IsSubscription  apijson.Field
+	IsUsageBased    apijson.Field
+	Meters          apijson.Field
+	OgCurrency      apijson.Field
+	OgPrice         apijson.Field
+	ProductID       apijson.Field
+	Quantity        apijson.Field
+	TaxCategory     apijson.Field
+	TaxInclusive    apijson.Field
+	TaxRate         apijson.Field
+	Addons          apijson.Field
+	Description     apijson.Field
+	DiscountAmount  apijson.Field
+	DiscountCycle   apijson.Field
+	Name            apijson.Field
+	Tax             apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *CheckoutSessionPreviewResponseProductCart) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r checkoutSessionPreviewResponseProductCartJSON) RawJSON() string {
+	return r.raw
+}
+
+type CheckoutSessionPreviewResponseProductCartMeter struct {
+	MeasurementUnit string                                             `json:"measurement_unit,required"`
+	Name            string                                             `json:"name,required"`
+	PricePerUnit    string                                             `json:"price_per_unit,required"`
+	Description     string                                             `json:"description,nullable"`
+	FreeThreshold   int64                                              `json:"free_threshold,nullable"`
+	JSON            checkoutSessionPreviewResponseProductCartMeterJSON `json:"-"`
+}
+
+// checkoutSessionPreviewResponseProductCartMeterJSON contains the JSON metadata
+// for the struct [CheckoutSessionPreviewResponseProductCartMeter]
+type checkoutSessionPreviewResponseProductCartMeterJSON struct {
+	MeasurementUnit apijson.Field
+	Name            apijson.Field
+	PricePerUnit    apijson.Field
+	Description     apijson.Field
+	FreeThreshold   apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *CheckoutSessionPreviewResponseProductCartMeter) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r checkoutSessionPreviewResponseProductCartMeterJSON) RawJSON() string {
+	return r.raw
+}
+
+type CheckoutSessionPreviewResponseProductCartAddon struct {
+	AddonID         string   `json:"addon_id,required"`
+	Currency        Currency `json:"currency,required"`
+	DiscountedPrice int64    `json:"discounted_price,required"`
+	Name            string   `json:"name,required"`
+	OgCurrency      Currency `json:"og_currency,required"`
+	OgPrice         int64    `json:"og_price,required"`
+	Quantity        int64    `json:"quantity,required"`
+	// Represents the different categories of taxation applicable to various products
+	// and services.
+	TaxCategory    TaxCategory                                        `json:"tax_category,required"`
+	TaxInclusive   bool                                               `json:"tax_inclusive,required"`
+	TaxRate        int64                                              `json:"tax_rate,required"`
+	Description    string                                             `json:"description,nullable"`
+	DiscountAmount int64                                              `json:"discount_amount,nullable"`
+	Tax            int64                                              `json:"tax,nullable"`
+	JSON           checkoutSessionPreviewResponseProductCartAddonJSON `json:"-"`
+}
+
+// checkoutSessionPreviewResponseProductCartAddonJSON contains the JSON metadata
+// for the struct [CheckoutSessionPreviewResponseProductCartAddon]
+type checkoutSessionPreviewResponseProductCartAddonJSON struct {
+	AddonID         apijson.Field
+	Currency        apijson.Field
+	DiscountedPrice apijson.Field
+	Name            apijson.Field
+	OgCurrency      apijson.Field
+	OgPrice         apijson.Field
+	Quantity        apijson.Field
+	TaxCategory     apijson.Field
+	TaxInclusive    apijson.Field
+	TaxRate         apijson.Field
+	Description     apijson.Field
+	DiscountAmount  apijson.Field
+	Tax             apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *CheckoutSessionPreviewResponseProductCartAddon) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r checkoutSessionPreviewResponseProductCartAddonJSON) RawJSON() string {
+	return r.raw
+}
+
+// Breakup of recurring payments (None for one-time only)
+type CheckoutSessionPreviewResponseRecurringBreakup struct {
+	// Total discount amount
+	Discount int64 `json:"discount,required"`
+	// Subtotal before discount (pre-tax original prices)
+	Subtotal int64 `json:"subtotal,required"`
+	// Total recurring amount including tax
+	TotalAmount int64 `json:"total_amount,required"`
+	// Total tax on recurring payments
+	Tax  int64                                              `json:"tax,nullable"`
+	JSON checkoutSessionPreviewResponseRecurringBreakupJSON `json:"-"`
+}
+
+// checkoutSessionPreviewResponseRecurringBreakupJSON contains the JSON metadata
+// for the struct [CheckoutSessionPreviewResponseRecurringBreakup]
+type checkoutSessionPreviewResponseRecurringBreakupJSON struct {
+	Discount    apijson.Field
+	Subtotal    apijson.Field
+	TotalAmount apijson.Field
+	Tax         apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CheckoutSessionPreviewResponseRecurringBreakup) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r checkoutSessionPreviewResponseRecurringBreakupJSON) RawJSON() string {
+	return r.raw
+}
+
 type CheckoutSessionNewParams struct {
 	CheckoutSessionRequest CheckoutSessionRequestParam `json:"checkout_session_request,required"`
 }
 
 func (r CheckoutSessionNewParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r.CheckoutSessionRequest)
+}
+
+type CheckoutSessionPreviewParams struct {
+	CheckoutSessionRequest CheckoutSessionRequestParam `json:"checkout_session_request,required"`
+}
+
+func (r CheckoutSessionPreviewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r.CheckoutSessionRequest)
 }

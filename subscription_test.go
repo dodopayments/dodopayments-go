@@ -43,7 +43,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 			AddonID:  dodopayments.F("addon_id"),
 			Quantity: dodopayments.F(int64(0)),
 		}}),
-		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
+		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesCredit}),
 		BillingCurrency:           dodopayments.F(dodopayments.CurrencyAed),
 		DiscountCode:              dodopayments.F("discount_code"),
 		Force3DS:                  dodopayments.F(true),
@@ -200,6 +200,9 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 				AddonID:  dodopayments.F("addon_id"),
 				Quantity: dodopayments.F(int64(0)),
 			}}),
+			Metadata: dodopayments.F(map[string]string{
+				"foo": "string",
+			}),
 		},
 	)
 	if err != nil {
@@ -272,6 +275,9 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 				AddonID:  dodopayments.F("addon_id"),
 				Quantity: dodopayments.F(int64(0)),
 			}}),
+			Metadata: dodopayments.F(map[string]string{
+				"foo": "string",
+			}),
 		},
 	)
 	if err != nil {
