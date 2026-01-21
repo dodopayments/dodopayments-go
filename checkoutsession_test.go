@@ -46,6 +46,14 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 			}),
 			BillingCurrency: dodopayments.F(dodopayments.CurrencyAed),
 			Confirm:         dodopayments.F(true),
+			CustomFields: dodopayments.F([]dodopayments.CheckoutSessionRequestCustomFieldParam{{
+				FieldType:   dodopayments.F(dodopayments.CheckoutSessionRequestCustomFieldsFieldTypeText),
+				Key:         dodopayments.F("key"),
+				Label:       dodopayments.F("label"),
+				Options:     dodopayments.F([]string{"string"}),
+				Placeholder: dodopayments.F("placeholder"),
+				Required:    dodopayments.F(true),
+			}}),
 			Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 				CustomerID: dodopayments.F("customer_id"),
 			}),
@@ -157,6 +165,14 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 			}),
 			BillingCurrency: dodopayments.F(dodopayments.CurrencyAed),
 			Confirm:         dodopayments.F(true),
+			CustomFields: dodopayments.F([]dodopayments.CheckoutSessionRequestCustomFieldParam{{
+				FieldType:   dodopayments.F(dodopayments.CheckoutSessionRequestCustomFieldsFieldTypeText),
+				Key:         dodopayments.F("key"),
+				Label:       dodopayments.F("label"),
+				Options:     dodopayments.F([]string{"string"}),
+				Placeholder: dodopayments.F("placeholder"),
+				Required:    dodopayments.F(true),
+			}}),
 			Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 				CustomerID: dodopayments.F("customer_id"),
 			}),

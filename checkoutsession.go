@@ -76,6 +76,8 @@ type CheckoutSessionRequestParam struct {
 	// If confirm is true, all the details will be finalized. If required data is
 	// missing, an API error is thrown.
 	Confirm param.Field[bool] `json:"confirm"`
+	// Custom fields to collect from customer during checkout (max 5 fields)
+	CustomFields param.Field[[]CheckoutSessionRequestCustomFieldParam] `json:"custom_fields"`
 	// Customer details for the session
 	Customer param.Field[CustomerRequestUnionParam] `json:"customer"`
 	// Customization for the checkout session page
@@ -144,6 +146,49 @@ type CheckoutSessionRequestBillingAddressParam struct {
 
 func (r CheckoutSessionRequestBillingAddressParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+// Definition of a custom field for checkout
+type CheckoutSessionRequestCustomFieldParam struct {
+	// Type of field determining validation rules
+	FieldType param.Field[CheckoutSessionRequestCustomFieldsFieldType] `json:"field_type,required"`
+	// Unique identifier for this field (used as key in responses)
+	Key param.Field[string] `json:"key,required"`
+	// Display label shown to customer
+	Label param.Field[string] `json:"label,required"`
+	// Options for dropdown type (required for dropdown, ignored for others)
+	Options param.Field[[]string] `json:"options"`
+	// Placeholder text for the input
+	Placeholder param.Field[string] `json:"placeholder"`
+	// Whether this field is required
+	Required param.Field[bool] `json:"required"`
+}
+
+func (r CheckoutSessionRequestCustomFieldParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Type of field determining validation rules
+type CheckoutSessionRequestCustomFieldsFieldType string
+
+const (
+	CheckoutSessionRequestCustomFieldsFieldTypeText     CheckoutSessionRequestCustomFieldsFieldType = "text"
+	CheckoutSessionRequestCustomFieldsFieldTypeNumber   CheckoutSessionRequestCustomFieldsFieldType = "number"
+	CheckoutSessionRequestCustomFieldsFieldTypeEmail    CheckoutSessionRequestCustomFieldsFieldType = "email"
+	CheckoutSessionRequestCustomFieldsFieldTypeURL      CheckoutSessionRequestCustomFieldsFieldType = "url"
+	CheckoutSessionRequestCustomFieldsFieldTypePhone    CheckoutSessionRequestCustomFieldsFieldType = "phone"
+	CheckoutSessionRequestCustomFieldsFieldTypeDate     CheckoutSessionRequestCustomFieldsFieldType = "date"
+	CheckoutSessionRequestCustomFieldsFieldTypeDatetime CheckoutSessionRequestCustomFieldsFieldType = "datetime"
+	CheckoutSessionRequestCustomFieldsFieldTypeDropdown CheckoutSessionRequestCustomFieldsFieldType = "dropdown"
+	CheckoutSessionRequestCustomFieldsFieldTypeBoolean  CheckoutSessionRequestCustomFieldsFieldType = "boolean"
+)
+
+func (r CheckoutSessionRequestCustomFieldsFieldType) IsKnown() bool {
+	switch r {
+	case CheckoutSessionRequestCustomFieldsFieldTypeText, CheckoutSessionRequestCustomFieldsFieldTypeNumber, CheckoutSessionRequestCustomFieldsFieldTypeEmail, CheckoutSessionRequestCustomFieldsFieldTypeURL, CheckoutSessionRequestCustomFieldsFieldTypePhone, CheckoutSessionRequestCustomFieldsFieldTypeDate, CheckoutSessionRequestCustomFieldsFieldTypeDatetime, CheckoutSessionRequestCustomFieldsFieldTypeDropdown, CheckoutSessionRequestCustomFieldsFieldTypeBoolean:
+		return true
+	}
+	return false
 }
 
 // Customization for the checkout session page
