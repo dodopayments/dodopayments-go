@@ -169,6 +169,10 @@ func (r LicenseKeyUpdateParams) MarshalJSON() (data []byte, err error) {
 }
 
 type LicenseKeyListParams struct {
+	// Filter license keys created on or after this timestamp
+	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
+	// Filter license keys created on or before this timestamp
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
 	// Filter by customer ID
 	CustomerID param.Field[string] `query:"customer_id"`
 	// Page number default is 0

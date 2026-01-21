@@ -79,11 +79,13 @@ func TestLicenseKeyListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.LicenseKeys.List(context.TODO(), dodopayments.LicenseKeyListParams{
-		CustomerID: dodopayments.F("customer_id"),
-		PageNumber: dodopayments.F(int64(0)),
-		PageSize:   dodopayments.F(int64(0)),
-		ProductID:  dodopayments.F("product_id"),
-		Status:     dodopayments.F(dodopayments.LicenseKeyListParamsStatusActive),
+		CreatedAtGte: dodopayments.F(time.Now()),
+		CreatedAtLte: dodopayments.F(time.Now()),
+		CustomerID:   dodopayments.F("customer_id"),
+		PageNumber:   dodopayments.F(int64(0)),
+		PageSize:     dodopayments.F(int64(0)),
+		ProductID:    dodopayments.F("product_id"),
+		Status:       dodopayments.F(dodopayments.LicenseKeyListParamsStatusActive),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

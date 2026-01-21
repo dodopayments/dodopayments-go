@@ -295,8 +295,14 @@ func (r CustomerUpdateParams) MarshalJSON() (data []byte, err error) {
 }
 
 type CustomerListParams struct {
+	// Filter customers created on or after this timestamp
+	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
+	// Filter customers created on or before this timestamp
+	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
 	// Filter by customer email
 	Email param.Field[string] `query:"email"`
+	// Filter by customer name (partial match, case-insensitive)
+	Name param.Field[string] `query:"name"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
