@@ -115,8 +115,12 @@ func TestDiscountListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Discounts.List(context.TODO(), dodopayments.DiscountListParams{
-		PageNumber: dodopayments.F(int64(0)),
-		PageSize:   dodopayments.F(int64(0)),
+		Active:       dodopayments.F(true),
+		Code:         dodopayments.F("code"),
+		DiscountType: dodopayments.F(dodopayments.DiscountTypePercentage),
+		PageNumber:   dodopayments.F(int64(0)),
+		PageSize:     dodopayments.F(int64(0)),
+		ProductID:    dodopayments.F("product_id"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

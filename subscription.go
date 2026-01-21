@@ -352,6 +352,8 @@ type Subscription struct {
 	TrialPeriodDays int64 `json:"trial_period_days,required"`
 	// Cancelled timestamp if the subscription is cancelled
 	CancelledAt time.Time `json:"cancelled_at,nullable" format:"date-time"`
+	// Customer's responses to custom fields collected during checkout
+	CustomFieldResponses []SubscriptionCustomFieldResponse `json:"custom_field_responses,nullable"`
 	// Number of remaining discount cycles if discount is applied
 	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining,nullable"`
 	// The discount id if discount is applied
@@ -390,6 +392,7 @@ type subscriptionJSON struct {
 	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
 	CancelledAt                apijson.Field
+	CustomFieldResponses       apijson.Field
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
 	ExpiresAt                  apijson.Field
@@ -438,6 +441,32 @@ func (r *SubscriptionMeter) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionMeterJSON) RawJSON() string {
+	return r.raw
+}
+
+// Customer's response to a custom field
+type SubscriptionCustomFieldResponse struct {
+	// Key matching the custom field definition
+	Key string `json:"key,required"`
+	// Value provided by customer
+	Value string                              `json:"value,required"`
+	JSON  subscriptionCustomFieldResponseJSON `json:"-"`
+}
+
+// subscriptionCustomFieldResponseJSON contains the JSON metadata for the struct
+// [SubscriptionCustomFieldResponse]
+type subscriptionCustomFieldResponseJSON struct {
+	Key         apijson.Field
+	Value       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionCustomFieldResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionCustomFieldResponseJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -606,6 +635,8 @@ type SubscriptionListResponse struct {
 	DiscountID string `json:"discount_id,nullable"`
 	// Saved payment method id used for recurring charges
 	PaymentMethodID string `json:"payment_method_id,nullable"`
+	// Name of the product associated with this subscription
+	ProductName string `json:"product_name,nullable"`
 	// Tax identifier provided for this subscription (if applicable)
 	TaxID string                       `json:"tax_id,nullable"`
 	JSON  subscriptionListResponseJSON `json:"-"`
@@ -638,6 +669,7 @@ type subscriptionListResponseJSON struct {
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
 	PaymentMethodID            apijson.Field
+	ProductName                apijson.Field
 	TaxID                      apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field

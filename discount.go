@@ -259,10 +259,18 @@ func (r DiscountUpdateParams) MarshalJSON() (data []byte, err error) {
 }
 
 type DiscountListParams struct {
+	// Filter by active status (true = not expired, false = expired)
+	Active param.Field[bool] `query:"active"`
+	// Filter by discount code (partial match, case-insensitive)
+	Code param.Field[string] `query:"code"`
+	// Filter by discount type (percentage)
+	DiscountType param.Field[DiscountType] `query:"discount_type"`
 	// Page number (default = 0).
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size (default = 10, max = 100).
 	PageSize param.Field[int64] `query:"page_size"`
+	// Filter by product restriction (only discounts that apply to this product)
+	ProductID param.Field[string] `query:"product_id"`
 }
 
 // URLQuery serializes [DiscountListParams]'s query parameters as `url.Values`.

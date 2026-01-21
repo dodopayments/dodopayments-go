@@ -334,6 +334,8 @@ type Payment struct {
 	// If payment is made using a checkout session, this field is set to the id of the
 	// session.
 	CheckoutSessionID string `json:"checkout_session_id,nullable"`
+	// Customer's responses to custom fields collected during checkout
+	CustomFieldResponses []PaymentCustomFieldResponse `json:"custom_field_responses,nullable"`
 	// The discount id if discount is applied
 	DiscountID string `json:"discount_id,nullable"`
 	// An error code if the payment failed
@@ -389,6 +391,7 @@ type paymentJSON struct {
 	CardNetwork              apijson.Field
 	CardType                 apijson.Field
 	CheckoutSessionID        apijson.Field
+	CustomFieldResponses     apijson.Field
 	DiscountID               apijson.Field
 	ErrorCode                apijson.Field
 	ErrorMessage             apijson.Field
@@ -457,6 +460,32 @@ func (r *PaymentRefund) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r paymentRefundJSON) RawJSON() string {
+	return r.raw
+}
+
+// Customer's response to a custom field
+type PaymentCustomFieldResponse struct {
+	// Key matching the custom field definition
+	Key string `json:"key,required"`
+	// Value provided by customer
+	Value string                         `json:"value,required"`
+	JSON  paymentCustomFieldResponseJSON `json:"-"`
+}
+
+// paymentCustomFieldResponseJSON contains the JSON metadata for the struct
+// [PaymentCustomFieldResponse]
+type paymentCustomFieldResponseJSON struct {
+	Key         apijson.Field
+	Value       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PaymentCustomFieldResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentCustomFieldResponseJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -563,19 +592,23 @@ func (r paymentNewResponseJSON) RawJSON() string {
 }
 
 type PaymentListResponse struct {
-	BrandID                  string                  `json:"brand_id,required"`
-	CreatedAt                time.Time               `json:"created_at,required" format:"date-time"`
-	Currency                 Currency                `json:"currency,required"`
-	Customer                 CustomerLimitedDetails  `json:"customer,required"`
-	DigitalProductsDelivered bool                    `json:"digital_products_delivered,required"`
-	Metadata                 map[string]string       `json:"metadata,required"`
-	PaymentID                string                  `json:"payment_id,required"`
-	TotalAmount              int64                   `json:"total_amount,required"`
-	PaymentMethod            string                  `json:"payment_method,nullable"`
-	PaymentMethodType        string                  `json:"payment_method_type,nullable"`
-	Status                   IntentStatus            `json:"status,nullable"`
-	SubscriptionID           string                  `json:"subscription_id,nullable"`
-	JSON                     paymentListResponseJSON `json:"-"`
+	BrandID                  string                 `json:"brand_id,required"`
+	CreatedAt                time.Time              `json:"created_at,required" format:"date-time"`
+	Currency                 Currency               `json:"currency,required"`
+	Customer                 CustomerLimitedDetails `json:"customer,required"`
+	DigitalProductsDelivered bool                   `json:"digital_products_delivered,required"`
+	Metadata                 map[string]string      `json:"metadata,required"`
+	PaymentID                string                 `json:"payment_id,required"`
+	TotalAmount              int64                  `json:"total_amount,required"`
+	// Invoice ID for this payment. Uses India-specific invoice ID if available.
+	InvoiceID string `json:"invoice_id,nullable"`
+	// URL to download the invoice PDF for this payment.
+	InvoiceURL        string                  `json:"invoice_url,nullable"`
+	PaymentMethod     string                  `json:"payment_method,nullable"`
+	PaymentMethodType string                  `json:"payment_method_type,nullable"`
+	Status            IntentStatus            `json:"status,nullable"`
+	SubscriptionID    string                  `json:"subscription_id,nullable"`
+	JSON              paymentListResponseJSON `json:"-"`
 }
 
 // paymentListResponseJSON contains the JSON metadata for the struct
@@ -589,6 +622,8 @@ type paymentListResponseJSON struct {
 	Metadata                 apijson.Field
 	PaymentID                apijson.Field
 	TotalAmount              apijson.Field
+	InvoiceID                apijson.Field
+	InvoiceURL               apijson.Field
 	PaymentMethod            apijson.Field
 	PaymentMethodType        apijson.Field
 	Status                   apijson.Field
