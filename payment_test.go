@@ -42,7 +42,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 			Quantity:  dodopayments.F(int64(0)),
 			Amount:    dodopayments.F(int64(0)),
 		}}),
-		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesCredit}),
+		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
 		BillingCurrency:           dodopayments.F(dodopayments.CurrencyAed),
 		DiscountCode:              dodopayments.F("discount_code"),
 		Force3DS:                  dodopayments.F(true),
