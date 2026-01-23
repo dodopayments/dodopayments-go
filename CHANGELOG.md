@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.75.0 (2026-01-23)
+
+Full Changelog: [v1.74.0...v1.75.0](https://github.com/dodopayments/dodopayments-go/compare/v1.74.0...v1.75.0)
+
+### Features
+
+* **api:** updated openapi spec to v1.75.0 ([0b8b3e9](https://github.com/dodopayments/dodopayments-go/commit/0b8b3e9c2f6f0ca70b97271c1631e12d70b6c9cd))
+
 ## 1.74.0 (2026-01-21)
 
 Full Changelog: [v1.73.0...v1.74.0](https://github.com/dodopayments/dodopayments-go/compare/v1.73.0...v1.74.0)
