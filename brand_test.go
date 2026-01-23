@@ -79,10 +79,12 @@ func TestBrandUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.BrandUpdateParams{
+			Description:         dodopayments.F("description"),
 			ImageID:             dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 			Name:                dodopayments.F("name"),
 			StatementDescriptor: dodopayments.F("statement_descriptor"),
 			SupportEmail:        dodopayments.F("support_email"),
+			URL:                 dodopayments.F("url"),
 		},
 	)
 	if err != nil {

@@ -202,11 +202,13 @@ func (r BrandNewParams) MarshalJSON() (data []byte, err error) {
 }
 
 type BrandUpdateParams struct {
+	Description param.Field[string] `json:"description"`
 	// The UUID you got back from the presigned‐upload call
 	ImageID             param.Field[string] `json:"image_id" format:"uuid"`
 	Name                param.Field[string] `json:"name"`
 	StatementDescriptor param.Field[string] `json:"statement_descriptor"`
 	SupportEmail        param.Field[string] `json:"support_email"`
+	URL                 param.Field[string] `json:"url"`
 }
 
 func (r BrandUpdateParams) MarshalJSON() (data []byte, err error) {
