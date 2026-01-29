@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.75.1 (2026-01-29)
+
+Full Changelog: [v1.75.0...v1.75.1](https://github.com/dodopayments/dodopayments-go/compare/v1.75.0...v1.75.1)
+
+### Bug Fixes
+
+* **docs:** fix mcp installation instructions for remote servers ([e3caafc](https://github.com/dodopayments/dodopayments-go/commit/e3caafcd98037abe8ec3236f22c08917fa0abe1b))
+
 ## 1.75.0 (2026-01-23)
 
 Full Changelog: [v1.74.0...v1.75.0](https://github.com/dodopayments/dodopayments-go/compare/v1.74.0...v1.75.0)
