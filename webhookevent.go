@@ -51,11 +51,16 @@ const (
 	WebhookEventTypeSubscriptionPlanChanged WebhookEventType = "subscription.plan_changed"
 	WebhookEventTypeSubscriptionUpdated     WebhookEventType = "subscription.updated"
 	WebhookEventTypeLicenseKeyCreated       WebhookEventType = "license_key.created"
+	WebhookEventTypePayoutNotInitiated      WebhookEventType = "payout.not_initiated"
+	WebhookEventTypePayoutOnHold            WebhookEventType = "payout.on_hold"
+	WebhookEventTypePayoutInProgress        WebhookEventType = "payout.in_progress"
+	WebhookEventTypePayoutFailed            WebhookEventType = "payout.failed"
+	WebhookEventTypePayoutSuccess           WebhookEventType = "payout.success"
 )
 
 func (r WebhookEventType) IsKnown() bool {
 	switch r {
-	case WebhookEventTypePaymentSucceeded, WebhookEventTypePaymentFailed, WebhookEventTypePaymentProcessing, WebhookEventTypePaymentCancelled, WebhookEventTypeRefundSucceeded, WebhookEventTypeRefundFailed, WebhookEventTypeDisputeOpened, WebhookEventTypeDisputeExpired, WebhookEventTypeDisputeAccepted, WebhookEventTypeDisputeCancelled, WebhookEventTypeDisputeChallenged, WebhookEventTypeDisputeWon, WebhookEventTypeDisputeLost, WebhookEventTypeSubscriptionActive, WebhookEventTypeSubscriptionRenewed, WebhookEventTypeSubscriptionOnHold, WebhookEventTypeSubscriptionCancelled, WebhookEventTypeSubscriptionFailed, WebhookEventTypeSubscriptionExpired, WebhookEventTypeSubscriptionPlanChanged, WebhookEventTypeSubscriptionUpdated, WebhookEventTypeLicenseKeyCreated:
+	case WebhookEventTypePaymentSucceeded, WebhookEventTypePaymentFailed, WebhookEventTypePaymentProcessing, WebhookEventTypePaymentCancelled, WebhookEventTypeRefundSucceeded, WebhookEventTypeRefundFailed, WebhookEventTypeDisputeOpened, WebhookEventTypeDisputeExpired, WebhookEventTypeDisputeAccepted, WebhookEventTypeDisputeCancelled, WebhookEventTypeDisputeChallenged, WebhookEventTypeDisputeWon, WebhookEventTypeDisputeLost, WebhookEventTypeSubscriptionActive, WebhookEventTypeSubscriptionRenewed, WebhookEventTypeSubscriptionOnHold, WebhookEventTypeSubscriptionCancelled, WebhookEventTypeSubscriptionFailed, WebhookEventTypeSubscriptionExpired, WebhookEventTypeSubscriptionPlanChanged, WebhookEventTypeSubscriptionUpdated, WebhookEventTypeLicenseKeyCreated, WebhookEventTypePayoutNotInitiated, WebhookEventTypePayoutOnHold, WebhookEventTypePayoutInProgress, WebhookEventTypePayoutFailed, WebhookEventTypePayoutSuccess:
 		return true
 	}
 	return false
