@@ -176,16 +176,14 @@ const (
 	CheckoutSessionRequestCustomFieldsFieldTypeNumber   CheckoutSessionRequestCustomFieldsFieldType = "number"
 	CheckoutSessionRequestCustomFieldsFieldTypeEmail    CheckoutSessionRequestCustomFieldsFieldType = "email"
 	CheckoutSessionRequestCustomFieldsFieldTypeURL      CheckoutSessionRequestCustomFieldsFieldType = "url"
-	CheckoutSessionRequestCustomFieldsFieldTypePhone    CheckoutSessionRequestCustomFieldsFieldType = "phone"
 	CheckoutSessionRequestCustomFieldsFieldTypeDate     CheckoutSessionRequestCustomFieldsFieldType = "date"
-	CheckoutSessionRequestCustomFieldsFieldTypeDatetime CheckoutSessionRequestCustomFieldsFieldType = "datetime"
 	CheckoutSessionRequestCustomFieldsFieldTypeDropdown CheckoutSessionRequestCustomFieldsFieldType = "dropdown"
 	CheckoutSessionRequestCustomFieldsFieldTypeBoolean  CheckoutSessionRequestCustomFieldsFieldType = "boolean"
 )
 
 func (r CheckoutSessionRequestCustomFieldsFieldType) IsKnown() bool {
 	switch r {
-	case CheckoutSessionRequestCustomFieldsFieldTypeText, CheckoutSessionRequestCustomFieldsFieldTypeNumber, CheckoutSessionRequestCustomFieldsFieldTypeEmail, CheckoutSessionRequestCustomFieldsFieldTypeURL, CheckoutSessionRequestCustomFieldsFieldTypePhone, CheckoutSessionRequestCustomFieldsFieldTypeDate, CheckoutSessionRequestCustomFieldsFieldTypeDatetime, CheckoutSessionRequestCustomFieldsFieldTypeDropdown, CheckoutSessionRequestCustomFieldsFieldTypeBoolean:
+	case CheckoutSessionRequestCustomFieldsFieldTypeText, CheckoutSessionRequestCustomFieldsFieldTypeNumber, CheckoutSessionRequestCustomFieldsFieldTypeEmail, CheckoutSessionRequestCustomFieldsFieldTypeURL, CheckoutSessionRequestCustomFieldsFieldTypeDate, CheckoutSessionRequestCustomFieldsFieldTypeDropdown, CheckoutSessionRequestCustomFieldsFieldTypeBoolean:
 		return true
 	}
 	return false
@@ -203,17 +201,19 @@ type CheckoutSessionRequestCustomizationParam struct {
 	//
 	// Default is true
 	ShowOrderDetails param.Field[bool] `json:"show_order_details"`
-	// Theme of the page
+	// Theme of the page (determines which mode - light/dark/system - to use)
 	//
 	// Default is `System`.
 	Theme param.Field[CheckoutSessionRequestCustomizationTheme] `json:"theme"`
+	// Optional custom theme configuration with colors for light and dark modes
+	ThemeConfig param.Field[CheckoutSessionRequestCustomizationThemeConfigParam] `json:"theme_config"`
 }
 
 func (r CheckoutSessionRequestCustomizationParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-// Theme of the page
+// Theme of the page (determines which mode - light/dark/system - to use)
 //
 // Default is `System`.
 type CheckoutSessionRequestCustomizationTheme string
@@ -230,6 +230,148 @@ func (r CheckoutSessionRequestCustomizationTheme) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+// Optional custom theme configuration with colors for light and dark modes
+type CheckoutSessionRequestCustomizationThemeConfigParam struct {
+	// Dark mode color configuration
+	Dark param.Field[CheckoutSessionRequestCustomizationThemeConfigDarkParam] `json:"dark"`
+	// Font size for the checkout UI
+	FontSize param.Field[CheckoutSessionRequestCustomizationThemeConfigFontSize] `json:"font_size"`
+	// Font weight for the checkout UI
+	FontWeight param.Field[CheckoutSessionRequestCustomizationThemeConfigFontWeight] `json:"font_weight"`
+	// Light mode color configuration
+	Light param.Field[CheckoutSessionRequestCustomizationThemeConfigLightParam] `json:"light"`
+	// Custom text for the pay button (e.g., "Complete Purchase", "Subscribe Now")
+	PayButtonText param.Field[string] `json:"pay_button_text"`
+	// Border radius for UI elements (e.g., "4px", "0.5rem", "8px")
+	Radius param.Field[string] `json:"radius"`
+}
+
+func (r CheckoutSessionRequestCustomizationThemeConfigParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Dark mode color configuration
+type CheckoutSessionRequestCustomizationThemeConfigDarkParam struct {
+	// Background primary color
+	//
+	// Examples: `"#ffffff"`, `"rgb(255, 255, 255)"`, `"white"`
+	BgPrimary param.Field[string] `json:"bg_primary"`
+	// Background secondary color
+	BgSecondary param.Field[string] `json:"bg_secondary"`
+	// Border primary color
+	BorderPrimary param.Field[string] `json:"border_primary"`
+	// Border secondary color
+	BorderSecondary param.Field[string] `json:"border_secondary"`
+	// Primary button background color
+	ButtonPrimary param.Field[string] `json:"button_primary"`
+	// Primary button hover color
+	ButtonPrimaryHover param.Field[string] `json:"button_primary_hover"`
+	// Secondary button background color
+	ButtonSecondary param.Field[string] `json:"button_secondary"`
+	// Secondary button hover color
+	ButtonSecondaryHover param.Field[string] `json:"button_secondary_hover"`
+	// Primary button text color
+	ButtonTextPrimary param.Field[string] `json:"button_text_primary"`
+	// Secondary button text color
+	ButtonTextSecondary param.Field[string] `json:"button_text_secondary"`
+	// Input focus border color
+	InputFocusBorder param.Field[string] `json:"input_focus_border"`
+	// Text error color
+	TextError param.Field[string] `json:"text_error"`
+	// Text placeholder color
+	TextPlaceholder param.Field[string] `json:"text_placeholder"`
+	// Text primary color
+	TextPrimary param.Field[string] `json:"text_primary"`
+	// Text secondary color
+	TextSecondary param.Field[string] `json:"text_secondary"`
+	// Text success color
+	TextSuccess param.Field[string] `json:"text_success"`
+}
+
+func (r CheckoutSessionRequestCustomizationThemeConfigDarkParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Font size for the checkout UI
+type CheckoutSessionRequestCustomizationThemeConfigFontSize string
+
+const (
+	CheckoutSessionRequestCustomizationThemeConfigFontSizeXs  CheckoutSessionRequestCustomizationThemeConfigFontSize = "xs"
+	CheckoutSessionRequestCustomizationThemeConfigFontSizeSm  CheckoutSessionRequestCustomizationThemeConfigFontSize = "sm"
+	CheckoutSessionRequestCustomizationThemeConfigFontSizeMd  CheckoutSessionRequestCustomizationThemeConfigFontSize = "md"
+	CheckoutSessionRequestCustomizationThemeConfigFontSizeLg  CheckoutSessionRequestCustomizationThemeConfigFontSize = "lg"
+	CheckoutSessionRequestCustomizationThemeConfigFontSizeXl  CheckoutSessionRequestCustomizationThemeConfigFontSize = "xl"
+	CheckoutSessionRequestCustomizationThemeConfigFontSize2xl CheckoutSessionRequestCustomizationThemeConfigFontSize = "2xl"
+)
+
+func (r CheckoutSessionRequestCustomizationThemeConfigFontSize) IsKnown() bool {
+	switch r {
+	case CheckoutSessionRequestCustomizationThemeConfigFontSizeXs, CheckoutSessionRequestCustomizationThemeConfigFontSizeSm, CheckoutSessionRequestCustomizationThemeConfigFontSizeMd, CheckoutSessionRequestCustomizationThemeConfigFontSizeLg, CheckoutSessionRequestCustomizationThemeConfigFontSizeXl, CheckoutSessionRequestCustomizationThemeConfigFontSize2xl:
+		return true
+	}
+	return false
+}
+
+// Font weight for the checkout UI
+type CheckoutSessionRequestCustomizationThemeConfigFontWeight string
+
+const (
+	CheckoutSessionRequestCustomizationThemeConfigFontWeightNormal    CheckoutSessionRequestCustomizationThemeConfigFontWeight = "normal"
+	CheckoutSessionRequestCustomizationThemeConfigFontWeightMedium    CheckoutSessionRequestCustomizationThemeConfigFontWeight = "medium"
+	CheckoutSessionRequestCustomizationThemeConfigFontWeightBold      CheckoutSessionRequestCustomizationThemeConfigFontWeight = "bold"
+	CheckoutSessionRequestCustomizationThemeConfigFontWeightExtraBold CheckoutSessionRequestCustomizationThemeConfigFontWeight = "extraBold"
+)
+
+func (r CheckoutSessionRequestCustomizationThemeConfigFontWeight) IsKnown() bool {
+	switch r {
+	case CheckoutSessionRequestCustomizationThemeConfigFontWeightNormal, CheckoutSessionRequestCustomizationThemeConfigFontWeightMedium, CheckoutSessionRequestCustomizationThemeConfigFontWeightBold, CheckoutSessionRequestCustomizationThemeConfigFontWeightExtraBold:
+		return true
+	}
+	return false
+}
+
+// Light mode color configuration
+type CheckoutSessionRequestCustomizationThemeConfigLightParam struct {
+	// Background primary color
+	//
+	// Examples: `"#ffffff"`, `"rgb(255, 255, 255)"`, `"white"`
+	BgPrimary param.Field[string] `json:"bg_primary"`
+	// Background secondary color
+	BgSecondary param.Field[string] `json:"bg_secondary"`
+	// Border primary color
+	BorderPrimary param.Field[string] `json:"border_primary"`
+	// Border secondary color
+	BorderSecondary param.Field[string] `json:"border_secondary"`
+	// Primary button background color
+	ButtonPrimary param.Field[string] `json:"button_primary"`
+	// Primary button hover color
+	ButtonPrimaryHover param.Field[string] `json:"button_primary_hover"`
+	// Secondary button background color
+	ButtonSecondary param.Field[string] `json:"button_secondary"`
+	// Secondary button hover color
+	ButtonSecondaryHover param.Field[string] `json:"button_secondary_hover"`
+	// Primary button text color
+	ButtonTextPrimary param.Field[string] `json:"button_text_primary"`
+	// Secondary button text color
+	ButtonTextSecondary param.Field[string] `json:"button_text_secondary"`
+	// Input focus border color
+	InputFocusBorder param.Field[string] `json:"input_focus_border"`
+	// Text error color
+	TextError param.Field[string] `json:"text_error"`
+	// Text placeholder color
+	TextPlaceholder param.Field[string] `json:"text_placeholder"`
+	// Text primary color
+	TextPrimary param.Field[string] `json:"text_primary"`
+	// Text secondary color
+	TextSecondary param.Field[string] `json:"text_secondary"`
+	// Text success color
+	TextSuccess param.Field[string] `json:"text_success"`
+}
+
+func (r CheckoutSessionRequestCustomizationThemeConfigLightParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type CheckoutSessionRequestFeatureFlagsParam struct {
