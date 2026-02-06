@@ -203,6 +203,7 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),
+			OnPaymentFailure: dodopayments.F(dodopayments.SubscriptionChangePlanParamsOnPaymentFailurePreventChange),
 		},
 	)
 	if err != nil {
@@ -278,6 +279,7 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),
+			OnPaymentFailure: dodopayments.F(dodopayments.SubscriptionPreviewChangePlanParamsOnPaymentFailurePreventChange),
 		},
 	)
 	if err != nil {

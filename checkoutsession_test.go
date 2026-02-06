@@ -27,7 +27,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.CheckoutSessions.New(context.TODO(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 				Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
@@ -37,7 +37,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 				Amount: dodopayments.F(int64(0)),
 			}}),
 			AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
-			BillingAddress: dodopayments.F(dodopayments.CheckoutSessionRequestBillingAddressParam{
+			BillingAddress: dodopayments.F(dodopayments.CheckoutSessionBillingAddressParam{
 				Country: dodopayments.F(dodopayments.CountryCodeAf),
 				City:    dodopayments.F("city"),
 				State:   dodopayments.F("state"),
@@ -46,8 +46,8 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 			}),
 			BillingCurrency: dodopayments.F(dodopayments.CurrencyAed),
 			Confirm:         dodopayments.F(true),
-			CustomFields: dodopayments.F([]dodopayments.CheckoutSessionRequestCustomFieldParam{{
-				FieldType:   dodopayments.F(dodopayments.CheckoutSessionRequestCustomFieldsFieldTypeText),
+			CustomFields: dodopayments.F([]dodopayments.CustomFieldParam{{
+				FieldType:   dodopayments.F(dodopayments.CustomFieldFieldTypeText),
 				Key:         dodopayments.F("key"),
 				Label:       dodopayments.F("label"),
 				Options:     dodopayments.F([]string{"string"}),
@@ -57,13 +57,13 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 			Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 				CustomerID: dodopayments.F("customer_id"),
 			}),
-			Customization: dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationParam{
+			Customization: dodopayments.F(dodopayments.CheckoutSessionCustomizationParam{
 				ForceLanguage:    dodopayments.F("force_language"),
 				ShowOnDemandTag:  dodopayments.F(true),
 				ShowOrderDetails: dodopayments.F(true),
-				Theme:            dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeDark),
-				ThemeConfig: dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeConfigParam{
-					Dark: dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeConfigDarkParam{
+				Theme:            dodopayments.F(dodopayments.CheckoutSessionCustomizationThemeDark),
+				ThemeConfig: dodopayments.F(dodopayments.ThemeConfigParam{
+					Dark: dodopayments.F(dodopayments.ThemeModeConfigParam{
 						BgPrimary:            dodopayments.F("bg_primary"),
 						BgSecondary:          dodopayments.F("bg_secondary"),
 						BorderPrimary:        dodopayments.F("border_primary"),
@@ -81,9 +81,11 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 						TextSecondary:        dodopayments.F("text_secondary"),
 						TextSuccess:          dodopayments.F("text_success"),
 					}),
-					FontSize:   dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeConfigFontSizeXs),
-					FontWeight: dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeConfigFontWeightNormal),
-					Light: dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeConfigLightParam{
+					FontPrimaryURL:   dodopayments.F("font_primary_url"),
+					FontSecondaryURL: dodopayments.F("font_secondary_url"),
+					FontSize:         dodopayments.F(dodopayments.ThemeConfigFontSizeXs),
+					FontWeight:       dodopayments.F(dodopayments.ThemeConfigFontWeightNormal),
+					Light: dodopayments.F(dodopayments.ThemeModeConfigParam{
 						BgPrimary:            dodopayments.F("bg_primary"),
 						BgSecondary:          dodopayments.F("bg_secondary"),
 						BorderPrimary:        dodopayments.F("border_primary"),
@@ -106,7 +108,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 				}),
 			}),
 			DiscountCode: dodopayments.F("discount_code"),
-			FeatureFlags: dodopayments.F(dodopayments.CheckoutSessionRequestFeatureFlagsParam{
+			FeatureFlags: dodopayments.F(dodopayments.CheckoutSessionFlagsParam{
 				AllowCurrencySelection:      dodopayments.F(true),
 				AllowCustomerEditingCity:    dodopayments.F(true),
 				AllowCustomerEditingCountry: dodopayments.F(true),
@@ -131,7 +133,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 			ReturnURL:               dodopayments.F("return_url"),
 			ShortLink:               dodopayments.F(true),
 			ShowSavedPaymentMethods: dodopayments.F(true),
-			SubscriptionData: dodopayments.F(dodopayments.CheckoutSessionRequestSubscriptionDataParam{
+			SubscriptionData: dodopayments.F(dodopayments.SubscriptionDataParam{
 				OnDemand: dodopayments.F(dodopayments.OnDemandSubscriptionParam{
 					MandateOnly:                   dodopayments.F(true),
 					AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
@@ -188,7 +190,7 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.CheckoutSessions.Preview(context.TODO(), dodopayments.CheckoutSessionPreviewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 				Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
@@ -198,7 +200,7 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 				Amount: dodopayments.F(int64(0)),
 			}}),
 			AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
-			BillingAddress: dodopayments.F(dodopayments.CheckoutSessionRequestBillingAddressParam{
+			BillingAddress: dodopayments.F(dodopayments.CheckoutSessionBillingAddressParam{
 				Country: dodopayments.F(dodopayments.CountryCodeAf),
 				City:    dodopayments.F("city"),
 				State:   dodopayments.F("state"),
@@ -207,8 +209,8 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 			}),
 			BillingCurrency: dodopayments.F(dodopayments.CurrencyAed),
 			Confirm:         dodopayments.F(true),
-			CustomFields: dodopayments.F([]dodopayments.CheckoutSessionRequestCustomFieldParam{{
-				FieldType:   dodopayments.F(dodopayments.CheckoutSessionRequestCustomFieldsFieldTypeText),
+			CustomFields: dodopayments.F([]dodopayments.CustomFieldParam{{
+				FieldType:   dodopayments.F(dodopayments.CustomFieldFieldTypeText),
 				Key:         dodopayments.F("key"),
 				Label:       dodopayments.F("label"),
 				Options:     dodopayments.F([]string{"string"}),
@@ -218,13 +220,13 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 			Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 				CustomerID: dodopayments.F("customer_id"),
 			}),
-			Customization: dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationParam{
+			Customization: dodopayments.F(dodopayments.CheckoutSessionCustomizationParam{
 				ForceLanguage:    dodopayments.F("force_language"),
 				ShowOnDemandTag:  dodopayments.F(true),
 				ShowOrderDetails: dodopayments.F(true),
-				Theme:            dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeDark),
-				ThemeConfig: dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeConfigParam{
-					Dark: dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeConfigDarkParam{
+				Theme:            dodopayments.F(dodopayments.CheckoutSessionCustomizationThemeDark),
+				ThemeConfig: dodopayments.F(dodopayments.ThemeConfigParam{
+					Dark: dodopayments.F(dodopayments.ThemeModeConfigParam{
 						BgPrimary:            dodopayments.F("bg_primary"),
 						BgSecondary:          dodopayments.F("bg_secondary"),
 						BorderPrimary:        dodopayments.F("border_primary"),
@@ -242,9 +244,11 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 						TextSecondary:        dodopayments.F("text_secondary"),
 						TextSuccess:          dodopayments.F("text_success"),
 					}),
-					FontSize:   dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeConfigFontSizeXs),
-					FontWeight: dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeConfigFontWeightNormal),
-					Light: dodopayments.F(dodopayments.CheckoutSessionRequestCustomizationThemeConfigLightParam{
+					FontPrimaryURL:   dodopayments.F("font_primary_url"),
+					FontSecondaryURL: dodopayments.F("font_secondary_url"),
+					FontSize:         dodopayments.F(dodopayments.ThemeConfigFontSizeXs),
+					FontWeight:       dodopayments.F(dodopayments.ThemeConfigFontWeightNormal),
+					Light: dodopayments.F(dodopayments.ThemeModeConfigParam{
 						BgPrimary:            dodopayments.F("bg_primary"),
 						BgSecondary:          dodopayments.F("bg_secondary"),
 						BorderPrimary:        dodopayments.F("border_primary"),
@@ -267,7 +271,7 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 				}),
 			}),
 			DiscountCode: dodopayments.F("discount_code"),
-			FeatureFlags: dodopayments.F(dodopayments.CheckoutSessionRequestFeatureFlagsParam{
+			FeatureFlags: dodopayments.F(dodopayments.CheckoutSessionFlagsParam{
 				AllowCurrencySelection:      dodopayments.F(true),
 				AllowCustomerEditingCity:    dodopayments.F(true),
 				AllowCustomerEditingCountry: dodopayments.F(true),
@@ -292,7 +296,7 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 			ReturnURL:               dodopayments.F("return_url"),
 			ShortLink:               dodopayments.F(true),
 			ShowSavedPaymentMethods: dodopayments.F(true),
-			SubscriptionData: dodopayments.F(dodopayments.CheckoutSessionRequestSubscriptionDataParam{
+			SubscriptionData: dodopayments.F(dodopayments.SubscriptionDataParam{
 				OnDemand: dodopayments.F(dodopayments.OnDemandSubscriptionParam{
 					MandateOnly:                   dodopayments.F(true),
 					AdaptiveCurrencyFeesInclusive: dodopayments.F(true),

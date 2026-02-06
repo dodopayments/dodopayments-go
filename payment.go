@@ -354,6 +354,9 @@ type Payment struct {
 	PaymentMethodType string `json:"payment_method_type,nullable"`
 	// List of products purchased in a one-time payment
 	ProductCart []PaymentProductCart `json:"product_cart,nullable"`
+	// Summary of the refund status for this payment. None if no succeeded refunds
+	// exist.
+	RefundStatus PaymentRefundStatus `json:"refund_status,nullable"`
 	// This represents the portion of settlement_amount that corresponds to taxes
 	// collected. Especially relevant for adaptive pricing where the tax component must
 	// be tracked separately in your Dodo balance.
@@ -401,6 +404,7 @@ type paymentJSON struct {
 	PaymentMethod            apijson.Field
 	PaymentMethodType        apijson.Field
 	ProductCart              apijson.Field
+	RefundStatus             apijson.Field
 	SettlementTax            apijson.Field
 	Status                   apijson.Field
 	SubscriptionID           apijson.Field
@@ -510,6 +514,23 @@ func (r *PaymentProductCart) UnmarshalJSON(data []byte) (err error) {
 
 func (r paymentProductCartJSON) RawJSON() string {
 	return r.raw
+}
+
+// Summary of the refund status for this payment. None if no succeeded refunds
+// exist.
+type PaymentRefundStatus string
+
+const (
+	PaymentRefundStatusPartial PaymentRefundStatus = "partial"
+	PaymentRefundStatusFull    PaymentRefundStatus = "full"
+)
+
+func (r PaymentRefundStatus) IsKnown() bool {
+	switch r {
+	case PaymentRefundStatusPartial, PaymentRefundStatusFull:
+		return true
+	}
+	return false
 }
 
 type PaymentMethodTypes string
