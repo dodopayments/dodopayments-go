@@ -60,78 +60,7 @@ func (r *CheckoutSessionService) Preview(ctx context.Context, body CheckoutSessi
 	return
 }
 
-type CheckoutSessionRequestParam struct {
-	ProductCart param.Field[[]CheckoutSessionRequestProductCartParam] `json:"product_cart,required"`
-	// Customers will never see payment methods that are not in this list. However,
-	// adding a method here does not guarantee customers will see it. Availability
-	// still depends on other factors (e.g., customer location, merchant settings).
-	//
-	// Disclaimar: Always provide 'credit' and 'debit' as a fallback. If all payment
-	// methods are unavailable, checkout session will fail.
-	AllowedPaymentMethodTypes param.Field[[]PaymentMethodTypes] `json:"allowed_payment_method_types"`
-	// Billing address information for the session
-	BillingAddress param.Field[CheckoutSessionRequestBillingAddressParam] `json:"billing_address"`
-	// This field is ingored if adaptive pricing is disabled
-	BillingCurrency param.Field[Currency] `json:"billing_currency"`
-	// If confirm is true, all the details will be finalized. If required data is
-	// missing, an API error is thrown.
-	Confirm param.Field[bool] `json:"confirm"`
-	// Custom fields to collect from customer during checkout (max 5 fields)
-	CustomFields param.Field[[]CheckoutSessionRequestCustomFieldParam] `json:"custom_fields"`
-	// Customer details for the session
-	Customer param.Field[CustomerRequestUnionParam] `json:"customer"`
-	// Customization for the checkout session page
-	Customization param.Field[CheckoutSessionRequestCustomizationParam] `json:"customization"`
-	DiscountCode  param.Field[string]                                   `json:"discount_code"`
-	FeatureFlags  param.Field[CheckoutSessionRequestFeatureFlagsParam]  `json:"feature_flags"`
-	// Override merchant default 3DS behaviour for this session
-	Force3DS param.Field[bool] `json:"force_3ds"`
-	// Additional metadata associated with the payment. Defaults to empty if not
-	// provided.
-	Metadata param.Field[map[string]string] `json:"metadata"`
-	// If true, only zipcode is required when confirm is true; other address fields
-	// remain optional
-	MinimalAddress param.Field[bool] `json:"minimal_address"`
-	// Optional payment method ID to use for this checkout session. Only allowed when
-	// `confirm` is true. If provided, existing customer id must also be provided.
-	PaymentMethodID param.Field[string] `json:"payment_method_id"`
-	// Product collection ID for collection-based checkout flow
-	ProductCollectionID param.Field[string] `json:"product_collection_id"`
-	// The url to redirect after payment failure or success.
-	ReturnURL param.Field[string] `json:"return_url"`
-	// If true, returns a shortened checkout URL. Defaults to false if not specified.
-	ShortLink param.Field[bool] `json:"short_link"`
-	// Display saved payment methods of a returning customer False by default
-	ShowSavedPaymentMethods param.Field[bool]                                        `json:"show_saved_payment_methods"`
-	SubscriptionData        param.Field[CheckoutSessionRequestSubscriptionDataParam] `json:"subscription_data"`
-}
-
-func (r CheckoutSessionRequestParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type CheckoutSessionRequestProductCartParam struct {
-	// unique id of the product
-	ProductID param.Field[string] `json:"product_id,required"`
-	Quantity  param.Field[int64]  `json:"quantity,required"`
-	// only valid if product is a subscription
-	Addons param.Field[[]AttachAddonParam] `json:"addons"`
-	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
-	// amount will be ignored Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`. Only applicable
-	// for one time payments
-	//
-	// If amount is not set for pay_what_you_want product, customer is allowed to
-	// select the amount.
-	Amount param.Field[int64] `json:"amount"`
-}
-
-func (r CheckoutSessionRequestProductCartParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Billing address information for the session
-type CheckoutSessionRequestBillingAddressParam struct {
+type CheckoutSessionBillingAddressParam struct {
 	// Two-letter ISO country code (ISO 3166-1 alpha-2)
 	Country param.Field[CountryCode] `json:"country,required"`
 	// City name
@@ -144,53 +73,11 @@ type CheckoutSessionRequestBillingAddressParam struct {
 	Zipcode param.Field[string] `json:"zipcode"`
 }
 
-func (r CheckoutSessionRequestBillingAddressParam) MarshalJSON() (data []byte, err error) {
+func (r CheckoutSessionBillingAddressParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-// Definition of a custom field for checkout
-type CheckoutSessionRequestCustomFieldParam struct {
-	// Type of field determining validation rules
-	FieldType param.Field[CheckoutSessionRequestCustomFieldsFieldType] `json:"field_type,required"`
-	// Unique identifier for this field (used as key in responses)
-	Key param.Field[string] `json:"key,required"`
-	// Display label shown to customer
-	Label param.Field[string] `json:"label,required"`
-	// Options for dropdown type (required for dropdown, ignored for others)
-	Options param.Field[[]string] `json:"options"`
-	// Placeholder text for the input
-	Placeholder param.Field[string] `json:"placeholder"`
-	// Whether this field is required
-	Required param.Field[bool] `json:"required"`
-}
-
-func (r CheckoutSessionRequestCustomFieldParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Type of field determining validation rules
-type CheckoutSessionRequestCustomFieldsFieldType string
-
-const (
-	CheckoutSessionRequestCustomFieldsFieldTypeText     CheckoutSessionRequestCustomFieldsFieldType = "text"
-	CheckoutSessionRequestCustomFieldsFieldTypeNumber   CheckoutSessionRequestCustomFieldsFieldType = "number"
-	CheckoutSessionRequestCustomFieldsFieldTypeEmail    CheckoutSessionRequestCustomFieldsFieldType = "email"
-	CheckoutSessionRequestCustomFieldsFieldTypeURL      CheckoutSessionRequestCustomFieldsFieldType = "url"
-	CheckoutSessionRequestCustomFieldsFieldTypeDate     CheckoutSessionRequestCustomFieldsFieldType = "date"
-	CheckoutSessionRequestCustomFieldsFieldTypeDropdown CheckoutSessionRequestCustomFieldsFieldType = "dropdown"
-	CheckoutSessionRequestCustomFieldsFieldTypeBoolean  CheckoutSessionRequestCustomFieldsFieldType = "boolean"
-)
-
-func (r CheckoutSessionRequestCustomFieldsFieldType) IsKnown() bool {
-	switch r {
-	case CheckoutSessionRequestCustomFieldsFieldTypeText, CheckoutSessionRequestCustomFieldsFieldTypeNumber, CheckoutSessionRequestCustomFieldsFieldTypeEmail, CheckoutSessionRequestCustomFieldsFieldTypeURL, CheckoutSessionRequestCustomFieldsFieldTypeDate, CheckoutSessionRequestCustomFieldsFieldTypeDropdown, CheckoutSessionRequestCustomFieldsFieldTypeBoolean:
-		return true
-	}
-	return false
-}
-
-// Customization for the checkout session page
-type CheckoutSessionRequestCustomizationParam struct {
+type CheckoutSessionCustomizationParam struct {
 	// Force the checkout interface to render in a specific language (e.g. `en`, `es`)
 	ForceLanguage param.Field[string] `json:"force_language"`
 	// Show on demand tag
@@ -204,177 +91,35 @@ type CheckoutSessionRequestCustomizationParam struct {
 	// Theme of the page (determines which mode - light/dark/system - to use)
 	//
 	// Default is `System`.
-	Theme param.Field[CheckoutSessionRequestCustomizationTheme] `json:"theme"`
+	Theme param.Field[CheckoutSessionCustomizationTheme] `json:"theme"`
 	// Optional custom theme configuration with colors for light and dark modes
-	ThemeConfig param.Field[CheckoutSessionRequestCustomizationThemeConfigParam] `json:"theme_config"`
+	ThemeConfig param.Field[ThemeConfigParam] `json:"theme_config"`
 }
 
-func (r CheckoutSessionRequestCustomizationParam) MarshalJSON() (data []byte, err error) {
+func (r CheckoutSessionCustomizationParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
 // Theme of the page (determines which mode - light/dark/system - to use)
 //
 // Default is `System`.
-type CheckoutSessionRequestCustomizationTheme string
+type CheckoutSessionCustomizationTheme string
 
 const (
-	CheckoutSessionRequestCustomizationThemeDark   CheckoutSessionRequestCustomizationTheme = "dark"
-	CheckoutSessionRequestCustomizationThemeLight  CheckoutSessionRequestCustomizationTheme = "light"
-	CheckoutSessionRequestCustomizationThemeSystem CheckoutSessionRequestCustomizationTheme = "system"
+	CheckoutSessionCustomizationThemeDark   CheckoutSessionCustomizationTheme = "dark"
+	CheckoutSessionCustomizationThemeLight  CheckoutSessionCustomizationTheme = "light"
+	CheckoutSessionCustomizationThemeSystem CheckoutSessionCustomizationTheme = "system"
 )
 
-func (r CheckoutSessionRequestCustomizationTheme) IsKnown() bool {
+func (r CheckoutSessionCustomizationTheme) IsKnown() bool {
 	switch r {
-	case CheckoutSessionRequestCustomizationThemeDark, CheckoutSessionRequestCustomizationThemeLight, CheckoutSessionRequestCustomizationThemeSystem:
+	case CheckoutSessionCustomizationThemeDark, CheckoutSessionCustomizationThemeLight, CheckoutSessionCustomizationThemeSystem:
 		return true
 	}
 	return false
 }
 
-// Optional custom theme configuration with colors for light and dark modes
-type CheckoutSessionRequestCustomizationThemeConfigParam struct {
-	// Dark mode color configuration
-	Dark param.Field[CheckoutSessionRequestCustomizationThemeConfigDarkParam] `json:"dark"`
-	// Font size for the checkout UI
-	FontSize param.Field[CheckoutSessionRequestCustomizationThemeConfigFontSize] `json:"font_size"`
-	// Font weight for the checkout UI
-	FontWeight param.Field[CheckoutSessionRequestCustomizationThemeConfigFontWeight] `json:"font_weight"`
-	// Light mode color configuration
-	Light param.Field[CheckoutSessionRequestCustomizationThemeConfigLightParam] `json:"light"`
-	// Custom text for the pay button (e.g., "Complete Purchase", "Subscribe Now")
-	PayButtonText param.Field[string] `json:"pay_button_text"`
-	// Border radius for UI elements (e.g., "4px", "0.5rem", "8px")
-	Radius param.Field[string] `json:"radius"`
-}
-
-func (r CheckoutSessionRequestCustomizationThemeConfigParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Dark mode color configuration
-type CheckoutSessionRequestCustomizationThemeConfigDarkParam struct {
-	// Background primary color
-	//
-	// Examples: `"#ffffff"`, `"rgb(255, 255, 255)"`, `"white"`
-	BgPrimary param.Field[string] `json:"bg_primary"`
-	// Background secondary color
-	BgSecondary param.Field[string] `json:"bg_secondary"`
-	// Border primary color
-	BorderPrimary param.Field[string] `json:"border_primary"`
-	// Border secondary color
-	BorderSecondary param.Field[string] `json:"border_secondary"`
-	// Primary button background color
-	ButtonPrimary param.Field[string] `json:"button_primary"`
-	// Primary button hover color
-	ButtonPrimaryHover param.Field[string] `json:"button_primary_hover"`
-	// Secondary button background color
-	ButtonSecondary param.Field[string] `json:"button_secondary"`
-	// Secondary button hover color
-	ButtonSecondaryHover param.Field[string] `json:"button_secondary_hover"`
-	// Primary button text color
-	ButtonTextPrimary param.Field[string] `json:"button_text_primary"`
-	// Secondary button text color
-	ButtonTextSecondary param.Field[string] `json:"button_text_secondary"`
-	// Input focus border color
-	InputFocusBorder param.Field[string] `json:"input_focus_border"`
-	// Text error color
-	TextError param.Field[string] `json:"text_error"`
-	// Text placeholder color
-	TextPlaceholder param.Field[string] `json:"text_placeholder"`
-	// Text primary color
-	TextPrimary param.Field[string] `json:"text_primary"`
-	// Text secondary color
-	TextSecondary param.Field[string] `json:"text_secondary"`
-	// Text success color
-	TextSuccess param.Field[string] `json:"text_success"`
-}
-
-func (r CheckoutSessionRequestCustomizationThemeConfigDarkParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Font size for the checkout UI
-type CheckoutSessionRequestCustomizationThemeConfigFontSize string
-
-const (
-	CheckoutSessionRequestCustomizationThemeConfigFontSizeXs  CheckoutSessionRequestCustomizationThemeConfigFontSize = "xs"
-	CheckoutSessionRequestCustomizationThemeConfigFontSizeSm  CheckoutSessionRequestCustomizationThemeConfigFontSize = "sm"
-	CheckoutSessionRequestCustomizationThemeConfigFontSizeMd  CheckoutSessionRequestCustomizationThemeConfigFontSize = "md"
-	CheckoutSessionRequestCustomizationThemeConfigFontSizeLg  CheckoutSessionRequestCustomizationThemeConfigFontSize = "lg"
-	CheckoutSessionRequestCustomizationThemeConfigFontSizeXl  CheckoutSessionRequestCustomizationThemeConfigFontSize = "xl"
-	CheckoutSessionRequestCustomizationThemeConfigFontSize2xl CheckoutSessionRequestCustomizationThemeConfigFontSize = "2xl"
-)
-
-func (r CheckoutSessionRequestCustomizationThemeConfigFontSize) IsKnown() bool {
-	switch r {
-	case CheckoutSessionRequestCustomizationThemeConfigFontSizeXs, CheckoutSessionRequestCustomizationThemeConfigFontSizeSm, CheckoutSessionRequestCustomizationThemeConfigFontSizeMd, CheckoutSessionRequestCustomizationThemeConfigFontSizeLg, CheckoutSessionRequestCustomizationThemeConfigFontSizeXl, CheckoutSessionRequestCustomizationThemeConfigFontSize2xl:
-		return true
-	}
-	return false
-}
-
-// Font weight for the checkout UI
-type CheckoutSessionRequestCustomizationThemeConfigFontWeight string
-
-const (
-	CheckoutSessionRequestCustomizationThemeConfigFontWeightNormal    CheckoutSessionRequestCustomizationThemeConfigFontWeight = "normal"
-	CheckoutSessionRequestCustomizationThemeConfigFontWeightMedium    CheckoutSessionRequestCustomizationThemeConfigFontWeight = "medium"
-	CheckoutSessionRequestCustomizationThemeConfigFontWeightBold      CheckoutSessionRequestCustomizationThemeConfigFontWeight = "bold"
-	CheckoutSessionRequestCustomizationThemeConfigFontWeightExtraBold CheckoutSessionRequestCustomizationThemeConfigFontWeight = "extraBold"
-)
-
-func (r CheckoutSessionRequestCustomizationThemeConfigFontWeight) IsKnown() bool {
-	switch r {
-	case CheckoutSessionRequestCustomizationThemeConfigFontWeightNormal, CheckoutSessionRequestCustomizationThemeConfigFontWeightMedium, CheckoutSessionRequestCustomizationThemeConfigFontWeightBold, CheckoutSessionRequestCustomizationThemeConfigFontWeightExtraBold:
-		return true
-	}
-	return false
-}
-
-// Light mode color configuration
-type CheckoutSessionRequestCustomizationThemeConfigLightParam struct {
-	// Background primary color
-	//
-	// Examples: `"#ffffff"`, `"rgb(255, 255, 255)"`, `"white"`
-	BgPrimary param.Field[string] `json:"bg_primary"`
-	// Background secondary color
-	BgSecondary param.Field[string] `json:"bg_secondary"`
-	// Border primary color
-	BorderPrimary param.Field[string] `json:"border_primary"`
-	// Border secondary color
-	BorderSecondary param.Field[string] `json:"border_secondary"`
-	// Primary button background color
-	ButtonPrimary param.Field[string] `json:"button_primary"`
-	// Primary button hover color
-	ButtonPrimaryHover param.Field[string] `json:"button_primary_hover"`
-	// Secondary button background color
-	ButtonSecondary param.Field[string] `json:"button_secondary"`
-	// Secondary button hover color
-	ButtonSecondaryHover param.Field[string] `json:"button_secondary_hover"`
-	// Primary button text color
-	ButtonTextPrimary param.Field[string] `json:"button_text_primary"`
-	// Secondary button text color
-	ButtonTextSecondary param.Field[string] `json:"button_text_secondary"`
-	// Input focus border color
-	InputFocusBorder param.Field[string] `json:"input_focus_border"`
-	// Text error color
-	TextError param.Field[string] `json:"text_error"`
-	// Text placeholder color
-	TextPlaceholder param.Field[string] `json:"text_placeholder"`
-	// Text primary color
-	TextPrimary param.Field[string] `json:"text_primary"`
-	// Text secondary color
-	TextSecondary param.Field[string] `json:"text_secondary"`
-	// Text success color
-	TextSuccess param.Field[string] `json:"text_success"`
-}
-
-func (r CheckoutSessionRequestCustomizationThemeConfigLightParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type CheckoutSessionRequestFeatureFlagsParam struct {
+type CheckoutSessionFlagsParam struct {
 	// if customer is allowed to change currency, set it to true
 	//
 	// Default is true
@@ -409,18 +154,57 @@ type CheckoutSessionRequestFeatureFlagsParam struct {
 	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`
 }
 
-func (r CheckoutSessionRequestFeatureFlagsParam) MarshalJSON() (data []byte, err error) {
+func (r CheckoutSessionFlagsParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-type CheckoutSessionRequestSubscriptionDataParam struct {
-	OnDemand param.Field[OnDemandSubscriptionParam] `json:"on_demand"`
-	// Optional trial period in days If specified, this value overrides the trial
-	// period set in the product's price Must be between 0 and 10000 days
-	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
+type CheckoutSessionRequestParam struct {
+	ProductCart param.Field[[]ProductItemReqParam] `json:"product_cart,required"`
+	// Customers will never see payment methods that are not in this list. However,
+	// adding a method here does not guarantee customers will see it. Availability
+	// still depends on other factors (e.g., customer location, merchant settings).
+	//
+	// Disclaimar: Always provide 'credit' and 'debit' as a fallback. If all payment
+	// methods are unavailable, checkout session will fail.
+	AllowedPaymentMethodTypes param.Field[[]PaymentMethodTypes] `json:"allowed_payment_method_types"`
+	// Billing address information for the session
+	BillingAddress param.Field[CheckoutSessionBillingAddressParam] `json:"billing_address"`
+	// This field is ingored if adaptive pricing is disabled
+	BillingCurrency param.Field[Currency] `json:"billing_currency"`
+	// If confirm is true, all the details will be finalized. If required data is
+	// missing, an API error is thrown.
+	Confirm param.Field[bool] `json:"confirm"`
+	// Custom fields to collect from customer during checkout (max 5 fields)
+	CustomFields param.Field[[]CustomFieldParam] `json:"custom_fields"`
+	// Customer details for the session
+	Customer param.Field[CustomerRequestUnionParam] `json:"customer"`
+	// Customization for the checkout session page
+	Customization param.Field[CheckoutSessionCustomizationParam] `json:"customization"`
+	DiscountCode  param.Field[string]                            `json:"discount_code"`
+	FeatureFlags  param.Field[CheckoutSessionFlagsParam]         `json:"feature_flags"`
+	// Override merchant default 3DS behaviour for this session
+	Force3DS param.Field[bool] `json:"force_3ds"`
+	// Additional metadata associated with the payment. Defaults to empty if not
+	// provided.
+	Metadata param.Field[map[string]string] `json:"metadata"`
+	// If true, only zipcode is required when confirm is true; other address fields
+	// remain optional
+	MinimalAddress param.Field[bool] `json:"minimal_address"`
+	// Optional payment method ID to use for this checkout session. Only allowed when
+	// `confirm` is true. If provided, existing customer id must also be provided.
+	PaymentMethodID param.Field[string] `json:"payment_method_id"`
+	// Product collection ID for collection-based checkout flow
+	ProductCollectionID param.Field[string] `json:"product_collection_id"`
+	// The url to redirect after payment failure or success.
+	ReturnURL param.Field[string] `json:"return_url"`
+	// If true, returns a shortened checkout URL. Defaults to false if not specified.
+	ShortLink param.Field[bool] `json:"short_link"`
+	// Display saved payment methods of a returning customer False by default
+	ShowSavedPaymentMethods param.Field[bool]                  `json:"show_saved_payment_methods"`
+	SubscriptionData        param.Field[SubscriptionDataParam] `json:"subscription_data"`
 }
 
-func (r CheckoutSessionRequestSubscriptionDataParam) MarshalJSON() (data []byte, err error) {
+func (r CheckoutSessionRequestParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
@@ -488,6 +272,190 @@ func (r *CheckoutSessionStatus) UnmarshalJSON(data []byte) (err error) {
 
 func (r checkoutSessionStatusJSON) RawJSON() string {
 	return r.raw
+}
+
+// Definition of a custom field for checkout
+type CustomFieldParam struct {
+	// Type of field determining validation rules
+	FieldType param.Field[CustomFieldFieldType] `json:"field_type,required"`
+	// Unique identifier for this field (used as key in responses)
+	Key param.Field[string] `json:"key,required"`
+	// Display label shown to customer
+	Label param.Field[string] `json:"label,required"`
+	// Options for dropdown type (required for dropdown, ignored for others)
+	Options param.Field[[]string] `json:"options"`
+	// Placeholder text for the input
+	Placeholder param.Field[string] `json:"placeholder"`
+	// Whether this field is required
+	Required param.Field[bool] `json:"required"`
+}
+
+func (r CustomFieldParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Type of field determining validation rules
+type CustomFieldFieldType string
+
+const (
+	CustomFieldFieldTypeText     CustomFieldFieldType = "text"
+	CustomFieldFieldTypeNumber   CustomFieldFieldType = "number"
+	CustomFieldFieldTypeEmail    CustomFieldFieldType = "email"
+	CustomFieldFieldTypeURL      CustomFieldFieldType = "url"
+	CustomFieldFieldTypeDate     CustomFieldFieldType = "date"
+	CustomFieldFieldTypeDropdown CustomFieldFieldType = "dropdown"
+	CustomFieldFieldTypeBoolean  CustomFieldFieldType = "boolean"
+)
+
+func (r CustomFieldFieldType) IsKnown() bool {
+	switch r {
+	case CustomFieldFieldTypeText, CustomFieldFieldTypeNumber, CustomFieldFieldTypeEmail, CustomFieldFieldTypeURL, CustomFieldFieldTypeDate, CustomFieldFieldTypeDropdown, CustomFieldFieldTypeBoolean:
+		return true
+	}
+	return false
+}
+
+type ProductItemReqParam struct {
+	// unique id of the product
+	ProductID param.Field[string] `json:"product_id,required"`
+	Quantity  param.Field[int64]  `json:"quantity,required"`
+	// only valid if product is a subscription
+	Addons param.Field[[]AttachAddonParam] `json:"addons"`
+	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
+	// amount will be ignored Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`. Only applicable
+	// for one time payments
+	//
+	// If amount is not set for pay_what_you_want product, customer is allowed to
+	// select the amount.
+	Amount param.Field[int64] `json:"amount"`
+}
+
+func (r ProductItemReqParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type SubscriptionDataParam struct {
+	OnDemand param.Field[OnDemandSubscriptionParam] `json:"on_demand"`
+	// Optional trial period in days If specified, this value overrides the trial
+	// period set in the product's price Must be between 0 and 10000 days
+	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
+}
+
+func (r SubscriptionDataParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Custom theme configuration with colors for light and dark modes.
+type ThemeConfigParam struct {
+	// Dark mode color configuration
+	Dark param.Field[ThemeModeConfigParam] `json:"dark"`
+	// URL for the primary font
+	FontPrimaryURL param.Field[string] `json:"font_primary_url"`
+	// URL for the secondary font
+	FontSecondaryURL param.Field[string] `json:"font_secondary_url"`
+	// Font size for the checkout UI
+	FontSize param.Field[ThemeConfigFontSize] `json:"font_size"`
+	// Font weight for the checkout UI
+	FontWeight param.Field[ThemeConfigFontWeight] `json:"font_weight"`
+	// Light mode color configuration
+	Light param.Field[ThemeModeConfigParam] `json:"light"`
+	// Custom text for the pay button (e.g., "Complete Purchase", "Subscribe Now")
+	PayButtonText param.Field[string] `json:"pay_button_text"`
+	// Border radius for UI elements (e.g., "4px", "0.5rem", "8px")
+	Radius param.Field[string] `json:"radius"`
+}
+
+func (r ThemeConfigParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Font size for the checkout UI
+type ThemeConfigFontSize string
+
+const (
+	ThemeConfigFontSizeXs  ThemeConfigFontSize = "xs"
+	ThemeConfigFontSizeSm  ThemeConfigFontSize = "sm"
+	ThemeConfigFontSizeMd  ThemeConfigFontSize = "md"
+	ThemeConfigFontSizeLg  ThemeConfigFontSize = "lg"
+	ThemeConfigFontSizeXl  ThemeConfigFontSize = "xl"
+	ThemeConfigFontSize2xl ThemeConfigFontSize = "2xl"
+)
+
+func (r ThemeConfigFontSize) IsKnown() bool {
+	switch r {
+	case ThemeConfigFontSizeXs, ThemeConfigFontSizeSm, ThemeConfigFontSizeMd, ThemeConfigFontSizeLg, ThemeConfigFontSizeXl, ThemeConfigFontSize2xl:
+		return true
+	}
+	return false
+}
+
+// Font weight for the checkout UI
+type ThemeConfigFontWeight string
+
+const (
+	ThemeConfigFontWeightNormal    ThemeConfigFontWeight = "normal"
+	ThemeConfigFontWeightMedium    ThemeConfigFontWeight = "medium"
+	ThemeConfigFontWeightBold      ThemeConfigFontWeight = "bold"
+	ThemeConfigFontWeightExtraBold ThemeConfigFontWeight = "extraBold"
+)
+
+func (r ThemeConfigFontWeight) IsKnown() bool {
+	switch r {
+	case ThemeConfigFontWeightNormal, ThemeConfigFontWeightMedium, ThemeConfigFontWeightBold, ThemeConfigFontWeightExtraBold:
+		return true
+	}
+	return false
+}
+
+// Color configuration for a single theme mode (light or dark).
+//
+// All color fields accept standard CSS color formats:
+//
+// - Hex: `#fff`, `#ffffff`, `#ffffffff` (with or without # prefix)
+// - RGB/RGBA: `rgb(255, 255, 255)`, `rgba(255, 255, 255, 0.5)`
+// - HSL/HSLA: `hsl(120, 100%, 50%)`, `hsla(120, 100%, 50%, 0.5)`
+// - Named colors: `red`, `blue`, `transparent`, etc.
+// - Advanced: `hwb()`, `lab()`, `lch()`, `oklab()`, `oklch()`, `color()`
+type ThemeModeConfigParam struct {
+	// Background primary color
+	//
+	// Examples: `"#ffffff"`, `"rgb(255, 255, 255)"`, `"white"`
+	BgPrimary param.Field[string] `json:"bg_primary"`
+	// Background secondary color
+	BgSecondary param.Field[string] `json:"bg_secondary"`
+	// Border primary color
+	BorderPrimary param.Field[string] `json:"border_primary"`
+	// Border secondary color
+	BorderSecondary param.Field[string] `json:"border_secondary"`
+	// Primary button background color
+	ButtonPrimary param.Field[string] `json:"button_primary"`
+	// Primary button hover color
+	ButtonPrimaryHover param.Field[string] `json:"button_primary_hover"`
+	// Secondary button background color
+	ButtonSecondary param.Field[string] `json:"button_secondary"`
+	// Secondary button hover color
+	ButtonSecondaryHover param.Field[string] `json:"button_secondary_hover"`
+	// Primary button text color
+	ButtonTextPrimary param.Field[string] `json:"button_text_primary"`
+	// Secondary button text color
+	ButtonTextSecondary param.Field[string] `json:"button_text_secondary"`
+	// Input focus border color
+	InputFocusBorder param.Field[string] `json:"input_focus_border"`
+	// Text error color
+	TextError param.Field[string] `json:"text_error"`
+	// Text placeholder color
+	TextPlaceholder param.Field[string] `json:"text_placeholder"`
+	// Text primary color
+	TextPrimary param.Field[string] `json:"text_primary"`
+	// Text secondary color
+	TextSecondary param.Field[string] `json:"text_secondary"`
+	// Text success color
+	TextSuccess param.Field[string] `json:"text_success"`
+}
+
+func (r ThemeModeConfigParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 // Data returned by the calculate checkout session API

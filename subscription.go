@@ -1329,6 +1329,14 @@ type SubscriptionChangePlanParams struct {
 	// Metadata for the payment. If not passed, the metadata of the subscription will
 	// be taken
 	Metadata param.Field[map[string]string] `json:"metadata"`
+	// Controls behavior when the plan change payment fails.
+	//
+	//   - `prevent_change`: Keep subscription on current plan until payment succeeds
+	//   - `apply_change` (default): Apply plan change immediately regardless of payment
+	//     outcome
+	//
+	// If not specified, uses the business-level default setting.
+	OnPaymentFailure param.Field[SubscriptionChangePlanParamsOnPaymentFailure] `json:"on_payment_failure"`
 }
 
 func (r SubscriptionChangePlanParams) MarshalJSON() (data []byte, err error) {
@@ -1347,6 +1355,28 @@ const (
 func (r SubscriptionChangePlanParamsProrationBillingMode) IsKnown() bool {
 	switch r {
 	case SubscriptionChangePlanParamsProrationBillingModeProratedImmediately, SubscriptionChangePlanParamsProrationBillingModeFullImmediately, SubscriptionChangePlanParamsProrationBillingModeDifferenceImmediately:
+		return true
+	}
+	return false
+}
+
+// Controls behavior when the plan change payment fails.
+//
+//   - `prevent_change`: Keep subscription on current plan until payment succeeds
+//   - `apply_change` (default): Apply plan change immediately regardless of payment
+//     outcome
+//
+// If not specified, uses the business-level default setting.
+type SubscriptionChangePlanParamsOnPaymentFailure string
+
+const (
+	SubscriptionChangePlanParamsOnPaymentFailurePreventChange SubscriptionChangePlanParamsOnPaymentFailure = "prevent_change"
+	SubscriptionChangePlanParamsOnPaymentFailureApplyChange   SubscriptionChangePlanParamsOnPaymentFailure = "apply_change"
+)
+
+func (r SubscriptionChangePlanParamsOnPaymentFailure) IsKnown() bool {
+	switch r {
+	case SubscriptionChangePlanParamsOnPaymentFailurePreventChange, SubscriptionChangePlanParamsOnPaymentFailureApplyChange:
 		return true
 	}
 	return false
@@ -1402,6 +1432,14 @@ type SubscriptionPreviewChangePlanParams struct {
 	// Metadata for the payment. If not passed, the metadata of the subscription will
 	// be taken
 	Metadata param.Field[map[string]string] `json:"metadata"`
+	// Controls behavior when the plan change payment fails.
+	//
+	//   - `prevent_change`: Keep subscription on current plan until payment succeeds
+	//   - `apply_change` (default): Apply plan change immediately regardless of payment
+	//     outcome
+	//
+	// If not specified, uses the business-level default setting.
+	OnPaymentFailure param.Field[SubscriptionPreviewChangePlanParamsOnPaymentFailure] `json:"on_payment_failure"`
 }
 
 func (r SubscriptionPreviewChangePlanParams) MarshalJSON() (data []byte, err error) {
@@ -1420,6 +1458,28 @@ const (
 func (r SubscriptionPreviewChangePlanParamsProrationBillingMode) IsKnown() bool {
 	switch r {
 	case SubscriptionPreviewChangePlanParamsProrationBillingModeProratedImmediately, SubscriptionPreviewChangePlanParamsProrationBillingModeFullImmediately, SubscriptionPreviewChangePlanParamsProrationBillingModeDifferenceImmediately:
+		return true
+	}
+	return false
+}
+
+// Controls behavior when the plan change payment fails.
+//
+//   - `prevent_change`: Keep subscription on current plan until payment succeeds
+//   - `apply_change` (default): Apply plan change immediately regardless of payment
+//     outcome
+//
+// If not specified, uses the business-level default setting.
+type SubscriptionPreviewChangePlanParamsOnPaymentFailure string
+
+const (
+	SubscriptionPreviewChangePlanParamsOnPaymentFailurePreventChange SubscriptionPreviewChangePlanParamsOnPaymentFailure = "prevent_change"
+	SubscriptionPreviewChangePlanParamsOnPaymentFailureApplyChange   SubscriptionPreviewChangePlanParamsOnPaymentFailure = "apply_change"
+)
+
+func (r SubscriptionPreviewChangePlanParamsOnPaymentFailure) IsKnown() bool {
+	switch r {
+	case SubscriptionPreviewChangePlanParamsOnPaymentFailurePreventChange, SubscriptionPreviewChangePlanParamsOnPaymentFailureApplyChange:
 		return true
 	}
 	return false

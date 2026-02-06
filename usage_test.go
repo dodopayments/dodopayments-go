@@ -26,7 +26,7 @@ func TestUsage(t *testing.T) {
 	)
 	checkoutSessionResponse, err := client.CheckoutSessions.New(context.TODO(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
