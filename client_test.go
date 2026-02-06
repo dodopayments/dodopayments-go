@@ -40,7 +40,7 @@ func TestUserAgentHeader(t *testing.T) {
 	)
 	client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
@@ -71,7 +71,7 @@ func TestRetryAfter(t *testing.T) {
 	)
 	_, err := client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
@@ -113,7 +113,7 @@ func TestDeleteRetryCountHeader(t *testing.T) {
 	)
 	_, err := client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
@@ -150,7 +150,7 @@ func TestOverwriteRetryCountHeader(t *testing.T) {
 	)
 	_, err := client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
@@ -186,7 +186,7 @@ func TestRetryAfterMs(t *testing.T) {
 	)
 	_, err := client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
@@ -216,7 +216,7 @@ func TestContextCancel(t *testing.T) {
 	cancel()
 	_, err := client.CheckoutSessions.New(cancelCtx, dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
@@ -243,7 +243,7 @@ func TestContextCancelDelay(t *testing.T) {
 	defer cancel()
 	_, err := client.CheckoutSessions.New(cancelCtx, dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
@@ -276,7 +276,7 @@ func TestContextDeadline(t *testing.T) {
 		)
 		_, err := client.CheckoutSessions.New(deadlineCtx, dodopayments.CheckoutSessionNewParams{
 			CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-				ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+				ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 					ProductID: dodopayments.F("product_id"),
 					Quantity:  dodopayments.F(int64(0)),
 				}}),

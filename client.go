@@ -37,6 +37,7 @@ type Client struct {
 	WebhookEvents       *WebhookEventService
 	UsageEvents         *UsageEventService
 	Meters              *MeterService
+	Balances            *BalanceService
 }
 
 // DefaultClientOptions read from the environment (DODO_PAYMENTS_API_KEY,
@@ -86,6 +87,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.WebhookEvents = NewWebhookEventService(opts...)
 	r.UsageEvents = NewUsageEventService(opts...)
 	r.Meters = NewMeterService(opts...)
+	r.Balances = NewBalanceService(opts...)
 
 	return
 }

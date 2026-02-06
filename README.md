@@ -64,7 +64,7 @@ func main() {
 	)
 	checkoutSessionResponse, err := client.CheckoutSessions.New(context.TODO(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
@@ -218,7 +218,7 @@ To handle errors, we recommend that you use the `errors.As` pattern:
 ```go
 _, err := client.CheckoutSessions.New(context.TODO(), dodopayments.CheckoutSessionNewParams{
 	CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-		ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+		ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 			ProductID: dodopayments.F("product_id"),
 			Quantity:  dodopayments.F(int64(0)),
 		}}),
@@ -252,7 +252,7 @@ client.CheckoutSessions.New(
 	ctx,
 	dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
@@ -295,7 +295,7 @@ client.CheckoutSessions.New(
 	context.TODO(),
 	dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
@@ -317,7 +317,7 @@ checkoutSessionResponse, err := client.CheckoutSessions.New(
 	context.TODO(),
 	dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
-			ProductCart: dodopayments.F([]dodopayments.CheckoutSessionRequestProductCartParam{{
+			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),
 				Quantity:  dodopayments.F(int64(0)),
 			}}),
