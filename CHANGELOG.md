@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.84.0 (2026-02-20)
+
+Full Changelog: [v1.81.0...v1.84.0](https://github.com/dodopayments/dodopayments-go/compare/v1.81.0...v1.84.0)
+
+### Features
+
+* **api:** updated openapi spec to v1.84.0 ([ee04b02](https://github.com/dodopayments/dodopayments-go/commit/ee04b028bb625e3a1d971c3c29c447fc4255d01e))
+
+
+### Bug Fixes
+
+* allow canceling a request while it is waiting to retry ([c9f8a85](https://github.com/dodopayments/dodopayments-go/commit/c9f8a8577f549b979519df3078eec9b4f9df3b4a))
+
+
+### Chores
+
+* **internal:** codegen related update ([373eb5a](https://github.com/dodopayments/dodopayments-go/commit/373eb5ade521a9ba759c5f34cec04a7d7ef5f109))
+* update mock server docs ([682f344](https://github.com/dodopayments/dodopayments-go/commit/682f3447efefde7c26fcbc003080af77ccdbfcdb))
+
 ## 1.81.0 (2026-02-06)
 
 Full Changelog: [v1.78.0...v1.81.0](https://github.com/dodopayments/dodopayments-go/compare/v1.78.0...v1.81.0)
