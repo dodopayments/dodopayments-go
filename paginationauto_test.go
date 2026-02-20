@@ -25,7 +25,7 @@ func TestAutoPagination(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	iter := client.Payments.ListAutoPaging(context.TODO(), dodopayments.PaymentListParams{})
-	// Prism mock isn't going to give us real pagination
+	// The mock server isn't going to give us real pagination
 	for i := 0; i < 3 && iter.Next(); i++ {
 		payment := iter.Current()
 		t.Logf("%+v\n", payment.BrandID)
