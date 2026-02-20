@@ -81,6 +81,7 @@ func TestCustomerUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"customer_id",
 		dodopayments.CustomerUpdateParams{
+			Email: dodopayments.F("email"),
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),

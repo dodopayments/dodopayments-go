@@ -116,6 +116,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 				AllowCustomerEditingName:    dodopayments.F(true),
 				AllowCustomerEditingState:   dodopayments.F(true),
 				AllowCustomerEditingStreet:  dodopayments.F(true),
+				AllowCustomerEditingTaxID:   dodopayments.F(true),
 				AllowCustomerEditingZipcode: dodopayments.F(true),
 				AllowDiscountCode:           dodopayments.F(true),
 				AllowPhoneNumberCollection:  dodopayments.F(true),
@@ -143,6 +144,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 				}),
 				TrialPeriodDays: dodopayments.F(int64(0)),
 			}),
+			TaxID: dodopayments.F("tax_id"),
 		},
 	})
 	if err != nil {
@@ -279,6 +281,7 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 				AllowCustomerEditingName:    dodopayments.F(true),
 				AllowCustomerEditingState:   dodopayments.F(true),
 				AllowCustomerEditingStreet:  dodopayments.F(true),
+				AllowCustomerEditingTaxID:   dodopayments.F(true),
 				AllowCustomerEditingZipcode: dodopayments.F(true),
 				AllowDiscountCode:           dodopayments.F(true),
 				AllowPhoneNumberCollection:  dodopayments.F(true),
@@ -306,6 +309,7 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 				}),
 				TrialPeriodDays: dodopayments.F(int64(0)),
 			}),
+			TaxID: dodopayments.F("tax_id"),
 		},
 	})
 	if err != nil {

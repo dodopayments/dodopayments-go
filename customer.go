@@ -284,6 +284,7 @@ func (r CustomerNewParams) MarshalJSON() (data []byte, err error) {
 }
 
 type CustomerUpdateParams struct {
+	Email param.Field[string] `json:"email"`
 	// Additional metadata for the customer
 	Metadata    param.Field[map[string]string] `json:"metadata"`
 	Name        param.Field[string]            `json:"name"`

@@ -130,6 +130,7 @@ type CheckoutSessionFlagsParam struct {
 	AllowCustomerEditingName    param.Field[bool] `json:"allow_customer_editing_name"`
 	AllowCustomerEditingState   param.Field[bool] `json:"allow_customer_editing_state"`
 	AllowCustomerEditingStreet  param.Field[bool] `json:"allow_customer_editing_street"`
+	AllowCustomerEditingTaxID   param.Field[bool] `json:"allow_customer_editing_tax_id"`
 	AllowCustomerEditingZipcode param.Field[bool] `json:"allow_customer_editing_zipcode"`
 	// If the customer is allowed to apply discount code, set it to true.
 	//
@@ -202,6 +203,9 @@ type CheckoutSessionRequestParam struct {
 	// Display saved payment methods of a returning customer False by default
 	ShowSavedPaymentMethods param.Field[bool]                  `json:"show_saved_payment_methods"`
 	SubscriptionData        param.Field[SubscriptionDataParam] `json:"subscription_data"`
+	// Tax ID for the customer (e.g. VAT number). Requires billing_address with
+	// country.
+	TaxID param.Field[string] `json:"tax_id"`
 }
 
 func (r CheckoutSessionRequestParam) MarshalJSON() (data []byte, err error) {
@@ -350,9 +354,9 @@ func (r SubscriptionDataParam) MarshalJSON() (data []byte, err error) {
 type ThemeConfigParam struct {
 	// Dark mode color configuration
 	Dark param.Field[ThemeModeConfigParam] `json:"dark"`
-	// URL for the primary font
+	// URL for the primary font. Must be a valid https:// URL.
 	FontPrimaryURL param.Field[string] `json:"font_primary_url"`
-	// URL for the secondary font
+	// URL for the secondary font. Must be a valid https:// URL.
 	FontSecondaryURL param.Field[string] `json:"font_secondary_url"`
 	// Font size for the checkout UI
 	FontSize param.Field[ThemeConfigFontSize] `json:"font_size"`
@@ -360,9 +364,11 @@ type ThemeConfigParam struct {
 	FontWeight param.Field[ThemeConfigFontWeight] `json:"font_weight"`
 	// Light mode color configuration
 	Light param.Field[ThemeModeConfigParam] `json:"light"`
-	// Custom text for the pay button (e.g., "Complete Purchase", "Subscribe Now")
+	// Custom text for the pay button (e.g., "Complete Purchase", "Subscribe Now"). Max
+	// 100 characters.
 	PayButtonText param.Field[string] `json:"pay_button_text"`
-	// Border radius for UI elements (e.g., "4px", "0.5rem", "8px")
+	// Border radius for UI elements. Must be a number followed by px, rem, or em
+	// (e.g., "4px", "0.5rem", "1em")
 	Radius param.Field[string] `json:"radius"`
 }
 
@@ -472,6 +478,8 @@ type CheckoutSessionPreviewResponse struct {
 	TotalPrice int64 `json:"total_price,required"`
 	// Breakup of recurring payments (None for one-time only)
 	RecurringBreakup CheckoutSessionPreviewResponseRecurringBreakup `json:"recurring_breakup,nullable"`
+	// Error message if tax ID validation failed
+	TaxIDErrMsg string `json:"tax_id_err_msg,nullable"`
 	// Total tax
 	TotalTax int64                              `json:"total_tax,nullable"`
 	JSON     checkoutSessionPreviewResponseJSON `json:"-"`
@@ -486,6 +494,7 @@ type checkoutSessionPreviewResponseJSON struct {
 	ProductCart      apijson.Field
 	TotalPrice       apijson.Field
 	RecurringBreakup apijson.Field
+	TaxIDErrMsg      apijson.Field
 	TotalTax         apijson.Field
 	raw              string
 	ExtraFields      map[string]apijson.Field
@@ -532,6 +541,8 @@ func (r checkoutSessionPreviewResponseCurrentBreakupJSON) RawJSON() string {
 }
 
 type CheckoutSessionPreviewResponseProductCart struct {
+	// Credit entitlements that will be granted upon purchase
+	CreditEntitlements []CheckoutSessionPreviewResponseProductCartCreditEntitlement `json:"credit_entitlements,required"`
 	// the currency in which the calculatiosn were made
 	Currency Currency `json:"currency,required"`
 	// discounted price
@@ -570,26 +581,27 @@ type CheckoutSessionPreviewResponseProductCart struct {
 // checkoutSessionPreviewResponseProductCartJSON contains the JSON metadata for the
 // struct [CheckoutSessionPreviewResponseProductCart]
 type checkoutSessionPreviewResponseProductCartJSON struct {
-	Currency        apijson.Field
-	DiscountedPrice apijson.Field
-	IsSubscription  apijson.Field
-	IsUsageBased    apijson.Field
-	Meters          apijson.Field
-	OgCurrency      apijson.Field
-	OgPrice         apijson.Field
-	ProductID       apijson.Field
-	Quantity        apijson.Field
-	TaxCategory     apijson.Field
-	TaxInclusive    apijson.Field
-	TaxRate         apijson.Field
-	Addons          apijson.Field
-	Description     apijson.Field
-	DiscountAmount  apijson.Field
-	DiscountCycle   apijson.Field
-	Name            apijson.Field
-	Tax             apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+	CreditEntitlements apijson.Field
+	Currency           apijson.Field
+	DiscountedPrice    apijson.Field
+	IsSubscription     apijson.Field
+	IsUsageBased       apijson.Field
+	Meters             apijson.Field
+	OgCurrency         apijson.Field
+	OgPrice            apijson.Field
+	ProductID          apijson.Field
+	Quantity           apijson.Field
+	TaxCategory        apijson.Field
+	TaxInclusive       apijson.Field
+	TaxRate            apijson.Field
+	Addons             apijson.Field
+	Description        apijson.Field
+	DiscountAmount     apijson.Field
+	DiscountCycle      apijson.Field
+	Name               apijson.Field
+	Tax                apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
 }
 
 func (r *CheckoutSessionPreviewResponseProductCart) UnmarshalJSON(data []byte) (err error) {
@@ -597,6 +609,40 @@ func (r *CheckoutSessionPreviewResponseProductCart) UnmarshalJSON(data []byte) (
 }
 
 func (r checkoutSessionPreviewResponseProductCartJSON) RawJSON() string {
+	return r.raw
+}
+
+// Minimal credit entitlement info shown at checkout — what credits the customer
+// will receive
+type CheckoutSessionPreviewResponseProductCartCreditEntitlement struct {
+	// ID of the credit entitlement
+	CreditEntitlementID string `json:"credit_entitlement_id,required"`
+	// Name of the credit entitlement
+	CreditEntitlementName string `json:"credit_entitlement_name,required"`
+	// Unit label (e.g. "API Calls", "Tokens")
+	CreditEntitlementUnit string `json:"credit_entitlement_unit,required"`
+	// Number of credits granted
+	CreditsAmount string                                                         `json:"credits_amount,required"`
+	JSON          checkoutSessionPreviewResponseProductCartCreditEntitlementJSON `json:"-"`
+}
+
+// checkoutSessionPreviewResponseProductCartCreditEntitlementJSON contains the JSON
+// metadata for the struct
+// [CheckoutSessionPreviewResponseProductCartCreditEntitlement]
+type checkoutSessionPreviewResponseProductCartCreditEntitlementJSON struct {
+	CreditEntitlementID   apijson.Field
+	CreditEntitlementName apijson.Field
+	CreditEntitlementUnit apijson.Field
+	CreditsAmount         apijson.Field
+	raw                   string
+	ExtraFields           map[string]apijson.Field
+}
+
+func (r *CheckoutSessionPreviewResponseProductCartCreditEntitlement) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r checkoutSessionPreviewResponseProductCartCreditEntitlementJSON) RawJSON() string {
 	return r.raw
 }
 

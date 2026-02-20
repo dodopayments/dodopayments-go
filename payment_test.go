@@ -107,6 +107,7 @@ func TestPaymentListWithOptionalParams(t *testing.T) {
 		CustomerID:     dodopayments.F("customer_id"),
 		PageNumber:     dodopayments.F(int64(0)),
 		PageSize:       dodopayments.F(int64(0)),
+		ProductID:      dodopayments.F("product_id"),
 		Status:         dodopayments.F(dodopayments.PaymentListParamsStatusSucceeded),
 		SubscriptionID: dodopayments.F("subscription_id"),
 	})
