@@ -126,7 +126,21 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 				Zipcode: dodopayments.F("zipcode"),
 			}),
 			CancelAtNextBillingDate: dodopayments.F(true),
-			CustomerName:            dodopayments.F("customer_name"),
+			CreditEntitlementCart: dodopayments.F([]dodopayments.SubscriptionUpdateParamsCreditEntitlementCart{{
+				CreditEntitlementID:        dodopayments.F("credit_entitlement_id"),
+				CreditsAmount:              dodopayments.F("credits_amount"),
+				ExpiresAfterDays:           dodopayments.F(int64(0)),
+				LowBalanceThresholdPercent: dodopayments.F(int64(0)),
+				MaxRolloverCount:           dodopayments.F(int64(0)),
+				OverageChargeAtBilling:     dodopayments.F(true),
+				OverageEnabled:             dodopayments.F(true),
+				OverageLimit:               dodopayments.F("overage_limit"),
+				RolloverEnabled:            dodopayments.F(true),
+				RolloverPercentage:         dodopayments.F(int64(0)),
+				RolloverTimeframeCount:     dodopayments.F(int64(0)),
+				RolloverTimeframeInterval:  dodopayments.F(dodopayments.TimeIntervalDay),
+			}}),
+			CustomerName: dodopayments.F("customer_name"),
 			DisableOnDemand: dodopayments.F(dodopayments.SubscriptionUpdateParamsDisableOnDemand{
 				NextBillingDate: dodopayments.F(time.Now()),
 			}),
@@ -166,6 +180,7 @@ func TestSubscriptionListWithOptionalParams(t *testing.T) {
 		CustomerID:   dodopayments.F("customer_id"),
 		PageNumber:   dodopayments.F(int64(0)),
 		PageSize:     dodopayments.F(int64(0)),
+		ProductID:    dodopayments.F("product_id"),
 		Status:       dodopayments.F(dodopayments.SubscriptionListParamsStatusPending),
 	})
 	if err != nil {

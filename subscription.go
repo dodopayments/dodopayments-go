@@ -312,12 +312,16 @@ type Subscription struct {
 	CancelAtNextBillingDate bool `json:"cancel_at_next_billing_date,required"`
 	// Timestamp when the subscription was created
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// Credit entitlement cart settings for this subscription
+	CreditEntitlementCart []SubscriptionCreditEntitlementCart `json:"credit_entitlement_cart,required"`
 	// Currency used for the subscription payments
 	Currency Currency `json:"currency,required"`
 	// Customer details associated with the subscription
 	Customer CustomerLimitedDetails `json:"customer,required"`
 	// Additional custom data associated with the subscription
 	Metadata map[string]string `json:"metadata,required"`
+	// Meter credit entitlement cart settings for this subscription
+	MeterCreditEntitlementCart []SubscriptionMeterCreditEntitlementCart `json:"meter_credit_entitlement_cart,required"`
 	// Meters associated with this subscription (for usage-based billing)
 	Meters []SubscriptionMeter `json:"meters,required"`
 	// Timestamp of the next scheduled billing. Indicates the end of current billing
@@ -373,9 +377,11 @@ type subscriptionJSON struct {
 	Billing                    apijson.Field
 	CancelAtNextBillingDate    apijson.Field
 	CreatedAt                  apijson.Field
+	CreditEntitlementCart      apijson.Field
 	Currency                   apijson.Field
 	Customer                   apijson.Field
 	Metadata                   apijson.Field
+	MeterCreditEntitlementCart apijson.Field
 	Meters                     apijson.Field
 	NextBillingDate            apijson.Field
 	OnDemand                   apijson.Field
@@ -407,6 +413,94 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionJSON) RawJSON() string {
+	return r.raw
+}
+
+// Response struct representing credit entitlement cart details for a subscription
+type SubscriptionCreditEntitlementCart struct {
+	CreditEntitlementID   string `json:"credit_entitlement_id,required"`
+	CreditEntitlementName string `json:"credit_entitlement_name,required"`
+	CreditsAmount         string `json:"credits_amount,required"`
+	// Customer's current overage balance for this entitlement
+	OverageBalance         string `json:"overage_balance,required"`
+	OverageChargeAtBilling bool   `json:"overage_charge_at_billing,required"`
+	OverageEnabled         bool   `json:"overage_enabled,required"`
+	ProductID              string `json:"product_id,required"`
+	// Customer's current remaining credit balance for this entitlement
+	RemainingBalance string `json:"remaining_balance,required"`
+	RolloverEnabled  bool   `json:"rollover_enabled,required"`
+	// Unit label for the credit entitlement (e.g., "API Calls", "Tokens")
+	Unit                       string                                `json:"unit,required"`
+	ExpiresAfterDays           int64                                 `json:"expires_after_days,nullable"`
+	LowBalanceThresholdPercent int64                                 `json:"low_balance_threshold_percent,nullable"`
+	MaxRolloverCount           int64                                 `json:"max_rollover_count,nullable"`
+	OverageLimit               string                                `json:"overage_limit,nullable"`
+	RolloverPercentage         int64                                 `json:"rollover_percentage,nullable"`
+	RolloverTimeframeCount     int64                                 `json:"rollover_timeframe_count,nullable"`
+	RolloverTimeframeInterval  TimeInterval                          `json:"rollover_timeframe_interval,nullable"`
+	JSON                       subscriptionCreditEntitlementCartJSON `json:"-"`
+}
+
+// subscriptionCreditEntitlementCartJSON contains the JSON metadata for the struct
+// [SubscriptionCreditEntitlementCart]
+type subscriptionCreditEntitlementCartJSON struct {
+	CreditEntitlementID        apijson.Field
+	CreditEntitlementName      apijson.Field
+	CreditsAmount              apijson.Field
+	OverageBalance             apijson.Field
+	OverageChargeAtBilling     apijson.Field
+	OverageEnabled             apijson.Field
+	ProductID                  apijson.Field
+	RemainingBalance           apijson.Field
+	RolloverEnabled            apijson.Field
+	Unit                       apijson.Field
+	ExpiresAfterDays           apijson.Field
+	LowBalanceThresholdPercent apijson.Field
+	MaxRolloverCount           apijson.Field
+	OverageLimit               apijson.Field
+	RolloverPercentage         apijson.Field
+	RolloverTimeframeCount     apijson.Field
+	RolloverTimeframeInterval  apijson.Field
+	raw                        string
+	ExtraFields                map[string]apijson.Field
+}
+
+func (r *SubscriptionCreditEntitlementCart) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionCreditEntitlementCartJSON) RawJSON() string {
+	return r.raw
+}
+
+// Response struct representing meter-credit entitlement mapping cart details for a
+// subscription
+type SubscriptionMeterCreditEntitlementCart struct {
+	CreditEntitlementID string                                     `json:"credit_entitlement_id,required"`
+	MeterID             string                                     `json:"meter_id,required"`
+	MeterName           string                                     `json:"meter_name,required"`
+	MeterUnitsPerCredit string                                     `json:"meter_units_per_credit,required"`
+	ProductID           string                                     `json:"product_id,required"`
+	JSON                subscriptionMeterCreditEntitlementCartJSON `json:"-"`
+}
+
+// subscriptionMeterCreditEntitlementCartJSON contains the JSON metadata for the
+// struct [SubscriptionMeterCreditEntitlementCart]
+type subscriptionMeterCreditEntitlementCartJSON struct {
+	CreditEntitlementID apijson.Field
+	MeterID             apijson.Field
+	MeterName           apijson.Field
+	MeterUnitsPerCredit apijson.Field
+	ProductID           apijson.Field
+	raw                 string
+	ExtraFields         map[string]apijson.Field
+}
+
+func (r *SubscriptionMeterCreditEntitlementCart) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionMeterCreditEntitlementCartJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -1250,16 +1344,37 @@ func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
 type SubscriptionUpdateParams struct {
 	Billing param.Field[BillingAddressParam] `json:"billing"`
 	// When set, the subscription will remain active until the end of billing period
-	CancelAtNextBillingDate param.Field[bool]                                    `json:"cancel_at_next_billing_date"`
-	CustomerName            param.Field[string]                                  `json:"customer_name"`
-	DisableOnDemand         param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
-	Metadata                param.Field[map[string]string]                       `json:"metadata"`
-	NextBillingDate         param.Field[time.Time]                               `json:"next_billing_date" format:"date-time"`
-	Status                  param.Field[SubscriptionStatus]                      `json:"status"`
-	TaxID                   param.Field[string]                                  `json:"tax_id"`
+	CancelAtNextBillingDate param.Field[bool] `json:"cancel_at_next_billing_date"`
+	// Update credit entitlement cart settings
+	CreditEntitlementCart param.Field[[]SubscriptionUpdateParamsCreditEntitlementCart] `json:"credit_entitlement_cart"`
+	CustomerName          param.Field[string]                                          `json:"customer_name"`
+	DisableOnDemand       param.Field[SubscriptionUpdateParamsDisableOnDemand]         `json:"disable_on_demand"`
+	Metadata              param.Field[map[string]string]                               `json:"metadata"`
+	NextBillingDate       param.Field[time.Time]                                       `json:"next_billing_date" format:"date-time"`
+	Status                param.Field[SubscriptionStatus]                              `json:"status"`
+	TaxID                 param.Field[string]                                          `json:"tax_id"`
 }
 
 func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type SubscriptionUpdateParamsCreditEntitlementCart struct {
+	CreditEntitlementID        param.Field[string]       `json:"credit_entitlement_id,required"`
+	CreditsAmount              param.Field[string]       `json:"credits_amount"`
+	ExpiresAfterDays           param.Field[int64]        `json:"expires_after_days"`
+	LowBalanceThresholdPercent param.Field[int64]        `json:"low_balance_threshold_percent"`
+	MaxRolloverCount           param.Field[int64]        `json:"max_rollover_count"`
+	OverageChargeAtBilling     param.Field[bool]         `json:"overage_charge_at_billing"`
+	OverageEnabled             param.Field[bool]         `json:"overage_enabled"`
+	OverageLimit               param.Field[string]       `json:"overage_limit"`
+	RolloverEnabled            param.Field[bool]         `json:"rollover_enabled"`
+	RolloverPercentage         param.Field[int64]        `json:"rollover_percentage"`
+	RolloverTimeframeCount     param.Field[int64]        `json:"rollover_timeframe_count"`
+	RolloverTimeframeInterval  param.Field[TimeInterval] `json:"rollover_timeframe_interval"`
+}
+
+func (r SubscriptionUpdateParamsCreditEntitlementCart) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
@@ -1284,6 +1399,8 @@ type SubscriptionListParams struct {
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
+	// Filter by product id
+	ProductID param.Field[string] `query:"product_id"`
 	// Filter by status
 	Status param.Field[SubscriptionListParamsStatus] `query:"status"`
 }
