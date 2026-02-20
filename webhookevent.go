@@ -56,11 +56,19 @@ const (
 	WebhookEventTypePayoutInProgress        WebhookEventType = "payout.in_progress"
 	WebhookEventTypePayoutFailed            WebhookEventType = "payout.failed"
 	WebhookEventTypePayoutSuccess           WebhookEventType = "payout.success"
+	WebhookEventTypeCreditAdded             WebhookEventType = "credit.added"
+	WebhookEventTypeCreditDeducted          WebhookEventType = "credit.deducted"
+	WebhookEventTypeCreditExpired           WebhookEventType = "credit.expired"
+	WebhookEventTypeCreditRolledOver        WebhookEventType = "credit.rolled_over"
+	WebhookEventTypeCreditRolloverForfeited WebhookEventType = "credit.rollover_forfeited"
+	WebhookEventTypeCreditOverageCharged    WebhookEventType = "credit.overage_charged"
+	WebhookEventTypeCreditManualAdjustment  WebhookEventType = "credit.manual_adjustment"
+	WebhookEventTypeCreditBalanceLow        WebhookEventType = "credit.balance_low"
 )
 
 func (r WebhookEventType) IsKnown() bool {
 	switch r {
-	case WebhookEventTypePaymentSucceeded, WebhookEventTypePaymentFailed, WebhookEventTypePaymentProcessing, WebhookEventTypePaymentCancelled, WebhookEventTypeRefundSucceeded, WebhookEventTypeRefundFailed, WebhookEventTypeDisputeOpened, WebhookEventTypeDisputeExpired, WebhookEventTypeDisputeAccepted, WebhookEventTypeDisputeCancelled, WebhookEventTypeDisputeChallenged, WebhookEventTypeDisputeWon, WebhookEventTypeDisputeLost, WebhookEventTypeSubscriptionActive, WebhookEventTypeSubscriptionRenewed, WebhookEventTypeSubscriptionOnHold, WebhookEventTypeSubscriptionCancelled, WebhookEventTypeSubscriptionFailed, WebhookEventTypeSubscriptionExpired, WebhookEventTypeSubscriptionPlanChanged, WebhookEventTypeSubscriptionUpdated, WebhookEventTypeLicenseKeyCreated, WebhookEventTypePayoutNotInitiated, WebhookEventTypePayoutOnHold, WebhookEventTypePayoutInProgress, WebhookEventTypePayoutFailed, WebhookEventTypePayoutSuccess:
+	case WebhookEventTypePaymentSucceeded, WebhookEventTypePaymentFailed, WebhookEventTypePaymentProcessing, WebhookEventTypePaymentCancelled, WebhookEventTypeRefundSucceeded, WebhookEventTypeRefundFailed, WebhookEventTypeDisputeOpened, WebhookEventTypeDisputeExpired, WebhookEventTypeDisputeAccepted, WebhookEventTypeDisputeCancelled, WebhookEventTypeDisputeChallenged, WebhookEventTypeDisputeWon, WebhookEventTypeDisputeLost, WebhookEventTypeSubscriptionActive, WebhookEventTypeSubscriptionRenewed, WebhookEventTypeSubscriptionOnHold, WebhookEventTypeSubscriptionCancelled, WebhookEventTypeSubscriptionFailed, WebhookEventTypeSubscriptionExpired, WebhookEventTypeSubscriptionPlanChanged, WebhookEventTypeSubscriptionUpdated, WebhookEventTypeLicenseKeyCreated, WebhookEventTypePayoutNotInitiated, WebhookEventTypePayoutOnHold, WebhookEventTypePayoutInProgress, WebhookEventTypePayoutFailed, WebhookEventTypePayoutSuccess, WebhookEventTypeCreditAdded, WebhookEventTypeCreditDeducted, WebhookEventTypeCreditExpired, WebhookEventTypeCreditRolledOver, WebhookEventTypeCreditRolloverForfeited, WebhookEventTypeCreditOverageCharged, WebhookEventTypeCreditManualAdjustment, WebhookEventTypeCreditBalanceLow:
 		return true
 	}
 	return false

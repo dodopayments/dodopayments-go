@@ -703,6 +703,7 @@ type PaymentListResponse struct {
 	Currency                 Currency               `json:"currency,required"`
 	Customer                 CustomerLimitedDetails `json:"customer,required"`
 	DigitalProductsDelivered bool                   `json:"digital_products_delivered,required"`
+	HasLicenseKey            bool                   `json:"has_license_key,required"`
 	Metadata                 map[string]string      `json:"metadata,required"`
 	PaymentID                string                 `json:"payment_id,required"`
 	TotalAmount              int64                  `json:"total_amount,required"`
@@ -725,6 +726,7 @@ type paymentListResponseJSON struct {
 	Currency                 apijson.Field
 	Customer                 apijson.Field
 	DigitalProductsDelivered apijson.Field
+	HasLicenseKey            apijson.Field
 	Metadata                 apijson.Field
 	PaymentID                apijson.Field
 	TotalAmount              apijson.Field
@@ -862,6 +864,8 @@ type PaymentListParams struct {
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
+	// Filter by product id
+	ProductID param.Field[string] `query:"product_id"`
 	// Filter by status
 	Status param.Field[PaymentListParamsStatus] `query:"status"`
 	// Filter by subscription id
