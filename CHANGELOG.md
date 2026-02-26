@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.84.1 (2026-02-26)
+
+Full Changelog: [v1.84.0...v1.84.1](https://github.com/dodopayments/dodopayments-go/compare/v1.84.0...v1.84.1)
+
+### Chores
+
+* **internal:** move custom custom `json` tags to `api` ([2f4529f](https://github.com/dodopayments/dodopayments-go/commit/2f4529ff33db79f5fc8db08dac1154c4eb439dca))
+
 ## 1.84.0 (2026-02-20)
 
 Full Changelog: [v1.81.0...v1.84.0](https://github.com/dodopayments/dodopayments-go/compare/v1.81.0...v1.84.0)
