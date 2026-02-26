@@ -57,19 +57,19 @@ func (r *LicenseService) Validate(ctx context.Context, body LicenseValidateParam
 
 type LicenseActivateResponse struct {
 	// License key instance ID
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Business ID
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Creation timestamp
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Limited customer details associated with the license key.
-	Customer CustomerLimitedDetails `json:"customer,required"`
+	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// Associated license key ID
-	LicenseKeyID string `json:"license_key_id,required"`
+	LicenseKeyID string `json:"license_key_id" api:"required"`
 	// Instance name
-	Name string `json:"name,required"`
+	Name string `json:"name" api:"required"`
 	// Related product info. Present if the license key is tied to a product.
-	Product LicenseActivateResponseProduct `json:"product,required"`
+	Product LicenseActivateResponseProduct `json:"product" api:"required"`
 	JSON    licenseActivateResponseJSON    `json:"-"`
 }
 
@@ -98,9 +98,9 @@ func (r licenseActivateResponseJSON) RawJSON() string {
 // Related product info. Present if the license key is tied to a product.
 type LicenseActivateResponseProduct struct {
 	// Unique identifier for the product.
-	ProductID string `json:"product_id,required"`
+	ProductID string `json:"product_id" api:"required"`
 	// Name of the product, if set by the merchant.
-	Name string                             `json:"name,nullable"`
+	Name string                             `json:"name" api:"nullable"`
 	JSON licenseActivateResponseProductJSON `json:"-"`
 }
 
@@ -122,7 +122,7 @@ func (r licenseActivateResponseProductJSON) RawJSON() string {
 }
 
 type LicenseValidateResponse struct {
-	Valid bool                        `json:"valid,required"`
+	Valid bool                        `json:"valid" api:"required"`
 	JSON  licenseValidateResponseJSON `json:"-"`
 }
 
@@ -143,8 +143,8 @@ func (r licenseValidateResponseJSON) RawJSON() string {
 }
 
 type LicenseActivateParams struct {
-	LicenseKey param.Field[string] `json:"license_key,required"`
-	Name       param.Field[string] `json:"name,required"`
+	LicenseKey param.Field[string] `json:"license_key" api:"required"`
+	Name       param.Field[string] `json:"name" api:"required"`
 }
 
 func (r LicenseActivateParams) MarshalJSON() (data []byte, err error) {
@@ -152,8 +152,8 @@ func (r LicenseActivateParams) MarshalJSON() (data []byte, err error) {
 }
 
 type LicenseDeactivateParams struct {
-	LicenseKey           param.Field[string] `json:"license_key,required"`
-	LicenseKeyInstanceID param.Field[string] `json:"license_key_instance_id,required"`
+	LicenseKey           param.Field[string] `json:"license_key" api:"required"`
+	LicenseKeyInstanceID param.Field[string] `json:"license_key_instance_id" api:"required"`
 }
 
 func (r LicenseDeactivateParams) MarshalJSON() (data []byte, err error) {
@@ -161,7 +161,7 @@ func (r LicenseDeactivateParams) MarshalJSON() (data []byte, err error) {
 }
 
 type LicenseValidateParams struct {
-	LicenseKey           param.Field[string] `json:"license_key,required"`
+	LicenseKey           param.Field[string] `json:"license_key" api:"required"`
 	LicenseKeyInstanceID param.Field[string] `json:"license_key_instance_id"`
 }
 

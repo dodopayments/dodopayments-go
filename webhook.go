@@ -160,27 +160,27 @@ func (r *WebhookService) Unwrap(payload []byte, headers http.Header, opts ...opt
 
 type WebhookDetails struct {
 	// The webhook's ID.
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Created at timestamp
-	CreatedAt string `json:"created_at,required"`
+	CreatedAt string `json:"created_at" api:"required"`
 	// An example webhook name.
-	Description string `json:"description,required"`
+	Description string `json:"description" api:"required"`
 	// Metadata of the webhook
-	Metadata map[string]string `json:"metadata,required"`
+	Metadata map[string]string `json:"metadata" api:"required"`
 	// Updated at timestamp
-	UpdatedAt string `json:"updated_at,required"`
+	UpdatedAt string `json:"updated_at" api:"required"`
 	// Url endpoint of the webhook
-	URL string `json:"url,required"`
+	URL string `json:"url" api:"required"`
 	// Status of the webhook.
 	//
 	// If true, events are not sent
-	Disabled bool `json:"disabled,nullable"`
+	Disabled bool `json:"disabled" api:"nullable"`
 	// Filter events to the webhook.
 	//
 	// Webhook event will only be sent for events in the list.
-	FilterTypes []string `json:"filter_types,nullable"`
+	FilterTypes []string `json:"filter_types" api:"nullable"`
 	// Configured rate limit
-	RateLimit int64              `json:"rate_limit,nullable"`
+	RateLimit int64              `json:"rate_limit" api:"nullable"`
 	JSON      webhookDetailsJSON `json:"-"`
 }
 
@@ -208,7 +208,7 @@ func (r webhookDetailsJSON) RawJSON() string {
 }
 
 type WebhookGetSecretResponse struct {
-	Secret string                       `json:"secret,required"`
+	Secret string                       `json:"secret" api:"required"`
 	JSON   webhookGetSecretResponseJSON `json:"-"`
 }
 
@@ -230,12 +230,12 @@ func (r webhookGetSecretResponseJSON) RawJSON() string {
 
 type DisputeAcceptedWebhookEvent struct {
 	// The business identifier
-	BusinessID string  `json:"business_id,required"`
-	Data       Dispute `json:"data,required"`
+	BusinessID string  `json:"business_id" api:"required"`
+	Data       Dispute `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type DisputeAcceptedWebhookEventType `json:"type,required"`
+	Type DisputeAcceptedWebhookEventType `json:"type" api:"required"`
 	JSON disputeAcceptedWebhookEventJSON `json:"-"`
 }
 
@@ -279,12 +279,12 @@ func (r DisputeAcceptedWebhookEventType) IsKnown() bool {
 
 type DisputeCancelledWebhookEvent struct {
 	// The business identifier
-	BusinessID string  `json:"business_id,required"`
-	Data       Dispute `json:"data,required"`
+	BusinessID string  `json:"business_id" api:"required"`
+	Data       Dispute `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type DisputeCancelledWebhookEventType `json:"type,required"`
+	Type DisputeCancelledWebhookEventType `json:"type" api:"required"`
 	JSON disputeCancelledWebhookEventJSON `json:"-"`
 }
 
@@ -328,12 +328,12 @@ func (r DisputeCancelledWebhookEventType) IsKnown() bool {
 
 type DisputeChallengedWebhookEvent struct {
 	// The business identifier
-	BusinessID string  `json:"business_id,required"`
-	Data       Dispute `json:"data,required"`
+	BusinessID string  `json:"business_id" api:"required"`
+	Data       Dispute `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type DisputeChallengedWebhookEventType `json:"type,required"`
+	Type DisputeChallengedWebhookEventType `json:"type" api:"required"`
 	JSON disputeChallengedWebhookEventJSON `json:"-"`
 }
 
@@ -377,12 +377,12 @@ func (r DisputeChallengedWebhookEventType) IsKnown() bool {
 
 type DisputeExpiredWebhookEvent struct {
 	// The business identifier
-	BusinessID string  `json:"business_id,required"`
-	Data       Dispute `json:"data,required"`
+	BusinessID string  `json:"business_id" api:"required"`
+	Data       Dispute `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type DisputeExpiredWebhookEventType `json:"type,required"`
+	Type DisputeExpiredWebhookEventType `json:"type" api:"required"`
 	JSON disputeExpiredWebhookEventJSON `json:"-"`
 }
 
@@ -426,12 +426,12 @@ func (r DisputeExpiredWebhookEventType) IsKnown() bool {
 
 type DisputeLostWebhookEvent struct {
 	// The business identifier
-	BusinessID string  `json:"business_id,required"`
-	Data       Dispute `json:"data,required"`
+	BusinessID string  `json:"business_id" api:"required"`
+	Data       Dispute `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type DisputeLostWebhookEventType `json:"type,required"`
+	Type DisputeLostWebhookEventType `json:"type" api:"required"`
 	JSON disputeLostWebhookEventJSON `json:"-"`
 }
 
@@ -475,12 +475,12 @@ func (r DisputeLostWebhookEventType) IsKnown() bool {
 
 type DisputeOpenedWebhookEvent struct {
 	// The business identifier
-	BusinessID string  `json:"business_id,required"`
-	Data       Dispute `json:"data,required"`
+	BusinessID string  `json:"business_id" api:"required"`
+	Data       Dispute `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type DisputeOpenedWebhookEventType `json:"type,required"`
+	Type DisputeOpenedWebhookEventType `json:"type" api:"required"`
 	JSON disputeOpenedWebhookEventJSON `json:"-"`
 }
 
@@ -524,12 +524,12 @@ func (r DisputeOpenedWebhookEventType) IsKnown() bool {
 
 type DisputeWonWebhookEvent struct {
 	// The business identifier
-	BusinessID string  `json:"business_id,required"`
-	Data       Dispute `json:"data,required"`
+	BusinessID string  `json:"business_id" api:"required"`
+	Data       Dispute `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type DisputeWonWebhookEventType `json:"type,required"`
+	Type DisputeWonWebhookEventType `json:"type" api:"required"`
 	JSON disputeWonWebhookEventJSON `json:"-"`
 }
 
@@ -573,12 +573,12 @@ func (r DisputeWonWebhookEventType) IsKnown() bool {
 
 type LicenseKeyCreatedWebhookEvent struct {
 	// The business identifier
-	BusinessID string     `json:"business_id,required"`
-	Data       LicenseKey `json:"data,required"`
+	BusinessID string     `json:"business_id" api:"required"`
+	Data       LicenseKey `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type LicenseKeyCreatedWebhookEventType `json:"type,required"`
+	Type LicenseKeyCreatedWebhookEventType `json:"type" api:"required"`
 	JSON licenseKeyCreatedWebhookEventJSON `json:"-"`
 }
 
@@ -622,12 +622,12 @@ func (r LicenseKeyCreatedWebhookEventType) IsKnown() bool {
 
 type PaymentCancelledWebhookEvent struct {
 	// The business identifier
-	BusinessID string  `json:"business_id,required"`
-	Data       Payment `json:"data,required"`
+	BusinessID string  `json:"business_id" api:"required"`
+	Data       Payment `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type PaymentCancelledWebhookEventType `json:"type,required"`
+	Type PaymentCancelledWebhookEventType `json:"type" api:"required"`
 	JSON paymentCancelledWebhookEventJSON `json:"-"`
 }
 
@@ -671,12 +671,12 @@ func (r PaymentCancelledWebhookEventType) IsKnown() bool {
 
 type PaymentFailedWebhookEvent struct {
 	// The business identifier
-	BusinessID string  `json:"business_id,required"`
-	Data       Payment `json:"data,required"`
+	BusinessID string  `json:"business_id" api:"required"`
+	Data       Payment `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type PaymentFailedWebhookEventType `json:"type,required"`
+	Type PaymentFailedWebhookEventType `json:"type" api:"required"`
 	JSON paymentFailedWebhookEventJSON `json:"-"`
 }
 
@@ -720,12 +720,12 @@ func (r PaymentFailedWebhookEventType) IsKnown() bool {
 
 type PaymentProcessingWebhookEvent struct {
 	// The business identifier
-	BusinessID string  `json:"business_id,required"`
-	Data       Payment `json:"data,required"`
+	BusinessID string  `json:"business_id" api:"required"`
+	Data       Payment `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type PaymentProcessingWebhookEventType `json:"type,required"`
+	Type PaymentProcessingWebhookEventType `json:"type" api:"required"`
 	JSON paymentProcessingWebhookEventJSON `json:"-"`
 }
 
@@ -769,12 +769,12 @@ func (r PaymentProcessingWebhookEventType) IsKnown() bool {
 
 type PaymentSucceededWebhookEvent struct {
 	// The business identifier
-	BusinessID string  `json:"business_id,required"`
-	Data       Payment `json:"data,required"`
+	BusinessID string  `json:"business_id" api:"required"`
+	Data       Payment `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type PaymentSucceededWebhookEventType `json:"type,required"`
+	Type PaymentSucceededWebhookEventType `json:"type" api:"required"`
 	JSON paymentSucceededWebhookEventJSON `json:"-"`
 }
 
@@ -818,12 +818,12 @@ func (r PaymentSucceededWebhookEventType) IsKnown() bool {
 
 type RefundFailedWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	Data       Refund `json:"data,required"`
+	BusinessID string `json:"business_id" api:"required"`
+	Data       Refund `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type RefundFailedWebhookEventType `json:"type,required"`
+	Type RefundFailedWebhookEventType `json:"type" api:"required"`
 	JSON refundFailedWebhookEventJSON `json:"-"`
 }
 
@@ -867,12 +867,12 @@ func (r RefundFailedWebhookEventType) IsKnown() bool {
 
 type RefundSucceededWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
-	Data       Refund `json:"data,required"`
+	BusinessID string `json:"business_id" api:"required"`
+	Data       Refund `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type RefundSucceededWebhookEventType `json:"type,required"`
+	Type RefundSucceededWebhookEventType `json:"type" api:"required"`
 	JSON refundSucceededWebhookEventJSON `json:"-"`
 }
 
@@ -916,13 +916,13 @@ func (r RefundSucceededWebhookEventType) IsKnown() bool {
 
 type SubscriptionActiveWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Response struct representing subscription details
-	Data Subscription `json:"data,required"`
+	Data Subscription `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type SubscriptionActiveWebhookEventType `json:"type,required"`
+	Type SubscriptionActiveWebhookEventType `json:"type" api:"required"`
 	JSON subscriptionActiveWebhookEventJSON `json:"-"`
 }
 
@@ -966,13 +966,13 @@ func (r SubscriptionActiveWebhookEventType) IsKnown() bool {
 
 type SubscriptionCancelledWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Response struct representing subscription details
-	Data Subscription `json:"data,required"`
+	Data Subscription `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type SubscriptionCancelledWebhookEventType `json:"type,required"`
+	Type SubscriptionCancelledWebhookEventType `json:"type" api:"required"`
 	JSON subscriptionCancelledWebhookEventJSON `json:"-"`
 }
 
@@ -1016,13 +1016,13 @@ func (r SubscriptionCancelledWebhookEventType) IsKnown() bool {
 
 type SubscriptionExpiredWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Response struct representing subscription details
-	Data Subscription `json:"data,required"`
+	Data Subscription `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type SubscriptionExpiredWebhookEventType `json:"type,required"`
+	Type SubscriptionExpiredWebhookEventType `json:"type" api:"required"`
 	JSON subscriptionExpiredWebhookEventJSON `json:"-"`
 }
 
@@ -1066,13 +1066,13 @@ func (r SubscriptionExpiredWebhookEventType) IsKnown() bool {
 
 type SubscriptionFailedWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Response struct representing subscription details
-	Data Subscription `json:"data,required"`
+	Data Subscription `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type SubscriptionFailedWebhookEventType `json:"type,required"`
+	Type SubscriptionFailedWebhookEventType `json:"type" api:"required"`
 	JSON subscriptionFailedWebhookEventJSON `json:"-"`
 }
 
@@ -1116,13 +1116,13 @@ func (r SubscriptionFailedWebhookEventType) IsKnown() bool {
 
 type SubscriptionOnHoldWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Response struct representing subscription details
-	Data Subscription `json:"data,required"`
+	Data Subscription `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type SubscriptionOnHoldWebhookEventType `json:"type,required"`
+	Type SubscriptionOnHoldWebhookEventType `json:"type" api:"required"`
 	JSON subscriptionOnHoldWebhookEventJSON `json:"-"`
 }
 
@@ -1166,13 +1166,13 @@ func (r SubscriptionOnHoldWebhookEventType) IsKnown() bool {
 
 type SubscriptionPlanChangedWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Response struct representing subscription details
-	Data Subscription `json:"data,required"`
+	Data Subscription `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type SubscriptionPlanChangedWebhookEventType `json:"type,required"`
+	Type SubscriptionPlanChangedWebhookEventType `json:"type" api:"required"`
 	JSON subscriptionPlanChangedWebhookEventJSON `json:"-"`
 }
 
@@ -1216,13 +1216,13 @@ func (r SubscriptionPlanChangedWebhookEventType) IsKnown() bool {
 
 type SubscriptionRenewedWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Response struct representing subscription details
-	Data Subscription `json:"data,required"`
+	Data Subscription `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type SubscriptionRenewedWebhookEventType `json:"type,required"`
+	Type SubscriptionRenewedWebhookEventType `json:"type" api:"required"`
 	JSON subscriptionRenewedWebhookEventJSON `json:"-"`
 }
 
@@ -1266,13 +1266,13 @@ func (r SubscriptionRenewedWebhookEventType) IsKnown() bool {
 
 type SubscriptionUpdatedWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Response struct representing subscription details
-	Data Subscription `json:"data,required"`
+	Data Subscription `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type SubscriptionUpdatedWebhookEventType `json:"type,required"`
+	Type SubscriptionUpdatedWebhookEventType `json:"type" api:"required"`
 	JSON subscriptionUpdatedWebhookEventJSON `json:"-"`
 }
 
@@ -1316,14 +1316,14 @@ func (r SubscriptionUpdatedWebhookEventType) IsKnown() bool {
 
 type UnsafeUnwrapWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// This field can have the runtime type of [Dispute], [LicenseKey], [Payment],
 	// [Refund], [Subscription].
-	Data interface{} `json:"data,required"`
+	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type  UnsafeUnwrapWebhookEventType `json:"type,required"`
+	Type  UnsafeUnwrapWebhookEventType `json:"type" api:"required"`
 	JSON  unsafeUnwrapWebhookEventJSON `json:"-"`
 	union UnsafeUnwrapWebhookEventUnion
 }
@@ -1520,14 +1520,14 @@ func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 
 type UnwrapWebhookEvent struct {
 	// The business identifier
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// This field can have the runtime type of [Dispute], [LicenseKey], [Payment],
 	// [Refund], [Subscription].
-	Data interface{} `json:"data,required"`
+	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
-	Timestamp time.Time `json:"timestamp,required" format:"date-time"`
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
-	Type  UnwrapWebhookEventType `json:"type,required"`
+	Type  UnwrapWebhookEventType `json:"type" api:"required"`
 	JSON  unwrapWebhookEventJSON `json:"-"`
 	union UnwrapWebhookEventUnion
 }
@@ -1724,7 +1724,7 @@ func (r UnwrapWebhookEventType) IsKnown() bool {
 
 type WebhookNewParams struct {
 	// Url of the webhook
-	URL         param.Field[string] `json:"url,required"`
+	URL         param.Field[string] `json:"url" api:"required"`
 	Description param.Field[string] `json:"description"`
 	// Create the webhook in a disabled state.
 	//

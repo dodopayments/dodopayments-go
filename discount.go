@@ -127,31 +127,31 @@ type Discount struct {
 	//   - If `discount_type` is `percentage`, this is in **basis points** (e.g., 540 =>
 	//     5.4%).
 	//   - Otherwise, this is **USD cents** (e.g., 100 => `$1.00`).
-	Amount int64 `json:"amount,required"`
+	Amount int64 `json:"amount" api:"required"`
 	// The business this discount belongs to.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// The discount code (up to 16 chars).
-	Code string `json:"code,required"`
+	Code string `json:"code" api:"required"`
 	// Timestamp when the discount is created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The unique discount ID
-	DiscountID string `json:"discount_id,required"`
+	DiscountID string `json:"discount_id" api:"required"`
 	// List of product IDs to which this discount is restricted.
-	RestrictedTo []string `json:"restricted_to,required"`
+	RestrictedTo []string `json:"restricted_to" api:"required"`
 	// How many times this discount has been used.
-	TimesUsed int64 `json:"times_used,required"`
+	TimesUsed int64 `json:"times_used" api:"required"`
 	// The type of discount, e.g. `percentage`, `flat`, or `flat_per_unit`.
-	Type DiscountType `json:"type,required"`
+	Type DiscountType `json:"type" api:"required"`
 	// Optional date/time after which discount is expired.
-	ExpiresAt time.Time `json:"expires_at,nullable" format:"date-time"`
+	ExpiresAt time.Time `json:"expires_at" api:"nullable" format:"date-time"`
 	// Name for the Discount
-	Name string `json:"name,nullable"`
+	Name string `json:"name" api:"nullable"`
 	// Number of subscription billing cycles this discount is valid for. If not
 	// provided, the discount will be applied indefinitely to all recurring payments
 	// related to the subscription.
-	SubscriptionCycles int64 `json:"subscription_cycles,nullable"`
+	SubscriptionCycles int64 `json:"subscription_cycles" api:"nullable"`
 	// Usage limit for this discount, if any.
-	UsageLimit int64        `json:"usage_limit,nullable"`
+	UsageLimit int64        `json:"usage_limit" api:"nullable"`
 	JSON       discountJSON `json:"-"`
 }
 
@@ -204,9 +204,9 @@ type DiscountNewParams struct {
 	//     example, `540` means `5.4%`.
 	//
 	// Must be at least 1.
-	Amount param.Field[int64] `json:"amount,required"`
+	Amount param.Field[int64] `json:"amount" api:"required"`
 	// The discount type (e.g. `percentage`, `flat`, or `flat_per_unit`).
-	Type param.Field[DiscountType] `json:"type,required"`
+	Type param.Field[DiscountType] `json:"type" api:"required"`
 	// Optionally supply a code (will be uppercased).
 	//
 	// - Must be at least 3 characters if provided.

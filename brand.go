@@ -83,19 +83,19 @@ func (r *BrandService) UpdateImages(ctx context.Context, id string, opts ...opti
 }
 
 type Brand struct {
-	BrandID             string                  `json:"brand_id,required"`
-	BusinessID          string                  `json:"business_id,required"`
-	Enabled             bool                    `json:"enabled,required"`
-	StatementDescriptor string                  `json:"statement_descriptor,required"`
-	VerificationEnabled bool                    `json:"verification_enabled,required"`
-	VerificationStatus  BrandVerificationStatus `json:"verification_status,required"`
-	Description         string                  `json:"description,nullable"`
-	Image               string                  `json:"image,nullable"`
-	Name                string                  `json:"name,nullable"`
+	BrandID             string                  `json:"brand_id" api:"required"`
+	BusinessID          string                  `json:"business_id" api:"required"`
+	Enabled             bool                    `json:"enabled" api:"required"`
+	StatementDescriptor string                  `json:"statement_descriptor" api:"required"`
+	VerificationEnabled bool                    `json:"verification_enabled" api:"required"`
+	VerificationStatus  BrandVerificationStatus `json:"verification_status" api:"required"`
+	Description         string                  `json:"description" api:"nullable"`
+	Image               string                  `json:"image" api:"nullable"`
+	Name                string                  `json:"name" api:"nullable"`
 	// Incase the brand verification fails or is put on hold
-	ReasonForHold string    `json:"reason_for_hold,nullable"`
-	SupportEmail  string    `json:"support_email,nullable"`
-	URL           string    `json:"url,nullable"`
+	ReasonForHold string    `json:"reason_for_hold" api:"nullable"`
+	SupportEmail  string    `json:"support_email" api:"nullable"`
+	URL           string    `json:"url" api:"nullable"`
 	JSON          brandJSON `json:"-"`
 }
 
@@ -144,7 +144,7 @@ func (r BrandVerificationStatus) IsKnown() bool {
 
 type BrandListResponse struct {
 	// List of brands for this business
-	Items []Brand               `json:"items,required"`
+	Items []Brand               `json:"items" api:"required"`
 	JSON  brandListResponseJSON `json:"-"`
 }
 
@@ -166,9 +166,9 @@ func (r brandListResponseJSON) RawJSON() string {
 
 type BrandUpdateImagesResponse struct {
 	// UUID that will be used as the image identifier/key suffix
-	ImageID string `json:"image_id,required" format:"uuid"`
+	ImageID string `json:"image_id" api:"required" format:"uuid"`
 	// Presigned URL to upload the image
-	URL  string                        `json:"url,required"`
+	URL  string                        `json:"url" api:"required"`
 	JSON brandUpdateImagesResponseJSON `json:"-"`
 }
 

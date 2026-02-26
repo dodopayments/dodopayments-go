@@ -215,13 +215,13 @@ func (r *UsageEventService) Ingest(ctx context.Context, body UsageEventIngestPar
 }
 
 type Event struct {
-	BusinessID string    `json:"business_id,required"`
-	CustomerID string    `json:"customer_id,required"`
-	EventID    string    `json:"event_id,required"`
-	EventName  string    `json:"event_name,required"`
-	Timestamp  time.Time `json:"timestamp,required" format:"date-time"`
+	BusinessID string    `json:"business_id" api:"required"`
+	CustomerID string    `json:"customer_id" api:"required"`
+	EventID    string    `json:"event_id" api:"required"`
+	EventName  string    `json:"event_name" api:"required"`
+	Timestamp  time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
-	Metadata map[string]EventMetadataUnion `json:"metadata,nullable"`
+	Metadata map[string]EventMetadataUnion `json:"metadata" api:"nullable"`
 	JSON     eventJSON                     `json:"-"`
 }
 
@@ -278,12 +278,12 @@ func init() {
 
 type EventInputParam struct {
 	// customer_id of the customer whose usage needs to be tracked
-	CustomerID param.Field[string] `json:"customer_id,required"`
+	CustomerID param.Field[string] `json:"customer_id" api:"required"`
 	// Event Id acts as an idempotency key. Any subsequent requests with the same
 	// event_id will be ignored
-	EventID param.Field[string] `json:"event_id,required"`
+	EventID param.Field[string] `json:"event_id" api:"required"`
 	// Name of the event
-	EventName param.Field[string] `json:"event_name,required"`
+	EventName param.Field[string] `json:"event_name" api:"required"`
 	// Custom metadata. Only key value pairs are accepted, objects or arrays submitted
 	// will be rejected.
 	Metadata param.Field[map[string]EventInputMetadataUnionParam] `json:"metadata"`
@@ -304,7 +304,7 @@ type EventInputMetadataUnionParam interface {
 }
 
 type UsageEventIngestResponse struct {
-	IngestedCount int64                        `json:"ingested_count,required"`
+	IngestedCount int64                        `json:"ingested_count" api:"required"`
 	JSON          usageEventIngestResponseJSON `json:"-"`
 }
 
@@ -353,7 +353,7 @@ func (r UsageEventListParams) URLQuery() (v url.Values) {
 
 type UsageEventIngestParams struct {
 	// List of events to be pushed
-	Events param.Field[[]EventInputParam] `json:"events,required"`
+	Events param.Field[[]EventInputParam] `json:"events" api:"required"`
 }
 
 func (r UsageEventIngestParams) MarshalJSON() (data []byte, err error) {

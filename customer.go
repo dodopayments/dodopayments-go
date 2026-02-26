@@ -104,14 +104,14 @@ func (r *CustomerService) GetPaymentMethods(ctx context.Context, customerID stri
 }
 
 type Customer struct {
-	BusinessID string    `json:"business_id,required"`
-	CreatedAt  time.Time `json:"created_at,required" format:"date-time"`
-	CustomerID string    `json:"customer_id,required"`
-	Email      string    `json:"email,required"`
-	Name       string    `json:"name,required"`
+	BusinessID string    `json:"business_id" api:"required"`
+	CreatedAt  time.Time `json:"created_at" api:"required" format:"date-time"`
+	CustomerID string    `json:"customer_id" api:"required"`
+	Email      string    `json:"email" api:"required"`
+	Name       string    `json:"name" api:"required"`
 	// Additional metadata for the customer
 	Metadata    map[string]string `json:"metadata"`
-	PhoneNumber string            `json:"phone_number,nullable"`
+	PhoneNumber string            `json:"phone_number" api:"nullable"`
 	JSON        customerJSON      `json:"-"`
 }
 
@@ -137,7 +137,7 @@ func (r customerJSON) RawJSON() string {
 }
 
 type CustomerPortalSession struct {
-	Link string                    `json:"link,required"`
+	Link string                    `json:"link" api:"required"`
 	JSON customerPortalSessionJSON `json:"-"`
 }
 
@@ -158,7 +158,7 @@ func (r customerPortalSessionJSON) RawJSON() string {
 }
 
 type CustomerGetPaymentMethodsResponse struct {
-	Items []CustomerGetPaymentMethodsResponseItem `json:"items,required"`
+	Items []CustomerGetPaymentMethodsResponseItem `json:"items" api:"required"`
 	JSON  customerGetPaymentMethodsResponseJSON   `json:"-"`
 }
 
@@ -179,12 +179,12 @@ func (r customerGetPaymentMethodsResponseJSON) RawJSON() string {
 }
 
 type CustomerGetPaymentMethodsResponseItem struct {
-	PaymentMethod     CustomerGetPaymentMethodsResponseItemsPaymentMethod `json:"payment_method,required"`
-	PaymentMethodID   string                                              `json:"payment_method_id,required"`
-	Card              CustomerGetPaymentMethodsResponseItemsCard          `json:"card,nullable"`
-	LastUsedAt        time.Time                                           `json:"last_used_at,nullable" format:"date-time"`
-	PaymentMethodType PaymentMethodTypes                                  `json:"payment_method_type,nullable"`
-	RecurringEnabled  bool                                                `json:"recurring_enabled,nullable"`
+	PaymentMethod     CustomerGetPaymentMethodsResponseItemsPaymentMethod `json:"payment_method" api:"required"`
+	PaymentMethodID   string                                              `json:"payment_method_id" api:"required"`
+	Card              CustomerGetPaymentMethodsResponseItemsCard          `json:"card" api:"nullable"`
+	LastUsedAt        time.Time                                           `json:"last_used_at" api:"nullable" format:"date-time"`
+	PaymentMethodType PaymentMethodTypes                                  `json:"payment_method_type" api:"nullable"`
+	RecurringEnabled  bool                                                `json:"recurring_enabled" api:"nullable"`
 	JSON              customerGetPaymentMethodsResponseItemJSON           `json:"-"`
 }
 
@@ -238,14 +238,14 @@ func (r CustomerGetPaymentMethodsResponseItemsPaymentMethod) IsKnown() bool {
 }
 
 type CustomerGetPaymentMethodsResponseItemsCard struct {
-	CardHolderName string `json:"card_holder_name,nullable"`
+	CardHolderName string `json:"card_holder_name" api:"nullable"`
 	// ISO country code alpha2 variant
-	CardIssuingCountry CountryCode                                    `json:"card_issuing_country,nullable"`
-	CardNetwork        string                                         `json:"card_network,nullable"`
-	CardType           string                                         `json:"card_type,nullable"`
-	ExpiryMonth        string                                         `json:"expiry_month,nullable"`
-	ExpiryYear         string                                         `json:"expiry_year,nullable"`
-	Last4Digits        string                                         `json:"last4_digits,nullable"`
+	CardIssuingCountry CountryCode                                    `json:"card_issuing_country" api:"nullable"`
+	CardNetwork        string                                         `json:"card_network" api:"nullable"`
+	CardType           string                                         `json:"card_type" api:"nullable"`
+	ExpiryMonth        string                                         `json:"expiry_month" api:"nullable"`
+	ExpiryYear         string                                         `json:"expiry_year" api:"nullable"`
+	Last4Digits        string                                         `json:"last4_digits" api:"nullable"`
 	JSON               customerGetPaymentMethodsResponseItemsCardJSON `json:"-"`
 }
 
@@ -272,8 +272,8 @@ func (r customerGetPaymentMethodsResponseItemsCardJSON) RawJSON() string {
 }
 
 type CustomerNewParams struct {
-	Email param.Field[string] `json:"email,required"`
-	Name  param.Field[string] `json:"name,required"`
+	Email param.Field[string] `json:"email" api:"required"`
+	Name  param.Field[string] `json:"name" api:"required"`
 	// Additional metadata for the customer
 	Metadata    param.Field[map[string]string] `json:"metadata"`
 	PhoneNumber param.Field[string]            `json:"phone_number"`

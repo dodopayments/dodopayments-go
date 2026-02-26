@@ -131,22 +131,22 @@ func (r *ProductService) UpdateFiles(ctx context.Context, id string, body Produc
 }
 
 type AddMeterToPrice struct {
-	MeterID string `json:"meter_id,required"`
+	MeterID string `json:"meter_id" api:"required"`
 	// The price per unit in lowest denomination. Must be greater than zero. Supports
 	// up to 5 digits before decimal point and 12 decimal places.
-	PricePerUnit string `json:"price_per_unit,required"`
+	PricePerUnit string `json:"price_per_unit" api:"required"`
 	// Optional credit entitlement ID to link this meter to for credit-based billing
-	CreditEntitlementID string `json:"credit_entitlement_id,nullable"`
+	CreditEntitlementID string `json:"credit_entitlement_id" api:"nullable"`
 	// Meter description. Will ignored on Request, but will be shown in response
-	Description   string `json:"description,nullable"`
-	FreeThreshold int64  `json:"free_threshold,nullable"`
+	Description   string `json:"description" api:"nullable"`
+	FreeThreshold int64  `json:"free_threshold" api:"nullable"`
 	// Meter measurement unit. Will ignored on Request, but will be shown in response
-	MeasurementUnit string `json:"measurement_unit,nullable"`
+	MeasurementUnit string `json:"measurement_unit" api:"nullable"`
 	// Number of meter units that equal one credit. Required when credit_entitlement_id
 	// is set.
-	MeterUnitsPerCredit string `json:"meter_units_per_credit,nullable"`
+	MeterUnitsPerCredit string `json:"meter_units_per_credit" api:"nullable"`
 	// Meter name. Will ignored on Request, but will be shown in response
-	Name string              `json:"name,nullable"`
+	Name string              `json:"name" api:"nullable"`
 	JSON addMeterToPriceJSON `json:"-"`
 }
 
@@ -173,10 +173,10 @@ func (r addMeterToPriceJSON) RawJSON() string {
 }
 
 type AddMeterToPriceParam struct {
-	MeterID param.Field[string] `json:"meter_id,required"`
+	MeterID param.Field[string] `json:"meter_id" api:"required"`
 	// The price per unit in lowest denomination. Must be greater than zero. Supports
 	// up to 5 digits before decimal point and 12 decimal places.
-	PricePerUnit param.Field[string] `json:"price_per_unit,required"`
+	PricePerUnit param.Field[string] `json:"price_per_unit" api:"required"`
 	// Optional credit entitlement ID to link this meter to for credit-based billing
 	CreditEntitlementID param.Field[string] `json:"credit_entitlement_id"`
 	// Meter description. Will ignored on Request, but will be shown in response
@@ -196,8 +196,8 @@ func (r AddMeterToPriceParam) MarshalJSON() (data []byte, err error) {
 }
 
 type LicenseKeyDuration struct {
-	Count    int64                  `json:"count,required"`
-	Interval TimeInterval           `json:"interval,required"`
+	Count    int64                  `json:"count" api:"required"`
+	Interval TimeInterval           `json:"interval" api:"required"`
 	JSON     licenseKeyDurationJSON `json:"-"`
 }
 
@@ -219,8 +219,8 @@ func (r licenseKeyDurationJSON) RawJSON() string {
 }
 
 type LicenseKeyDurationParam struct {
-	Count    param.Field[int64]        `json:"count,required"`
-	Interval param.Field[TimeInterval] `json:"interval,required"`
+	Count    param.Field[int64]        `json:"count" api:"required"`
+	Interval param.Field[TimeInterval] `json:"interval" api:"required"`
 }
 
 func (r LicenseKeyDurationParam) MarshalJSON() (data []byte, err error) {
@@ -230,13 +230,13 @@ func (r LicenseKeyDurationParam) MarshalJSON() (data []byte, err error) {
 // One-time price details.
 type Price struct {
 	// The currency in which the payment is made.
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount int64 `json:"discount,required"`
+	Discount int64 `json:"discount" api:"required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
 	// Purchasing power parity feature is not available as of now.
-	PurchasingPowerParity bool      `json:"purchasing_power_parity,required"`
-	Type                  PriceType `json:"type,required"`
+	PurchasingPowerParity bool      `json:"purchasing_power_parity" api:"required"`
+	Type                  PriceType `json:"type" api:"required"`
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	FixedPrice int64 `json:"fixed_price"`
@@ -264,9 +264,9 @@ type Price struct {
 	// A suggested price for the user to pay. This value is only considered if
 	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
 	// ignored.
-	SuggestedPrice int64 `json:"suggested_price,nullable"`
+	SuggestedPrice int64 `json:"suggested_price" api:"nullable"`
 	// Indicates if the price is tax inclusive.
-	TaxInclusive bool `json:"tax_inclusive,nullable"`
+	TaxInclusive bool `json:"tax_inclusive" api:"nullable"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays int64     `json:"trial_period_days"`
 	JSON            priceJSON `json:"-"`
@@ -346,28 +346,28 @@ func init() {
 // One-time price details.
 type PriceOneTimePrice struct {
 	// The currency in which the payment is made.
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount int64 `json:"discount,required"`
+	Discount int64 `json:"discount" api:"required"`
 	// The payment amount, in the smallest denomination of the currency (e.g., cents
 	// for USD). For example, to charge $1.00, pass `100`.
 	//
 	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
 	// represents the **minimum** amount the customer must pay.
-	Price int64 `json:"price,required"`
+	Price int64 `json:"price" api:"required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
 	// Purchasing power parity feature is not available as of now.
-	PurchasingPowerParity bool                  `json:"purchasing_power_parity,required"`
-	Type                  PriceOneTimePriceType `json:"type,required"`
+	PurchasingPowerParity bool                  `json:"purchasing_power_parity" api:"required"`
+	Type                  PriceOneTimePriceType `json:"type" api:"required"`
 	// Indicates whether the customer can pay any amount they choose. If set to `true`,
 	// the [`price`](Self::price) field is the minimum amount.
 	PayWhatYouWant bool `json:"pay_what_you_want"`
 	// A suggested price for the user to pay. This value is only considered if
 	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
 	// ignored.
-	SuggestedPrice int64 `json:"suggested_price,nullable"`
+	SuggestedPrice int64 `json:"suggested_price" api:"nullable"`
 	// Indicates if the price is tax inclusive.
-	TaxInclusive bool                  `json:"tax_inclusive,nullable"`
+	TaxInclusive bool                  `json:"tax_inclusive" api:"nullable"`
 	JSON         priceOneTimePriceJSON `json:"-"`
 }
 
@@ -413,28 +413,28 @@ func (r PriceOneTimePriceType) IsKnown() bool {
 // Recurring price details.
 type PriceRecurringPrice struct {
 	// The currency in which the payment is made.
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount int64 `json:"discount,required"`
+	Discount int64 `json:"discount" api:"required"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
-	PaymentFrequencyCount int64 `json:"payment_frequency_count,required"`
+	PaymentFrequencyCount int64 `json:"payment_frequency_count" api:"required"`
 	// The time interval for the payment frequency (e.g., day, month, year).
-	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
+	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval" api:"required"`
 	// The payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Price int64 `json:"price,required"`
+	Price int64 `json:"price" api:"required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
 	// Purchasing power parity feature is not available as of now
-	PurchasingPowerParity bool `json:"purchasing_power_parity,required"`
+	PurchasingPowerParity bool `json:"purchasing_power_parity" api:"required"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
-	SubscriptionPeriodCount int64 `json:"subscription_period_count,required"`
+	SubscriptionPeriodCount int64 `json:"subscription_period_count" api:"required"`
 	// The time interval for the subscription period (e.g., day, month, year).
-	SubscriptionPeriodInterval TimeInterval            `json:"subscription_period_interval,required"`
-	Type                       PriceRecurringPriceType `json:"type,required"`
+	SubscriptionPeriodInterval TimeInterval            `json:"subscription_period_interval" api:"required"`
+	Type                       PriceRecurringPriceType `json:"type" api:"required"`
 	// Indicates if the price is tax inclusive
-	TaxInclusive bool `json:"tax_inclusive,nullable"`
+	TaxInclusive bool `json:"tax_inclusive" api:"nullable"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays int64                   `json:"trial_period_days"`
 	JSON            priceRecurringPriceJSON `json:"-"`
@@ -485,29 +485,29 @@ func (r PriceRecurringPriceType) IsKnown() bool {
 // Usage Based price details.
 type PriceUsageBasedPrice struct {
 	// The currency in which the payment is made.
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount int64 `json:"discount,required"`
+	Discount int64 `json:"discount" api:"required"`
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	FixedPrice int64 `json:"fixed_price,required"`
+	FixedPrice int64 `json:"fixed_price" api:"required"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
-	PaymentFrequencyCount int64 `json:"payment_frequency_count,required"`
+	PaymentFrequencyCount int64 `json:"payment_frequency_count" api:"required"`
 	// The time interval for the payment frequency (e.g., day, month, year).
-	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
+	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval" api:"required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
 	// Purchasing power parity feature is not available as of now
-	PurchasingPowerParity bool `json:"purchasing_power_parity,required"`
+	PurchasingPowerParity bool `json:"purchasing_power_parity" api:"required"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
-	SubscriptionPeriodCount int64 `json:"subscription_period_count,required"`
+	SubscriptionPeriodCount int64 `json:"subscription_period_count" api:"required"`
 	// The time interval for the subscription period (e.g., day, month, year).
-	SubscriptionPeriodInterval TimeInterval             `json:"subscription_period_interval,required"`
-	Type                       PriceUsageBasedPriceType `json:"type,required"`
-	Meters                     []AddMeterToPrice        `json:"meters,nullable"`
+	SubscriptionPeriodInterval TimeInterval             `json:"subscription_period_interval" api:"required"`
+	Type                       PriceUsageBasedPriceType `json:"type" api:"required"`
+	Meters                     []AddMeterToPrice        `json:"meters" api:"nullable"`
 	// Indicates if the price is tax inclusive
-	TaxInclusive bool                     `json:"tax_inclusive,nullable"`
+	TaxInclusive bool                     `json:"tax_inclusive" api:"nullable"`
 	JSON         priceUsageBasedPriceJSON `json:"-"`
 }
 
@@ -572,13 +572,13 @@ func (r PriceType) IsKnown() bool {
 // One-time price details.
 type PriceParam struct {
 	// The currency in which the payment is made.
-	Currency param.Field[Currency] `json:"currency,required"`
+	Currency param.Field[Currency] `json:"currency" api:"required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[int64] `json:"discount,required"`
+	Discount param.Field[int64] `json:"discount" api:"required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
 	// Purchasing power parity feature is not available as of now.
-	PurchasingPowerParity param.Field[bool]      `json:"purchasing_power_parity,required"`
-	Type                  param.Field[PriceType] `json:"type,required"`
+	PurchasingPowerParity param.Field[bool]      `json:"purchasing_power_parity" api:"required"`
+	Type                  param.Field[PriceType] `json:"type" api:"required"`
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	FixedPrice param.Field[int64]       `json:"fixed_price"`
@@ -629,19 +629,19 @@ type PriceUnionParam interface {
 // One-time price details.
 type PriceOneTimePriceParam struct {
 	// The currency in which the payment is made.
-	Currency param.Field[Currency] `json:"currency,required"`
+	Currency param.Field[Currency] `json:"currency" api:"required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[int64] `json:"discount,required"`
+	Discount param.Field[int64] `json:"discount" api:"required"`
 	// The payment amount, in the smallest denomination of the currency (e.g., cents
 	// for USD). For example, to charge $1.00, pass `100`.
 	//
 	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
 	// represents the **minimum** amount the customer must pay.
-	Price param.Field[int64] `json:"price,required"`
+	Price param.Field[int64] `json:"price" api:"required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
 	// Purchasing power parity feature is not available as of now.
-	PurchasingPowerParity param.Field[bool]                  `json:"purchasing_power_parity,required"`
-	Type                  param.Field[PriceOneTimePriceType] `json:"type,required"`
+	PurchasingPowerParity param.Field[bool]                  `json:"purchasing_power_parity" api:"required"`
+	Type                  param.Field[PriceOneTimePriceType] `json:"type" api:"required"`
 	// Indicates whether the customer can pay any amount they choose. If set to `true`,
 	// the [`price`](Self::price) field is the minimum amount.
 	PayWhatYouWant param.Field[bool] `json:"pay_what_you_want"`
@@ -662,26 +662,26 @@ func (r PriceOneTimePriceParam) implementsPriceUnionParam() {}
 // Recurring price details.
 type PriceRecurringPriceParam struct {
 	// The currency in which the payment is made.
-	Currency param.Field[Currency] `json:"currency,required"`
+	Currency param.Field[Currency] `json:"currency" api:"required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[int64] `json:"discount,required"`
+	Discount param.Field[int64] `json:"discount" api:"required"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
-	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count,required"`
+	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count" api:"required"`
 	// The time interval for the payment frequency (e.g., day, month, year).
-	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval,required"`
+	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval" api:"required"`
 	// The payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Price param.Field[int64] `json:"price,required"`
+	Price param.Field[int64] `json:"price" api:"required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
 	// Purchasing power parity feature is not available as of now
-	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity,required"`
+	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity" api:"required"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
-	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count,required"`
+	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count" api:"required"`
 	// The time interval for the subscription period (e.g., day, month, year).
-	SubscriptionPeriodInterval param.Field[TimeInterval]            `json:"subscription_period_interval,required"`
-	Type                       param.Field[PriceRecurringPriceType] `json:"type,required"`
+	SubscriptionPeriodInterval param.Field[TimeInterval]            `json:"subscription_period_interval" api:"required"`
+	Type                       param.Field[PriceRecurringPriceType] `json:"type" api:"required"`
 	// Indicates if the price is tax inclusive
 	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
@@ -697,26 +697,26 @@ func (r PriceRecurringPriceParam) implementsPriceUnionParam() {}
 // Usage Based price details.
 type PriceUsageBasedPriceParam struct {
 	// The currency in which the payment is made.
-	Currency param.Field[Currency] `json:"currency,required"`
+	Currency param.Field[Currency] `json:"currency" api:"required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[int64] `json:"discount,required"`
+	Discount param.Field[int64] `json:"discount" api:"required"`
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	FixedPrice param.Field[int64] `json:"fixed_price,required"`
+	FixedPrice param.Field[int64] `json:"fixed_price" api:"required"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
-	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count,required"`
+	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count" api:"required"`
 	// The time interval for the payment frequency (e.g., day, month, year).
-	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval,required"`
+	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval" api:"required"`
 	// Indicates if purchasing power parity adjustments are applied to the price.
 	// Purchasing power parity feature is not available as of now
-	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity,required"`
+	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity" api:"required"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
-	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count,required"`
+	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count" api:"required"`
 	// The time interval for the subscription period (e.g., day, month, year).
-	SubscriptionPeriodInterval param.Field[TimeInterval]             `json:"subscription_period_interval,required"`
-	Type                       param.Field[PriceUsageBasedPriceType] `json:"type,required"`
+	SubscriptionPeriodInterval param.Field[TimeInterval]             `json:"subscription_period_interval" api:"required"`
+	Type                       param.Field[PriceUsageBasedPriceType] `json:"type" api:"required"`
 	Meters                     param.Field[[]AddMeterToPriceParam]   `json:"meters"`
 	// Indicates if the price is tax inclusive
 	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
@@ -729,44 +729,44 @@ func (r PriceUsageBasedPriceParam) MarshalJSON() (data []byte, err error) {
 func (r PriceUsageBasedPriceParam) implementsPriceUnionParam() {}
 
 type Product struct {
-	BrandID string `json:"brand_id,required"`
+	BrandID string `json:"brand_id" api:"required"`
 	// Unique identifier for the business to which the product belongs.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Timestamp when the product was created.
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Attached credit entitlements with settings
-	CreditEntitlements []ProductCreditEntitlement `json:"credit_entitlements,required"`
+	CreditEntitlements []ProductCreditEntitlement `json:"credit_entitlements" api:"required"`
 	// Indicates if the product is recurring (e.g., subscriptions).
-	IsRecurring bool `json:"is_recurring,required"`
+	IsRecurring bool `json:"is_recurring" api:"required"`
 	// Indicates whether the product requires a license key.
-	LicenseKeyEnabled bool `json:"license_key_enabled,required"`
+	LicenseKeyEnabled bool `json:"license_key_enabled" api:"required"`
 	// Additional custom data associated with the product
-	Metadata map[string]string `json:"metadata,required"`
+	Metadata map[string]string `json:"metadata" api:"required"`
 	// Pricing information for the product.
-	Price Price `json:"price,required"`
+	Price Price `json:"price" api:"required"`
 	// Unique identifier for the product.
-	ProductID string `json:"product_id,required"`
+	ProductID string `json:"product_id" api:"required"`
 	// Tax category associated with the product.
-	TaxCategory TaxCategory `json:"tax_category,required"`
+	TaxCategory TaxCategory `json:"tax_category" api:"required"`
 	// Timestamp when the product was last updated.
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Available Addons for subscription products
-	Addons []string `json:"addons,nullable"`
+	Addons []string `json:"addons" api:"nullable"`
 	// Description of the product, optional.
-	Description            string                        `json:"description,nullable"`
-	DigitalProductDelivery ProductDigitalProductDelivery `json:"digital_product_delivery,nullable"`
+	Description            string                        `json:"description" api:"nullable"`
+	DigitalProductDelivery ProductDigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
 	// URL of the product image, optional.
-	Image string `json:"image,nullable"`
+	Image string `json:"image" api:"nullable"`
 	// Message sent upon license key activation, if applicable.
-	LicenseKeyActivationMessage string `json:"license_key_activation_message,nullable"`
+	LicenseKeyActivationMessage string `json:"license_key_activation_message" api:"nullable"`
 	// Limit on the number of activations for the license key, if enabled.
-	LicenseKeyActivationsLimit int64 `json:"license_key_activations_limit,nullable"`
+	LicenseKeyActivationsLimit int64 `json:"license_key_activations_limit" api:"nullable"`
 	// Duration of the license key validity, if enabled.
-	LicenseKeyDuration LicenseKeyDuration `json:"license_key_duration,nullable"`
+	LicenseKeyDuration LicenseKeyDuration `json:"license_key_duration" api:"nullable"`
 	// Name of the product, optional.
-	Name string `json:"name,nullable"`
+	Name string `json:"name" api:"nullable"`
 	// The product collection ID this product belongs to, if any
-	ProductCollectionID string      `json:"product_collection_id,nullable"`
+	ProductCollectionID string      `json:"product_collection_id" api:"nullable"`
 	JSON                productJSON `json:"-"`
 }
 
@@ -807,49 +807,49 @@ func (r productJSON) RawJSON() string {
 // Response struct for credit entitlement mapping
 type ProductCreditEntitlement struct {
 	// Unique ID of this mapping
-	ID string `json:"id,required" format:"uuid"`
+	ID string `json:"id" api:"required" format:"uuid"`
 	// ID of the credit entitlement
-	CreditEntitlementID string `json:"credit_entitlement_id,required"`
+	CreditEntitlementID string `json:"credit_entitlement_id" api:"required"`
 	// Name of the credit entitlement
-	CreditEntitlementName string `json:"credit_entitlement_name,required"`
+	CreditEntitlementName string `json:"credit_entitlement_name" api:"required"`
 	// Unit label for the credit entitlement
-	CreditEntitlementUnit string `json:"credit_entitlement_unit,required"`
+	CreditEntitlementUnit string `json:"credit_entitlement_unit" api:"required"`
 	// Number of credits granted
-	CreditsAmount string `json:"credits_amount,required"`
+	CreditsAmount string `json:"credits_amount" api:"required"`
 	// Whether new credit grants reduce existing overage
-	CreditsReduceOverage bool `json:"credits_reduce_overage,required"`
+	CreditsReduceOverage bool `json:"credits_reduce_overage" api:"required"`
 	// Whether overage is charged at billing
-	OverageChargeAtBilling bool `json:"overage_charge_at_billing,required"`
+	OverageChargeAtBilling bool `json:"overage_charge_at_billing" api:"required"`
 	// Whether overage is enabled
-	OverageEnabled bool `json:"overage_enabled,required"`
+	OverageEnabled bool `json:"overage_enabled" api:"required"`
 	// Whether to preserve overage balance when credits reset
-	PreserveOverageAtReset bool `json:"preserve_overage_at_reset,required"`
+	PreserveOverageAtReset bool `json:"preserve_overage_at_reset" api:"required"`
 	// Proration behavior for credit grants during plan changes
-	ProrationBehavior ProductCreditEntitlementsProrationBehavior `json:"proration_behavior,required"`
+	ProrationBehavior ProductCreditEntitlementsProrationBehavior `json:"proration_behavior" api:"required"`
 	// Whether rollover is enabled
-	RolloverEnabled bool `json:"rollover_enabled,required"`
+	RolloverEnabled bool `json:"rollover_enabled" api:"required"`
 	// Whether trial credits expire after trial
-	TrialCreditsExpireAfterTrial bool `json:"trial_credits_expire_after_trial,required"`
+	TrialCreditsExpireAfterTrial bool `json:"trial_credits_expire_after_trial" api:"required"`
 	// Currency
-	Currency Currency `json:"currency,nullable"`
+	Currency Currency `json:"currency" api:"nullable"`
 	// Days until credits expire
-	ExpiresAfterDays int64 `json:"expires_after_days,nullable"`
+	ExpiresAfterDays int64 `json:"expires_after_days" api:"nullable"`
 	// Low balance threshold percentage
-	LowBalanceThresholdPercent int64 `json:"low_balance_threshold_percent,nullable"`
+	LowBalanceThresholdPercent int64 `json:"low_balance_threshold_percent" api:"nullable"`
 	// Maximum rollover cycles
-	MaxRolloverCount int64 `json:"max_rollover_count,nullable"`
+	MaxRolloverCount int64 `json:"max_rollover_count" api:"nullable"`
 	// Overage limit
-	OverageLimit string `json:"overage_limit,nullable"`
+	OverageLimit string `json:"overage_limit" api:"nullable"`
 	// Price per unit
-	PricePerUnit string `json:"price_per_unit,nullable"`
+	PricePerUnit string `json:"price_per_unit" api:"nullable"`
 	// Rollover percentage
-	RolloverPercentage int64 `json:"rollover_percentage,nullable"`
+	RolloverPercentage int64 `json:"rollover_percentage" api:"nullable"`
 	// Rollover timeframe count
-	RolloverTimeframeCount int64 `json:"rollover_timeframe_count,nullable"`
+	RolloverTimeframeCount int64 `json:"rollover_timeframe_count" api:"nullable"`
 	// Rollover timeframe interval
-	RolloverTimeframeInterval TimeInterval `json:"rollover_timeframe_interval,nullable"`
+	RolloverTimeframeInterval TimeInterval `json:"rollover_timeframe_interval" api:"nullable"`
 	// Trial credits
-	TrialCredits string                       `json:"trial_credits,nullable"`
+	TrialCredits string                       `json:"trial_credits" api:"nullable"`
 	JSON         productCreditEntitlementJSON `json:"-"`
 }
 
@@ -908,11 +908,11 @@ func (r ProductCreditEntitlementsProrationBehavior) IsKnown() bool {
 
 type ProductDigitalProductDelivery struct {
 	// External URL to digital product
-	ExternalURL string `json:"external_url,nullable"`
+	ExternalURL string `json:"external_url" api:"nullable"`
 	// Uploaded files ids of digital product
-	Files []ProductDigitalProductDeliveryFile `json:"files,nullable"`
+	Files []ProductDigitalProductDeliveryFile `json:"files" api:"nullable"`
 	// Instructions to download and use the digital product
-	Instructions string                            `json:"instructions,nullable"`
+	Instructions string                            `json:"instructions" api:"nullable"`
 	JSON         productDigitalProductDeliveryJSON `json:"-"`
 }
 
@@ -935,9 +935,9 @@ func (r productDigitalProductDeliveryJSON) RawJSON() string {
 }
 
 type ProductDigitalProductDeliveryFile struct {
-	FileID   string                                `json:"file_id,required" format:"uuid"`
-	FileName string                                `json:"file_name,required"`
-	URL      string                                `json:"url,required"`
+	FileID   string                                `json:"file_id" api:"required" format:"uuid"`
+	FileName string                                `json:"file_name" api:"required"`
+	URL      string                                `json:"url" api:"required"`
 	JSON     productDigitalProductDeliveryFileJSON `json:"-"`
 }
 
@@ -961,27 +961,27 @@ func (r productDigitalProductDeliveryFileJSON) RawJSON() string {
 
 type ProductListResponse struct {
 	// Unique identifier for the business to which the product belongs.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Timestamp when the product was created.
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Indicates if the product is recurring (e.g., subscriptions).
-	IsRecurring bool `json:"is_recurring,required"`
+	IsRecurring bool `json:"is_recurring" api:"required"`
 	// Additional custom data associated with the product
-	Metadata map[string]string `json:"metadata,required"`
+	Metadata map[string]string `json:"metadata" api:"required"`
 	// Unique identifier for the product.
-	ProductID string `json:"product_id,required"`
+	ProductID string `json:"product_id" api:"required"`
 	// Tax category associated with the product.
-	TaxCategory TaxCategory `json:"tax_category,required"`
+	TaxCategory TaxCategory `json:"tax_category" api:"required"`
 	// Timestamp when the product was last updated.
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Currency of the price
-	Currency Currency `json:"currency,nullable"`
+	Currency Currency `json:"currency" api:"nullable"`
 	// Description of the product, optional.
-	Description string `json:"description,nullable"`
+	Description string `json:"description" api:"nullable"`
 	// URL of the product image, optional.
-	Image string `json:"image,nullable"`
+	Image string `json:"image" api:"nullable"`
 	// Name of the product, optional.
-	Name string `json:"name,nullable"`
+	Name string `json:"name" api:"nullable"`
 	// Price of the product, optional.
 	//
 	// The price is represented in the lowest denomination of the currency. For
@@ -992,11 +992,11 @@ type ProductListResponse struct {
 	// - In INR, a price of `₹1234.56` would be represented as `123456` (paise).
 	//
 	// This ensures precision and avoids floating-point rounding errors.
-	Price int64 `json:"price,nullable"`
+	Price int64 `json:"price" api:"nullable"`
 	// Details of the price
-	PriceDetail Price `json:"price_detail,nullable"`
+	PriceDetail Price `json:"price_detail" api:"nullable"`
 	// Indicates if the price is tax inclusive
-	TaxInclusive bool                    `json:"tax_inclusive,nullable"`
+	TaxInclusive bool                    `json:"tax_inclusive" api:"nullable"`
 	JSON         productListResponseJSON `json:"-"`
 }
 
@@ -1030,8 +1030,8 @@ func (r productListResponseJSON) RawJSON() string {
 }
 
 type ProductUpdateFilesResponse struct {
-	FileID string                         `json:"file_id,required" format:"uuid"`
-	URL    string                         `json:"url,required"`
+	FileID string                         `json:"file_id" api:"required" format:"uuid"`
+	URL    string                         `json:"url" api:"required"`
 	JSON   productUpdateFilesResponseJSON `json:"-"`
 }
 
@@ -1054,11 +1054,11 @@ func (r productUpdateFilesResponseJSON) RawJSON() string {
 
 type ProductNewParams struct {
 	// Name of the product
-	Name param.Field[string] `json:"name,required"`
+	Name param.Field[string] `json:"name" api:"required"`
 	// Price configuration for the product
-	Price param.Field[PriceUnionParam] `json:"price,required"`
+	Price param.Field[PriceUnionParam] `json:"price" api:"required"`
 	// Tax category applied to this product
-	TaxCategory param.Field[TaxCategory] `json:"tax_category,required"`
+	TaxCategory param.Field[TaxCategory] `json:"tax_category" api:"required"`
 	// Addons available for subscription product
 	Addons param.Field[[]string] `json:"addons"`
 	// Brand id for the product, if not provided will default to primary brand
@@ -1090,9 +1090,9 @@ func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
 // Request struct for attaching a credit entitlement to a product
 type ProductNewParamsCreditEntitlement struct {
 	// ID of the credit entitlement to attach
-	CreditEntitlementID param.Field[string] `json:"credit_entitlement_id,required"`
+	CreditEntitlementID param.Field[string] `json:"credit_entitlement_id" api:"required"`
 	// Number of credits to grant when this product is purchased
-	CreditsAmount param.Field[string] `json:"credits_amount,required"`
+	CreditsAmount param.Field[string] `json:"credits_amount" api:"required"`
 	// Whether new credit grants reduce existing overage
 	CreditsReduceOverage param.Field[bool] `json:"credits_reduce_overage"`
 	// Currency for credit-related pricing
@@ -1211,9 +1211,9 @@ func (r ProductUpdateParams) MarshalJSON() (data []byte, err error) {
 // Request struct for attaching a credit entitlement to a product
 type ProductUpdateParamsCreditEntitlement struct {
 	// ID of the credit entitlement to attach
-	CreditEntitlementID param.Field[string] `json:"credit_entitlement_id,required"`
+	CreditEntitlementID param.Field[string] `json:"credit_entitlement_id" api:"required"`
 	// Number of credits to grant when this product is purchased
-	CreditsAmount param.Field[string] `json:"credits_amount,required"`
+	CreditsAmount param.Field[string] `json:"credits_amount" api:"required"`
 	// Whether new credit grants reduce existing overage
 	CreditsReduceOverage param.Field[bool] `json:"credits_reduce_overage"`
 	// Currency for credit-related pricing
@@ -1310,7 +1310,7 @@ func (r ProductListParams) URLQuery() (v url.Values) {
 }
 
 type ProductUpdateFilesParams struct {
-	FileName param.Field[string] `json:"file_name,required"`
+	FileName param.Field[string] `json:"file_name" api:"required"`
 }
 
 func (r ProductUpdateFilesParams) MarshalJSON() (data []byte, err error) {

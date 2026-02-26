@@ -48,11 +48,11 @@ func (r *CustomerWalletService) List(ctx context.Context, customerID string, opt
 }
 
 type CustomerWallet struct {
-	Balance    int64              `json:"balance,required"`
-	CreatedAt  time.Time          `json:"created_at,required" format:"date-time"`
-	Currency   Currency           `json:"currency,required"`
-	CustomerID string             `json:"customer_id,required"`
-	UpdatedAt  time.Time          `json:"updated_at,required" format:"date-time"`
+	Balance    int64              `json:"balance" api:"required"`
+	CreatedAt  time.Time          `json:"created_at" api:"required" format:"date-time"`
+	Currency   Currency           `json:"currency" api:"required"`
+	CustomerID string             `json:"customer_id" api:"required"`
+	UpdatedAt  time.Time          `json:"updated_at" api:"required" format:"date-time"`
 	JSON       customerWalletJSON `json:"-"`
 }
 
@@ -76,9 +76,9 @@ func (r customerWalletJSON) RawJSON() string {
 }
 
 type CustomerWalletListResponse struct {
-	Items []CustomerWallet `json:"items,required"`
+	Items []CustomerWallet `json:"items" api:"required"`
 	// Sum of all wallet balances converted to USD (in smallest unit)
-	TotalBalanceUsd int64                          `json:"total_balance_usd,required"`
+	TotalBalanceUsd int64                          `json:"total_balance_usd" api:"required"`
 	JSON            customerWalletListResponseJSON `json:"-"`
 }
 
