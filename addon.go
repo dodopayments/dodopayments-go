@@ -101,25 +101,25 @@ func (r *AddonService) UpdateImages(ctx context.Context, id string, opts ...opti
 
 type AddonResponse struct {
 	// id of the Addon
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Unique identifier for the business to which the addon belongs.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Created time
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Currency of the Addon
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// Name of the Addon
-	Name string `json:"name,required"`
+	Name string `json:"name" api:"required"`
 	// Amount of the addon
-	Price int64 `json:"price,required"`
+	Price int64 `json:"price" api:"required"`
 	// Tax category applied to this Addon
-	TaxCategory TaxCategory `json:"tax_category,required"`
+	TaxCategory TaxCategory `json:"tax_category" api:"required"`
 	// Updated time
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Optional description of the Addon
-	Description string `json:"description,nullable"`
+	Description string `json:"description" api:"nullable"`
 	// Image of the Addon
-	Image string            `json:"image,nullable"`
+	Image string            `json:"image" api:"nullable"`
 	JSON  addonResponseJSON `json:"-"`
 }
 
@@ -148,8 +148,8 @@ func (r addonResponseJSON) RawJSON() string {
 }
 
 type AddonUpdateImagesResponse struct {
-	ImageID string                        `json:"image_id,required" format:"uuid"`
-	URL     string                        `json:"url,required"`
+	ImageID string                        `json:"image_id" api:"required" format:"uuid"`
+	URL     string                        `json:"url" api:"required"`
 	JSON    addonUpdateImagesResponseJSON `json:"-"`
 }
 
@@ -172,13 +172,13 @@ func (r addonUpdateImagesResponseJSON) RawJSON() string {
 
 type AddonNewParams struct {
 	// The currency of the Addon
-	Currency param.Field[Currency] `json:"currency,required"`
+	Currency param.Field[Currency] `json:"currency" api:"required"`
 	// Name of the Addon
-	Name param.Field[string] `json:"name,required"`
+	Name param.Field[string] `json:"name" api:"required"`
 	// Amount of the addon
-	Price param.Field[int64] `json:"price,required"`
+	Price param.Field[int64] `json:"price" api:"required"`
 	// Tax category applied to this Addon
-	TaxCategory param.Field[TaxCategory] `json:"tax_category,required"`
+	TaxCategory param.Field[TaxCategory] `json:"tax_category" api:"required"`
 	// Optional description of the Addon
 	Description param.Field[string] `json:"description"`
 }

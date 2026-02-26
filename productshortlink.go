@@ -76,9 +76,9 @@ func (r *ProductShortLinkService) ListAutoPaging(ctx context.Context, query Prod
 
 type ProductShortLinkNewResponse struct {
 	// Full URL.
-	FullURL string `json:"full_url,required"`
+	FullURL string `json:"full_url" api:"required"`
 	// Short URL.
-	ShortURL string                          `json:"short_url,required"`
+	ShortURL string                          `json:"short_url" api:"required"`
 	JSON     productShortLinkNewResponseJSON `json:"-"`
 }
 
@@ -101,13 +101,13 @@ func (r productShortLinkNewResponseJSON) RawJSON() string {
 
 type ProductShortLinkListResponse struct {
 	// When the short url was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Full URL the short url redirects to
-	FullURL string `json:"full_url,required"`
+	FullURL string `json:"full_url" api:"required"`
 	// Product ID associated with the short link
-	ProductID string `json:"product_id,required"`
+	ProductID string `json:"product_id" api:"required"`
 	// Short URL
-	ShortURL string                           `json:"short_url,required"`
+	ShortURL string                           `json:"short_url" api:"required"`
 	JSON     productShortLinkListResponseJSON `json:"-"`
 }
 
@@ -132,7 +132,7 @@ func (r productShortLinkListResponseJSON) RawJSON() string {
 
 type ProductShortLinkNewParams struct {
 	// Slug for the short link.
-	Slug param.Field[string] `json:"slug,required"`
+	Slug param.Field[string] `json:"slug" api:"required"`
 	// Static Checkout URL parameters to apply to the resulting short URL.
 	StaticCheckoutParams param.Field[map[string]string] `json:"static_checkout_params"`
 }

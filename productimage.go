@@ -48,8 +48,8 @@ func (r *ProductImageService) Update(ctx context.Context, id string, body Produc
 }
 
 type ProductImageUpdateResponse struct {
-	URL     string                         `json:"url,required"`
-	ImageID string                         `json:"image_id,nullable" format:"uuid"`
+	URL     string                         `json:"url" api:"required"`
+	ImageID string                         `json:"image_id" api:"nullable" format:"uuid"`
 	JSON    productImageUpdateResponseJSON `json:"-"`
 }
 

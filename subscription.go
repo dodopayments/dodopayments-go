@@ -247,8 +247,8 @@ func (r *SubscriptionService) UpdatePaymentMethod(ctx context.Context, subscript
 
 // Response struct representing subscription details
 type AddonCartResponseItem struct {
-	AddonID  string                    `json:"addon_id,required"`
-	Quantity int64                     `json:"quantity,required"`
+	AddonID  string                    `json:"addon_id" api:"required"`
+	Quantity int64                     `json:"quantity" api:"required"`
 	JSON     addonCartResponseItemJSON `json:"-"`
 }
 
@@ -270,8 +270,8 @@ func (r addonCartResponseItemJSON) RawJSON() string {
 }
 
 type AttachAddonParam struct {
-	AddonID  param.Field[string] `json:"addon_id,required"`
-	Quantity param.Field[int64]  `json:"quantity,required"`
+	AddonID  param.Field[string] `json:"addon_id" api:"required"`
+	Quantity param.Field[int64]  `json:"quantity" api:"required"`
 }
 
 func (r AttachAddonParam) MarshalJSON() (data []byte, err error) {
@@ -281,7 +281,7 @@ func (r AttachAddonParam) MarshalJSON() (data []byte, err error) {
 type OnDemandSubscriptionParam struct {
 	// If set as True, does not perform any charge and only authorizes payment method
 	// details for future use.
-	MandateOnly param.Field[bool] `json:"mandate_only,required"`
+	MandateOnly param.Field[bool] `json:"mandate_only" api:"required"`
 	// Whether adaptive currency fees should be included in the product_price (true) or
 	// added on top (false). This field is ignored if adaptive pricing is not enabled
 	// for the business.
@@ -305,69 +305,69 @@ func (r OnDemandSubscriptionParam) MarshalJSON() (data []byte, err error) {
 // Response struct representing subscription details
 type Subscription struct {
 	// Addons associated with this subscription
-	Addons []AddonCartResponseItem `json:"addons,required"`
+	Addons []AddonCartResponseItem `json:"addons" api:"required"`
 	// Billing address details for payments
-	Billing BillingAddress `json:"billing,required"`
+	Billing BillingAddress `json:"billing" api:"required"`
 	// Indicates if the subscription will cancel at the next billing date
-	CancelAtNextBillingDate bool `json:"cancel_at_next_billing_date,required"`
+	CancelAtNextBillingDate bool `json:"cancel_at_next_billing_date" api:"required"`
 	// Timestamp when the subscription was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Credit entitlement cart settings for this subscription
-	CreditEntitlementCart []SubscriptionCreditEntitlementCart `json:"credit_entitlement_cart,required"`
+	CreditEntitlementCart []SubscriptionCreditEntitlementCart `json:"credit_entitlement_cart" api:"required"`
 	// Currency used for the subscription payments
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// Customer details associated with the subscription
-	Customer CustomerLimitedDetails `json:"customer,required"`
+	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// Additional custom data associated with the subscription
-	Metadata map[string]string `json:"metadata,required"`
+	Metadata map[string]string `json:"metadata" api:"required"`
 	// Meter credit entitlement cart settings for this subscription
-	MeterCreditEntitlementCart []SubscriptionMeterCreditEntitlementCart `json:"meter_credit_entitlement_cart,required"`
+	MeterCreditEntitlementCart []SubscriptionMeterCreditEntitlementCart `json:"meter_credit_entitlement_cart" api:"required"`
 	// Meters associated with this subscription (for usage-based billing)
-	Meters []SubscriptionMeter `json:"meters,required"`
+	Meters []SubscriptionMeter `json:"meters" api:"required"`
 	// Timestamp of the next scheduled billing. Indicates the end of current billing
 	// period
-	NextBillingDate time.Time `json:"next_billing_date,required" format:"date-time"`
+	NextBillingDate time.Time `json:"next_billing_date" api:"required" format:"date-time"`
 	// Wether the subscription is on-demand or not
-	OnDemand bool `json:"on_demand,required"`
+	OnDemand bool `json:"on_demand" api:"required"`
 	// Number of payment frequency intervals
-	PaymentFrequencyCount int64 `json:"payment_frequency_count,required"`
+	PaymentFrequencyCount int64 `json:"payment_frequency_count" api:"required"`
 	// Time interval for payment frequency (e.g. month, year)
-	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
+	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval" api:"required"`
 	// Timestamp of the last payment. Indicates the start of current billing period
-	PreviousBillingDate time.Time `json:"previous_billing_date,required" format:"date-time"`
+	PreviousBillingDate time.Time `json:"previous_billing_date" api:"required" format:"date-time"`
 	// Identifier of the product associated with this subscription
-	ProductID string `json:"product_id,required"`
+	ProductID string `json:"product_id" api:"required"`
 	// Number of units/items included in the subscription
-	Quantity int64 `json:"quantity,required"`
+	Quantity int64 `json:"quantity" api:"required"`
 	// Amount charged before tax for each recurring payment in smallest currency unit
 	// (e.g. cents)
-	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount,required"`
+	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount" api:"required"`
 	// Current status of the subscription
-	Status SubscriptionStatus `json:"status,required"`
+	Status SubscriptionStatus `json:"status" api:"required"`
 	// Unique identifier for the subscription
-	SubscriptionID string `json:"subscription_id,required"`
+	SubscriptionID string `json:"subscription_id" api:"required"`
 	// Number of subscription period intervals
-	SubscriptionPeriodCount int64 `json:"subscription_period_count,required"`
+	SubscriptionPeriodCount int64 `json:"subscription_period_count" api:"required"`
 	// Time interval for the subscription period (e.g. month, year)
-	SubscriptionPeriodInterval TimeInterval `json:"subscription_period_interval,required"`
+	SubscriptionPeriodInterval TimeInterval `json:"subscription_period_interval" api:"required"`
 	// Indicates if the recurring_pre_tax_amount is tax inclusive
-	TaxInclusive bool `json:"tax_inclusive,required"`
+	TaxInclusive bool `json:"tax_inclusive" api:"required"`
 	// Number of days in the trial period (0 if no trial)
-	TrialPeriodDays int64 `json:"trial_period_days,required"`
+	TrialPeriodDays int64 `json:"trial_period_days" api:"required"`
 	// Cancelled timestamp if the subscription is cancelled
-	CancelledAt time.Time `json:"cancelled_at,nullable" format:"date-time"`
+	CancelledAt time.Time `json:"cancelled_at" api:"nullable" format:"date-time"`
 	// Customer's responses to custom fields collected during checkout
-	CustomFieldResponses []SubscriptionCustomFieldResponse `json:"custom_field_responses,nullable"`
+	CustomFieldResponses []SubscriptionCustomFieldResponse `json:"custom_field_responses" api:"nullable"`
 	// Number of remaining discount cycles if discount is applied
-	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining,nullable"`
+	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining" api:"nullable"`
 	// The discount id if discount is applied
-	DiscountID string `json:"discount_id,nullable"`
+	DiscountID string `json:"discount_id" api:"nullable"`
 	// Timestamp when the subscription will expire
-	ExpiresAt time.Time `json:"expires_at,nullable" format:"date-time"`
+	ExpiresAt time.Time `json:"expires_at" api:"nullable" format:"date-time"`
 	// Saved payment method id used for recurring charges
-	PaymentMethodID string `json:"payment_method_id,nullable"`
+	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
 	// Tax identifier provided for this subscription (if applicable)
-	TaxID string           `json:"tax_id,nullable"`
+	TaxID string           `json:"tax_id" api:"nullable"`
 	JSON  subscriptionJSON `json:"-"`
 }
 
@@ -418,26 +418,26 @@ func (r subscriptionJSON) RawJSON() string {
 
 // Response struct representing credit entitlement cart details for a subscription
 type SubscriptionCreditEntitlementCart struct {
-	CreditEntitlementID   string `json:"credit_entitlement_id,required"`
-	CreditEntitlementName string `json:"credit_entitlement_name,required"`
-	CreditsAmount         string `json:"credits_amount,required"`
+	CreditEntitlementID   string `json:"credit_entitlement_id" api:"required"`
+	CreditEntitlementName string `json:"credit_entitlement_name" api:"required"`
+	CreditsAmount         string `json:"credits_amount" api:"required"`
 	// Customer's current overage balance for this entitlement
-	OverageBalance         string `json:"overage_balance,required"`
-	OverageChargeAtBilling bool   `json:"overage_charge_at_billing,required"`
-	OverageEnabled         bool   `json:"overage_enabled,required"`
-	ProductID              string `json:"product_id,required"`
+	OverageBalance         string `json:"overage_balance" api:"required"`
+	OverageChargeAtBilling bool   `json:"overage_charge_at_billing" api:"required"`
+	OverageEnabled         bool   `json:"overage_enabled" api:"required"`
+	ProductID              string `json:"product_id" api:"required"`
 	// Customer's current remaining credit balance for this entitlement
-	RemainingBalance string `json:"remaining_balance,required"`
-	RolloverEnabled  bool   `json:"rollover_enabled,required"`
+	RemainingBalance string `json:"remaining_balance" api:"required"`
+	RolloverEnabled  bool   `json:"rollover_enabled" api:"required"`
 	// Unit label for the credit entitlement (e.g., "API Calls", "Tokens")
-	Unit                       string                                `json:"unit,required"`
-	ExpiresAfterDays           int64                                 `json:"expires_after_days,nullable"`
-	LowBalanceThresholdPercent int64                                 `json:"low_balance_threshold_percent,nullable"`
-	MaxRolloverCount           int64                                 `json:"max_rollover_count,nullable"`
-	OverageLimit               string                                `json:"overage_limit,nullable"`
-	RolloverPercentage         int64                                 `json:"rollover_percentage,nullable"`
-	RolloverTimeframeCount     int64                                 `json:"rollover_timeframe_count,nullable"`
-	RolloverTimeframeInterval  TimeInterval                          `json:"rollover_timeframe_interval,nullable"`
+	Unit                       string                                `json:"unit" api:"required"`
+	ExpiresAfterDays           int64                                 `json:"expires_after_days" api:"nullable"`
+	LowBalanceThresholdPercent int64                                 `json:"low_balance_threshold_percent" api:"nullable"`
+	MaxRolloverCount           int64                                 `json:"max_rollover_count" api:"nullable"`
+	OverageLimit               string                                `json:"overage_limit" api:"nullable"`
+	RolloverPercentage         int64                                 `json:"rollover_percentage" api:"nullable"`
+	RolloverTimeframeCount     int64                                 `json:"rollover_timeframe_count" api:"nullable"`
+	RolloverTimeframeInterval  TimeInterval                          `json:"rollover_timeframe_interval" api:"nullable"`
 	JSON                       subscriptionCreditEntitlementCartJSON `json:"-"`
 }
 
@@ -476,11 +476,11 @@ func (r subscriptionCreditEntitlementCartJSON) RawJSON() string {
 // Response struct representing meter-credit entitlement mapping cart details for a
 // subscription
 type SubscriptionMeterCreditEntitlementCart struct {
-	CreditEntitlementID string                                     `json:"credit_entitlement_id,required"`
-	MeterID             string                                     `json:"meter_id,required"`
-	MeterName           string                                     `json:"meter_name,required"`
-	MeterUnitsPerCredit string                                     `json:"meter_units_per_credit,required"`
-	ProductID           string                                     `json:"product_id,required"`
+	CreditEntitlementID string                                     `json:"credit_entitlement_id" api:"required"`
+	MeterID             string                                     `json:"meter_id" api:"required"`
+	MeterName           string                                     `json:"meter_name" api:"required"`
+	MeterUnitsPerCredit string                                     `json:"meter_units_per_credit" api:"required"`
+	ProductID           string                                     `json:"product_id" api:"required"`
 	JSON                subscriptionMeterCreditEntitlementCartJSON `json:"-"`
 }
 
@@ -506,13 +506,13 @@ func (r subscriptionMeterCreditEntitlementCartJSON) RawJSON() string {
 
 // Response struct representing usage-based meter cart details for a subscription
 type SubscriptionMeter struct {
-	Currency        Currency              `json:"currency,required"`
-	FreeThreshold   int64                 `json:"free_threshold,required"`
-	MeasurementUnit string                `json:"measurement_unit,required"`
-	MeterID         string                `json:"meter_id,required"`
-	Name            string                `json:"name,required"`
-	PricePerUnit    string                `json:"price_per_unit,required"`
-	Description     string                `json:"description,nullable"`
+	Currency        Currency              `json:"currency" api:"required"`
+	FreeThreshold   int64                 `json:"free_threshold" api:"required"`
+	MeasurementUnit string                `json:"measurement_unit" api:"required"`
+	MeterID         string                `json:"meter_id" api:"required"`
+	Name            string                `json:"name" api:"required"`
+	PricePerUnit    string                `json:"price_per_unit" api:"required"`
+	Description     string                `json:"description" api:"nullable"`
 	JSON            subscriptionMeterJSON `json:"-"`
 }
 
@@ -541,9 +541,9 @@ func (r subscriptionMeterJSON) RawJSON() string {
 // Customer's response to a custom field
 type SubscriptionCustomFieldResponse struct {
 	// Key matching the custom field definition
-	Key string `json:"key,required"`
+	Key string `json:"key" api:"required"`
 	// Value provided by customer
-	Value string                              `json:"value,required"`
+	Value string                              `json:"value" api:"required"`
 	JSON  subscriptionCustomFieldResponseJSON `json:"-"`
 }
 
@@ -602,29 +602,29 @@ func (r TimeInterval) IsKnown() bool {
 
 type SubscriptionNewResponse struct {
 	// Addons associated with this subscription
-	Addons []AddonCartResponseItem `json:"addons,required"`
+	Addons []AddonCartResponseItem `json:"addons" api:"required"`
 	// Customer details associated with this subscription
-	Customer CustomerLimitedDetails `json:"customer,required"`
+	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// Additional metadata associated with the subscription
-	Metadata map[string]string `json:"metadata,required"`
+	Metadata map[string]string `json:"metadata" api:"required"`
 	// First payment id for the subscription
-	PaymentID string `json:"payment_id,required"`
+	PaymentID string `json:"payment_id" api:"required"`
 	// Tax will be added to the amount and charged to the customer on each billing
 	// cycle
-	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount,required"`
+	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount" api:"required"`
 	// Unique identifier for the subscription
-	SubscriptionID string `json:"subscription_id,required"`
+	SubscriptionID string `json:"subscription_id" api:"required"`
 	// Client secret used to load Dodo checkout SDK NOTE : Dodo checkout SDK will be
 	// coming soon
-	ClientSecret string `json:"client_secret,nullable"`
+	ClientSecret string `json:"client_secret" api:"nullable"`
 	// The discount id if discount is applied
-	DiscountID string `json:"discount_id,nullable"`
+	DiscountID string `json:"discount_id" api:"nullable"`
 	// Expiry timestamp of the payment link
-	ExpiresOn time.Time `json:"expires_on,nullable" format:"date-time"`
+	ExpiresOn time.Time `json:"expires_on" api:"nullable" format:"date-time"`
 	// One time products associated with the purchase of subscription
-	OneTimeProductCart []SubscriptionNewResponseOneTimeProductCart `json:"one_time_product_cart,nullable"`
+	OneTimeProductCart []SubscriptionNewResponseOneTimeProductCart `json:"one_time_product_cart" api:"nullable"`
 	// URL to checkout page
-	PaymentLink string                      `json:"payment_link,nullable"`
+	PaymentLink string                      `json:"payment_link" api:"nullable"`
 	JSON        subscriptionNewResponseJSON `json:"-"`
 }
 
@@ -655,8 +655,8 @@ func (r subscriptionNewResponseJSON) RawJSON() string {
 }
 
 type SubscriptionNewResponseOneTimeProductCart struct {
-	ProductID string                                        `json:"product_id,required"`
-	Quantity  int64                                         `json:"quantity,required"`
+	ProductID string                                        `json:"product_id" api:"required"`
+	Quantity  int64                                         `json:"quantity" api:"required"`
 	JSON      subscriptionNewResponseOneTimeProductCartJSON `json:"-"`
 }
 
@@ -680,59 +680,59 @@ func (r subscriptionNewResponseOneTimeProductCartJSON) RawJSON() string {
 // Response struct representing subscription details
 type SubscriptionListResponse struct {
 	// Billing address details for payments
-	Billing BillingAddress `json:"billing,required"`
+	Billing BillingAddress `json:"billing" api:"required"`
 	// Indicates if the subscription will cancel at the next billing date
-	CancelAtNextBillingDate bool `json:"cancel_at_next_billing_date,required"`
+	CancelAtNextBillingDate bool `json:"cancel_at_next_billing_date" api:"required"`
 	// Timestamp when the subscription was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Currency used for the subscription payments
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// Customer details associated with the subscription
-	Customer CustomerLimitedDetails `json:"customer,required"`
+	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// Additional custom data associated with the subscription
-	Metadata map[string]string `json:"metadata,required"`
+	Metadata map[string]string `json:"metadata" api:"required"`
 	// Timestamp of the next scheduled billing. Indicates the end of current billing
 	// period
-	NextBillingDate time.Time `json:"next_billing_date,required" format:"date-time"`
+	NextBillingDate time.Time `json:"next_billing_date" api:"required" format:"date-time"`
 	// Wether the subscription is on-demand or not
-	OnDemand bool `json:"on_demand,required"`
+	OnDemand bool `json:"on_demand" api:"required"`
 	// Number of payment frequency intervals
-	PaymentFrequencyCount int64 `json:"payment_frequency_count,required"`
+	PaymentFrequencyCount int64 `json:"payment_frequency_count" api:"required"`
 	// Time interval for payment frequency (e.g. month, year)
-	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval,required"`
+	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval" api:"required"`
 	// Timestamp of the last payment. Indicates the start of current billing period
-	PreviousBillingDate time.Time `json:"previous_billing_date,required" format:"date-time"`
+	PreviousBillingDate time.Time `json:"previous_billing_date" api:"required" format:"date-time"`
 	// Identifier of the product associated with this subscription
-	ProductID string `json:"product_id,required"`
+	ProductID string `json:"product_id" api:"required"`
 	// Number of units/items included in the subscription
-	Quantity int64 `json:"quantity,required"`
+	Quantity int64 `json:"quantity" api:"required"`
 	// Amount charged before tax for each recurring payment in smallest currency unit
 	// (e.g. cents)
-	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount,required"`
+	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount" api:"required"`
 	// Current status of the subscription
-	Status SubscriptionStatus `json:"status,required"`
+	Status SubscriptionStatus `json:"status" api:"required"`
 	// Unique identifier for the subscription
-	SubscriptionID string `json:"subscription_id,required"`
+	SubscriptionID string `json:"subscription_id" api:"required"`
 	// Number of subscription period intervals
-	SubscriptionPeriodCount int64 `json:"subscription_period_count,required"`
+	SubscriptionPeriodCount int64 `json:"subscription_period_count" api:"required"`
 	// Time interval for the subscription period (e.g. month, year)
-	SubscriptionPeriodInterval TimeInterval `json:"subscription_period_interval,required"`
+	SubscriptionPeriodInterval TimeInterval `json:"subscription_period_interval" api:"required"`
 	// Indicates if the recurring_pre_tax_amount is tax inclusive
-	TaxInclusive bool `json:"tax_inclusive,required"`
+	TaxInclusive bool `json:"tax_inclusive" api:"required"`
 	// Number of days in the trial period (0 if no trial)
-	TrialPeriodDays int64 `json:"trial_period_days,required"`
+	TrialPeriodDays int64 `json:"trial_period_days" api:"required"`
 	// Cancelled timestamp if the subscription is cancelled
-	CancelledAt time.Time `json:"cancelled_at,nullable" format:"date-time"`
+	CancelledAt time.Time `json:"cancelled_at" api:"nullable" format:"date-time"`
 	// Number of remaining discount cycles if discount is applied
-	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining,nullable"`
+	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining" api:"nullable"`
 	// The discount id if discount is applied
-	DiscountID string `json:"discount_id,nullable"`
+	DiscountID string `json:"discount_id" api:"nullable"`
 	// Saved payment method id used for recurring charges
-	PaymentMethodID string `json:"payment_method_id,nullable"`
+	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
 	// Name of the product associated with this subscription
-	ProductName string `json:"product_name,nullable"`
+	ProductName string `json:"product_name" api:"nullable"`
 	// Tax identifier provided for this subscription (if applicable)
-	TaxID string                       `json:"tax_id,nullable"`
+	TaxID string                       `json:"tax_id" api:"nullable"`
 	JSON  subscriptionListResponseJSON `json:"-"`
 }
 
@@ -778,7 +778,7 @@ func (r subscriptionListResponseJSON) RawJSON() string {
 }
 
 type SubscriptionChargeResponse struct {
-	PaymentID string                         `json:"payment_id,required"`
+	PaymentID string                         `json:"payment_id" api:"required"`
 	JSON      subscriptionChargeResponseJSON `json:"-"`
 }
 
@@ -799,9 +799,9 @@ func (r subscriptionChargeResponseJSON) RawJSON() string {
 }
 
 type SubscriptionPreviewChangePlanResponse struct {
-	ImmediateCharge SubscriptionPreviewChangePlanResponseImmediateCharge `json:"immediate_charge,required"`
+	ImmediateCharge SubscriptionPreviewChangePlanResponseImmediateCharge `json:"immediate_charge" api:"required"`
 	// Response struct representing subscription details
-	NewPlan Subscription                              `json:"new_plan,required"`
+	NewPlan Subscription                              `json:"new_plan" api:"required"`
 	JSON    subscriptionPreviewChangePlanResponseJSON `json:"-"`
 }
 
@@ -823,8 +823,8 @@ func (r subscriptionPreviewChangePlanResponseJSON) RawJSON() string {
 }
 
 type SubscriptionPreviewChangePlanResponseImmediateCharge struct {
-	LineItems []SubscriptionPreviewChangePlanResponseImmediateChargeLineItem `json:"line_items,required"`
-	Summary   SubscriptionPreviewChangePlanResponseImmediateChargeSummary    `json:"summary,required"`
+	LineItems []SubscriptionPreviewChangePlanResponseImmediateChargeLineItem `json:"line_items" api:"required"`
+	Summary   SubscriptionPreviewChangePlanResponseImmediateChargeSummary    `json:"summary" api:"required"`
 	JSON      subscriptionPreviewChangePlanResponseImmediateChargeJSON       `json:"-"`
 }
 
@@ -846,24 +846,24 @@ func (r subscriptionPreviewChangePlanResponseImmediateChargeJSON) RawJSON() stri
 }
 
 type SubscriptionPreviewChangePlanResponseImmediateChargeLineItem struct {
-	ID              string                                                            `json:"id,required"`
-	Currency        Currency                                                          `json:"currency,required"`
-	TaxInclusive    bool                                                              `json:"tax_inclusive,required"`
-	Type            SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType `json:"type,required"`
+	ID              string                                                            `json:"id" api:"required"`
+	Currency        Currency                                                          `json:"currency" api:"required"`
+	TaxInclusive    bool                                                              `json:"tax_inclusive" api:"required"`
+	Type            SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType `json:"type" api:"required"`
 	ChargeableUnits string                                                            `json:"chargeable_units"`
-	Description     string                                                            `json:"description,nullable"`
+	Description     string                                                            `json:"description" api:"nullable"`
 	FreeThreshold   int64                                                             `json:"free_threshold"`
-	Name            string                                                            `json:"name,nullable"`
+	Name            string                                                            `json:"name" api:"nullable"`
 	PricePerUnit    string                                                            `json:"price_per_unit"`
 	ProductID       string                                                            `json:"product_id"`
 	ProrationFactor float64                                                           `json:"proration_factor"`
 	Quantity        int64                                                             `json:"quantity"`
 	Subtotal        int64                                                             `json:"subtotal"`
-	Tax             int64                                                             `json:"tax,nullable"`
+	Tax             int64                                                             `json:"tax" api:"nullable"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
 	TaxCategory   TaxCategory                                                      `json:"tax_category"`
-	TaxRate       float64                                                          `json:"tax_rate,nullable"`
+	TaxRate       float64                                                          `json:"tax_rate" api:"nullable"`
 	UnitPrice     int64                                                            `json:"unit_price"`
 	UnitsConsumed string                                                           `json:"units_consumed"`
 	JSON          subscriptionPreviewChangePlanResponseImmediateChargeLineItemJSON `json:"-"`
@@ -949,18 +949,18 @@ func init() {
 }
 
 type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscription struct {
-	ID              string                                                                        `json:"id,required"`
-	Currency        Currency                                                                      `json:"currency,required"`
-	ProductID       string                                                                        `json:"product_id,required"`
-	ProrationFactor float64                                                                       `json:"proration_factor,required"`
-	Quantity        int64                                                                         `json:"quantity,required"`
-	TaxInclusive    bool                                                                          `json:"tax_inclusive,required"`
-	Type            SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionType `json:"type,required"`
-	UnitPrice       int64                                                                         `json:"unit_price,required"`
-	Description     string                                                                        `json:"description,nullable"`
-	Name            string                                                                        `json:"name,nullable"`
-	Tax             int64                                                                         `json:"tax,nullable"`
-	TaxRate         float64                                                                       `json:"tax_rate,nullable"`
+	ID              string                                                                        `json:"id" api:"required"`
+	Currency        Currency                                                                      `json:"currency" api:"required"`
+	ProductID       string                                                                        `json:"product_id" api:"required"`
+	ProrationFactor float64                                                                       `json:"proration_factor" api:"required"`
+	Quantity        int64                                                                         `json:"quantity" api:"required"`
+	TaxInclusive    bool                                                                          `json:"tax_inclusive" api:"required"`
+	Type            SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionType `json:"type" api:"required"`
+	UnitPrice       int64                                                                         `json:"unit_price" api:"required"`
+	Description     string                                                                        `json:"description" api:"nullable"`
+	Name            string                                                                        `json:"name" api:"nullable"`
+	Tax             int64                                                                         `json:"tax" api:"nullable"`
+	TaxRate         float64                                                                       `json:"tax_rate" api:"nullable"`
 	JSON            subscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptionJSON `json:"-"`
 }
 
@@ -1010,20 +1010,20 @@ func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscriptio
 }
 
 type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddon struct {
-	ID              string   `json:"id,required"`
-	Currency        Currency `json:"currency,required"`
-	Name            string   `json:"name,required"`
-	ProrationFactor float64  `json:"proration_factor,required"`
-	Quantity        int64    `json:"quantity,required"`
+	ID              string   `json:"id" api:"required"`
+	Currency        Currency `json:"currency" api:"required"`
+	Name            string   `json:"name" api:"required"`
+	ProrationFactor float64  `json:"proration_factor" api:"required"`
+	Quantity        int64    `json:"quantity" api:"required"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
-	TaxCategory  TaxCategory                                                            `json:"tax_category,required"`
-	TaxInclusive bool                                                                   `json:"tax_inclusive,required"`
-	TaxRate      float64                                                                `json:"tax_rate,required"`
-	Type         SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonType `json:"type,required"`
-	UnitPrice    int64                                                                  `json:"unit_price,required"`
-	Description  string                                                                 `json:"description,nullable"`
-	Tax          int64                                                                  `json:"tax,nullable"`
+	TaxCategory  TaxCategory                                                            `json:"tax_category" api:"required"`
+	TaxInclusive bool                                                                   `json:"tax_inclusive" api:"required"`
+	TaxRate      float64                                                                `json:"tax_rate" api:"required"`
+	Type         SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonType `json:"type" api:"required"`
+	UnitPrice    int64                                                                  `json:"unit_price" api:"required"`
+	Description  string                                                                 `json:"description" api:"nullable"`
+	Tax          int64                                                                  `json:"tax" api:"nullable"`
 	JSON         subscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonJSON `json:"-"`
 }
 
@@ -1073,19 +1073,19 @@ func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddonType) 
 }
 
 type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeter struct {
-	ID              string                                                                 `json:"id,required"`
-	ChargeableUnits string                                                                 `json:"chargeable_units,required"`
-	Currency        Currency                                                               `json:"currency,required"`
-	FreeThreshold   int64                                                                  `json:"free_threshold,required"`
-	Name            string                                                                 `json:"name,required"`
-	PricePerUnit    string                                                                 `json:"price_per_unit,required"`
-	Subtotal        int64                                                                  `json:"subtotal,required"`
-	TaxInclusive    bool                                                                   `json:"tax_inclusive,required"`
-	TaxRate         float64                                                                `json:"tax_rate,required"`
-	Type            SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterType `json:"type,required"`
-	UnitsConsumed   string                                                                 `json:"units_consumed,required"`
-	Description     string                                                                 `json:"description,nullable"`
-	Tax             int64                                                                  `json:"tax,nullable"`
+	ID              string                                                                 `json:"id" api:"required"`
+	ChargeableUnits string                                                                 `json:"chargeable_units" api:"required"`
+	Currency        Currency                                                               `json:"currency" api:"required"`
+	FreeThreshold   int64                                                                  `json:"free_threshold" api:"required"`
+	Name            string                                                                 `json:"name" api:"required"`
+	PricePerUnit    string                                                                 `json:"price_per_unit" api:"required"`
+	Subtotal        int64                                                                  `json:"subtotal" api:"required"`
+	TaxInclusive    bool                                                                   `json:"tax_inclusive" api:"required"`
+	TaxRate         float64                                                                `json:"tax_rate" api:"required"`
+	Type            SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterType `json:"type" api:"required"`
+	UnitsConsumed   string                                                                 `json:"units_consumed" api:"required"`
+	Description     string                                                                 `json:"description" api:"nullable"`
+	Tax             int64                                                                  `json:"tax" api:"nullable"`
 	JSON            subscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeterJSON `json:"-"`
 }
 
@@ -1152,13 +1152,13 @@ func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType) IsKno
 }
 
 type SubscriptionPreviewChangePlanResponseImmediateChargeSummary struct {
-	Currency           Currency                                                        `json:"currency,required"`
-	CustomerCredits    int64                                                           `json:"customer_credits,required"`
-	SettlementAmount   int64                                                           `json:"settlement_amount,required"`
-	SettlementCurrency Currency                                                        `json:"settlement_currency,required"`
-	TotalAmount        int64                                                           `json:"total_amount,required"`
-	SettlementTax      int64                                                           `json:"settlement_tax,nullable"`
-	Tax                int64                                                           `json:"tax,nullable"`
+	Currency           Currency                                                        `json:"currency" api:"required"`
+	CustomerCredits    int64                                                           `json:"customer_credits" api:"required"`
+	SettlementAmount   int64                                                           `json:"settlement_amount" api:"required"`
+	SettlementCurrency Currency                                                        `json:"settlement_currency" api:"required"`
+	TotalAmount        int64                                                           `json:"total_amount" api:"required"`
+	SettlementTax      int64                                                           `json:"settlement_tax" api:"nullable"`
+	Tax                int64                                                           `json:"tax" api:"nullable"`
 	JSON               subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON `json:"-"`
 }
 
@@ -1187,11 +1187,11 @@ func (r subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON) RawJSON
 
 type SubscriptionGetUsageHistoryResponse struct {
 	// End date of the billing period
-	EndDate time.Time `json:"end_date,required" format:"date-time"`
+	EndDate time.Time `json:"end_date" api:"required" format:"date-time"`
 	// List of meters and their usage for this billing period
-	Meters []SubscriptionGetUsageHistoryResponseMeter `json:"meters,required"`
+	Meters []SubscriptionGetUsageHistoryResponseMeter `json:"meters" api:"required"`
 	// Start date of the billing period
-	StartDate time.Time                               `json:"start_date,required" format:"date-time"`
+	StartDate time.Time                               `json:"start_date" api:"required" format:"date-time"`
 	JSON      subscriptionGetUsageHistoryResponseJSON `json:"-"`
 }
 
@@ -1215,21 +1215,21 @@ func (r subscriptionGetUsageHistoryResponseJSON) RawJSON() string {
 
 type SubscriptionGetUsageHistoryResponseMeter struct {
 	// Meter identifier
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Chargeable units (after free threshold) as string for precision
-	ChargeableUnits string `json:"chargeable_units,required"`
+	ChargeableUnits string `json:"chargeable_units" api:"required"`
 	// Total units consumed as string for precision
-	ConsumedUnits string `json:"consumed_units,required"`
+	ConsumedUnits string `json:"consumed_units" api:"required"`
 	// Currency for the price per unit
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// Free threshold units for this meter
-	FreeThreshold int64 `json:"free_threshold,required"`
+	FreeThreshold int64 `json:"free_threshold" api:"required"`
 	// Meter name
-	Name string `json:"name,required"`
+	Name string `json:"name" api:"required"`
 	// Price per unit in string format for precision
-	PricePerUnit string `json:"price_per_unit,required"`
+	PricePerUnit string `json:"price_per_unit" api:"required"`
 	// Total price charged for this meter in smallest currency unit (cents)
-	TotalPrice int64                                        `json:"total_price,required"`
+	TotalPrice int64                                        `json:"total_price" api:"required"`
 	JSON       subscriptionGetUsageHistoryResponseMeterJSON `json:"-"`
 }
 
@@ -1257,10 +1257,10 @@ func (r subscriptionGetUsageHistoryResponseMeterJSON) RawJSON() string {
 }
 
 type SubscriptionUpdatePaymentMethodResponse struct {
-	ClientSecret string                                      `json:"client_secret,nullable"`
-	ExpiresOn    time.Time                                   `json:"expires_on,nullable" format:"date-time"`
-	PaymentID    string                                      `json:"payment_id,nullable"`
-	PaymentLink  string                                      `json:"payment_link,nullable"`
+	ClientSecret string                                      `json:"client_secret" api:"nullable"`
+	ExpiresOn    time.Time                                   `json:"expires_on" api:"nullable" format:"date-time"`
+	PaymentID    string                                      `json:"payment_id" api:"nullable"`
+	PaymentLink  string                                      `json:"payment_link" api:"nullable"`
 	JSON         subscriptionUpdatePaymentMethodResponseJSON `json:"-"`
 }
 
@@ -1285,13 +1285,13 @@ func (r subscriptionUpdatePaymentMethodResponseJSON) RawJSON() string {
 
 type SubscriptionNewParams struct {
 	// Billing address information for the subscription
-	Billing param.Field[BillingAddressParam] `json:"billing,required"`
+	Billing param.Field[BillingAddressParam] `json:"billing" api:"required"`
 	// Customer details for the subscription
-	Customer param.Field[CustomerRequestUnionParam] `json:"customer,required"`
+	Customer param.Field[CustomerRequestUnionParam] `json:"customer" api:"required"`
 	// Unique identifier of the product to subscribe to
-	ProductID param.Field[string] `json:"product_id,required"`
+	ProductID param.Field[string] `json:"product_id" api:"required"`
 	// Number of units to subscribe for. Must be at least 1.
-	Quantity param.Field[int64] `json:"quantity,required"`
+	Quantity param.Field[int64] `json:"quantity" api:"required"`
 	// Attach addons to this subscription
 	Addons param.Field[[]AttachAddonParam] `json:"addons"`
 	// List of payment methods allowed during checkout.
@@ -1360,7 +1360,7 @@ func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {
 }
 
 type SubscriptionUpdateParamsCreditEntitlementCart struct {
-	CreditEntitlementID        param.Field[string]       `json:"credit_entitlement_id,required"`
+	CreditEntitlementID        param.Field[string]       `json:"credit_entitlement_id" api:"required"`
 	CreditsAmount              param.Field[string]       `json:"credits_amount"`
 	ExpiresAfterDays           param.Field[int64]        `json:"expires_after_days"`
 	LowBalanceThresholdPercent param.Field[int64]        `json:"low_balance_threshold_percent"`
@@ -1379,7 +1379,7 @@ func (r SubscriptionUpdateParamsCreditEntitlementCart) MarshalJSON() (data []byt
 }
 
 type SubscriptionUpdateParamsDisableOnDemand struct {
-	NextBillingDate param.Field[time.Time] `json:"next_billing_date,required" format:"date-time"`
+	NextBillingDate param.Field[time.Time] `json:"next_billing_date" api:"required" format:"date-time"`
 }
 
 func (r SubscriptionUpdateParamsDisableOnDemand) MarshalJSON() (data []byte, err error) {
@@ -1435,11 +1435,11 @@ func (r SubscriptionListParamsStatus) IsKnown() bool {
 
 type SubscriptionChangePlanParams struct {
 	// Unique identifier of the product to subscribe to
-	ProductID param.Field[string] `json:"product_id,required"`
+	ProductID param.Field[string] `json:"product_id" api:"required"`
 	// Proration Billing Mode
-	ProrationBillingMode param.Field[SubscriptionChangePlanParamsProrationBillingMode] `json:"proration_billing_mode,required"`
+	ProrationBillingMode param.Field[SubscriptionChangePlanParamsProrationBillingMode] `json:"proration_billing_mode" api:"required"`
 	// Number of units to subscribe for. Must be at least 1.
-	Quantity param.Field[int64] `json:"quantity,required"`
+	Quantity param.Field[int64] `json:"quantity" api:"required"`
 	// Addons for the new plan. Note : Leaving this empty would remove any existing
 	// addons
 	Addons param.Field[[]AttachAddonParam] `json:"addons"`
@@ -1502,7 +1502,7 @@ func (r SubscriptionChangePlanParamsOnPaymentFailure) IsKnown() bool {
 type SubscriptionChargeParams struct {
 	// The product price. Represented in the lowest denomination of the currency (e.g.,
 	// cents for USD). For example, to charge $1.00, pass `100`.
-	ProductPrice param.Field[int64] `json:"product_price,required"`
+	ProductPrice param.Field[int64] `json:"product_price" api:"required"`
 	// Whether adaptive currency fees should be included in the product_price (true) or
 	// added on top (false). This field is ignored if adaptive pricing is not enabled
 	// for the business.
@@ -1538,11 +1538,11 @@ func (r SubscriptionChargeParamsCustomerBalanceConfig) MarshalJSON() (data []byt
 
 type SubscriptionPreviewChangePlanParams struct {
 	// Unique identifier of the product to subscribe to
-	ProductID param.Field[string] `json:"product_id,required"`
+	ProductID param.Field[string] `json:"product_id" api:"required"`
 	// Proration Billing Mode
-	ProrationBillingMode param.Field[SubscriptionPreviewChangePlanParamsProrationBillingMode] `json:"proration_billing_mode,required"`
+	ProrationBillingMode param.Field[SubscriptionPreviewChangePlanParamsProrationBillingMode] `json:"proration_billing_mode" api:"required"`
 	// Number of units to subscribe for. Must be at least 1.
-	Quantity param.Field[int64] `json:"quantity,required"`
+	Quantity param.Field[int64] `json:"quantity" api:"required"`
 	// Addons for the new plan. Note : Leaving this empty would remove any existing
 	// addons
 	Addons param.Field[[]AttachAddonParam] `json:"addons"`
@@ -1625,7 +1625,7 @@ func (r SubscriptionGetUsageHistoryParams) URLQuery() (v url.Values) {
 }
 
 type SubscriptionUpdatePaymentMethodParams struct {
-	Body SubscriptionUpdatePaymentMethodParamsBodyUnion `json:"body,required"`
+	Body SubscriptionUpdatePaymentMethodParamsBodyUnion `json:"body" api:"required"`
 }
 
 func (r SubscriptionUpdatePaymentMethodParams) MarshalJSON() (data []byte, err error) {
@@ -1633,7 +1633,7 @@ func (r SubscriptionUpdatePaymentMethodParams) MarshalJSON() (data []byte, err e
 }
 
 type SubscriptionUpdatePaymentMethodParamsBody struct {
-	Type            param.Field[SubscriptionUpdatePaymentMethodParamsBodyType] `json:"type,required"`
+	Type            param.Field[SubscriptionUpdatePaymentMethodParamsBodyType] `json:"type" api:"required"`
 	PaymentMethodID param.Field[string]                                        `json:"payment_method_id"`
 	ReturnURL       param.Field[string]                                        `json:"return_url"`
 }
@@ -1653,7 +1653,7 @@ type SubscriptionUpdatePaymentMethodParamsBodyUnion interface {
 }
 
 type SubscriptionUpdatePaymentMethodParamsBodyNew struct {
-	Type      param.Field[SubscriptionUpdatePaymentMethodParamsBodyNewType] `json:"type,required"`
+	Type      param.Field[SubscriptionUpdatePaymentMethodParamsBodyNewType] `json:"type" api:"required"`
 	ReturnURL param.Field[string]                                           `json:"return_url"`
 }
 
@@ -1679,8 +1679,8 @@ func (r SubscriptionUpdatePaymentMethodParamsBodyNewType) IsKnown() bool {
 }
 
 type SubscriptionUpdatePaymentMethodParamsBodyExisting struct {
-	PaymentMethodID param.Field[string]                                                `json:"payment_method_id,required"`
-	Type            param.Field[SubscriptionUpdatePaymentMethodParamsBodyExistingType] `json:"type,required"`
+	PaymentMethodID param.Field[string]                                                `json:"payment_method_id" api:"required"`
+	Type            param.Field[SubscriptionUpdatePaymentMethodParamsBodyExistingType] `json:"type" api:"required"`
 }
 
 func (r SubscriptionUpdatePaymentMethodParamsBodyExisting) MarshalJSON() (data []byte, err error) {

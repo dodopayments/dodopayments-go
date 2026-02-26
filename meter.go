@@ -105,22 +105,22 @@ func (r *MeterService) Unarchive(ctx context.Context, id string, opts ...option.
 }
 
 type Meter struct {
-	ID              string           `json:"id,required"`
-	Aggregation     MeterAggregation `json:"aggregation,required"`
-	BusinessID      string           `json:"business_id,required"`
-	CreatedAt       time.Time        `json:"created_at,required" format:"date-time"`
-	EventName       string           `json:"event_name,required"`
-	MeasurementUnit string           `json:"measurement_unit,required"`
-	Name            string           `json:"name,required"`
-	UpdatedAt       time.Time        `json:"updated_at,required" format:"date-time"`
-	Description     string           `json:"description,nullable"`
+	ID              string           `json:"id" api:"required"`
+	Aggregation     MeterAggregation `json:"aggregation" api:"required"`
+	BusinessID      string           `json:"business_id" api:"required"`
+	CreatedAt       time.Time        `json:"created_at" api:"required" format:"date-time"`
+	EventName       string           `json:"event_name" api:"required"`
+	MeasurementUnit string           `json:"measurement_unit" api:"required"`
+	Name            string           `json:"name" api:"required"`
+	UpdatedAt       time.Time        `json:"updated_at" api:"required" format:"date-time"`
+	Description     string           `json:"description" api:"nullable"`
 	// A filter structure that combines multiple conditions with logical conjunctions
 	// (AND/OR).
 	//
 	// Supports up to 3 levels of nesting to create complex filter expressions. Each
 	// filter has a conjunction (and/or) and clauses that can be either direct
 	// conditions or nested filters.
-	Filter MeterFilter `json:"filter,nullable"`
+	Filter MeterFilter `json:"filter" api:"nullable"`
 	JSON   meterJSON   `json:"-"`
 }
 
@@ -150,9 +150,9 @@ func (r meterJSON) RawJSON() string {
 
 type MeterAggregation struct {
 	// Aggregation type for the meter
-	Type MeterAggregationType `json:"type,required"`
+	Type MeterAggregationType `json:"type" api:"required"`
 	// Required when type is not COUNT
-	Key  string               `json:"key,nullable"`
+	Key  string               `json:"key" api:"nullable"`
 	JSON meterAggregationJSON `json:"-"`
 }
 
@@ -193,7 +193,7 @@ func (r MeterAggregationType) IsKnown() bool {
 
 type MeterAggregationParam struct {
 	// Aggregation type for the meter
-	Type param.Field[MeterAggregationType] `json:"type,required"`
+	Type param.Field[MeterAggregationType] `json:"type" api:"required"`
 	// Required when type is not COUNT
 	Key param.Field[string] `json:"key"`
 }
@@ -211,9 +211,9 @@ func (r MeterAggregationParam) MarshalJSON() (data []byte, err error) {
 type MeterFilter struct {
 	// Filter clauses - can be direct conditions or nested filters (up to 3 levels
 	// deep)
-	Clauses MeterFilterClausesUnion `json:"clauses,required"`
+	Clauses MeterFilterClausesUnion `json:"clauses" api:"required"`
 	// Logical conjunction to apply between clauses (and/or)
-	Conjunction MeterFilterConjunction `json:"conjunction,required"`
+	Conjunction MeterFilterConjunction `json:"conjunction" api:"required"`
 	JSON        meterFilterJSON        `json:"-"`
 }
 
@@ -264,10 +264,10 @@ func (r MeterFilterClausesDirectFilterConditions) implementsMeterFilterClausesUn
 // Filter condition with key, operator, and value
 type MeterFilterClausesDirectFilterCondition struct {
 	// Filter key to apply
-	Key      string                                           `json:"key,required"`
-	Operator MeterFilterClausesDirectFilterConditionsOperator `json:"operator,required"`
+	Key      string                                           `json:"key" api:"required"`
+	Operator MeterFilterClausesDirectFilterConditionsOperator `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
-	Value MeterFilterClausesDirectFilterConditionsValueUnion `json:"value,required"`
+	Value MeterFilterClausesDirectFilterConditionsValueUnion `json:"value" api:"required"`
 	JSON  meterFilterClausesDirectFilterConditionJSON        `json:"-"`
 }
 
@@ -348,8 +348,8 @@ func (r MeterFilterClausesNestedMeterFilters) implementsMeterFilterClausesUnion(
 // Level 1 nested filter - can contain Level 2 filters
 type MeterFilterClausesNestedMeterFilter struct {
 	// Level 1: Can be conditions or nested filters (2 more levels allowed)
-	Clauses     MeterFilterClausesNestedMeterFiltersClausesUnion `json:"clauses,required"`
-	Conjunction MeterFilterClausesNestedMeterFiltersConjunction  `json:"conjunction,required"`
+	Clauses     MeterFilterClausesNestedMeterFiltersClausesUnion `json:"clauses" api:"required"`
+	Conjunction MeterFilterClausesNestedMeterFiltersConjunction  `json:"conjunction" api:"required"`
 	JSON        meterFilterClausesNestedMeterFilterJSON          `json:"-"`
 }
 
@@ -402,10 +402,10 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditions) imple
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterCondition struct {
 	// Filter key to apply
-	Key      string                                                                    `json:"key,required"`
-	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator `json:"operator,required"`
+	Key      string                                                                    `json:"key" api:"required"`
+	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
-	Value MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnion `json:"value,required"`
+	Value MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnion `json:"value" api:"required"`
 	JSON  meterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionJSON        `json:"-"`
 }
 
@@ -488,8 +488,8 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilters) implemen
 // Level 2 nested filter
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilter struct {
 	// Level 2: Can be conditions or nested filters (1 more level allowed)
-	Clauses     MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnion `json:"clauses,required"`
-	Conjunction MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction  `json:"conjunction,required"`
+	Clauses     MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnion `json:"clauses" api:"required"`
+	Conjunction MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction  `json:"conjunction" api:"required"`
 	JSON        meterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterJSON          `json:"-"`
 }
 
@@ -544,10 +544,10 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterCondition struct {
 	// Filter key to apply
-	Key      string                                                                                              `json:"key,required"`
-	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator `json:"operator,required"`
+	Key      string                                                                                              `json:"key" api:"required"`
+	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
-	Value MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnion `json:"value,required"`
+	Value MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnion `json:"value" api:"required"`
 	JSON  meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionJSON        `json:"-"`
 }
 
@@ -630,8 +630,8 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 // Level 3 nested filter (final nesting level)
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilter struct {
 	// Level 3: Filter conditions only (max depth reached)
-	Clauses     []MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClause    `json:"clauses,required"`
-	Conjunction MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction `json:"conjunction,required"`
+	Clauses     []MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClause    `json:"clauses" api:"required"`
+	Conjunction MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction `json:"conjunction" api:"required"`
 	JSON        meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterJSON         `json:"-"`
 }
 
@@ -656,10 +656,10 @@ func (r meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClause struct {
 	// Filter key to apply
-	Key      string                                                                                                  `json:"key,required"`
-	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator `json:"operator,required"`
+	Key      string                                                                                                  `json:"key" api:"required"`
+	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
-	Value MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnion `json:"value,required"`
+	Value MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnion `json:"value" api:"required"`
 	JSON  meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseJSON        `json:"-"`
 }
 
@@ -804,9 +804,9 @@ func (r MeterFilterConjunction) IsKnown() bool {
 type MeterFilterParam struct {
 	// Filter clauses - can be direct conditions or nested filters (up to 3 levels
 	// deep)
-	Clauses param.Field[MeterFilterClausesUnionParam] `json:"clauses,required"`
+	Clauses param.Field[MeterFilterClausesUnionParam] `json:"clauses" api:"required"`
 	// Logical conjunction to apply between clauses (and/or)
-	Conjunction param.Field[MeterFilterConjunction] `json:"conjunction,required"`
+	Conjunction param.Field[MeterFilterConjunction] `json:"conjunction" api:"required"`
 }
 
 func (r MeterFilterParam) MarshalJSON() (data []byte, err error) {
@@ -829,10 +829,10 @@ func (r MeterFilterClausesDirectFilterConditionsParam) implementsMeterFilterClau
 // Filter condition with key, operator, and value
 type MeterFilterClausesDirectFilterConditionParam struct {
 	// Filter key to apply
-	Key      param.Field[string]                                           `json:"key,required"`
-	Operator param.Field[MeterFilterClausesDirectFilterConditionsOperator] `json:"operator,required"`
+	Key      param.Field[string]                                           `json:"key" api:"required"`
+	Operator param.Field[MeterFilterClausesDirectFilterConditionsOperator] `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
-	Value param.Field[MeterFilterClausesDirectFilterConditionsValueUnionParam] `json:"value,required"`
+	Value param.Field[MeterFilterClausesDirectFilterConditionsValueUnionParam] `json:"value" api:"required"`
 }
 
 func (r MeterFilterClausesDirectFilterConditionParam) MarshalJSON() (data []byte, err error) {
@@ -853,8 +853,8 @@ func (r MeterFilterClausesNestedMeterFiltersParam) implementsMeterFilterClausesU
 // Level 1 nested filter - can contain Level 2 filters
 type MeterFilterClausesNestedMeterFilterParam struct {
 	// Level 1: Can be conditions or nested filters (2 more levels allowed)
-	Clauses     param.Field[MeterFilterClausesNestedMeterFiltersClausesUnionParam] `json:"clauses,required"`
-	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersConjunction]       `json:"conjunction,required"`
+	Clauses     param.Field[MeterFilterClausesNestedMeterFiltersClausesUnionParam] `json:"clauses" api:"required"`
+	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersConjunction]       `json:"conjunction" api:"required"`
 }
 
 func (r MeterFilterClausesNestedMeterFilterParam) MarshalJSON() (data []byte, err error) {
@@ -878,10 +878,10 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsParam) 
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionParam struct {
 	// Filter key to apply
-	Key      param.Field[string]                                                                    `json:"key,required"`
-	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator] `json:"operator,required"`
+	Key      param.Field[string]                                                                    `json:"key" api:"required"`
+	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator] `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
-	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnionParam] `json:"value,required"`
+	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnionParam] `json:"value" api:"required"`
 }
 
 func (r MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionParam) MarshalJSON() (data []byte, err error) {
@@ -903,8 +903,8 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersParam) imp
 // Level 2 nested filter
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterParam struct {
 	// Level 2: Can be conditions or nested filters (1 more level allowed)
-	Clauses     param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnionParam] `json:"clauses,required"`
-	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction]       `json:"conjunction,required"`
+	Clauses     param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnionParam] `json:"clauses" api:"required"`
+	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction]       `json:"conjunction" api:"required"`
 }
 
 func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterParam) MarshalJSON() (data []byte, err error) {
@@ -928,10 +928,10 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionParam struct {
 	// Filter key to apply
-	Key      param.Field[string]                                                                                              `json:"key,required"`
-	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator] `json:"operator,required"`
+	Key      param.Field[string]                                                                                              `json:"key" api:"required"`
+	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator] `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
-	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnionParam] `json:"value,required"`
+	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnionParam] `json:"value" api:"required"`
 }
 
 func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionParam) MarshalJSON() (data []byte, err error) {
@@ -953,8 +953,8 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 // Level 3 nested filter (final nesting level)
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterParam struct {
 	// Level 3: Filter conditions only (max depth reached)
-	Clauses     param.Field[[]MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseParam] `json:"clauses,required"`
-	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction]   `json:"conjunction,required"`
+	Clauses     param.Field[[]MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseParam] `json:"clauses" api:"required"`
+	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction]   `json:"conjunction" api:"required"`
 }
 
 func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterParam) MarshalJSON() (data []byte, err error) {
@@ -964,10 +964,10 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseParam struct {
 	// Filter key to apply
-	Key      param.Field[string]                                                                                                  `json:"key,required"`
-	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator] `json:"operator,required"`
+	Key      param.Field[string]                                                                                                  `json:"key" api:"required"`
+	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator] `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
-	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnionParam] `json:"value,required"`
+	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnionParam] `json:"value" api:"required"`
 }
 
 func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseParam) MarshalJSON() (data []byte, err error) {
@@ -983,13 +983,13 @@ type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2
 
 type MeterNewParams struct {
 	// Aggregation configuration for the meter
-	Aggregation param.Field[MeterAggregationParam] `json:"aggregation,required"`
+	Aggregation param.Field[MeterAggregationParam] `json:"aggregation" api:"required"`
 	// Event name to track
-	EventName param.Field[string] `json:"event_name,required"`
+	EventName param.Field[string] `json:"event_name" api:"required"`
 	// measurement unit
-	MeasurementUnit param.Field[string] `json:"measurement_unit,required"`
+	MeasurementUnit param.Field[string] `json:"measurement_unit" api:"required"`
 	// Name of the meter
-	Name param.Field[string] `json:"name,required"`
+	Name param.Field[string] `json:"name" api:"required"`
 	// Optional description of the meter
 	Description param.Field[string] `json:"description"`
 	// Optional filter to apply to the meter

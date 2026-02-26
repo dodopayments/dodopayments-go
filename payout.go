@@ -59,41 +59,41 @@ func (r *PayoutService) ListAutoPaging(ctx context.Context, query PayoutListPara
 
 type PayoutListResponse struct {
 	// The total amount of the payout.
-	Amount int64 `json:"amount,required"`
+	Amount int64 `json:"amount" api:"required"`
 	// The unique identifier of the business associated with the payout.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// The total value of chargebacks associated with the payout.
 	//
 	// Deprecated: deprecated
-	Chargebacks int64 `json:"chargebacks,required"`
+	Chargebacks int64 `json:"chargebacks" api:"required"`
 	// The timestamp when the payout was created, in UTC.
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The currency of the payout, represented as an ISO 4217 currency code.
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// The fee charged for processing the payout.
-	Fee int64 `json:"fee,required"`
+	Fee int64 `json:"fee" api:"required"`
 	// The payment method used for the payout (e.g., bank transfer, card, etc.).
-	PaymentMethod string `json:"payment_method,required"`
+	PaymentMethod string `json:"payment_method" api:"required"`
 	// The unique identifier of the payout.
-	PayoutID string `json:"payout_id,required"`
+	PayoutID string `json:"payout_id" api:"required"`
 	// The total value of refunds associated with the payout.
 	//
 	// Deprecated: deprecated
-	Refunds int64 `json:"refunds,required"`
+	Refunds int64 `json:"refunds" api:"required"`
 	// The current status of the payout.
-	Status PayoutListResponseStatus `json:"status,required"`
+	Status PayoutListResponseStatus `json:"status" api:"required"`
 	// The tax applied to the payout.
 	//
 	// Deprecated: deprecated
-	Tax int64 `json:"tax,required"`
+	Tax int64 `json:"tax" api:"required"`
 	// The timestamp when the payout was last updated, in UTC.
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// The name of the payout recipient or purpose.
-	Name string `json:"name,nullable"`
+	Name string `json:"name" api:"nullable"`
 	// The URL of the document associated with the payout.
-	PayoutDocumentURL string `json:"payout_document_url,nullable"`
+	PayoutDocumentURL string `json:"payout_document_url" api:"nullable"`
 	// Any additional remarks or notes associated with the payout.
-	Remarks string                 `json:"remarks,nullable"`
+	Remarks string                 `json:"remarks" api:"nullable"`
 	JSON    payoutListResponseJSON `json:"-"`
 }
 

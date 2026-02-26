@@ -82,11 +82,11 @@ func (r *LicenseKeyInstanceService) ListAutoPaging(ctx context.Context, query Li
 }
 
 type LicenseKeyInstance struct {
-	ID           string                 `json:"id,required"`
-	BusinessID   string                 `json:"business_id,required"`
-	CreatedAt    time.Time              `json:"created_at,required" format:"date-time"`
-	LicenseKeyID string                 `json:"license_key_id,required"`
-	Name         string                 `json:"name,required"`
+	ID           string                 `json:"id" api:"required"`
+	BusinessID   string                 `json:"business_id" api:"required"`
+	CreatedAt    time.Time              `json:"created_at" api:"required" format:"date-time"`
+	LicenseKeyID string                 `json:"license_key_id" api:"required"`
+	Name         string                 `json:"name" api:"required"`
 	JSON         licenseKeyInstanceJSON `json:"-"`
 }
 
@@ -111,7 +111,7 @@ func (r licenseKeyInstanceJSON) RawJSON() string {
 }
 
 type LicenseKeyInstanceUpdateParams struct {
-	Name param.Field[string] `json:"name,required"`
+	Name param.Field[string] `json:"name" api:"required"`
 }
 
 func (r LicenseKeyInstanceUpdateParams) MarshalJSON() (data []byte, err error) {

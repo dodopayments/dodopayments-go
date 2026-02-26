@@ -75,18 +75,18 @@ func (r *CustomerWalletLedgerEntryService) ListAutoPaging(ctx context.Context, c
 }
 
 type CustomerWalletTransaction struct {
-	ID                string                             `json:"id,required"`
-	AfterBalance      int64                              `json:"after_balance,required"`
-	Amount            int64                              `json:"amount,required"`
-	BeforeBalance     int64                              `json:"before_balance,required"`
-	BusinessID        string                             `json:"business_id,required"`
-	CreatedAt         time.Time                          `json:"created_at,required" format:"date-time"`
-	Currency          Currency                           `json:"currency,required"`
-	CustomerID        string                             `json:"customer_id,required"`
-	EventType         CustomerWalletTransactionEventType `json:"event_type,required"`
-	IsCredit          bool                               `json:"is_credit,required"`
-	Reason            string                             `json:"reason,nullable"`
-	ReferenceObjectID string                             `json:"reference_object_id,nullable"`
+	ID                string                             `json:"id" api:"required"`
+	AfterBalance      int64                              `json:"after_balance" api:"required"`
+	Amount            int64                              `json:"amount" api:"required"`
+	BeforeBalance     int64                              `json:"before_balance" api:"required"`
+	BusinessID        string                             `json:"business_id" api:"required"`
+	CreatedAt         time.Time                          `json:"created_at" api:"required" format:"date-time"`
+	Currency          Currency                           `json:"currency" api:"required"`
+	CustomerID        string                             `json:"customer_id" api:"required"`
+	EventType         CustomerWalletTransactionEventType `json:"event_type" api:"required"`
+	IsCredit          bool                               `json:"is_credit" api:"required"`
+	Reason            string                             `json:"reason" api:"nullable"`
+	ReferenceObjectID string                             `json:"reference_object_id" api:"nullable"`
 	JSON              customerWalletTransactionJSON      `json:"-"`
 }
 
@@ -138,11 +138,11 @@ func (r CustomerWalletTransactionEventType) IsKnown() bool {
 }
 
 type CustomerWalletLedgerEntryNewParams struct {
-	Amount param.Field[int64] `json:"amount,required"`
+	Amount param.Field[int64] `json:"amount" api:"required"`
 	// Currency of the wallet to adjust
-	Currency param.Field[Currency] `json:"currency,required"`
+	Currency param.Field[Currency] `json:"currency" api:"required"`
 	// Type of ledger entry - credit or debit
-	EntryType param.Field[CustomerWalletLedgerEntryNewParamsEntryType] `json:"entry_type,required"`
+	EntryType param.Field[CustomerWalletLedgerEntryNewParamsEntryType] `json:"entry_type" api:"required"`
 	// Optional idempotency key to prevent duplicate entries
 	IdempotencyKey param.Field[string] `json:"idempotency_key"`
 	Reason         param.Field[string] `json:"reason"`
