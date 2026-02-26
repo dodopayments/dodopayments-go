@@ -90,7 +90,7 @@ func (r *PaymentService) GetLineItems(ctx context.Context, paymentID string, opt
 }
 
 type AttachExistingCustomerParam struct {
-	CustomerID param.Field[string] `json:"customer_id,required"`
+	CustomerID param.Field[string] `json:"customer_id" api:"required"`
 }
 
 func (r AttachExistingCustomerParam) MarshalJSON() (data []byte, err error) {
@@ -101,15 +101,15 @@ func (r AttachExistingCustomerParam) implementsCustomerRequestUnionParam() {}
 
 type BillingAddress struct {
 	// Two-letter ISO country code (ISO 3166-1 alpha-2)
-	Country CountryCode `json:"country,required"`
+	Country CountryCode `json:"country" api:"required"`
 	// City name
-	City string `json:"city,nullable"`
+	City string `json:"city" api:"nullable"`
 	// State or province name
-	State string `json:"state,nullable"`
+	State string `json:"state" api:"nullable"`
 	// Street address including house number and unit/apartment if applicable
-	Street string `json:"street,nullable"`
+	Street string `json:"street" api:"nullable"`
 	// Postal code or ZIP code
-	Zipcode string             `json:"zipcode,nullable"`
+	Zipcode string             `json:"zipcode" api:"nullable"`
 	JSON    billingAddressJSON `json:"-"`
 }
 
@@ -134,7 +134,7 @@ func (r billingAddressJSON) RawJSON() string {
 
 type BillingAddressParam struct {
 	// Two-letter ISO country code (ISO 3166-1 alpha-2)
-	Country param.Field[CountryCode] `json:"country,required"`
+	Country param.Field[CountryCode] `json:"country" api:"required"`
 	// City name
 	City param.Field[string] `json:"city"`
 	// State or province name
@@ -151,15 +151,15 @@ func (r BillingAddressParam) MarshalJSON() (data []byte, err error) {
 
 type CustomerLimitedDetails struct {
 	// Unique identifier for the customer
-	CustomerID string `json:"customer_id,required"`
+	CustomerID string `json:"customer_id" api:"required"`
 	// Email address of the customer
-	Email string `json:"email,required"`
+	Email string `json:"email" api:"required"`
 	// Full name of the customer
-	Name string `json:"name,required"`
+	Name string `json:"name" api:"required"`
 	// Additional metadata associated with the customer
 	Metadata map[string]string `json:"metadata"`
 	// Phone number of the customer
-	PhoneNumber string                     `json:"phone_number,nullable"`
+	PhoneNumber string                     `json:"phone_number" api:"nullable"`
 	JSON        customerLimitedDetailsJSON `json:"-"`
 }
 
@@ -232,7 +232,7 @@ func (r IntentStatus) IsKnown() bool {
 
 type NewCustomerParam struct {
 	// Email is required for creating a new customer
-	Email param.Field[string] `json:"email,required"`
+	Email param.Field[string] `json:"email" api:"required"`
 	// Optional full name of the customer. If provided during session creation, it is
 	// persisted and becomes immutable for the session. If omitted here, it can be
 	// provided later via the confirm API.
@@ -247,12 +247,12 @@ func (r NewCustomerParam) MarshalJSON() (data []byte, err error) {
 func (r NewCustomerParam) implementsCustomerRequestUnionParam() {}
 
 type OneTimeProductCartItem struct {
-	ProductID string `json:"product_id,required"`
-	Quantity  int64  `json:"quantity,required"`
+	ProductID string `json:"product_id" api:"required"`
+	Quantity  int64  `json:"quantity" api:"required"`
 	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
 	// amount will be ignored Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Amount int64                      `json:"amount,nullable"`
+	Amount int64                      `json:"amount" api:"nullable"`
 	JSON   oneTimeProductCartItemJSON `json:"-"`
 }
 
@@ -275,8 +275,8 @@ func (r oneTimeProductCartItemJSON) RawJSON() string {
 }
 
 type OneTimeProductCartItemParam struct {
-	ProductID param.Field[string] `json:"product_id,required"`
-	Quantity  param.Field[int64]  `json:"quantity,required"`
+	ProductID param.Field[string] `json:"product_id" api:"required"`
+	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
 	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
 	// amount will be ignored Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
@@ -289,86 +289,86 @@ func (r OneTimeProductCartItemParam) MarshalJSON() (data []byte, err error) {
 
 type Payment struct {
 	// Billing address details for payments
-	Billing BillingAddress `json:"billing,required"`
+	Billing BillingAddress `json:"billing" api:"required"`
 	// brand id this payment belongs to
-	BrandID string `json:"brand_id,required"`
+	BrandID string `json:"brand_id" api:"required"`
 	// Identifier of the business associated with the payment
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// Timestamp when the payment was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Currency used for the payment
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// Details about the customer who made the payment
-	Customer CustomerLimitedDetails `json:"customer,required"`
+	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// brand id this payment belongs to
-	DigitalProductsDelivered bool `json:"digital_products_delivered,required"`
+	DigitalProductsDelivered bool `json:"digital_products_delivered" api:"required"`
 	// List of disputes associated with this payment
-	Disputes []Dispute `json:"disputes,required"`
+	Disputes []Dispute `json:"disputes" api:"required"`
 	// Additional custom data associated with the payment
-	Metadata map[string]string `json:"metadata,required"`
+	Metadata map[string]string `json:"metadata" api:"required"`
 	// Unique identifier for the payment
-	PaymentID string `json:"payment_id,required"`
+	PaymentID string `json:"payment_id" api:"required"`
 	// List of refunds issued for this payment
-	Refunds []PaymentRefund `json:"refunds,required"`
+	Refunds []PaymentRefund `json:"refunds" api:"required"`
 	// The amount that will be credited to your Dodo balance after currency conversion
 	// and processing. Especially relevant for adaptive pricing where the customer's
 	// payment currency differs from your settlement currency.
-	SettlementAmount int64 `json:"settlement_amount,required"`
+	SettlementAmount int64 `json:"settlement_amount" api:"required"`
 	// The currency in which the settlement_amount will be credited to your Dodo
 	// balance. This may differ from the customer's payment currency in adaptive
 	// pricing scenarios.
-	SettlementCurrency Currency `json:"settlement_currency,required"`
+	SettlementCurrency Currency `json:"settlement_currency" api:"required"`
 	// Total amount charged to the customer including tax, in smallest currency unit
 	// (e.g. cents)
-	TotalAmount int64 `json:"total_amount,required"`
+	TotalAmount int64 `json:"total_amount" api:"required"`
 	// Cardholder name
-	CardHolderName string `json:"card_holder_name,nullable"`
+	CardHolderName string `json:"card_holder_name" api:"nullable"`
 	// ISO2 country code of the card
-	CardIssuingCountry CountryCode `json:"card_issuing_country,nullable"`
+	CardIssuingCountry CountryCode `json:"card_issuing_country" api:"nullable"`
 	// The last four digits of the card
-	CardLastFour string `json:"card_last_four,nullable"`
+	CardLastFour string `json:"card_last_four" api:"nullable"`
 	// Card network like VISA, MASTERCARD etc.
-	CardNetwork string `json:"card_network,nullable"`
+	CardNetwork string `json:"card_network" api:"nullable"`
 	// The type of card DEBIT or CREDIT
-	CardType string `json:"card_type,nullable"`
+	CardType string `json:"card_type" api:"nullable"`
 	// If payment is made using a checkout session, this field is set to the id of the
 	// session.
-	CheckoutSessionID string `json:"checkout_session_id,nullable"`
+	CheckoutSessionID string `json:"checkout_session_id" api:"nullable"`
 	// Customer's responses to custom fields collected during checkout
-	CustomFieldResponses []PaymentCustomFieldResponse `json:"custom_field_responses,nullable"`
+	CustomFieldResponses []PaymentCustomFieldResponse `json:"custom_field_responses" api:"nullable"`
 	// The discount id if discount is applied
-	DiscountID string `json:"discount_id,nullable"`
+	DiscountID string `json:"discount_id" api:"nullable"`
 	// An error code if the payment failed
-	ErrorCode string `json:"error_code,nullable"`
+	ErrorCode string `json:"error_code" api:"nullable"`
 	// An error message if the payment failed
-	ErrorMessage string `json:"error_message,nullable"`
+	ErrorMessage string `json:"error_message" api:"nullable"`
 	// Invoice ID for this payment. Uses India-specific invoice ID if available.
-	InvoiceID string `json:"invoice_id,nullable"`
+	InvoiceID string `json:"invoice_id" api:"nullable"`
 	// URL to download the invoice PDF for this payment.
-	InvoiceURL string `json:"invoice_url,nullable"`
+	InvoiceURL string `json:"invoice_url" api:"nullable"`
 	// Checkout URL
-	PaymentLink string `json:"payment_link,nullable"`
+	PaymentLink string `json:"payment_link" api:"nullable"`
 	// Payment method used by customer (e.g. "card", "bank_transfer")
-	PaymentMethod string `json:"payment_method,nullable"`
+	PaymentMethod string `json:"payment_method" api:"nullable"`
 	// Specific type of payment method (e.g. "visa", "mastercard")
-	PaymentMethodType string `json:"payment_method_type,nullable"`
+	PaymentMethodType string `json:"payment_method_type" api:"nullable"`
 	// List of products purchased in a one-time payment
-	ProductCart []PaymentProductCart `json:"product_cart,nullable"`
+	ProductCart []PaymentProductCart `json:"product_cart" api:"nullable"`
 	// Summary of the refund status for this payment. None if no succeeded refunds
 	// exist.
-	RefundStatus PaymentRefundStatus `json:"refund_status,nullable"`
+	RefundStatus PaymentRefundStatus `json:"refund_status" api:"nullable"`
 	// This represents the portion of settlement_amount that corresponds to taxes
 	// collected. Especially relevant for adaptive pricing where the tax component must
 	// be tracked separately in your Dodo balance.
-	SettlementTax int64 `json:"settlement_tax,nullable"`
+	SettlementTax int64 `json:"settlement_tax" api:"nullable"`
 	// Current status of the payment intent
-	Status IntentStatus `json:"status,nullable"`
+	Status IntentStatus `json:"status" api:"nullable"`
 	// Identifier of the subscription if payment is part of a subscription
-	SubscriptionID string `json:"subscription_id,nullable"`
+	SubscriptionID string `json:"subscription_id" api:"nullable"`
 	// Amount of tax collected in smallest currency unit (e.g. cents)
-	Tax int64 `json:"tax,nullable"`
+	Tax int64 `json:"tax" api:"nullable"`
 	// Timestamp when the payment was last updated
-	UpdatedAt time.Time   `json:"updated_at,nullable" format:"date-time"`
+	UpdatedAt time.Time   `json:"updated_at" api:"nullable" format:"date-time"`
 	JSON      paymentJSON `json:"-"`
 }
 
@@ -424,23 +424,23 @@ func (r paymentJSON) RawJSON() string {
 
 type PaymentRefund struct {
 	// The unique identifier of the business issuing the refund.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// The timestamp of when the refund was created in UTC.
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// If true the refund is a partial refund
-	IsPartial bool `json:"is_partial,required"`
+	IsPartial bool `json:"is_partial" api:"required"`
 	// The unique identifier of the payment associated with the refund.
-	PaymentID string `json:"payment_id,required"`
+	PaymentID string `json:"payment_id" api:"required"`
 	// The unique identifier of the refund.
-	RefundID string `json:"refund_id,required"`
+	RefundID string `json:"refund_id" api:"required"`
 	// The current status of the refund.
-	Status RefundStatus `json:"status,required"`
+	Status RefundStatus `json:"status" api:"required"`
 	// The refunded amount.
-	Amount int64 `json:"amount,nullable"`
+	Amount int64 `json:"amount" api:"nullable"`
 	// The currency of the refund, represented as an ISO 4217 currency code.
-	Currency Currency `json:"currency,nullable"`
+	Currency Currency `json:"currency" api:"nullable"`
 	// The reason provided for the refund, if any. Optional.
-	Reason string            `json:"reason,nullable"`
+	Reason string            `json:"reason" api:"nullable"`
 	JSON   paymentRefundJSON `json:"-"`
 }
 
@@ -470,9 +470,9 @@ func (r paymentRefundJSON) RawJSON() string {
 // Customer's response to a custom field
 type PaymentCustomFieldResponse struct {
 	// Key matching the custom field definition
-	Key string `json:"key,required"`
+	Key string `json:"key" api:"required"`
 	// Value provided by customer
-	Value string                         `json:"value,required"`
+	Value string                         `json:"value" api:"required"`
 	JSON  paymentCustomFieldResponseJSON `json:"-"`
 }
 
@@ -494,8 +494,8 @@ func (r paymentCustomFieldResponseJSON) RawJSON() string {
 }
 
 type PaymentProductCart struct {
-	ProductID string                 `json:"product_id,required"`
-	Quantity  int64                  `json:"quantity,required"`
+	ProductID string                 `json:"product_id" api:"required"`
+	Quantity  int64                  `json:"quantity" api:"required"`
 	JSON      paymentProductCartJSON `json:"-"`
 }
 
@@ -653,23 +653,23 @@ func (r PaymentMethodTypes) IsKnown() bool {
 type PaymentNewResponse struct {
 	// Client secret used to load Dodo checkout SDK NOTE : Dodo checkout SDK will be
 	// coming soon
-	ClientSecret string `json:"client_secret,required"`
+	ClientSecret string `json:"client_secret" api:"required"`
 	// Limited details about the customer making the payment
-	Customer CustomerLimitedDetails `json:"customer,required"`
+	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// Additional metadata associated with the payment
-	Metadata map[string]string `json:"metadata,required"`
+	Metadata map[string]string `json:"metadata" api:"required"`
 	// Unique identifier for the payment
-	PaymentID string `json:"payment_id,required"`
+	PaymentID string `json:"payment_id" api:"required"`
 	// Total amount of the payment in smallest currency unit (e.g. cents)
-	TotalAmount int64 `json:"total_amount,required"`
+	TotalAmount int64 `json:"total_amount" api:"required"`
 	// The discount id if discount is applied
-	DiscountID string `json:"discount_id,nullable"`
+	DiscountID string `json:"discount_id" api:"nullable"`
 	// Expiry timestamp of the payment link
-	ExpiresOn time.Time `json:"expires_on,nullable" format:"date-time"`
+	ExpiresOn time.Time `json:"expires_on" api:"nullable" format:"date-time"`
 	// Optional URL to a hosted payment page
-	PaymentLink string `json:"payment_link,nullable"`
+	PaymentLink string `json:"payment_link" api:"nullable"`
 	// Optional list of products included in the payment
-	ProductCart []OneTimeProductCartItem `json:"product_cart,nullable"`
+	ProductCart []OneTimeProductCartItem `json:"product_cart" api:"nullable"`
 	JSON        paymentNewResponseJSON   `json:"-"`
 }
 
@@ -698,23 +698,23 @@ func (r paymentNewResponseJSON) RawJSON() string {
 }
 
 type PaymentListResponse struct {
-	BrandID                  string                 `json:"brand_id,required"`
-	CreatedAt                time.Time              `json:"created_at,required" format:"date-time"`
-	Currency                 Currency               `json:"currency,required"`
-	Customer                 CustomerLimitedDetails `json:"customer,required"`
-	DigitalProductsDelivered bool                   `json:"digital_products_delivered,required"`
-	HasLicenseKey            bool                   `json:"has_license_key,required"`
-	Metadata                 map[string]string      `json:"metadata,required"`
-	PaymentID                string                 `json:"payment_id,required"`
-	TotalAmount              int64                  `json:"total_amount,required"`
+	BrandID                  string                 `json:"brand_id" api:"required"`
+	CreatedAt                time.Time              `json:"created_at" api:"required" format:"date-time"`
+	Currency                 Currency               `json:"currency" api:"required"`
+	Customer                 CustomerLimitedDetails `json:"customer" api:"required"`
+	DigitalProductsDelivered bool                   `json:"digital_products_delivered" api:"required"`
+	HasLicenseKey            bool                   `json:"has_license_key" api:"required"`
+	Metadata                 map[string]string      `json:"metadata" api:"required"`
+	PaymentID                string                 `json:"payment_id" api:"required"`
+	TotalAmount              int64                  `json:"total_amount" api:"required"`
 	// Invoice ID for this payment. Uses India-specific invoice ID if available.
-	InvoiceID string `json:"invoice_id,nullable"`
+	InvoiceID string `json:"invoice_id" api:"nullable"`
 	// URL to download the invoice PDF for this payment.
-	InvoiceURL        string                  `json:"invoice_url,nullable"`
-	PaymentMethod     string                  `json:"payment_method,nullable"`
-	PaymentMethodType string                  `json:"payment_method_type,nullable"`
-	Status            IntentStatus            `json:"status,nullable"`
-	SubscriptionID    string                  `json:"subscription_id,nullable"`
+	InvoiceURL        string                  `json:"invoice_url" api:"nullable"`
+	PaymentMethod     string                  `json:"payment_method" api:"nullable"`
+	PaymentMethodType string                  `json:"payment_method_type" api:"nullable"`
+	Status            IntentStatus            `json:"status" api:"nullable"`
+	SubscriptionID    string                  `json:"subscription_id" api:"nullable"`
 	JSON              paymentListResponseJSON `json:"-"`
 }
 
@@ -749,8 +749,8 @@ func (r paymentListResponseJSON) RawJSON() string {
 }
 
 type PaymentGetLineItemsResponse struct {
-	Currency Currency                          `json:"currency,required"`
-	Items    []PaymentGetLineItemsResponseItem `json:"items,required"`
+	Currency Currency                          `json:"currency" api:"required"`
+	Items    []PaymentGetLineItemsResponseItem `json:"items" api:"required"`
 	JSON     paymentGetLineItemsResponseJSON   `json:"-"`
 }
 
@@ -772,12 +772,12 @@ func (r paymentGetLineItemsResponseJSON) RawJSON() string {
 }
 
 type PaymentGetLineItemsResponseItem struct {
-	Amount           int64                               `json:"amount,required"`
-	ItemsID          string                              `json:"items_id,required"`
-	RefundableAmount int64                               `json:"refundable_amount,required"`
-	Tax              int64                               `json:"tax,required"`
-	Description      string                              `json:"description,nullable"`
-	Name             string                              `json:"name,nullable"`
+	Amount           int64                               `json:"amount" api:"required"`
+	ItemsID          string                              `json:"items_id" api:"required"`
+	RefundableAmount int64                               `json:"refundable_amount" api:"required"`
+	Tax              int64                               `json:"tax" api:"required"`
+	Description      string                              `json:"description" api:"nullable"`
+	Name             string                              `json:"name" api:"nullable"`
 	JSON             paymentGetLineItemsResponseItemJSON `json:"-"`
 }
 
@@ -804,11 +804,11 @@ func (r paymentGetLineItemsResponseItemJSON) RawJSON() string {
 
 type PaymentNewParams struct {
 	// Billing address details for the payment
-	Billing param.Field[BillingAddressParam] `json:"billing,required"`
+	Billing param.Field[BillingAddressParam] `json:"billing" api:"required"`
 	// Customer information for the payment
-	Customer param.Field[CustomerRequestUnionParam] `json:"customer,required"`
+	Customer param.Field[CustomerRequestUnionParam] `json:"customer" api:"required"`
 	// List of products in the cart. Must contain at least 1 and at most 100 items.
-	ProductCart param.Field[[]OneTimeProductCartItemParam] `json:"product_cart,required"`
+	ProductCart param.Field[[]OneTimeProductCartItemParam] `json:"product_cart" api:"required"`
 	// List of payment methods allowed during checkout.
 	//
 	// Customers will **never** see payment methods that are **not** in this list.

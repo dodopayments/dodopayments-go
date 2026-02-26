@@ -62,7 +62,7 @@ func (r *CheckoutSessionService) Preview(ctx context.Context, body CheckoutSessi
 
 type CheckoutSessionBillingAddressParam struct {
 	// Two-letter ISO country code (ISO 3166-1 alpha-2)
-	Country param.Field[CountryCode] `json:"country,required"`
+	Country param.Field[CountryCode] `json:"country" api:"required"`
 	// City name
 	City param.Field[string] `json:"city"`
 	// State or province name
@@ -160,7 +160,7 @@ func (r CheckoutSessionFlagsParam) MarshalJSON() (data []byte, err error) {
 }
 
 type CheckoutSessionRequestParam struct {
-	ProductCart param.Field[[]ProductItemReqParam] `json:"product_cart,required"`
+	ProductCart param.Field[[]ProductItemReqParam] `json:"product_cart" api:"required"`
 	// Customers will never see payment methods that are not in this list. However,
 	// adding a method here does not guarantee customers will see it. Availability
 	// still depends on other factors (e.g., customer location, merchant settings).
@@ -214,9 +214,9 @@ func (r CheckoutSessionRequestParam) MarshalJSON() (data []byte, err error) {
 
 type CheckoutSessionResponse struct {
 	// The ID of the created checkout session
-	SessionID string `json:"session_id,required"`
+	SessionID string `json:"session_id" api:"required"`
 	// Checkout url (None when payment_method_id is provided)
-	CheckoutURL string                      `json:"checkout_url,nullable"`
+	CheckoutURL string                      `json:"checkout_url" api:"nullable"`
 	JSON        checkoutSessionResponseJSON `json:"-"`
 }
 
@@ -239,21 +239,21 @@ func (r checkoutSessionResponseJSON) RawJSON() string {
 
 type CheckoutSessionStatus struct {
 	// Id of the checkout session
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Created at timestamp
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Customer email: prefers payment's customer, falls back to session
-	CustomerEmail string `json:"customer_email,nullable"`
+	CustomerEmail string `json:"customer_email" api:"nullable"`
 	// Customer name: prefers payment's customer, falls back to session
-	CustomerName string `json:"customer_name,nullable"`
+	CustomerName string `json:"customer_name" api:"nullable"`
 	// Id of the payment created by the checkout sessions.
 	//
 	// Null if checkout sessions is still at the details collection stage.
-	PaymentID string `json:"payment_id,nullable"`
+	PaymentID string `json:"payment_id" api:"nullable"`
 	// status of the payment.
 	//
 	// Null if checkout sessions is still at the details collection stage.
-	PaymentStatus IntentStatus              `json:"payment_status,nullable"`
+	PaymentStatus IntentStatus              `json:"payment_status" api:"nullable"`
 	JSON          checkoutSessionStatusJSON `json:"-"`
 }
 
@@ -281,11 +281,11 @@ func (r checkoutSessionStatusJSON) RawJSON() string {
 // Definition of a custom field for checkout
 type CustomFieldParam struct {
 	// Type of field determining validation rules
-	FieldType param.Field[CustomFieldFieldType] `json:"field_type,required"`
+	FieldType param.Field[CustomFieldFieldType] `json:"field_type" api:"required"`
 	// Unique identifier for this field (used as key in responses)
-	Key param.Field[string] `json:"key,required"`
+	Key param.Field[string] `json:"key" api:"required"`
 	// Display label shown to customer
-	Label param.Field[string] `json:"label,required"`
+	Label param.Field[string] `json:"label" api:"required"`
 	// Options for dropdown type (required for dropdown, ignored for others)
 	Options param.Field[[]string] `json:"options"`
 	// Placeholder text for the input
@@ -321,8 +321,8 @@ func (r CustomFieldFieldType) IsKnown() bool {
 
 type ProductItemReqParam struct {
 	// unique id of the product
-	ProductID param.Field[string] `json:"product_id,required"`
-	Quantity  param.Field[int64]  `json:"quantity,required"`
+	ProductID param.Field[string] `json:"product_id" api:"required"`
+	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
 	// only valid if product is a subscription
 	Addons param.Field[[]AttachAddonParam] `json:"addons"`
 	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
@@ -467,21 +467,21 @@ func (r ThemeModeConfigParam) MarshalJSON() (data []byte, err error) {
 // Data returned by the calculate checkout session API
 type CheckoutSessionPreviewResponse struct {
 	// Billing country
-	BillingCountry CountryCode `json:"billing_country,required"`
+	BillingCountry CountryCode `json:"billing_country" api:"required"`
 	// Currency in which the calculations were made
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// Breakup of the current payment
-	CurrentBreakup CheckoutSessionPreviewResponseCurrentBreakup `json:"current_breakup,required"`
+	CurrentBreakup CheckoutSessionPreviewResponseCurrentBreakup `json:"current_breakup" api:"required"`
 	// The total product cart
-	ProductCart []CheckoutSessionPreviewResponseProductCart `json:"product_cart,required"`
+	ProductCart []CheckoutSessionPreviewResponseProductCart `json:"product_cart" api:"required"`
 	// Total calculate price of the product cart
-	TotalPrice int64 `json:"total_price,required"`
+	TotalPrice int64 `json:"total_price" api:"required"`
 	// Breakup of recurring payments (None for one-time only)
-	RecurringBreakup CheckoutSessionPreviewResponseRecurringBreakup `json:"recurring_breakup,nullable"`
+	RecurringBreakup CheckoutSessionPreviewResponseRecurringBreakup `json:"recurring_breakup" api:"nullable"`
 	// Error message if tax ID validation failed
-	TaxIDErrMsg string `json:"tax_id_err_msg,nullable"`
+	TaxIDErrMsg string `json:"tax_id_err_msg" api:"nullable"`
 	// Total tax
-	TotalTax int64                              `json:"total_tax,nullable"`
+	TotalTax int64                              `json:"total_tax" api:"nullable"`
 	JSON     checkoutSessionPreviewResponseJSON `json:"-"`
 }
 
@@ -511,13 +511,13 @@ func (r checkoutSessionPreviewResponseJSON) RawJSON() string {
 // Breakup of the current payment
 type CheckoutSessionPreviewResponseCurrentBreakup struct {
 	// Total discount amount
-	Discount int64 `json:"discount,required"`
+	Discount int64 `json:"discount" api:"required"`
 	// Subtotal before discount (pre-tax original prices)
-	Subtotal int64 `json:"subtotal,required"`
+	Subtotal int64 `json:"subtotal" api:"required"`
 	// Total amount to be charged (final amount after all calculations)
-	TotalAmount int64 `json:"total_amount,required"`
+	TotalAmount int64 `json:"total_amount" api:"required"`
 	// Total tax amount
-	Tax  int64                                            `json:"tax,nullable"`
+	Tax  int64                                            `json:"tax" api:"nullable"`
 	JSON checkoutSessionPreviewResponseCurrentBreakupJSON `json:"-"`
 }
 
@@ -542,39 +542,39 @@ func (r checkoutSessionPreviewResponseCurrentBreakupJSON) RawJSON() string {
 
 type CheckoutSessionPreviewResponseProductCart struct {
 	// Credit entitlements that will be granted upon purchase
-	CreditEntitlements []CheckoutSessionPreviewResponseProductCartCreditEntitlement `json:"credit_entitlements,required"`
+	CreditEntitlements []CheckoutSessionPreviewResponseProductCartCreditEntitlement `json:"credit_entitlements" api:"required"`
 	// the currency in which the calculatiosn were made
-	Currency Currency `json:"currency,required"`
+	Currency Currency `json:"currency" api:"required"`
 	// discounted price
-	DiscountedPrice int64 `json:"discounted_price,required"`
+	DiscountedPrice int64 `json:"discounted_price" api:"required"`
 	// Whether this is a subscription product (affects tax calculation in breakup)
-	IsSubscription bool                                             `json:"is_subscription,required"`
-	IsUsageBased   bool                                             `json:"is_usage_based,required"`
-	Meters         []CheckoutSessionPreviewResponseProductCartMeter `json:"meters,required"`
+	IsSubscription bool                                             `json:"is_subscription" api:"required"`
+	IsUsageBased   bool                                             `json:"is_usage_based" api:"required"`
+	Meters         []CheckoutSessionPreviewResponseProductCartMeter `json:"meters" api:"required"`
 	// the product currency
-	OgCurrency Currency `json:"og_currency,required"`
+	OgCurrency Currency `json:"og_currency" api:"required"`
 	// original price of the product
-	OgPrice int64 `json:"og_price,required"`
+	OgPrice int64 `json:"og_price" api:"required"`
 	// unique id of the product
-	ProductID string `json:"product_id,required"`
+	ProductID string `json:"product_id" api:"required"`
 	// Quanitity
-	Quantity int64 `json:"quantity,required"`
+	Quantity int64 `json:"quantity" api:"required"`
 	// tax category
-	TaxCategory TaxCategory `json:"tax_category,required"`
+	TaxCategory TaxCategory `json:"tax_category" api:"required"`
 	// Whether tax is included in the price
-	TaxInclusive bool `json:"tax_inclusive,required"`
+	TaxInclusive bool `json:"tax_inclusive" api:"required"`
 	// tax rate
-	TaxRate     int64                                            `json:"tax_rate,required"`
-	Addons      []CheckoutSessionPreviewResponseProductCartAddon `json:"addons,nullable"`
-	Description string                                           `json:"description,nullable"`
+	TaxRate     int64                                            `json:"tax_rate" api:"required"`
+	Addons      []CheckoutSessionPreviewResponseProductCartAddon `json:"addons" api:"nullable"`
+	Description string                                           `json:"description" api:"nullable"`
 	// discount percentage
-	DiscountAmount int64 `json:"discount_amount,nullable"`
+	DiscountAmount int64 `json:"discount_amount" api:"nullable"`
 	// number of cycles the discount will apply
-	DiscountCycle int64 `json:"discount_cycle,nullable"`
+	DiscountCycle int64 `json:"discount_cycle" api:"nullable"`
 	// name of the product
-	Name string `json:"name,nullable"`
+	Name string `json:"name" api:"nullable"`
 	// total tax
-	Tax  int64                                         `json:"tax,nullable"`
+	Tax  int64                                         `json:"tax" api:"nullable"`
 	JSON checkoutSessionPreviewResponseProductCartJSON `json:"-"`
 }
 
@@ -616,13 +616,13 @@ func (r checkoutSessionPreviewResponseProductCartJSON) RawJSON() string {
 // will receive
 type CheckoutSessionPreviewResponseProductCartCreditEntitlement struct {
 	// ID of the credit entitlement
-	CreditEntitlementID string `json:"credit_entitlement_id,required"`
+	CreditEntitlementID string `json:"credit_entitlement_id" api:"required"`
 	// Name of the credit entitlement
-	CreditEntitlementName string `json:"credit_entitlement_name,required"`
+	CreditEntitlementName string `json:"credit_entitlement_name" api:"required"`
 	// Unit label (e.g. "API Calls", "Tokens")
-	CreditEntitlementUnit string `json:"credit_entitlement_unit,required"`
+	CreditEntitlementUnit string `json:"credit_entitlement_unit" api:"required"`
 	// Number of credits granted
-	CreditsAmount string                                                         `json:"credits_amount,required"`
+	CreditsAmount string                                                         `json:"credits_amount" api:"required"`
 	JSON          checkoutSessionPreviewResponseProductCartCreditEntitlementJSON `json:"-"`
 }
 
@@ -647,11 +647,11 @@ func (r checkoutSessionPreviewResponseProductCartCreditEntitlementJSON) RawJSON(
 }
 
 type CheckoutSessionPreviewResponseProductCartMeter struct {
-	MeasurementUnit string                                             `json:"measurement_unit,required"`
-	Name            string                                             `json:"name,required"`
-	PricePerUnit    string                                             `json:"price_per_unit,required"`
-	Description     string                                             `json:"description,nullable"`
-	FreeThreshold   int64                                              `json:"free_threshold,nullable"`
+	MeasurementUnit string                                             `json:"measurement_unit" api:"required"`
+	Name            string                                             `json:"name" api:"required"`
+	PricePerUnit    string                                             `json:"price_per_unit" api:"required"`
+	Description     string                                             `json:"description" api:"nullable"`
+	FreeThreshold   int64                                              `json:"free_threshold" api:"nullable"`
 	JSON            checkoutSessionPreviewResponseProductCartMeterJSON `json:"-"`
 }
 
@@ -676,21 +676,21 @@ func (r checkoutSessionPreviewResponseProductCartMeterJSON) RawJSON() string {
 }
 
 type CheckoutSessionPreviewResponseProductCartAddon struct {
-	AddonID         string   `json:"addon_id,required"`
-	Currency        Currency `json:"currency,required"`
-	DiscountedPrice int64    `json:"discounted_price,required"`
-	Name            string   `json:"name,required"`
-	OgCurrency      Currency `json:"og_currency,required"`
-	OgPrice         int64    `json:"og_price,required"`
-	Quantity        int64    `json:"quantity,required"`
+	AddonID         string   `json:"addon_id" api:"required"`
+	Currency        Currency `json:"currency" api:"required"`
+	DiscountedPrice int64    `json:"discounted_price" api:"required"`
+	Name            string   `json:"name" api:"required"`
+	OgCurrency      Currency `json:"og_currency" api:"required"`
+	OgPrice         int64    `json:"og_price" api:"required"`
+	Quantity        int64    `json:"quantity" api:"required"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
-	TaxCategory    TaxCategory                                        `json:"tax_category,required"`
-	TaxInclusive   bool                                               `json:"tax_inclusive,required"`
-	TaxRate        int64                                              `json:"tax_rate,required"`
-	Description    string                                             `json:"description,nullable"`
-	DiscountAmount int64                                              `json:"discount_amount,nullable"`
-	Tax            int64                                              `json:"tax,nullable"`
+	TaxCategory    TaxCategory                                        `json:"tax_category" api:"required"`
+	TaxInclusive   bool                                               `json:"tax_inclusive" api:"required"`
+	TaxRate        int64                                              `json:"tax_rate" api:"required"`
+	Description    string                                             `json:"description" api:"nullable"`
+	DiscountAmount int64                                              `json:"discount_amount" api:"nullable"`
+	Tax            int64                                              `json:"tax" api:"nullable"`
 	JSON           checkoutSessionPreviewResponseProductCartAddonJSON `json:"-"`
 }
 
@@ -725,13 +725,13 @@ func (r checkoutSessionPreviewResponseProductCartAddonJSON) RawJSON() string {
 // Breakup of recurring payments (None for one-time only)
 type CheckoutSessionPreviewResponseRecurringBreakup struct {
 	// Total discount amount
-	Discount int64 `json:"discount,required"`
+	Discount int64 `json:"discount" api:"required"`
 	// Subtotal before discount (pre-tax original prices)
-	Subtotal int64 `json:"subtotal,required"`
+	Subtotal int64 `json:"subtotal" api:"required"`
 	// Total recurring amount including tax
-	TotalAmount int64 `json:"total_amount,required"`
+	TotalAmount int64 `json:"total_amount" api:"required"`
 	// Total tax on recurring payments
-	Tax  int64                                              `json:"tax,nullable"`
+	Tax  int64                                              `json:"tax" api:"nullable"`
 	JSON checkoutSessionPreviewResponseRecurringBreakupJSON `json:"-"`
 }
 
@@ -755,7 +755,7 @@ func (r checkoutSessionPreviewResponseRecurringBreakupJSON) RawJSON() string {
 }
 
 type CheckoutSessionNewParams struct {
-	CheckoutSessionRequest CheckoutSessionRequestParam `json:"checkout_session_request,required"`
+	CheckoutSessionRequest CheckoutSessionRequestParam `json:"checkout_session_request" api:"required"`
 }
 
 func (r CheckoutSessionNewParams) MarshalJSON() (data []byte, err error) {
@@ -763,7 +763,7 @@ func (r CheckoutSessionNewParams) MarshalJSON() (data []byte, err error) {
 }
 
 type CheckoutSessionPreviewParams struct {
-	CheckoutSessionRequest CheckoutSessionRequestParam `json:"checkout_session_request,required"`
+	CheckoutSessionRequest CheckoutSessionRequestParam `json:"checkout_session_request" api:"required"`
 }
 
 func (r CheckoutSessionPreviewParams) MarshalJSON() (data []byte, err error) {

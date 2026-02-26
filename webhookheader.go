@@ -64,9 +64,9 @@ func (r *WebhookHeaderService) Update(ctx context.Context, webhookID string, bod
 // Sensitive headers that have been redacted are returned in the sensitive field.
 type WebhookHeaderGetResponse struct {
 	// List of headers configured
-	Headers map[string]string `json:"headers,required"`
+	Headers map[string]string `json:"headers" api:"required"`
 	// Sensitive headers without the value
-	Sensitive []string                     `json:"sensitive,required"`
+	Sensitive []string                     `json:"sensitive" api:"required"`
 	JSON      webhookHeaderGetResponseJSON `json:"-"`
 }
 
@@ -89,7 +89,7 @@ func (r webhookHeaderGetResponseJSON) RawJSON() string {
 
 type WebhookHeaderUpdateParams struct {
 	// Object of header-value pair to update or add
-	Headers param.Field[map[string]string] `json:"headers,required"`
+	Headers param.Field[map[string]string] `json:"headers" api:"required"`
 }
 
 func (r WebhookHeaderUpdateParams) MarshalJSON() (data []byte, err error) {

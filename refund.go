@@ -79,27 +79,27 @@ func (r *RefundService) ListAutoPaging(ctx context.Context, query RefundListPara
 
 type Refund struct {
 	// The unique identifier of the business issuing the refund.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// The timestamp of when the refund was created in UTC.
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Details about the customer for this refund (from the associated payment)
-	Customer CustomerLimitedDetails `json:"customer,required"`
+	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// If true the refund is a partial refund
-	IsPartial bool `json:"is_partial,required"`
+	IsPartial bool `json:"is_partial" api:"required"`
 	// Additional metadata stored with the refund.
-	Metadata map[string]string `json:"metadata,required"`
+	Metadata map[string]string `json:"metadata" api:"required"`
 	// The unique identifier of the payment associated with the refund.
-	PaymentID string `json:"payment_id,required"`
+	PaymentID string `json:"payment_id" api:"required"`
 	// The unique identifier of the refund.
-	RefundID string `json:"refund_id,required"`
+	RefundID string `json:"refund_id" api:"required"`
 	// The current status of the refund.
-	Status RefundStatus `json:"status,required"`
+	Status RefundStatus `json:"status" api:"required"`
 	// The refunded amount.
-	Amount int64 `json:"amount,nullable"`
+	Amount int64 `json:"amount" api:"nullable"`
 	// The currency of the refund, represented as an ISO 4217 currency code.
-	Currency Currency `json:"currency,nullable"`
+	Currency Currency `json:"currency" api:"nullable"`
 	// The reason provided for the refund, if any. Optional.
-	Reason string     `json:"reason,nullable"`
+	Reason string     `json:"reason" api:"nullable"`
 	JSON   refundJSON `json:"-"`
 }
 
@@ -147,23 +147,23 @@ func (r RefundStatus) IsKnown() bool {
 
 type RefundListResponse struct {
 	// The unique identifier of the business issuing the refund.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// The timestamp of when the refund was created in UTC.
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// If true the refund is a partial refund
-	IsPartial bool `json:"is_partial,required"`
+	IsPartial bool `json:"is_partial" api:"required"`
 	// The unique identifier of the payment associated with the refund.
-	PaymentID string `json:"payment_id,required"`
+	PaymentID string `json:"payment_id" api:"required"`
 	// The unique identifier of the refund.
-	RefundID string `json:"refund_id,required"`
+	RefundID string `json:"refund_id" api:"required"`
 	// The current status of the refund.
-	Status RefundStatus `json:"status,required"`
+	Status RefundStatus `json:"status" api:"required"`
 	// The refunded amount.
-	Amount int64 `json:"amount,nullable"`
+	Amount int64 `json:"amount" api:"nullable"`
 	// The currency of the refund, represented as an ISO 4217 currency code.
-	Currency Currency `json:"currency,nullable"`
+	Currency Currency `json:"currency" api:"nullable"`
 	// The reason provided for the refund, if any. Optional.
-	Reason string                 `json:"reason,nullable"`
+	Reason string                 `json:"reason" api:"nullable"`
 	JSON   refundListResponseJSON `json:"-"`
 }
 
@@ -193,7 +193,7 @@ func (r refundListResponseJSON) RawJSON() string {
 
 type RefundNewParams struct {
 	// The unique identifier of the payment to be refunded.
-	PaymentID param.Field[string] `json:"payment_id,required"`
+	PaymentID param.Field[string] `json:"payment_id" api:"required"`
 	// Partially Refund an Individual Item
 	Items param.Field[[]RefundNewParamsItem] `json:"items"`
 	// Additional metadata associated with the refund.
@@ -208,7 +208,7 @@ func (r RefundNewParams) MarshalJSON() (data []byte, err error) {
 
 type RefundNewParamsItem struct {
 	// The id of the item (i.e. `product_id` or `addon_id`)
-	ItemID param.Field[string] `json:"item_id,required"`
+	ItemID param.Field[string] `json:"item_id" api:"required"`
 	// The amount to refund. if None the whole item is refunded
 	Amount param.Field[int64] `json:"amount"`
 	// Specify if tax is inclusive of the refund. Default true.

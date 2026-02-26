@@ -83,30 +83,30 @@ func (r *LicenseKeyService) ListAutoPaging(ctx context.Context, query LicenseKey
 
 type LicenseKey struct {
 	// The unique identifier of the license key.
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// The unique identifier of the business associated with the license key.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// The timestamp indicating when the license key was created, in UTC.
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The unique identifier of the customer associated with the license key.
-	CustomerID string `json:"customer_id,required"`
+	CustomerID string `json:"customer_id" api:"required"`
 	// The current number of instances activated for this license key.
-	InstancesCount int64 `json:"instances_count,required"`
+	InstancesCount int64 `json:"instances_count" api:"required"`
 	// The license key string.
-	Key string `json:"key,required"`
+	Key string `json:"key" api:"required"`
 	// The unique identifier of the payment associated with the license key.
-	PaymentID string `json:"payment_id,required"`
+	PaymentID string `json:"payment_id" api:"required"`
 	// The unique identifier of the product associated with the license key.
-	ProductID string `json:"product_id,required"`
+	ProductID string `json:"product_id" api:"required"`
 	// The current status of the license key (e.g., active, inactive, expired).
-	Status LicenseKeyStatus `json:"status,required"`
+	Status LicenseKeyStatus `json:"status" api:"required"`
 	// The maximum number of activations allowed for this license key.
-	ActivationsLimit int64 `json:"activations_limit,nullable"`
+	ActivationsLimit int64 `json:"activations_limit" api:"nullable"`
 	// The timestamp indicating when the license key expires, in UTC.
-	ExpiresAt time.Time `json:"expires_at,nullable" format:"date-time"`
+	ExpiresAt time.Time `json:"expires_at" api:"nullable" format:"date-time"`
 	// The unique identifier of the subscription associated with the license key, if
 	// any.
-	SubscriptionID string         `json:"subscription_id,nullable"`
+	SubscriptionID string         `json:"subscription_id" api:"nullable"`
 	JSON           licenseKeyJSON `json:"-"`
 }
 

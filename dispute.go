@@ -73,23 +73,23 @@ func (r *DisputeService) ListAutoPaging(ctx context.Context, query DisputeListPa
 type Dispute struct {
 	// The amount involved in the dispute, represented as a string to accommodate
 	// precision.
-	Amount string `json:"amount,required"`
+	Amount string `json:"amount" api:"required"`
 	// The unique identifier of the business involved in the dispute.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// The timestamp of when the dispute was created, in UTC.
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The currency of the disputed amount, represented as an ISO 4217 currency code.
-	Currency string `json:"currency,required"`
+	Currency string `json:"currency" api:"required"`
 	// The unique identifier of the dispute.
-	DisputeID string `json:"dispute_id,required"`
+	DisputeID string `json:"dispute_id" api:"required"`
 	// The current stage of the dispute process.
-	DisputeStage DisputeStage `json:"dispute_stage,required"`
+	DisputeStage DisputeStage `json:"dispute_stage" api:"required"`
 	// The current status of the dispute.
-	DisputeStatus DisputeStatus `json:"dispute_status,required"`
+	DisputeStatus DisputeStatus `json:"dispute_status" api:"required"`
 	// The unique identifier of the payment associated with the dispute.
-	PaymentID string `json:"payment_id,required"`
+	PaymentID string `json:"payment_id" api:"required"`
 	// Remarks
-	Remarks string      `json:"remarks,nullable"`
+	Remarks string      `json:"remarks" api:"nullable"`
 	JSON    disputeJSON `json:"-"`
 }
 
@@ -155,27 +155,27 @@ func (r DisputeStatus) IsKnown() bool {
 type GetDispute struct {
 	// The amount involved in the dispute, represented as a string to accommodate
 	// precision.
-	Amount string `json:"amount,required"`
+	Amount string `json:"amount" api:"required"`
 	// The unique identifier of the business involved in the dispute.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// The timestamp of when the dispute was created, in UTC.
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The currency of the disputed amount, represented as an ISO 4217 currency code.
-	Currency string `json:"currency,required"`
+	Currency string `json:"currency" api:"required"`
 	// The customer who filed the dispute
-	Customer CustomerLimitedDetails `json:"customer,required"`
+	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// The unique identifier of the dispute.
-	DisputeID string `json:"dispute_id,required"`
+	DisputeID string `json:"dispute_id" api:"required"`
 	// The current stage of the dispute process.
-	DisputeStage DisputeStage `json:"dispute_stage,required"`
+	DisputeStage DisputeStage `json:"dispute_stage" api:"required"`
 	// The current status of the dispute.
-	DisputeStatus DisputeStatus `json:"dispute_status,required"`
+	DisputeStatus DisputeStatus `json:"dispute_status" api:"required"`
 	// The unique identifier of the payment associated with the dispute.
-	PaymentID string `json:"payment_id,required"`
+	PaymentID string `json:"payment_id" api:"required"`
 	// Reason for the dispute
-	Reason string `json:"reason,nullable"`
+	Reason string `json:"reason" api:"nullable"`
 	// Remarks
-	Remarks string         `json:"remarks,nullable"`
+	Remarks string         `json:"remarks" api:"nullable"`
 	JSON    getDisputeJSON `json:"-"`
 }
 
@@ -207,21 +207,21 @@ func (r getDisputeJSON) RawJSON() string {
 type DisputeListResponse struct {
 	// The amount involved in the dispute, represented as a string to accommodate
 	// precision.
-	Amount string `json:"amount,required"`
+	Amount string `json:"amount" api:"required"`
 	// The unique identifier of the business involved in the dispute.
-	BusinessID string `json:"business_id,required"`
+	BusinessID string `json:"business_id" api:"required"`
 	// The timestamp of when the dispute was created, in UTC.
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The currency of the disputed amount, represented as an ISO 4217 currency code.
-	Currency string `json:"currency,required"`
+	Currency string `json:"currency" api:"required"`
 	// The unique identifier of the dispute.
-	DisputeID string `json:"dispute_id,required"`
+	DisputeID string `json:"dispute_id" api:"required"`
 	// The current stage of the dispute process.
-	DisputeStage DisputeStage `json:"dispute_stage,required"`
+	DisputeStage DisputeStage `json:"dispute_stage" api:"required"`
 	// The current status of the dispute.
-	DisputeStatus DisputeStatus `json:"dispute_status,required"`
+	DisputeStatus DisputeStatus `json:"dispute_status" api:"required"`
 	// The unique identifier of the payment associated with the dispute.
-	PaymentID string                  `json:"payment_id,required"`
+	PaymentID string                  `json:"payment_id" api:"required"`
 	JSON      disputeListResponseJSON `json:"-"`
 }
 

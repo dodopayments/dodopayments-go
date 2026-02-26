@@ -58,18 +58,18 @@ func (r *BalanceService) GetLedgerAutoPaging(ctx context.Context, query BalanceG
 }
 
 type BalanceLedgerEntry struct {
-	ID                  string                      `json:"id,required"`
-	Amount              int64                       `json:"amount,required"`
-	BusinessID          string                      `json:"business_id,required"`
-	CreatedAt           time.Time                   `json:"created_at,required" format:"date-time"`
-	Currency            Currency                    `json:"currency,required"`
-	EventType           BalanceLedgerEntryEventType `json:"event_type,required"`
-	IsCredit            bool                        `json:"is_credit,required"`
-	UsdEquivalentAmount int64                       `json:"usd_equivalent_amount,required"`
-	AfterBalance        int64                       `json:"after_balance,nullable"`
-	BeforeBalance       int64                       `json:"before_balance,nullable"`
-	Description         string                      `json:"description,nullable"`
-	ReferenceObjectID   string                      `json:"reference_object_id,nullable"`
+	ID                  string                      `json:"id" api:"required"`
+	Amount              int64                       `json:"amount" api:"required"`
+	BusinessID          string                      `json:"business_id" api:"required"`
+	CreatedAt           time.Time                   `json:"created_at" api:"required" format:"date-time"`
+	Currency            Currency                    `json:"currency" api:"required"`
+	EventType           BalanceLedgerEntryEventType `json:"event_type" api:"required"`
+	IsCredit            bool                        `json:"is_credit" api:"required"`
+	UsdEquivalentAmount int64                       `json:"usd_equivalent_amount" api:"required"`
+	AfterBalance        int64                       `json:"after_balance" api:"nullable"`
+	BeforeBalance       int64                       `json:"before_balance" api:"nullable"`
+	Description         string                      `json:"description" api:"nullable"`
+	ReferenceObjectID   string                      `json:"reference_object_id" api:"nullable"`
 	JSON                balanceLedgerEntryJSON      `json:"-"`
 }
 
