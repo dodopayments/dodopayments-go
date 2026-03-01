@@ -228,6 +228,442 @@ func (r webhookGetSecretResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type CreditAddedWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Response for a ledger entry
+	Data CreditLedgerEntry `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type CreditAddedWebhookEventType `json:"type" api:"required"`
+	JSON creditAddedWebhookEventJSON `json:"-"`
+}
+
+// creditAddedWebhookEventJSON contains the JSON metadata for the struct
+// [CreditAddedWebhookEvent]
+type creditAddedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CreditAddedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditAddedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r CreditAddedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r CreditAddedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type CreditAddedWebhookEventType string
+
+const (
+	CreditAddedWebhookEventTypeCreditAdded CreditAddedWebhookEventType = "credit.added"
+)
+
+func (r CreditAddedWebhookEventType) IsKnown() bool {
+	switch r {
+	case CreditAddedWebhookEventTypeCreditAdded:
+		return true
+	}
+	return false
+}
+
+type CreditBalanceLowWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Webhook payload for credit.balance_low event
+	Data CreditBalanceLowWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type CreditBalanceLowWebhookEventType `json:"type" api:"required"`
+	JSON creditBalanceLowWebhookEventJSON `json:"-"`
+}
+
+// creditBalanceLowWebhookEventJSON contains the JSON metadata for the struct
+// [CreditBalanceLowWebhookEvent]
+type creditBalanceLowWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CreditBalanceLowWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditBalanceLowWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r CreditBalanceLowWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r CreditBalanceLowWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// Webhook payload for credit.balance_low event
+type CreditBalanceLowWebhookEventData struct {
+	AvailableBalance          string                               `json:"available_balance" api:"required"`
+	CreditEntitlementID       string                               `json:"credit_entitlement_id" api:"required"`
+	CreditEntitlementName     string                               `json:"credit_entitlement_name" api:"required"`
+	CustomerID                string                               `json:"customer_id" api:"required"`
+	SubscriptionCreditsAmount string                               `json:"subscription_credits_amount" api:"required"`
+	SubscriptionID            string                               `json:"subscription_id" api:"required"`
+	ThresholdAmount           string                               `json:"threshold_amount" api:"required"`
+	ThresholdPercent          int64                                `json:"threshold_percent" api:"required"`
+	JSON                      creditBalanceLowWebhookEventDataJSON `json:"-"`
+}
+
+// creditBalanceLowWebhookEventDataJSON contains the JSON metadata for the struct
+// [CreditBalanceLowWebhookEventData]
+type creditBalanceLowWebhookEventDataJSON struct {
+	AvailableBalance          apijson.Field
+	CreditEntitlementID       apijson.Field
+	CreditEntitlementName     apijson.Field
+	CustomerID                apijson.Field
+	SubscriptionCreditsAmount apijson.Field
+	SubscriptionID            apijson.Field
+	ThresholdAmount           apijson.Field
+	ThresholdPercent          apijson.Field
+	raw                       string
+	ExtraFields               map[string]apijson.Field
+}
+
+func (r *CreditBalanceLowWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditBalanceLowWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+// The event type
+type CreditBalanceLowWebhookEventType string
+
+const (
+	CreditBalanceLowWebhookEventTypeCreditBalanceLow CreditBalanceLowWebhookEventType = "credit.balance_low"
+)
+
+func (r CreditBalanceLowWebhookEventType) IsKnown() bool {
+	switch r {
+	case CreditBalanceLowWebhookEventTypeCreditBalanceLow:
+		return true
+	}
+	return false
+}
+
+type CreditDeductedWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Response for a ledger entry
+	Data CreditLedgerEntry `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type CreditDeductedWebhookEventType `json:"type" api:"required"`
+	JSON creditDeductedWebhookEventJSON `json:"-"`
+}
+
+// creditDeductedWebhookEventJSON contains the JSON metadata for the struct
+// [CreditDeductedWebhookEvent]
+type creditDeductedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CreditDeductedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditDeductedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r CreditDeductedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r CreditDeductedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type CreditDeductedWebhookEventType string
+
+const (
+	CreditDeductedWebhookEventTypeCreditDeducted CreditDeductedWebhookEventType = "credit.deducted"
+)
+
+func (r CreditDeductedWebhookEventType) IsKnown() bool {
+	switch r {
+	case CreditDeductedWebhookEventTypeCreditDeducted:
+		return true
+	}
+	return false
+}
+
+type CreditExpiredWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Response for a ledger entry
+	Data CreditLedgerEntry `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type CreditExpiredWebhookEventType `json:"type" api:"required"`
+	JSON creditExpiredWebhookEventJSON `json:"-"`
+}
+
+// creditExpiredWebhookEventJSON contains the JSON metadata for the struct
+// [CreditExpiredWebhookEvent]
+type creditExpiredWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CreditExpiredWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditExpiredWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r CreditExpiredWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r CreditExpiredWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type CreditExpiredWebhookEventType string
+
+const (
+	CreditExpiredWebhookEventTypeCreditExpired CreditExpiredWebhookEventType = "credit.expired"
+)
+
+func (r CreditExpiredWebhookEventType) IsKnown() bool {
+	switch r {
+	case CreditExpiredWebhookEventTypeCreditExpired:
+		return true
+	}
+	return false
+}
+
+type CreditManualAdjustmentWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Response for a ledger entry
+	Data CreditLedgerEntry `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type CreditManualAdjustmentWebhookEventType `json:"type" api:"required"`
+	JSON creditManualAdjustmentWebhookEventJSON `json:"-"`
+}
+
+// creditManualAdjustmentWebhookEventJSON contains the JSON metadata for the struct
+// [CreditManualAdjustmentWebhookEvent]
+type creditManualAdjustmentWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CreditManualAdjustmentWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditManualAdjustmentWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r CreditManualAdjustmentWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r CreditManualAdjustmentWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type CreditManualAdjustmentWebhookEventType string
+
+const (
+	CreditManualAdjustmentWebhookEventTypeCreditManualAdjustment CreditManualAdjustmentWebhookEventType = "credit.manual_adjustment"
+)
+
+func (r CreditManualAdjustmentWebhookEventType) IsKnown() bool {
+	switch r {
+	case CreditManualAdjustmentWebhookEventTypeCreditManualAdjustment:
+		return true
+	}
+	return false
+}
+
+type CreditOverageChargedWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Response for a ledger entry
+	Data CreditLedgerEntry `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type CreditOverageChargedWebhookEventType `json:"type" api:"required"`
+	JSON creditOverageChargedWebhookEventJSON `json:"-"`
+}
+
+// creditOverageChargedWebhookEventJSON contains the JSON metadata for the struct
+// [CreditOverageChargedWebhookEvent]
+type creditOverageChargedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CreditOverageChargedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditOverageChargedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r CreditOverageChargedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r CreditOverageChargedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type CreditOverageChargedWebhookEventType string
+
+const (
+	CreditOverageChargedWebhookEventTypeCreditOverageCharged CreditOverageChargedWebhookEventType = "credit.overage_charged"
+)
+
+func (r CreditOverageChargedWebhookEventType) IsKnown() bool {
+	switch r {
+	case CreditOverageChargedWebhookEventTypeCreditOverageCharged:
+		return true
+	}
+	return false
+}
+
+type CreditRolledOverWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Response for a ledger entry
+	Data CreditLedgerEntry `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type CreditRolledOverWebhookEventType `json:"type" api:"required"`
+	JSON creditRolledOverWebhookEventJSON `json:"-"`
+}
+
+// creditRolledOverWebhookEventJSON contains the JSON metadata for the struct
+// [CreditRolledOverWebhookEvent]
+type creditRolledOverWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CreditRolledOverWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditRolledOverWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r CreditRolledOverWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r CreditRolledOverWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type CreditRolledOverWebhookEventType string
+
+const (
+	CreditRolledOverWebhookEventTypeCreditRolledOver CreditRolledOverWebhookEventType = "credit.rolled_over"
+)
+
+func (r CreditRolledOverWebhookEventType) IsKnown() bool {
+	switch r {
+	case CreditRolledOverWebhookEventTypeCreditRolledOver:
+		return true
+	}
+	return false
+}
+
+type CreditRolloverForfeitedWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Response for a ledger entry
+	Data CreditLedgerEntry `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type CreditRolloverForfeitedWebhookEventType `json:"type" api:"required"`
+	JSON creditRolloverForfeitedWebhookEventJSON `json:"-"`
+}
+
+// creditRolloverForfeitedWebhookEventJSON contains the JSON metadata for the
+// struct [CreditRolloverForfeitedWebhookEvent]
+type creditRolloverForfeitedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CreditRolloverForfeitedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditRolloverForfeitedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r CreditRolloverForfeitedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r CreditRolloverForfeitedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type CreditRolloverForfeitedWebhookEventType string
+
+const (
+	CreditRolloverForfeitedWebhookEventTypeCreditRolloverForfeited CreditRolloverForfeitedWebhookEventType = "credit.rollover_forfeited"
+)
+
+func (r CreditRolloverForfeitedWebhookEventType) IsKnown() bool {
+	switch r {
+	case CreditRolloverForfeitedWebhookEventTypeCreditRolloverForfeited:
+		return true
+	}
+	return false
+}
+
 type DisputeAcceptedWebhookEvent struct {
 	// The business identifier
 	BusinessID string  `json:"business_id" api:"required"`
@@ -1317,7 +1753,8 @@ func (r SubscriptionUpdatedWebhookEventType) IsKnown() bool {
 type UnsafeUnwrapWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// This field can have the runtime type of [Dispute], [LicenseKey], [Payment],
+	// This field can have the runtime type of [CreditLedgerEntry],
+	// [CreditBalanceLowWebhookEventData], [Dispute], [LicenseKey], [Payment],
 	// [Refund], [Subscription].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
@@ -1355,7 +1792,11 @@ func (r *UnsafeUnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // AsUnion returns a [UnsafeUnwrapWebhookEventUnion] interface which you can cast
 // to the specific types for more type safety.
 //
-// Possible runtime types of the union are [DisputeAcceptedWebhookEvent],
+// Possible runtime types of the union are [CreditAddedWebhookEvent],
+// [CreditBalanceLowWebhookEvent], [CreditDeductedWebhookEvent],
+// [CreditExpiredWebhookEvent], [CreditManualAdjustmentWebhookEvent],
+// [CreditOverageChargedWebhookEvent], [CreditRolledOverWebhookEvent],
+// [CreditRolloverForfeitedWebhookEvent], [DisputeAcceptedWebhookEvent],
 // [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
 // [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
 // [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
@@ -1371,18 +1812,21 @@ func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
 	return r.union
 }
 
-// Union satisfied by [DisputeAcceptedWebhookEvent],
-// [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
-// [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
-// [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
-// [LicenseKeyCreatedWebhookEvent], [PaymentCancelledWebhookEvent],
-// [PaymentFailedWebhookEvent], [PaymentProcessingWebhookEvent],
-// [PaymentSucceededWebhookEvent], [RefundFailedWebhookEvent],
-// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
-// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
-// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent] or
-// [SubscriptionUpdatedWebhookEvent].
+// Union satisfied by [CreditAddedWebhookEvent], [CreditBalanceLowWebhookEvent],
+// [CreditDeductedWebhookEvent], [CreditExpiredWebhookEvent],
+// [CreditManualAdjustmentWebhookEvent], [CreditOverageChargedWebhookEvent],
+// [CreditRolledOverWebhookEvent], [CreditRolloverForfeitedWebhookEvent],
+// [DisputeAcceptedWebhookEvent], [DisputeCancelledWebhookEvent],
+// [DisputeChallengedWebhookEvent], [DisputeExpiredWebhookEvent],
+// [DisputeLostWebhookEvent], [DisputeOpenedWebhookEvent],
+// [DisputeWonWebhookEvent], [LicenseKeyCreatedWebhookEvent],
+// [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
+// [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
+// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
+// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
+// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
+// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
+// [SubscriptionRenewedWebhookEvent] or [SubscriptionUpdatedWebhookEvent].
 type UnsafeUnwrapWebhookEventUnion interface {
 	implementsUnsafeUnwrapWebhookEvent()
 }
@@ -1391,6 +1835,38 @@ func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*UnsafeUnwrapWebhookEventUnion)(nil)).Elem(),
 		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditAddedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditBalanceLowWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditDeductedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditExpiredWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditManualAdjustmentWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditOverageChargedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditRolledOverWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditRolloverForfeitedWebhookEvent{}),
+		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(DisputeAcceptedWebhookEvent{}),
@@ -1486,6 +1962,14 @@ func init() {
 type UnsafeUnwrapWebhookEventType string
 
 const (
+	UnsafeUnwrapWebhookEventTypeCreditAdded             UnsafeUnwrapWebhookEventType = "credit.added"
+	UnsafeUnwrapWebhookEventTypeCreditBalanceLow        UnsafeUnwrapWebhookEventType = "credit.balance_low"
+	UnsafeUnwrapWebhookEventTypeCreditDeducted          UnsafeUnwrapWebhookEventType = "credit.deducted"
+	UnsafeUnwrapWebhookEventTypeCreditExpired           UnsafeUnwrapWebhookEventType = "credit.expired"
+	UnsafeUnwrapWebhookEventTypeCreditManualAdjustment  UnsafeUnwrapWebhookEventType = "credit.manual_adjustment"
+	UnsafeUnwrapWebhookEventTypeCreditOverageCharged    UnsafeUnwrapWebhookEventType = "credit.overage_charged"
+	UnsafeUnwrapWebhookEventTypeCreditRolledOver        UnsafeUnwrapWebhookEventType = "credit.rolled_over"
+	UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited UnsafeUnwrapWebhookEventType = "credit.rollover_forfeited"
 	UnsafeUnwrapWebhookEventTypeDisputeAccepted         UnsafeUnwrapWebhookEventType = "dispute.accepted"
 	UnsafeUnwrapWebhookEventTypeDisputeCancelled        UnsafeUnwrapWebhookEventType = "dispute.cancelled"
 	UnsafeUnwrapWebhookEventTypeDisputeChallenged       UnsafeUnwrapWebhookEventType = "dispute.challenged"
@@ -1512,7 +1996,7 @@ const (
 
 func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false
@@ -1521,7 +2005,8 @@ func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 type UnwrapWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// This field can have the runtime type of [Dispute], [LicenseKey], [Payment],
+	// This field can have the runtime type of [CreditLedgerEntry],
+	// [CreditBalanceLowWebhookEventData], [Dispute], [LicenseKey], [Payment],
 	// [Refund], [Subscription].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
@@ -1559,7 +2044,11 @@ func (r *UnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // AsUnion returns a [UnwrapWebhookEventUnion] interface which you can cast to the
 // specific types for more type safety.
 //
-// Possible runtime types of the union are [DisputeAcceptedWebhookEvent],
+// Possible runtime types of the union are [CreditAddedWebhookEvent],
+// [CreditBalanceLowWebhookEvent], [CreditDeductedWebhookEvent],
+// [CreditExpiredWebhookEvent], [CreditManualAdjustmentWebhookEvent],
+// [CreditOverageChargedWebhookEvent], [CreditRolledOverWebhookEvent],
+// [CreditRolloverForfeitedWebhookEvent], [DisputeAcceptedWebhookEvent],
 // [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
 // [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
 // [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
@@ -1575,18 +2064,21 @@ func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
 	return r.union
 }
 
-// Union satisfied by [DisputeAcceptedWebhookEvent],
-// [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
-// [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
-// [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
-// [LicenseKeyCreatedWebhookEvent], [PaymentCancelledWebhookEvent],
-// [PaymentFailedWebhookEvent], [PaymentProcessingWebhookEvent],
-// [PaymentSucceededWebhookEvent], [RefundFailedWebhookEvent],
-// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
-// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
-// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent] or
-// [SubscriptionUpdatedWebhookEvent].
+// Union satisfied by [CreditAddedWebhookEvent], [CreditBalanceLowWebhookEvent],
+// [CreditDeductedWebhookEvent], [CreditExpiredWebhookEvent],
+// [CreditManualAdjustmentWebhookEvent], [CreditOverageChargedWebhookEvent],
+// [CreditRolledOverWebhookEvent], [CreditRolloverForfeitedWebhookEvent],
+// [DisputeAcceptedWebhookEvent], [DisputeCancelledWebhookEvent],
+// [DisputeChallengedWebhookEvent], [DisputeExpiredWebhookEvent],
+// [DisputeLostWebhookEvent], [DisputeOpenedWebhookEvent],
+// [DisputeWonWebhookEvent], [LicenseKeyCreatedWebhookEvent],
+// [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
+// [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
+// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
+// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
+// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
+// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
+// [SubscriptionRenewedWebhookEvent] or [SubscriptionUpdatedWebhookEvent].
 type UnwrapWebhookEventUnion interface {
 	implementsUnwrapWebhookEvent()
 }
@@ -1595,6 +2087,38 @@ func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*UnwrapWebhookEventUnion)(nil)).Elem(),
 		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditAddedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditBalanceLowWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditDeductedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditExpiredWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditManualAdjustmentWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditOverageChargedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditRolledOverWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditRolloverForfeitedWebhookEvent{}),
+		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(DisputeAcceptedWebhookEvent{}),
@@ -1690,6 +2214,14 @@ func init() {
 type UnwrapWebhookEventType string
 
 const (
+	UnwrapWebhookEventTypeCreditAdded             UnwrapWebhookEventType = "credit.added"
+	UnwrapWebhookEventTypeCreditBalanceLow        UnwrapWebhookEventType = "credit.balance_low"
+	UnwrapWebhookEventTypeCreditDeducted          UnwrapWebhookEventType = "credit.deducted"
+	UnwrapWebhookEventTypeCreditExpired           UnwrapWebhookEventType = "credit.expired"
+	UnwrapWebhookEventTypeCreditManualAdjustment  UnwrapWebhookEventType = "credit.manual_adjustment"
+	UnwrapWebhookEventTypeCreditOverageCharged    UnwrapWebhookEventType = "credit.overage_charged"
+	UnwrapWebhookEventTypeCreditRolledOver        UnwrapWebhookEventType = "credit.rolled_over"
+	UnwrapWebhookEventTypeCreditRolloverForfeited UnwrapWebhookEventType = "credit.rollover_forfeited"
 	UnwrapWebhookEventTypeDisputeAccepted         UnwrapWebhookEventType = "dispute.accepted"
 	UnwrapWebhookEventTypeDisputeCancelled        UnwrapWebhookEventType = "dispute.cancelled"
 	UnwrapWebhookEventTypeDisputeChallenged       UnwrapWebhookEventType = "dispute.challenged"
@@ -1716,7 +2248,7 @@ const (
 
 func (r UnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false

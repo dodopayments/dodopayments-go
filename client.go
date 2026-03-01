@@ -38,6 +38,7 @@ type Client struct {
 	UsageEvents         *UsageEventService
 	Meters              *MeterService
 	Balances            *BalanceService
+	CreditEntitlements  *CreditEntitlementService
 }
 
 // DefaultClientOptions read from the environment (DODO_PAYMENTS_API_KEY,
@@ -88,6 +89,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.UsageEvents = NewUsageEventService(opts...)
 	r.Meters = NewMeterService(opts...)
 	r.Balances = NewBalanceService(opts...)
+	r.CreditEntitlements = NewCreditEntitlementService(opts...)
 
 	return
 }

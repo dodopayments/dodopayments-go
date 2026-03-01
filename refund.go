@@ -56,7 +56,7 @@ func (r *RefundService) Get(ctx context.Context, refundID string, opts ...option
 	return
 }
 
-func (r *RefundService) List(ctx context.Context, query RefundListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[RefundListResponse], err error) {
+func (r *RefundService) List(ctx context.Context, query RefundListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[RefundListItem], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
@@ -73,7 +73,7 @@ func (r *RefundService) List(ctx context.Context, query RefundListParams, opts .
 	return res, nil
 }
 
-func (r *RefundService) ListAutoPaging(ctx context.Context, query RefundListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[RefundListResponse] {
+func (r *RefundService) ListAutoPaging(ctx context.Context, query RefundListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[RefundListItem] {
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
@@ -145,52 +145,6 @@ func (r RefundStatus) IsKnown() bool {
 	return false
 }
 
-type RefundListResponse struct {
-	// The unique identifier of the business issuing the refund.
-	BusinessID string `json:"business_id" api:"required"`
-	// The timestamp of when the refund was created in UTC.
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// If true the refund is a partial refund
-	IsPartial bool `json:"is_partial" api:"required"`
-	// The unique identifier of the payment associated with the refund.
-	PaymentID string `json:"payment_id" api:"required"`
-	// The unique identifier of the refund.
-	RefundID string `json:"refund_id" api:"required"`
-	// The current status of the refund.
-	Status RefundStatus `json:"status" api:"required"`
-	// The refunded amount.
-	Amount int64 `json:"amount" api:"nullable"`
-	// The currency of the refund, represented as an ISO 4217 currency code.
-	Currency Currency `json:"currency" api:"nullable"`
-	// The reason provided for the refund, if any. Optional.
-	Reason string                 `json:"reason" api:"nullable"`
-	JSON   refundListResponseJSON `json:"-"`
-}
-
-// refundListResponseJSON contains the JSON metadata for the struct
-// [RefundListResponse]
-type refundListResponseJSON struct {
-	BusinessID  apijson.Field
-	CreatedAt   apijson.Field
-	IsPartial   apijson.Field
-	PaymentID   apijson.Field
-	RefundID    apijson.Field
-	Status      apijson.Field
-	Amount      apijson.Field
-	Currency    apijson.Field
-	Reason      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *RefundListResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r refundListResponseJSON) RawJSON() string {
-	return r.raw
-}
-
 type RefundNewParams struct {
 	// The unique identifier of the payment to be refunded.
 	PaymentID param.Field[string] `json:"payment_id" api:"required"`
@@ -232,6 +186,8 @@ type RefundListParams struct {
 	PageSize param.Field[int64] `query:"page_size"`
 	// Filter by status
 	Status param.Field[RefundListParamsStatus] `query:"status"`
+	// Filter by subscription id
+	SubscriptionID param.Field[string] `query:"subscription_id"`
 }
 
 // URLQuery serializes [RefundListParams]'s query parameters as `url.Values`.
