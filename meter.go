@@ -104,6 +104,42 @@ func (r *MeterService) Unarchive(ctx context.Context, id string, opts ...option.
 	return
 }
 
+type Conjunction string
+
+const (
+	ConjunctionAnd Conjunction = "and"
+	ConjunctionOr  Conjunction = "or"
+)
+
+func (r Conjunction) IsKnown() bool {
+	switch r {
+	case ConjunctionAnd, ConjunctionOr:
+		return true
+	}
+	return false
+}
+
+type FilterOperator string
+
+const (
+	FilterOperatorEquals              FilterOperator = "equals"
+	FilterOperatorNotEquals           FilterOperator = "not_equals"
+	FilterOperatorGreaterThan         FilterOperator = "greater_than"
+	FilterOperatorGreaterThanOrEquals FilterOperator = "greater_than_or_equals"
+	FilterOperatorLessThan            FilterOperator = "less_than"
+	FilterOperatorLessThanOrEquals    FilterOperator = "less_than_or_equals"
+	FilterOperatorContains            FilterOperator = "contains"
+	FilterOperatorDoesNotContain      FilterOperator = "does_not_contain"
+)
+
+func (r FilterOperator) IsKnown() bool {
+	switch r {
+	case FilterOperatorEquals, FilterOperatorNotEquals, FilterOperatorGreaterThan, FilterOperatorGreaterThanOrEquals, FilterOperatorLessThan, FilterOperatorLessThanOrEquals, FilterOperatorContains, FilterOperatorDoesNotContain:
+		return true
+	}
+	return false
+}
+
 type Meter struct {
 	ID              string           `json:"id" api:"required"`
 	Aggregation     MeterAggregation `json:"aggregation" api:"required"`
@@ -213,8 +249,8 @@ type MeterFilter struct {
 	// deep)
 	Clauses MeterFilterClausesUnion `json:"clauses" api:"required"`
 	// Logical conjunction to apply between clauses (and/or)
-	Conjunction MeterFilterConjunction `json:"conjunction" api:"required"`
-	JSON        meterFilterJSON        `json:"-"`
+	Conjunction Conjunction     `json:"conjunction" api:"required"`
+	JSON        meterFilterJSON `json:"-"`
 }
 
 // meterFilterJSON contains the JSON metadata for the struct [MeterFilter]
@@ -264,8 +300,8 @@ func (r MeterFilterClausesDirectFilterConditions) implementsMeterFilterClausesUn
 // Filter condition with key, operator, and value
 type MeterFilterClausesDirectFilterCondition struct {
 	// Filter key to apply
-	Key      string                                           `json:"key" api:"required"`
-	Operator MeterFilterClausesDirectFilterConditionsOperator `json:"operator" api:"required"`
+	Key      string         `json:"key" api:"required"`
+	Operator FilterOperator `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
 	Value MeterFilterClausesDirectFilterConditionsValueUnion `json:"value" api:"required"`
 	JSON  meterFilterClausesDirectFilterConditionJSON        `json:"-"`
@@ -287,27 +323,6 @@ func (r *MeterFilterClausesDirectFilterCondition) UnmarshalJSON(data []byte) (er
 
 func (r meterFilterClausesDirectFilterConditionJSON) RawJSON() string {
 	return r.raw
-}
-
-type MeterFilterClausesDirectFilterConditionsOperator string
-
-const (
-	MeterFilterClausesDirectFilterConditionsOperatorEquals              MeterFilterClausesDirectFilterConditionsOperator = "equals"
-	MeterFilterClausesDirectFilterConditionsOperatorNotEquals           MeterFilterClausesDirectFilterConditionsOperator = "not_equals"
-	MeterFilterClausesDirectFilterConditionsOperatorGreaterThan         MeterFilterClausesDirectFilterConditionsOperator = "greater_than"
-	MeterFilterClausesDirectFilterConditionsOperatorGreaterThanOrEquals MeterFilterClausesDirectFilterConditionsOperator = "greater_than_or_equals"
-	MeterFilterClausesDirectFilterConditionsOperatorLessThan            MeterFilterClausesDirectFilterConditionsOperator = "less_than"
-	MeterFilterClausesDirectFilterConditionsOperatorLessThanOrEquals    MeterFilterClausesDirectFilterConditionsOperator = "less_than_or_equals"
-	MeterFilterClausesDirectFilterConditionsOperatorContains            MeterFilterClausesDirectFilterConditionsOperator = "contains"
-	MeterFilterClausesDirectFilterConditionsOperatorDoesNotContain      MeterFilterClausesDirectFilterConditionsOperator = "does_not_contain"
-)
-
-func (r MeterFilterClausesDirectFilterConditionsOperator) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesDirectFilterConditionsOperatorEquals, MeterFilterClausesDirectFilterConditionsOperatorNotEquals, MeterFilterClausesDirectFilterConditionsOperatorGreaterThan, MeterFilterClausesDirectFilterConditionsOperatorGreaterThanOrEquals, MeterFilterClausesDirectFilterConditionsOperatorLessThan, MeterFilterClausesDirectFilterConditionsOperatorLessThanOrEquals, MeterFilterClausesDirectFilterConditionsOperatorContains, MeterFilterClausesDirectFilterConditionsOperatorDoesNotContain:
-		return true
-	}
-	return false
 }
 
 // Filter value - can be string, number, or boolean
@@ -349,7 +364,7 @@ func (r MeterFilterClausesNestedMeterFilters) implementsMeterFilterClausesUnion(
 type MeterFilterClausesNestedMeterFilter struct {
 	// Level 1: Can be conditions or nested filters (2 more levels allowed)
 	Clauses     MeterFilterClausesNestedMeterFiltersClausesUnion `json:"clauses" api:"required"`
-	Conjunction MeterFilterClausesNestedMeterFiltersConjunction  `json:"conjunction" api:"required"`
+	Conjunction Conjunction                                      `json:"conjunction" api:"required"`
 	JSON        meterFilterClausesNestedMeterFilterJSON          `json:"-"`
 }
 
@@ -402,8 +417,8 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditions) imple
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterCondition struct {
 	// Filter key to apply
-	Key      string                                                                    `json:"key" api:"required"`
-	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator `json:"operator" api:"required"`
+	Key      string         `json:"key" api:"required"`
+	Operator FilterOperator `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
 	Value MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnion `json:"value" api:"required"`
 	JSON  meterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionJSON        `json:"-"`
@@ -426,27 +441,6 @@ func (r *MeterFilterClausesNestedMeterFiltersClausesLevel1FilterCondition) Unmar
 
 func (r meterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionJSON) RawJSON() string {
 	return r.raw
-}
-
-type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator string
-
-const (
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorEquals              MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorNotEquals           MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "not_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorGreaterThan         MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "greater_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorGreaterThanOrEquals MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "greater_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorLessThan            MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "less_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorLessThanOrEquals    MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "less_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorContains            MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "contains"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorDoesNotContain      MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator = "does_not_contain"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorNotEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorGreaterThan, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorGreaterThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorLessThan, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorLessThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorContains, MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperatorDoesNotContain:
-		return true
-	}
-	return false
 }
 
 // Filter value - can be string, number, or boolean
@@ -489,7 +483,7 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilters) implemen
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilter struct {
 	// Level 2: Can be conditions or nested filters (1 more level allowed)
 	Clauses     MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnion `json:"clauses" api:"required"`
-	Conjunction MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction  `json:"conjunction" api:"required"`
+	Conjunction Conjunction                                                                `json:"conjunction" api:"required"`
 	JSON        meterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterJSON          `json:"-"`
 }
 
@@ -544,8 +538,8 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterCondition struct {
 	// Filter key to apply
-	Key      string                                                                                              `json:"key" api:"required"`
-	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator `json:"operator" api:"required"`
+	Key      string         `json:"key" api:"required"`
+	Operator FilterOperator `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
 	Value MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnion `json:"value" api:"required"`
 	JSON  meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionJSON        `json:"-"`
@@ -568,27 +562,6 @@ func (r *MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLe
 
 func (r meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionJSON) RawJSON() string {
 	return r.raw
-}
-
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator string
-
-const (
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorEquals              MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorNotEquals           MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "not_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorGreaterThan         MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "greater_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorGreaterThanOrEquals MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "greater_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorLessThan            MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "less_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorLessThanOrEquals    MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "less_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorContains            MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "contains"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorDoesNotContain      MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator = "does_not_contain"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorNotEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorGreaterThan, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorGreaterThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorLessThan, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorLessThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorContains, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperatorDoesNotContain:
-		return true
-	}
-	return false
 }
 
 // Filter value - can be string, number, or boolean
@@ -630,9 +603,9 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 // Level 3 nested filter (final nesting level)
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilter struct {
 	// Level 3: Filter conditions only (max depth reached)
-	Clauses     []MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClause    `json:"clauses" api:"required"`
-	Conjunction MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction `json:"conjunction" api:"required"`
-	JSON        meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterJSON         `json:"-"`
+	Clauses     []MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClause `json:"clauses" api:"required"`
+	Conjunction Conjunction                                                                                      `json:"conjunction" api:"required"`
+	JSON        meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterJSON      `json:"-"`
 }
 
 // meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterJSON
@@ -656,8 +629,8 @@ func (r meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClause struct {
 	// Filter key to apply
-	Key      string                                                                                                  `json:"key" api:"required"`
-	Operator MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator `json:"operator" api:"required"`
+	Key      string         `json:"key" api:"required"`
+	Operator FilterOperator `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
 	Value MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnion `json:"value" api:"required"`
 	JSON  meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseJSON        `json:"-"`
@@ -680,27 +653,6 @@ func (r *MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLe
 
 func (r meterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseJSON) RawJSON() string {
 	return r.raw
-}
-
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator string
-
-const (
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorEquals              MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorNotEquals           MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "not_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorGreaterThan         MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "greater_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorGreaterThanOrEquals MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "greater_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorLessThan            MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "less_than"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorLessThanOrEquals    MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "less_than_or_equals"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorContains            MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "contains"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorDoesNotContain      MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator = "does_not_contain"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorNotEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorGreaterThan, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorGreaterThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorLessThan, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorLessThanOrEquals, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorContains, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperatorDoesNotContain:
-		return true
-	}
-	return false
 }
 
 // Filter value - can be string, number, or boolean
@@ -734,67 +686,6 @@ func init() {
 	)
 }
 
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction string
-
-const (
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunctionAnd MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction = "and"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunctionOr  MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction = "or"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunctionAnd, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunctionOr:
-		return true
-	}
-	return false
-}
-
-type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction string
-
-const (
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunctionAnd MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction = "and"
-	MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunctionOr  MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction = "or"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunctionAnd, MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunctionOr:
-		return true
-	}
-	return false
-}
-
-type MeterFilterClausesNestedMeterFiltersConjunction string
-
-const (
-	MeterFilterClausesNestedMeterFiltersConjunctionAnd MeterFilterClausesNestedMeterFiltersConjunction = "and"
-	MeterFilterClausesNestedMeterFiltersConjunctionOr  MeterFilterClausesNestedMeterFiltersConjunction = "or"
-)
-
-func (r MeterFilterClausesNestedMeterFiltersConjunction) IsKnown() bool {
-	switch r {
-	case MeterFilterClausesNestedMeterFiltersConjunctionAnd, MeterFilterClausesNestedMeterFiltersConjunctionOr:
-		return true
-	}
-	return false
-}
-
-// Logical conjunction to apply between clauses (and/or)
-type MeterFilterConjunction string
-
-const (
-	MeterFilterConjunctionAnd MeterFilterConjunction = "and"
-	MeterFilterConjunctionOr  MeterFilterConjunction = "or"
-)
-
-func (r MeterFilterConjunction) IsKnown() bool {
-	switch r {
-	case MeterFilterConjunctionAnd, MeterFilterConjunctionOr:
-		return true
-	}
-	return false
-}
-
 // A filter structure that combines multiple conditions with logical conjunctions
 // (AND/OR).
 //
@@ -806,7 +697,7 @@ type MeterFilterParam struct {
 	// deep)
 	Clauses param.Field[MeterFilterClausesUnionParam] `json:"clauses" api:"required"`
 	// Logical conjunction to apply between clauses (and/or)
-	Conjunction param.Field[MeterFilterConjunction] `json:"conjunction" api:"required"`
+	Conjunction param.Field[Conjunction] `json:"conjunction" api:"required"`
 }
 
 func (r MeterFilterParam) MarshalJSON() (data []byte, err error) {
@@ -829,8 +720,8 @@ func (r MeterFilterClausesDirectFilterConditionsParam) implementsMeterFilterClau
 // Filter condition with key, operator, and value
 type MeterFilterClausesDirectFilterConditionParam struct {
 	// Filter key to apply
-	Key      param.Field[string]                                           `json:"key" api:"required"`
-	Operator param.Field[MeterFilterClausesDirectFilterConditionsOperator] `json:"operator" api:"required"`
+	Key      param.Field[string]         `json:"key" api:"required"`
+	Operator param.Field[FilterOperator] `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
 	Value param.Field[MeterFilterClausesDirectFilterConditionsValueUnionParam] `json:"value" api:"required"`
 }
@@ -854,7 +745,7 @@ func (r MeterFilterClausesNestedMeterFiltersParam) implementsMeterFilterClausesU
 type MeterFilterClausesNestedMeterFilterParam struct {
 	// Level 1: Can be conditions or nested filters (2 more levels allowed)
 	Clauses     param.Field[MeterFilterClausesNestedMeterFiltersClausesUnionParam] `json:"clauses" api:"required"`
-	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersConjunction]       `json:"conjunction" api:"required"`
+	Conjunction param.Field[Conjunction]                                           `json:"conjunction" api:"required"`
 }
 
 func (r MeterFilterClausesNestedMeterFilterParam) MarshalJSON() (data []byte, err error) {
@@ -878,8 +769,8 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsParam) 
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionParam struct {
 	// Filter key to apply
-	Key      param.Field[string]                                                                    `json:"key" api:"required"`
-	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsOperator] `json:"operator" api:"required"`
+	Key      param.Field[string]         `json:"key" api:"required"`
+	Operator param.Field[FilterOperator] `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
 	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1FilterConditionsValueUnionParam] `json:"value" api:"required"`
 }
@@ -904,7 +795,7 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersParam) imp
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterParam struct {
 	// Level 2: Can be conditions or nested filters (1 more level allowed)
 	Clauses     param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesUnionParam] `json:"clauses" api:"required"`
-	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersConjunction]       `json:"conjunction" api:"required"`
+	Conjunction param.Field[Conjunction]                                                                     `json:"conjunction" api:"required"`
 }
 
 func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFilterParam) MarshalJSON() (data []byte, err error) {
@@ -928,8 +819,8 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionParam struct {
 	// Filter key to apply
-	Key      param.Field[string]                                                                                              `json:"key" api:"required"`
-	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsOperator] `json:"operator" api:"required"`
+	Key      param.Field[string]         `json:"key" api:"required"`
+	Operator param.Field[FilterOperator] `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
 	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2FilterConditionsValueUnionParam] `json:"value" api:"required"`
 }
@@ -954,7 +845,7 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterParam struct {
 	// Level 3: Filter conditions only (max depth reached)
 	Clauses     param.Field[[]MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseParam] `json:"clauses" api:"required"`
-	Conjunction param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersConjunction]   `json:"conjunction" api:"required"`
+	Conjunction param.Field[Conjunction]                                                                                           `json:"conjunction" api:"required"`
 }
 
 func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFilterParam) MarshalJSON() (data []byte, err error) {
@@ -964,8 +855,8 @@ func (r MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLev
 // Filter condition with key, operator, and value
 type MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClauseParam struct {
 	// Filter key to apply
-	Key      param.Field[string]                                                                                                  `json:"key" api:"required"`
-	Operator param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesOperator] `json:"operator" api:"required"`
+	Key      param.Field[string]         `json:"key" api:"required"`
+	Operator param.Field[FilterOperator] `json:"operator" api:"required"`
 	// Filter value - can be string, number, or boolean
 	Value param.Field[MeterFilterClausesNestedMeterFiltersClausesLevel1NestedFiltersClausesLevel2NestedFiltersClausesValueUnionParam] `json:"value" api:"required"`
 }

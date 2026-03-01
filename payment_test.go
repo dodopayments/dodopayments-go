@@ -37,7 +37,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 			CustomerID: dodopayments.F("customer_id"),
 		}),
-		ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
+		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
 			Quantity:  dodopayments.F(int64(0)),
 			Amount:    dodopayments.F(int64(0)),

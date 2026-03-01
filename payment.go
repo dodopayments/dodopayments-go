@@ -149,6 +149,32 @@ func (r BillingAddressParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+// Customer's response to a custom field
+type CustomFieldResponse struct {
+	// Key matching the custom field definition
+	Key string `json:"key" api:"required"`
+	// Value provided by customer
+	Value string                  `json:"value" api:"required"`
+	JSON  customFieldResponseJSON `json:"-"`
+}
+
+// customFieldResponseJSON contains the JSON metadata for the struct
+// [CustomFieldResponse]
+type customFieldResponseJSON struct {
+	Key         apijson.Field
+	Value       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CustomFieldResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r customFieldResponseJSON) RawJSON() string {
+	return r.raw
+}
+
 type CustomerLimitedDetails struct {
 	// Unique identifier for the customer
 	CustomerID string `json:"customer_id" api:"required"`
@@ -247,13 +273,9 @@ func (r NewCustomerParam) MarshalJSON() (data []byte, err error) {
 func (r NewCustomerParam) implementsCustomerRequestUnionParam() {}
 
 type OneTimeProductCartItem struct {
-	ProductID string `json:"product_id" api:"required"`
-	Quantity  int64  `json:"quantity" api:"required"`
-	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
-	// amount will be ignored Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Amount int64                      `json:"amount" api:"nullable"`
-	JSON   oneTimeProductCartItemJSON `json:"-"`
+	ProductID string                     `json:"product_id" api:"required"`
+	Quantity  int64                      `json:"quantity" api:"required"`
+	JSON      oneTimeProductCartItemJSON `json:"-"`
 }
 
 // oneTimeProductCartItemJSON contains the JSON metadata for the struct
@@ -261,7 +283,6 @@ type OneTimeProductCartItem struct {
 type oneTimeProductCartItemJSON struct {
 	ProductID   apijson.Field
 	Quantity    apijson.Field
-	Amount      apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -272,19 +293,6 @@ func (r *OneTimeProductCartItem) UnmarshalJSON(data []byte) (err error) {
 
 func (r oneTimeProductCartItemJSON) RawJSON() string {
 	return r.raw
-}
-
-type OneTimeProductCartItemParam struct {
-	ProductID param.Field[string] `json:"product_id" api:"required"`
-	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
-	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
-	// amount will be ignored Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Amount param.Field[int64] `json:"amount"`
-}
-
-func (r OneTimeProductCartItemParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 type Payment struct {
@@ -309,7 +317,7 @@ type Payment struct {
 	// Unique identifier for the payment
 	PaymentID string `json:"payment_id" api:"required"`
 	// List of refunds issued for this payment
-	Refunds []PaymentRefund `json:"refunds" api:"required"`
+	Refunds []RefundListItem `json:"refunds" api:"required"`
 	// The amount that will be credited to your Dodo balance after currency conversion
 	// and processing. Especially relevant for adaptive pricing where the customer's
 	// payment currency differs from your settlement currency.
@@ -335,7 +343,7 @@ type Payment struct {
 	// session.
 	CheckoutSessionID string `json:"checkout_session_id" api:"nullable"`
 	// Customer's responses to custom fields collected during checkout
-	CustomFieldResponses []PaymentCustomFieldResponse `json:"custom_field_responses" api:"nullable"`
+	CustomFieldResponses []CustomFieldResponse `json:"custom_field_responses" api:"nullable"`
 	// The discount id if discount is applied
 	DiscountID string `json:"discount_id" api:"nullable"`
 	// An error code if the payment failed
@@ -353,7 +361,7 @@ type Payment struct {
 	// Specific type of payment method (e.g. "visa", "mastercard")
 	PaymentMethodType string `json:"payment_method_type" api:"nullable"`
 	// List of products purchased in a one-time payment
-	ProductCart []PaymentProductCart `json:"product_cart" api:"nullable"`
+	ProductCart []OneTimeProductCartItem `json:"product_cart" api:"nullable"`
 	// Summary of the refund status for this payment. None if no succeeded refunds
 	// exist.
 	RefundStatus PaymentRefundStatus `json:"refund_status" api:"nullable"`
@@ -420,117 +428,6 @@ func (r *Payment) UnmarshalJSON(data []byte) (err error) {
 
 func (r paymentJSON) RawJSON() string {
 	return r.raw
-}
-
-type PaymentRefund struct {
-	// The unique identifier of the business issuing the refund.
-	BusinessID string `json:"business_id" api:"required"`
-	// The timestamp of when the refund was created in UTC.
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// If true the refund is a partial refund
-	IsPartial bool `json:"is_partial" api:"required"`
-	// The unique identifier of the payment associated with the refund.
-	PaymentID string `json:"payment_id" api:"required"`
-	// The unique identifier of the refund.
-	RefundID string `json:"refund_id" api:"required"`
-	// The current status of the refund.
-	Status RefundStatus `json:"status" api:"required"`
-	// The refunded amount.
-	Amount int64 `json:"amount" api:"nullable"`
-	// The currency of the refund, represented as an ISO 4217 currency code.
-	Currency Currency `json:"currency" api:"nullable"`
-	// The reason provided for the refund, if any. Optional.
-	Reason string            `json:"reason" api:"nullable"`
-	JSON   paymentRefundJSON `json:"-"`
-}
-
-// paymentRefundJSON contains the JSON metadata for the struct [PaymentRefund]
-type paymentRefundJSON struct {
-	BusinessID  apijson.Field
-	CreatedAt   apijson.Field
-	IsPartial   apijson.Field
-	PaymentID   apijson.Field
-	RefundID    apijson.Field
-	Status      apijson.Field
-	Amount      apijson.Field
-	Currency    apijson.Field
-	Reason      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PaymentRefund) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentRefundJSON) RawJSON() string {
-	return r.raw
-}
-
-// Customer's response to a custom field
-type PaymentCustomFieldResponse struct {
-	// Key matching the custom field definition
-	Key string `json:"key" api:"required"`
-	// Value provided by customer
-	Value string                         `json:"value" api:"required"`
-	JSON  paymentCustomFieldResponseJSON `json:"-"`
-}
-
-// paymentCustomFieldResponseJSON contains the JSON metadata for the struct
-// [PaymentCustomFieldResponse]
-type paymentCustomFieldResponseJSON struct {
-	Key         apijson.Field
-	Value       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PaymentCustomFieldResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentCustomFieldResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type PaymentProductCart struct {
-	ProductID string                 `json:"product_id" api:"required"`
-	Quantity  int64                  `json:"quantity" api:"required"`
-	JSON      paymentProductCartJSON `json:"-"`
-}
-
-// paymentProductCartJSON contains the JSON metadata for the struct
-// [PaymentProductCart]
-type paymentProductCartJSON struct {
-	ProductID   apijson.Field
-	Quantity    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PaymentProductCart) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentProductCartJSON) RawJSON() string {
-	return r.raw
-}
-
-// Summary of the refund status for this payment. None if no succeeded refunds
-// exist.
-type PaymentRefundStatus string
-
-const (
-	PaymentRefundStatusPartial PaymentRefundStatus = "partial"
-	PaymentRefundStatusFull    PaymentRefundStatus = "full"
-)
-
-func (r PaymentRefundStatus) IsKnown() bool {
-	switch r {
-	case PaymentRefundStatusPartial, PaymentRefundStatusFull:
-		return true
-	}
-	return false
 }
 
 type PaymentMethodTypes string
@@ -650,6 +547,66 @@ func (r PaymentMethodTypes) IsKnown() bool {
 	return false
 }
 
+type PaymentRefundStatus string
+
+const (
+	PaymentRefundStatusPartial PaymentRefundStatus = "partial"
+	PaymentRefundStatusFull    PaymentRefundStatus = "full"
+)
+
+func (r PaymentRefundStatus) IsKnown() bool {
+	switch r {
+	case PaymentRefundStatusPartial, PaymentRefundStatusFull:
+		return true
+	}
+	return false
+}
+
+type RefundListItem struct {
+	// The unique identifier of the business issuing the refund.
+	BusinessID string `json:"business_id" api:"required"`
+	// The timestamp of when the refund was created in UTC.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// If true the refund is a partial refund
+	IsPartial bool `json:"is_partial" api:"required"`
+	// The unique identifier of the payment associated with the refund.
+	PaymentID string `json:"payment_id" api:"required"`
+	// The unique identifier of the refund.
+	RefundID string `json:"refund_id" api:"required"`
+	// The current status of the refund.
+	Status RefundStatus `json:"status" api:"required"`
+	// The refunded amount.
+	Amount int64 `json:"amount" api:"nullable"`
+	// The currency of the refund, represented as an ISO 4217 currency code.
+	Currency Currency `json:"currency" api:"nullable"`
+	// The reason provided for the refund, if any. Optional.
+	Reason string             `json:"reason" api:"nullable"`
+	JSON   refundListItemJSON `json:"-"`
+}
+
+// refundListItemJSON contains the JSON metadata for the struct [RefundListItem]
+type refundListItemJSON struct {
+	BusinessID  apijson.Field
+	CreatedAt   apijson.Field
+	IsPartial   apijson.Field
+	PaymentID   apijson.Field
+	RefundID    apijson.Field
+	Status      apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Reason      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *RefundListItem) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r refundListItemJSON) RawJSON() string {
+	return r.raw
+}
+
 type PaymentNewResponse struct {
 	// Client secret used to load Dodo checkout SDK NOTE : Dodo checkout SDK will be
 	// coming soon
@@ -669,8 +626,8 @@ type PaymentNewResponse struct {
 	// Optional URL to a hosted payment page
 	PaymentLink string `json:"payment_link" api:"nullable"`
 	// Optional list of products included in the payment
-	ProductCart []OneTimeProductCartItem `json:"product_cart" api:"nullable"`
-	JSON        paymentNewResponseJSON   `json:"-"`
+	ProductCart []PaymentNewResponseProductCart `json:"product_cart" api:"nullable"`
+	JSON        paymentNewResponseJSON          `json:"-"`
 }
 
 // paymentNewResponseJSON contains the JSON metadata for the struct
@@ -697,6 +654,34 @@ func (r paymentNewResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type PaymentNewResponseProductCart struct {
+	ProductID string `json:"product_id" api:"required"`
+	Quantity  int64  `json:"quantity" api:"required"`
+	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
+	// amount will be ignored Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Amount int64                             `json:"amount" api:"nullable"`
+	JSON   paymentNewResponseProductCartJSON `json:"-"`
+}
+
+// paymentNewResponseProductCartJSON contains the JSON metadata for the struct
+// [PaymentNewResponseProductCart]
+type paymentNewResponseProductCartJSON struct {
+	ProductID   apijson.Field
+	Quantity    apijson.Field
+	Amount      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PaymentNewResponseProductCart) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentNewResponseProductCartJSON) RawJSON() string {
+	return r.raw
+}
+
 type PaymentListResponse struct {
 	BrandID                  string                 `json:"brand_id" api:"required"`
 	CreatedAt                time.Time              `json:"created_at" api:"required" format:"date-time"`
@@ -707,15 +692,20 @@ type PaymentListResponse struct {
 	Metadata                 map[string]string      `json:"metadata" api:"required"`
 	PaymentID                string                 `json:"payment_id" api:"required"`
 	TotalAmount              int64                  `json:"total_amount" api:"required"`
+	// The most recent dispute status for this payment. None if no disputes exist.
+	DisputeStatus DisputeStatus `json:"dispute_status" api:"nullable"`
 	// Invoice ID for this payment. Uses India-specific invoice ID if available.
 	InvoiceID string `json:"invoice_id" api:"nullable"`
 	// URL to download the invoice PDF for this payment.
-	InvoiceURL        string                  `json:"invoice_url" api:"nullable"`
-	PaymentMethod     string                  `json:"payment_method" api:"nullable"`
-	PaymentMethodType string                  `json:"payment_method_type" api:"nullable"`
-	Status            IntentStatus            `json:"status" api:"nullable"`
-	SubscriptionID    string                  `json:"subscription_id" api:"nullable"`
-	JSON              paymentListResponseJSON `json:"-"`
+	InvoiceURL        string `json:"invoice_url" api:"nullable"`
+	PaymentMethod     string `json:"payment_method" api:"nullable"`
+	PaymentMethodType string `json:"payment_method_type" api:"nullable"`
+	// Summary of the refund status for this payment. None if no succeeded refunds
+	// exist.
+	RefundStatus   PaymentRefundStatus     `json:"refund_status" api:"nullable"`
+	Status         IntentStatus            `json:"status" api:"nullable"`
+	SubscriptionID string                  `json:"subscription_id" api:"nullable"`
+	JSON           paymentListResponseJSON `json:"-"`
 }
 
 // paymentListResponseJSON contains the JSON metadata for the struct
@@ -730,10 +720,12 @@ type paymentListResponseJSON struct {
 	Metadata                 apijson.Field
 	PaymentID                apijson.Field
 	TotalAmount              apijson.Field
+	DisputeStatus            apijson.Field
 	InvoiceID                apijson.Field
 	InvoiceURL               apijson.Field
 	PaymentMethod            apijson.Field
 	PaymentMethodType        apijson.Field
+	RefundStatus             apijson.Field
 	Status                   apijson.Field
 	SubscriptionID           apijson.Field
 	raw                      string
@@ -808,7 +800,7 @@ type PaymentNewParams struct {
 	// Customer information for the payment
 	Customer param.Field[CustomerRequestUnionParam] `json:"customer" api:"required"`
 	// List of products in the cart. Must contain at least 1 and at most 100 items.
-	ProductCart param.Field[[]OneTimeProductCartItemParam] `json:"product_cart" api:"required"`
+	ProductCart param.Field[[]PaymentNewParamsProductCart] `json:"product_cart" api:"required"`
 	// List of payment methods allowed during checkout.
 	//
 	// Customers will **never** see payment methods that are **not** in this list.
@@ -848,6 +840,19 @@ type PaymentNewParams struct {
 }
 
 func (r PaymentNewParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type PaymentNewParamsProductCart struct {
+	ProductID param.Field[string] `json:"product_id" api:"required"`
+	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
+	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
+	// amount will be ignored Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Amount param.Field[int64] `json:"amount"`
+}
+
+func (r PaymentNewParamsProductCart) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 

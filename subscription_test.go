@@ -57,7 +57,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 			ProductDescription:            dodopayments.F("product_description"),
 			ProductPrice:                  dodopayments.F(int64(0)),
 		}),
-		OneTimeProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
+		OneTimeProductCart: dodopayments.F([]dodopayments.SubscriptionNewParamsOneTimeProductCart{{
 			ProductID: dodopayments.F("product_id"),
 			Quantity:  dodopayments.F(int64(0)),
 			Amount:    dodopayments.F(int64(0)),
@@ -132,7 +132,6 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 				ExpiresAfterDays:           dodopayments.F(int64(0)),
 				LowBalanceThresholdPercent: dodopayments.F(int64(0)),
 				MaxRolloverCount:           dodopayments.F(int64(0)),
-				OverageChargeAtBilling:     dodopayments.F(true),
 				OverageEnabled:             dodopayments.F(true),
 				OverageLimit:               dodopayments.F("overage_limit"),
 				RolloverEnabled:            dodopayments.F(true),
@@ -208,17 +207,19 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionChangePlanParams{
-			ProductID:            dodopayments.F("product_id"),
-			ProrationBillingMode: dodopayments.F(dodopayments.SubscriptionChangePlanParamsProrationBillingModeProratedImmediately),
-			Quantity:             dodopayments.F(int64(0)),
-			Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
-				AddonID:  dodopayments.F("addon_id"),
-				Quantity: dodopayments.F(int64(0)),
-			}}),
-			Metadata: dodopayments.F(map[string]string{
-				"foo": "string",
-			}),
-			OnPaymentFailure: dodopayments.F(dodopayments.SubscriptionChangePlanParamsOnPaymentFailurePreventChange),
+			UpdateSubscriptionPlanReq: dodopayments.UpdateSubscriptionPlanReqParam{
+				ProductID:            dodopayments.F("product_id"),
+				ProrationBillingMode: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately),
+				Quantity:             dodopayments.F(int64(0)),
+				Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
+					AddonID:  dodopayments.F("addon_id"),
+					Quantity: dodopayments.F(int64(0)),
+				}}),
+				Metadata: dodopayments.F(map[string]string{
+					"foo": "string",
+				}),
+				OnPaymentFailure: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqOnPaymentFailurePreventChange),
+			},
 		},
 	)
 	if err != nil {
@@ -284,19 +285,43 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"subscription_id",
 		dodopayments.SubscriptionPreviewChangePlanParams{
-			ProductID:            dodopayments.F("product_id"),
-			ProrationBillingMode: dodopayments.F(dodopayments.SubscriptionPreviewChangePlanParamsProrationBillingModeProratedImmediately),
-			Quantity:             dodopayments.F(int64(0)),
-			Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
-				AddonID:  dodopayments.F("addon_id"),
-				Quantity: dodopayments.F(int64(0)),
-			}}),
-			Metadata: dodopayments.F(map[string]string{
-				"foo": "string",
-			}),
-			OnPaymentFailure: dodopayments.F(dodopayments.SubscriptionPreviewChangePlanParamsOnPaymentFailurePreventChange),
+			UpdateSubscriptionPlanReq: dodopayments.UpdateSubscriptionPlanReqParam{
+				ProductID:            dodopayments.F("product_id"),
+				ProrationBillingMode: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately),
+				Quantity:             dodopayments.F(int64(0)),
+				Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
+					AddonID:  dodopayments.F("addon_id"),
+					Quantity: dodopayments.F(int64(0)),
+				}}),
+				Metadata: dodopayments.F(map[string]string{
+					"foo": "string",
+				}),
+				OnPaymentFailure: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqOnPaymentFailurePreventChange),
+			},
 		},
 	)
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSubscriptionGetCreditUsage(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Subscriptions.GetCreditUsage(context.TODO(), "subscription_id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
