@@ -38,14 +38,14 @@ func TestMeterNewWithOptionalParams(t *testing.T) {
 		Filter: dodopayments.F(dodopayments.MeterFilterParam{
 			Clauses: dodopayments.F[dodopayments.MeterFilterClausesUnionParam](dodopayments.MeterFilterClausesDirectFilterConditionsParam([]dodopayments.MeterFilterClausesDirectFilterConditionParam{{
 				Key:      dodopayments.F("user_id"),
-				Operator: dodopayments.F(dodopayments.MeterFilterClausesDirectFilterConditionsOperatorEquals),
+				Operator: dodopayments.F(dodopayments.FilterOperatorEquals),
 				Value:    dodopayments.F[dodopayments.MeterFilterClausesDirectFilterConditionsValueUnionParam](shared.UnionString("user123")),
 			}, {
 				Key:      dodopayments.F("amount"),
-				Operator: dodopayments.F(dodopayments.MeterFilterClausesDirectFilterConditionsOperatorGreaterThan),
+				Operator: dodopayments.F(dodopayments.FilterOperatorGreaterThan),
 				Value:    dodopayments.F[dodopayments.MeterFilterClausesDirectFilterConditionsValueUnionParam](shared.UnionFloat(100.000000)),
 			}})),
-			Conjunction: dodopayments.F(dodopayments.MeterFilterConjunctionAnd),
+			Conjunction: dodopayments.F(dodopayments.ConjunctionAnd),
 		}),
 	})
 	if err != nil {

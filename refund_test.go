@@ -82,12 +82,13 @@ func TestRefundListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Refunds.List(context.TODO(), dodopayments.RefundListParams{
-		CreatedAtGte: dodopayments.F(time.Now()),
-		CreatedAtLte: dodopayments.F(time.Now()),
-		CustomerID:   dodopayments.F("customer_id"),
-		PageNumber:   dodopayments.F(int64(0)),
-		PageSize:     dodopayments.F(int64(0)),
-		Status:       dodopayments.F(dodopayments.RefundListParamsStatusSucceeded),
+		CreatedAtGte:   dodopayments.F(time.Now()),
+		CreatedAtLte:   dodopayments.F(time.Now()),
+		CustomerID:     dodopayments.F("customer_id"),
+		PageNumber:     dodopayments.F(int64(0)),
+		PageSize:       dodopayments.F(int64(0)),
+		Status:         dodopayments.F(dodopayments.RefundListParamsStatusSucceeded),
+		SubscriptionID: dodopayments.F("subscription_id"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

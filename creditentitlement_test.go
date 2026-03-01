@@ -7,14 +7,13 @@ import (
 	"errors"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
 )
 
-func TestCustomerNewWithOptionalParams(t *testing.T) {
+func TestCreditEntitlementNewWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -26,13 +25,22 @@ func TestCustomerNewWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.New(context.TODO(), dodopayments.CustomerNewParams{
-		Email: dodopayments.F("email"),
-		Name:  dodopayments.F("name"),
-		Metadata: dodopayments.F(map[string]string{
-			"foo": "string",
-		}),
-		PhoneNumber: dodopayments.F("phone_number"),
+	_, err := client.CreditEntitlements.New(context.TODO(), dodopayments.CreditEntitlementNewParams{
+		Name:                      dodopayments.F("name"),
+		OverageEnabled:            dodopayments.F(true),
+		Precision:                 dodopayments.F(int64(0)),
+		RolloverEnabled:           dodopayments.F(true),
+		Unit:                      dodopayments.F("unit"),
+		Currency:                  dodopayments.F(dodopayments.CurrencyAed),
+		Description:               dodopayments.F("description"),
+		ExpiresAfterDays:          dodopayments.F(int64(0)),
+		MaxRolloverCount:          dodopayments.F(int64(0)),
+		OverageBehavior:           dodopayments.F(dodopayments.CbbOverageBehaviorForgiveAtReset),
+		OverageLimit:              dodopayments.F(int64(0)),
+		PricePerUnit:              dodopayments.F("price_per_unit"),
+		RolloverPercentage:        dodopayments.F(int64(0)),
+		RolloverTimeframeCount:    dodopayments.F(int64(0)),
+		RolloverTimeframeInterval: dodopayments.F(dodopayments.TimeIntervalDay),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -43,7 +51,7 @@ func TestCustomerNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCustomerGet(t *testing.T) {
+func TestCreditEntitlementGet(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -55,7 +63,7 @@ func TestCustomerGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.Get(context.TODO(), "customer_id")
+	_, err := client.CreditEntitlements.Get(context.TODO(), "id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -65,7 +73,7 @@ func TestCustomerGet(t *testing.T) {
 	}
 }
 
-func TestCustomerUpdateWithOptionalParams(t *testing.T) {
+func TestCreditEntitlementUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -77,16 +85,24 @@ func TestCustomerUpdateWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.Update(
+	err := client.CreditEntitlements.Update(
 		context.TODO(),
-		"customer_id",
-		dodopayments.CustomerUpdateParams{
-			Email: dodopayments.F("email"),
-			Metadata: dodopayments.F(map[string]string{
-				"foo": "string",
-			}),
-			Name:        dodopayments.F("name"),
-			PhoneNumber: dodopayments.F("phone_number"),
+		"id",
+		dodopayments.CreditEntitlementUpdateParams{
+			Currency:                  dodopayments.F(dodopayments.CurrencyAed),
+			Description:               dodopayments.F("description"),
+			ExpiresAfterDays:          dodopayments.F(int64(0)),
+			MaxRolloverCount:          dodopayments.F(int64(0)),
+			Name:                      dodopayments.F("name"),
+			OverageBehavior:           dodopayments.F(dodopayments.CbbOverageBehaviorForgiveAtReset),
+			OverageEnabled:            dodopayments.F(true),
+			OverageLimit:              dodopayments.F(int64(0)),
+			PricePerUnit:              dodopayments.F("price_per_unit"),
+			RolloverEnabled:           dodopayments.F(true),
+			RolloverPercentage:        dodopayments.F(int64(0)),
+			RolloverTimeframeCount:    dodopayments.F(int64(0)),
+			RolloverTimeframeInterval: dodopayments.F(dodopayments.TimeIntervalDay),
+			Unit:                      dodopayments.F("unit"),
 		},
 	)
 	if err != nil {
@@ -98,7 +114,7 @@ func TestCustomerUpdateWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCustomerListWithOptionalParams(t *testing.T) {
+func TestCreditEntitlementListWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -110,13 +126,10 @@ func TestCustomerListWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.List(context.TODO(), dodopayments.CustomerListParams{
-		CreatedAtGte: dodopayments.F(time.Now()),
-		CreatedAtLte: dodopayments.F(time.Now()),
-		Email:        dodopayments.F("email"),
-		Name:         dodopayments.F("name"),
-		PageNumber:   dodopayments.F(int64(0)),
-		PageSize:     dodopayments.F(int64(0)),
+	_, err := client.CreditEntitlements.List(context.TODO(), dodopayments.CreditEntitlementListParams{
+		Deleted:    dodopayments.F(true),
+		PageNumber: dodopayments.F(int64(0)),
+		PageSize:   dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -127,7 +140,7 @@ func TestCustomerListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCustomerListCreditEntitlements(t *testing.T) {
+func TestCreditEntitlementDelete(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -139,7 +152,7 @@ func TestCustomerListCreditEntitlements(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.ListCreditEntitlements(context.TODO(), "customer_id")
+	err := client.CreditEntitlements.Delete(context.TODO(), "id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -149,7 +162,7 @@ func TestCustomerListCreditEntitlements(t *testing.T) {
 	}
 }
 
-func TestCustomerGetPaymentMethods(t *testing.T) {
+func TestCreditEntitlementUndelete(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -161,7 +174,7 @@ func TestCustomerGetPaymentMethods(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.GetPaymentMethods(context.TODO(), "customer_id")
+	err := client.CreditEntitlements.Undelete(context.TODO(), "id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

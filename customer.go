@@ -92,6 +92,18 @@ func (r *CustomerService) ListAutoPaging(ctx context.Context, query CustomerList
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
+// List all credit entitlements for a customer with their current balances
+func (r *CustomerService) ListCreditEntitlements(ctx context.Context, customerID string, opts ...option.RequestOption) (res *CustomerListCreditEntitlementsResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if customerID == "" {
+		err = errors.New("missing required customer_id parameter")
+		return
+	}
+	path := fmt.Sprintf("customers/%s/credit-entitlements", customerID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
 func (r *CustomerService) GetPaymentMethods(ctx context.Context, customerID string, opts ...option.RequestOption) (res *CustomerGetPaymentMethodsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if customerID == "" {
@@ -154,6 +166,65 @@ func (r *CustomerPortalSession) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r customerPortalSessionJSON) RawJSON() string {
+	return r.raw
+}
+
+type CustomerListCreditEntitlementsResponse struct {
+	Items []CustomerListCreditEntitlementsResponseItem `json:"items" api:"required"`
+	JSON  customerListCreditEntitlementsResponseJSON   `json:"-"`
+}
+
+// customerListCreditEntitlementsResponseJSON contains the JSON metadata for the
+// struct [CustomerListCreditEntitlementsResponse]
+type customerListCreditEntitlementsResponseJSON struct {
+	Items       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CustomerListCreditEntitlementsResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r customerListCreditEntitlementsResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+// A credit entitlement with the customer's current balance
+type CustomerListCreditEntitlementsResponseItem struct {
+	// Customer's current remaining credit balance
+	Balance string `json:"balance" api:"required"`
+	// Credit entitlement ID
+	CreditEntitlementID string `json:"credit_entitlement_id" api:"required"`
+	// Name of the credit entitlement
+	Name string `json:"name" api:"required"`
+	// Customer's current overage balance
+	Overage string `json:"overage" api:"required"`
+	// Unit label (e.g. "API Calls", "Tokens")
+	Unit string `json:"unit" api:"required"`
+	// Description of the credit entitlement
+	Description string                                         `json:"description" api:"nullable"`
+	JSON        customerListCreditEntitlementsResponseItemJSON `json:"-"`
+}
+
+// customerListCreditEntitlementsResponseItemJSON contains the JSON metadata for
+// the struct [CustomerListCreditEntitlementsResponseItem]
+type customerListCreditEntitlementsResponseItemJSON struct {
+	Balance             apijson.Field
+	CreditEntitlementID apijson.Field
+	Name                apijson.Field
+	Overage             apijson.Field
+	Unit                apijson.Field
+	Description         apijson.Field
+	raw                 string
+	ExtraFields         map[string]apijson.Field
+}
+
+func (r *CustomerListCreditEntitlementsResponseItem) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r customerListCreditEntitlementsResponseItemJSON) RawJSON() string {
 	return r.raw
 }
 

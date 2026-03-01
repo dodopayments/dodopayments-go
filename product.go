@@ -132,9 +132,6 @@ func (r *ProductService) UpdateFiles(ctx context.Context, id string, body Produc
 
 type AddMeterToPrice struct {
 	MeterID string `json:"meter_id" api:"required"`
-	// The price per unit in lowest denomination. Must be greater than zero. Supports
-	// up to 5 digits before decimal point and 12 decimal places.
-	PricePerUnit string `json:"price_per_unit" api:"required"`
 	// Optional credit entitlement ID to link this meter to for credit-based billing
 	CreditEntitlementID string `json:"credit_entitlement_id" api:"nullable"`
 	// Meter description. Will ignored on Request, but will be shown in response
@@ -146,20 +143,23 @@ type AddMeterToPrice struct {
 	// is set.
 	MeterUnitsPerCredit string `json:"meter_units_per_credit" api:"nullable"`
 	// Meter name. Will ignored on Request, but will be shown in response
-	Name string              `json:"name" api:"nullable"`
-	JSON addMeterToPriceJSON `json:"-"`
+	Name string `json:"name" api:"nullable"`
+	// The price per unit in lowest denomination. Must be greater than zero. Supports
+	// up to 5 digits before decimal point and 12 decimal places.
+	PricePerUnit string              `json:"price_per_unit" api:"nullable"`
+	JSON         addMeterToPriceJSON `json:"-"`
 }
 
 // addMeterToPriceJSON contains the JSON metadata for the struct [AddMeterToPrice]
 type addMeterToPriceJSON struct {
 	MeterID             apijson.Field
-	PricePerUnit        apijson.Field
 	CreditEntitlementID apijson.Field
 	Description         apijson.Field
 	FreeThreshold       apijson.Field
 	MeasurementUnit     apijson.Field
 	MeterUnitsPerCredit apijson.Field
 	Name                apijson.Field
+	PricePerUnit        apijson.Field
 	raw                 string
 	ExtraFields         map[string]apijson.Field
 }
@@ -174,9 +174,6 @@ func (r addMeterToPriceJSON) RawJSON() string {
 
 type AddMeterToPriceParam struct {
 	MeterID param.Field[string] `json:"meter_id" api:"required"`
-	// The price per unit in lowest denomination. Must be greater than zero. Supports
-	// up to 5 digits before decimal point and 12 decimal places.
-	PricePerUnit param.Field[string] `json:"price_per_unit" api:"required"`
 	// Optional credit entitlement ID to link this meter to for credit-based billing
 	CreditEntitlementID param.Field[string] `json:"credit_entitlement_id"`
 	// Meter description. Will ignored on Request, but will be shown in response
@@ -189,10 +186,70 @@ type AddMeterToPriceParam struct {
 	MeterUnitsPerCredit param.Field[string] `json:"meter_units_per_credit"`
 	// Meter name. Will ignored on Request, but will be shown in response
 	Name param.Field[string] `json:"name"`
+	// The price per unit in lowest denomination. Must be greater than zero. Supports
+	// up to 5 digits before decimal point and 12 decimal places.
+	PricePerUnit param.Field[string] `json:"price_per_unit"`
 }
 
 func (r AddMeterToPriceParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+// Request struct for attaching a credit entitlement to a product
+type AttachCreditEntitlementParam struct {
+	// ID of the credit entitlement to attach
+	CreditEntitlementID param.Field[string] `json:"credit_entitlement_id" api:"required"`
+	// Number of credits to grant when this product is purchased
+	CreditsAmount param.Field[string] `json:"credits_amount" api:"required"`
+	// Currency for credit-related pricing
+	Currency param.Field[Currency] `json:"currency"`
+	// Number of days after which credits expire
+	ExpiresAfterDays param.Field[int64] `json:"expires_after_days"`
+	// Balance threshold percentage for low balance notifications (0-100)
+	LowBalanceThresholdPercent param.Field[int64] `json:"low_balance_threshold_percent"`
+	// Maximum number of rollover cycles allowed
+	MaxRolloverCount param.Field[int64] `json:"max_rollover_count"`
+	// Controls how overage is handled at billing cycle end.
+	OverageBehavior param.Field[CbbOverageBehavior] `json:"overage_behavior"`
+	// Whether overage usage is allowed beyond credit balance
+	OverageEnabled param.Field[bool] `json:"overage_enabled"`
+	// Maximum amount of overage allowed
+	OverageLimit param.Field[string] `json:"overage_limit"`
+	// Price per credit unit for purchasing additional credits
+	PricePerUnit param.Field[string] `json:"price_per_unit"`
+	// Proration behavior for credit grants during plan changes
+	ProrationBehavior param.Field[CbbProrationBehavior] `json:"proration_behavior"`
+	// Whether unused credits can roll over to the next billing period
+	RolloverEnabled param.Field[bool] `json:"rollover_enabled"`
+	// Percentage of unused credits that can roll over (0-100)
+	RolloverPercentage param.Field[int64] `json:"rollover_percentage"`
+	// Number of timeframe units for rollover window
+	RolloverTimeframeCount param.Field[int64] `json:"rollover_timeframe_count"`
+	// Time interval for rollover window (day, week, month, year)
+	RolloverTimeframeInterval param.Field[TimeInterval] `json:"rollover_timeframe_interval"`
+	// Credits granted during trial period
+	TrialCredits param.Field[string] `json:"trial_credits"`
+	// Whether trial credits expire when trial ends
+	TrialCreditsExpireAfterTrial param.Field[bool] `json:"trial_credits_expire_after_trial"`
+}
+
+func (r AttachCreditEntitlementParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type CbbProrationBehavior string
+
+const (
+	CbbProrationBehaviorProrate   CbbProrationBehavior = "prorate"
+	CbbProrationBehaviorNoProrate CbbProrationBehavior = "no_prorate"
+)
+
+func (r CbbProrationBehavior) IsKnown() bool {
+	switch r {
+	case CbbProrationBehaviorProrate, CbbProrationBehaviorNoProrate:
+		return true
+	}
+	return false
 }
 
 type LicenseKeyDuration struct {
@@ -816,16 +873,12 @@ type ProductCreditEntitlement struct {
 	CreditEntitlementUnit string `json:"credit_entitlement_unit" api:"required"`
 	// Number of credits granted
 	CreditsAmount string `json:"credits_amount" api:"required"`
-	// Whether new credit grants reduce existing overage
-	CreditsReduceOverage bool `json:"credits_reduce_overage" api:"required"`
-	// Whether overage is charged at billing
-	OverageChargeAtBilling bool `json:"overage_charge_at_billing" api:"required"`
+	// Controls how overage is handled at billing cycle end.
+	OverageBehavior CbbOverageBehavior `json:"overage_behavior" api:"required"`
 	// Whether overage is enabled
 	OverageEnabled bool `json:"overage_enabled" api:"required"`
-	// Whether to preserve overage balance when credits reset
-	PreserveOverageAtReset bool `json:"preserve_overage_at_reset" api:"required"`
 	// Proration behavior for credit grants during plan changes
-	ProrationBehavior ProductCreditEntitlementsProrationBehavior `json:"proration_behavior" api:"required"`
+	ProrationBehavior CbbProrationBehavior `json:"proration_behavior" api:"required"`
 	// Whether rollover is enabled
 	RolloverEnabled bool `json:"rollover_enabled" api:"required"`
 	// Whether trial credits expire after trial
@@ -861,10 +914,8 @@ type productCreditEntitlementJSON struct {
 	CreditEntitlementName        apijson.Field
 	CreditEntitlementUnit        apijson.Field
 	CreditsAmount                apijson.Field
-	CreditsReduceOverage         apijson.Field
-	OverageChargeAtBilling       apijson.Field
+	OverageBehavior              apijson.Field
 	OverageEnabled               apijson.Field
-	PreserveOverageAtReset       apijson.Field
 	ProrationBehavior            apijson.Field
 	RolloverEnabled              apijson.Field
 	TrialCreditsExpireAfterTrial apijson.Field
@@ -888,22 +939,6 @@ func (r *ProductCreditEntitlement) UnmarshalJSON(data []byte) (err error) {
 
 func (r productCreditEntitlementJSON) RawJSON() string {
 	return r.raw
-}
-
-// Proration behavior for credit grants during plan changes
-type ProductCreditEntitlementsProrationBehavior string
-
-const (
-	ProductCreditEntitlementsProrationBehaviorProrate   ProductCreditEntitlementsProrationBehavior = "prorate"
-	ProductCreditEntitlementsProrationBehaviorNoProrate ProductCreditEntitlementsProrationBehavior = "no_prorate"
-)
-
-func (r ProductCreditEntitlementsProrationBehavior) IsKnown() bool {
-	switch r {
-	case ProductCreditEntitlementsProrationBehaviorProrate, ProductCreditEntitlementsProrationBehaviorNoProrate:
-		return true
-	}
-	return false
 }
 
 type ProductDigitalProductDelivery struct {
@@ -1064,7 +1099,7 @@ type ProductNewParams struct {
 	// Brand id for the product, if not provided will default to primary brand
 	BrandID param.Field[string] `json:"brand_id"`
 	// Optional credit entitlements to attach (max 3)
-	CreditEntitlements param.Field[[]ProductNewParamsCreditEntitlement] `json:"credit_entitlements"`
+	CreditEntitlements param.Field[[]AttachCreditEntitlementParam] `json:"credit_entitlements"`
 	// Optional description of the product
 	Description param.Field[string] `json:"description"`
 	// Choose how you would like you digital product delivered
@@ -1087,68 +1122,6 @@ func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-// Request struct for attaching a credit entitlement to a product
-type ProductNewParamsCreditEntitlement struct {
-	// ID of the credit entitlement to attach
-	CreditEntitlementID param.Field[string] `json:"credit_entitlement_id" api:"required"`
-	// Number of credits to grant when this product is purchased
-	CreditsAmount param.Field[string] `json:"credits_amount" api:"required"`
-	// Whether new credit grants reduce existing overage
-	CreditsReduceOverage param.Field[bool] `json:"credits_reduce_overage"`
-	// Currency for credit-related pricing
-	Currency param.Field[Currency] `json:"currency"`
-	// Number of days after which credits expire
-	ExpiresAfterDays param.Field[int64] `json:"expires_after_days"`
-	// Balance threshold percentage for low balance notifications (0-100)
-	LowBalanceThresholdPercent param.Field[int64] `json:"low_balance_threshold_percent"`
-	// Maximum number of rollover cycles allowed
-	MaxRolloverCount param.Field[int64] `json:"max_rollover_count"`
-	// Whether overage charges are applied at billing time
-	OverageChargeAtBilling param.Field[bool] `json:"overage_charge_at_billing"`
-	// Whether overage usage is allowed beyond credit balance
-	OverageEnabled param.Field[bool] `json:"overage_enabled"`
-	// Maximum amount of overage allowed
-	OverageLimit param.Field[string] `json:"overage_limit"`
-	// Whether to preserve overage balance when credits reset
-	PreserveOverageAtReset param.Field[bool] `json:"preserve_overage_at_reset"`
-	// Price per credit unit for purchasing additional credits
-	PricePerUnit param.Field[string] `json:"price_per_unit"`
-	// Proration behavior for credit grants during plan changes
-	ProrationBehavior param.Field[ProductNewParamsCreditEntitlementsProrationBehavior] `json:"proration_behavior"`
-	// Whether unused credits can roll over to the next billing period
-	RolloverEnabled param.Field[bool] `json:"rollover_enabled"`
-	// Percentage of unused credits that can roll over (0-100)
-	RolloverPercentage param.Field[int64] `json:"rollover_percentage"`
-	// Number of timeframe units for rollover window
-	RolloverTimeframeCount param.Field[int64] `json:"rollover_timeframe_count"`
-	// Time interval for rollover window (day, week, month, year)
-	RolloverTimeframeInterval param.Field[TimeInterval] `json:"rollover_timeframe_interval"`
-	// Credits granted during trial period
-	TrialCredits param.Field[string] `json:"trial_credits"`
-	// Whether trial credits expire when trial ends
-	TrialCreditsExpireAfterTrial param.Field[bool] `json:"trial_credits_expire_after_trial"`
-}
-
-func (r ProductNewParamsCreditEntitlement) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Proration behavior for credit grants during plan changes
-type ProductNewParamsCreditEntitlementsProrationBehavior string
-
-const (
-	ProductNewParamsCreditEntitlementsProrationBehaviorProrate   ProductNewParamsCreditEntitlementsProrationBehavior = "prorate"
-	ProductNewParamsCreditEntitlementsProrationBehaviorNoProrate ProductNewParamsCreditEntitlementsProrationBehavior = "no_prorate"
-)
-
-func (r ProductNewParamsCreditEntitlementsProrationBehavior) IsKnown() bool {
-	switch r {
-	case ProductNewParamsCreditEntitlementsProrationBehaviorProrate, ProductNewParamsCreditEntitlementsProrationBehaviorNoProrate:
-		return true
-	}
-	return false
-}
-
 // Choose how you would like you digital product delivered
 type ProductNewParamsDigitalProductDelivery struct {
 	// External URL to digital product
@@ -1167,7 +1140,7 @@ type ProductUpdateParams struct {
 	BrandID param.Field[string]   `json:"brand_id"`
 	// Credit entitlements to update (replaces all existing when present) Send empty
 	// array to remove all, omit field to leave unchanged
-	CreditEntitlements param.Field[[]ProductUpdateParamsCreditEntitlement] `json:"credit_entitlements"`
+	CreditEntitlements param.Field[[]AttachCreditEntitlementParam] `json:"credit_entitlements"`
 	// Description of the product, optional and must be at most 1000 characters.
 	Description param.Field[string] `json:"description"`
 	// Choose how you would like you digital product delivered
@@ -1206,68 +1179,6 @@ type ProductUpdateParams struct {
 
 func (r ProductUpdateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
-}
-
-// Request struct for attaching a credit entitlement to a product
-type ProductUpdateParamsCreditEntitlement struct {
-	// ID of the credit entitlement to attach
-	CreditEntitlementID param.Field[string] `json:"credit_entitlement_id" api:"required"`
-	// Number of credits to grant when this product is purchased
-	CreditsAmount param.Field[string] `json:"credits_amount" api:"required"`
-	// Whether new credit grants reduce existing overage
-	CreditsReduceOverage param.Field[bool] `json:"credits_reduce_overage"`
-	// Currency for credit-related pricing
-	Currency param.Field[Currency] `json:"currency"`
-	// Number of days after which credits expire
-	ExpiresAfterDays param.Field[int64] `json:"expires_after_days"`
-	// Balance threshold percentage for low balance notifications (0-100)
-	LowBalanceThresholdPercent param.Field[int64] `json:"low_balance_threshold_percent"`
-	// Maximum number of rollover cycles allowed
-	MaxRolloverCount param.Field[int64] `json:"max_rollover_count"`
-	// Whether overage charges are applied at billing time
-	OverageChargeAtBilling param.Field[bool] `json:"overage_charge_at_billing"`
-	// Whether overage usage is allowed beyond credit balance
-	OverageEnabled param.Field[bool] `json:"overage_enabled"`
-	// Maximum amount of overage allowed
-	OverageLimit param.Field[string] `json:"overage_limit"`
-	// Whether to preserve overage balance when credits reset
-	PreserveOverageAtReset param.Field[bool] `json:"preserve_overage_at_reset"`
-	// Price per credit unit for purchasing additional credits
-	PricePerUnit param.Field[string] `json:"price_per_unit"`
-	// Proration behavior for credit grants during plan changes
-	ProrationBehavior param.Field[ProductUpdateParamsCreditEntitlementsProrationBehavior] `json:"proration_behavior"`
-	// Whether unused credits can roll over to the next billing period
-	RolloverEnabled param.Field[bool] `json:"rollover_enabled"`
-	// Percentage of unused credits that can roll over (0-100)
-	RolloverPercentage param.Field[int64] `json:"rollover_percentage"`
-	// Number of timeframe units for rollover window
-	RolloverTimeframeCount param.Field[int64] `json:"rollover_timeframe_count"`
-	// Time interval for rollover window (day, week, month, year)
-	RolloverTimeframeInterval param.Field[TimeInterval] `json:"rollover_timeframe_interval"`
-	// Credits granted during trial period
-	TrialCredits param.Field[string] `json:"trial_credits"`
-	// Whether trial credits expire when trial ends
-	TrialCreditsExpireAfterTrial param.Field[bool] `json:"trial_credits_expire_after_trial"`
-}
-
-func (r ProductUpdateParamsCreditEntitlement) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Proration behavior for credit grants during plan changes
-type ProductUpdateParamsCreditEntitlementsProrationBehavior string
-
-const (
-	ProductUpdateParamsCreditEntitlementsProrationBehaviorProrate   ProductUpdateParamsCreditEntitlementsProrationBehavior = "prorate"
-	ProductUpdateParamsCreditEntitlementsProrationBehaviorNoProrate ProductUpdateParamsCreditEntitlementsProrationBehavior = "no_prorate"
-)
-
-func (r ProductUpdateParamsCreditEntitlementsProrationBehavior) IsKnown() bool {
-	switch r {
-	case ProductUpdateParamsCreditEntitlementsProrationBehaviorProrate, ProductUpdateParamsCreditEntitlementsProrationBehaviorNoProrate:
-		return true
-	}
-	return false
 }
 
 // Choose how you would like you digital product delivered

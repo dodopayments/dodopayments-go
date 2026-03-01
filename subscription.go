@@ -125,6 +125,17 @@ func (r *SubscriptionService) PreviewChangePlan(ctx context.Context, subscriptio
 	return
 }
 
+func (r *SubscriptionService) GetCreditUsage(ctx context.Context, subscriptionID string, opts ...option.RequestOption) (res *SubscriptionGetCreditUsageResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if subscriptionID == "" {
+		err = errors.New("missing required subscription_id parameter")
+		return
+	}
+	path := fmt.Sprintf("subscriptions/%s/credit-usage", subscriptionID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
 // Get detailed usage history for a subscription that includes usage-based billing
 // (metered components). This endpoint provides insights into customer usage
 // patterns and billing calculations over time.
@@ -357,7 +368,7 @@ type Subscription struct {
 	// Cancelled timestamp if the subscription is cancelled
 	CancelledAt time.Time `json:"cancelled_at" api:"nullable" format:"date-time"`
 	// Customer's responses to custom fields collected during checkout
-	CustomFieldResponses []SubscriptionCustomFieldResponse `json:"custom_field_responses" api:"nullable"`
+	CustomFieldResponses []CustomFieldResponse `json:"custom_field_responses" api:"nullable"`
 	// Number of remaining discount cycles if discount is applied
 	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining" api:"nullable"`
 	// The discount id if discount is applied
@@ -422,10 +433,18 @@ type SubscriptionCreditEntitlementCart struct {
 	CreditEntitlementName string `json:"credit_entitlement_name" api:"required"`
 	CreditsAmount         string `json:"credits_amount" api:"required"`
 	// Customer's current overage balance for this entitlement
-	OverageBalance         string `json:"overage_balance" api:"required"`
-	OverageChargeAtBilling bool   `json:"overage_charge_at_billing" api:"required"`
-	OverageEnabled         bool   `json:"overage_enabled" api:"required"`
-	ProductID              string `json:"product_id" api:"required"`
+	OverageBalance string `json:"overage_balance" api:"required"`
+	// Controls how overage is handled at the end of a billing cycle.
+	//
+	// | Preset                     | Charge at billing | Credits reduce overage | Preserve overage at reset |
+	// | -------------------------- | :---------------: | :--------------------: | :-----------------------: |
+	// | `forgive_at_reset`         |        No         |           No           |            No             |
+	// | `invoice_at_billing`       |        Yes        |           No           |            No             |
+	// | `carry_deficit`            |        No         |           No           |            Yes            |
+	// | `carry_deficit_auto_repay` |        No         |          Yes           |            Yes            |
+	OverageBehavior CbbOverageBehavior `json:"overage_behavior" api:"required"`
+	OverageEnabled  bool               `json:"overage_enabled" api:"required"`
+	ProductID       string             `json:"product_id" api:"required"`
 	// Customer's current remaining credit balance for this entitlement
 	RemainingBalance string `json:"remaining_balance" api:"required"`
 	RolloverEnabled  bool   `json:"rollover_enabled" api:"required"`
@@ -448,7 +467,7 @@ type subscriptionCreditEntitlementCartJSON struct {
 	CreditEntitlementName      apijson.Field
 	CreditsAmount              apijson.Field
 	OverageBalance             apijson.Field
-	OverageChargeAtBilling     apijson.Field
+	OverageBehavior            apijson.Field
 	OverageEnabled             apijson.Field
 	ProductID                  apijson.Field
 	RemainingBalance           apijson.Field
@@ -511,8 +530,8 @@ type SubscriptionMeter struct {
 	MeasurementUnit string                `json:"measurement_unit" api:"required"`
 	MeterID         string                `json:"meter_id" api:"required"`
 	Name            string                `json:"name" api:"required"`
-	PricePerUnit    string                `json:"price_per_unit" api:"required"`
 	Description     string                `json:"description" api:"nullable"`
+	PricePerUnit    string                `json:"price_per_unit" api:"nullable"`
 	JSON            subscriptionMeterJSON `json:"-"`
 }
 
@@ -524,8 +543,8 @@ type subscriptionMeterJSON struct {
 	MeasurementUnit apijson.Field
 	MeterID         apijson.Field
 	Name            apijson.Field
-	PricePerUnit    apijson.Field
 	Description     apijson.Field
+	PricePerUnit    apijson.Field
 	raw             string
 	ExtraFields     map[string]apijson.Field
 }
@@ -535,32 +554,6 @@ func (r *SubscriptionMeter) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionMeterJSON) RawJSON() string {
-	return r.raw
-}
-
-// Customer's response to a custom field
-type SubscriptionCustomFieldResponse struct {
-	// Key matching the custom field definition
-	Key string `json:"key" api:"required"`
-	// Value provided by customer
-	Value string                              `json:"value" api:"required"`
-	JSON  subscriptionCustomFieldResponseJSON `json:"-"`
-}
-
-// subscriptionCustomFieldResponseJSON contains the JSON metadata for the struct
-// [SubscriptionCustomFieldResponse]
-type subscriptionCustomFieldResponseJSON struct {
-	Key         apijson.Field
-	Value       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionCustomFieldResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionCustomFieldResponseJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -600,6 +593,72 @@ func (r TimeInterval) IsKnown() bool {
 	return false
 }
 
+type UpdateSubscriptionPlanReqParam struct {
+	// Unique identifier of the product to subscribe to
+	ProductID param.Field[string] `json:"product_id" api:"required"`
+	// Proration Billing Mode
+	ProrationBillingMode param.Field[UpdateSubscriptionPlanReqProrationBillingMode] `json:"proration_billing_mode" api:"required"`
+	// Number of units to subscribe for. Must be at least 1.
+	Quantity param.Field[int64] `json:"quantity" api:"required"`
+	// Addons for the new plan. Note : Leaving this empty would remove any existing
+	// addons
+	Addons param.Field[[]AttachAddonParam] `json:"addons"`
+	// Metadata for the payment. If not passed, the metadata of the subscription will
+	// be taken
+	Metadata param.Field[map[string]string] `json:"metadata"`
+	// Controls behavior when the plan change payment fails.
+	//
+	//   - `prevent_change`: Keep subscription on current plan until payment succeeds
+	//   - `apply_change` (default): Apply plan change immediately regardless of payment
+	//     outcome
+	//
+	// If not specified, uses the business-level default setting.
+	OnPaymentFailure param.Field[UpdateSubscriptionPlanReqOnPaymentFailure] `json:"on_payment_failure"`
+}
+
+func (r UpdateSubscriptionPlanReqParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Proration Billing Mode
+type UpdateSubscriptionPlanReqProrationBillingMode string
+
+const (
+	UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately   UpdateSubscriptionPlanReqProrationBillingMode = "prorated_immediately"
+	UpdateSubscriptionPlanReqProrationBillingModeFullImmediately       UpdateSubscriptionPlanReqProrationBillingMode = "full_immediately"
+	UpdateSubscriptionPlanReqProrationBillingModeDifferenceImmediately UpdateSubscriptionPlanReqProrationBillingMode = "difference_immediately"
+)
+
+func (r UpdateSubscriptionPlanReqProrationBillingMode) IsKnown() bool {
+	switch r {
+	case UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately, UpdateSubscriptionPlanReqProrationBillingModeFullImmediately, UpdateSubscriptionPlanReqProrationBillingModeDifferenceImmediately:
+		return true
+	}
+	return false
+}
+
+// Controls behavior when the plan change payment fails.
+//
+//   - `prevent_change`: Keep subscription on current plan until payment succeeds
+//   - `apply_change` (default): Apply plan change immediately regardless of payment
+//     outcome
+//
+// If not specified, uses the business-level default setting.
+type UpdateSubscriptionPlanReqOnPaymentFailure string
+
+const (
+	UpdateSubscriptionPlanReqOnPaymentFailurePreventChange UpdateSubscriptionPlanReqOnPaymentFailure = "prevent_change"
+	UpdateSubscriptionPlanReqOnPaymentFailureApplyChange   UpdateSubscriptionPlanReqOnPaymentFailure = "apply_change"
+)
+
+func (r UpdateSubscriptionPlanReqOnPaymentFailure) IsKnown() bool {
+	switch r {
+	case UpdateSubscriptionPlanReqOnPaymentFailurePreventChange, UpdateSubscriptionPlanReqOnPaymentFailureApplyChange:
+		return true
+	}
+	return false
+}
+
 type SubscriptionNewResponse struct {
 	// Addons associated with this subscription
 	Addons []AddonCartResponseItem `json:"addons" api:"required"`
@@ -622,7 +681,7 @@ type SubscriptionNewResponse struct {
 	// Expiry timestamp of the payment link
 	ExpiresOn time.Time `json:"expires_on" api:"nullable" format:"date-time"`
 	// One time products associated with the purchase of subscription
-	OneTimeProductCart []SubscriptionNewResponseOneTimeProductCart `json:"one_time_product_cart" api:"nullable"`
+	OneTimeProductCart []OneTimeProductCartItem `json:"one_time_product_cart" api:"nullable"`
 	// URL to checkout page
 	PaymentLink string                      `json:"payment_link" api:"nullable"`
 	JSON        subscriptionNewResponseJSON `json:"-"`
@@ -651,29 +710,6 @@ func (r *SubscriptionNewResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionNewResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type SubscriptionNewResponseOneTimeProductCart struct {
-	ProductID string                                        `json:"product_id" api:"required"`
-	Quantity  int64                                         `json:"quantity" api:"required"`
-	JSON      subscriptionNewResponseOneTimeProductCartJSON `json:"-"`
-}
-
-// subscriptionNewResponseOneTimeProductCartJSON contains the JSON metadata for the
-// struct [SubscriptionNewResponseOneTimeProductCart]
-type subscriptionNewResponseOneTimeProductCartJSON struct {
-	ProductID   apijson.Field
-	Quantity    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionNewResponseOneTimeProductCart) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionNewResponseOneTimeProductCartJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -1185,6 +1221,79 @@ func (r subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON) RawJSON
 	return r.raw
 }
 
+// Credit usage status for all entitlements linked to a subscription
+type SubscriptionGetCreditUsageResponse struct {
+	Items          []SubscriptionGetCreditUsageResponseItem `json:"items" api:"required"`
+	SubscriptionID string                                   `json:"subscription_id" api:"required"`
+	JSON           subscriptionGetCreditUsageResponseJSON   `json:"-"`
+}
+
+// subscriptionGetCreditUsageResponseJSON contains the JSON metadata for the struct
+// [SubscriptionGetCreditUsageResponse]
+type subscriptionGetCreditUsageResponseJSON struct {
+	Items          apijson.Field
+	SubscriptionID apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
+}
+
+func (r *SubscriptionGetCreditUsageResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionGetCreditUsageResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+// Per-entitlement credit usage status for a subscription
+type SubscriptionGetCreditUsageResponseItem struct {
+	// Customer's current credit balance for this entitlement (customer-wide)
+	Balance               string `json:"balance" api:"required"`
+	CreditEntitlementID   string `json:"credit_entitlement_id" api:"required"`
+	CreditEntitlementName string `json:"credit_entitlement_name" api:"required"`
+	// True if overage has reached or exceeded the limit. When true, further deductions
+	// that would increase overage will fail.
+	LimitReached bool `json:"limit_reached" api:"required"`
+	// Current overage amount accrued (customer-wide)
+	Overage string `json:"overage" api:"required"`
+	// Whether overage is enabled for this entitlement on this subscription
+	OverageEnabled bool `json:"overage_enabled" api:"required"`
+	// Unit label for the credit entitlement (e.g. "API Calls", "Tokens")
+	Unit string `json:"unit" api:"required"`
+	// Maximum allowed overage before deductions are blocked. None means unlimited
+	// overage (when overage_enabled is true).
+	OverageLimit string `json:"overage_limit" api:"nullable"`
+	// How much more overage can accumulate before being blocked. None if overage is
+	// not enabled or there is no limit (unlimited). A value of 0 means the next
+	// deduction that increases overage will be blocked.
+	RemainingHeadroom string                                     `json:"remaining_headroom" api:"nullable"`
+	JSON              subscriptionGetCreditUsageResponseItemJSON `json:"-"`
+}
+
+// subscriptionGetCreditUsageResponseItemJSON contains the JSON metadata for the
+// struct [SubscriptionGetCreditUsageResponseItem]
+type subscriptionGetCreditUsageResponseItemJSON struct {
+	Balance               apijson.Field
+	CreditEntitlementID   apijson.Field
+	CreditEntitlementName apijson.Field
+	LimitReached          apijson.Field
+	Overage               apijson.Field
+	OverageEnabled        apijson.Field
+	Unit                  apijson.Field
+	OverageLimit          apijson.Field
+	RemainingHeadroom     apijson.Field
+	raw                   string
+	ExtraFields           map[string]apijson.Field
+}
+
+func (r *SubscriptionGetCreditUsageResponseItem) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionGetCreditUsageResponseItemJSON) RawJSON() string {
+	return r.raw
+}
+
 type SubscriptionGetUsageHistoryResponse struct {
 	// End date of the billing period
 	EndDate time.Time `json:"end_date" api:"required" format:"date-time"`
@@ -1313,7 +1422,7 @@ type SubscriptionNewParams struct {
 	OnDemand param.Field[OnDemandSubscriptionParam] `json:"on_demand"`
 	// List of one time products that will be bundled with the first payment for this
 	// subscription
-	OneTimeProductCart param.Field[[]OneTimeProductCartItemParam] `json:"one_time_product_cart"`
+	OneTimeProductCart param.Field[[]SubscriptionNewParamsOneTimeProductCart] `json:"one_time_product_cart"`
 	// If true, generates a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional payment method ID to use for this subscription. If provided,
@@ -1341,6 +1450,19 @@ func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type SubscriptionNewParamsOneTimeProductCart struct {
+	ProductID param.Field[string] `json:"product_id" api:"required"`
+	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
+	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
+	// amount will be ignored Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Amount param.Field[int64] `json:"amount"`
+}
+
+func (r SubscriptionNewParamsOneTimeProductCart) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type SubscriptionUpdateParams struct {
 	Billing param.Field[BillingAddressParam] `json:"billing"`
 	// When set, the subscription will remain active until the end of billing period
@@ -1365,7 +1487,6 @@ type SubscriptionUpdateParamsCreditEntitlementCart struct {
 	ExpiresAfterDays           param.Field[int64]        `json:"expires_after_days"`
 	LowBalanceThresholdPercent param.Field[int64]        `json:"low_balance_threshold_percent"`
 	MaxRolloverCount           param.Field[int64]        `json:"max_rollover_count"`
-	OverageChargeAtBilling     param.Field[bool]         `json:"overage_charge_at_billing"`
 	OverageEnabled             param.Field[bool]         `json:"overage_enabled"`
 	OverageLimit               param.Field[string]       `json:"overage_limit"`
 	RolloverEnabled            param.Field[bool]         `json:"rollover_enabled"`
@@ -1434,69 +1555,11 @@ func (r SubscriptionListParamsStatus) IsKnown() bool {
 }
 
 type SubscriptionChangePlanParams struct {
-	// Unique identifier of the product to subscribe to
-	ProductID param.Field[string] `json:"product_id" api:"required"`
-	// Proration Billing Mode
-	ProrationBillingMode param.Field[SubscriptionChangePlanParamsProrationBillingMode] `json:"proration_billing_mode" api:"required"`
-	// Number of units to subscribe for. Must be at least 1.
-	Quantity param.Field[int64] `json:"quantity" api:"required"`
-	// Addons for the new plan. Note : Leaving this empty would remove any existing
-	// addons
-	Addons param.Field[[]AttachAddonParam] `json:"addons"`
-	// Metadata for the payment. If not passed, the metadata of the subscription will
-	// be taken
-	Metadata param.Field[map[string]string] `json:"metadata"`
-	// Controls behavior when the plan change payment fails.
-	//
-	//   - `prevent_change`: Keep subscription on current plan until payment succeeds
-	//   - `apply_change` (default): Apply plan change immediately regardless of payment
-	//     outcome
-	//
-	// If not specified, uses the business-level default setting.
-	OnPaymentFailure param.Field[SubscriptionChangePlanParamsOnPaymentFailure] `json:"on_payment_failure"`
+	UpdateSubscriptionPlanReq UpdateSubscriptionPlanReqParam `json:"update_subscription_plan_req" api:"required"`
 }
 
 func (r SubscriptionChangePlanParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Proration Billing Mode
-type SubscriptionChangePlanParamsProrationBillingMode string
-
-const (
-	SubscriptionChangePlanParamsProrationBillingModeProratedImmediately   SubscriptionChangePlanParamsProrationBillingMode = "prorated_immediately"
-	SubscriptionChangePlanParamsProrationBillingModeFullImmediately       SubscriptionChangePlanParamsProrationBillingMode = "full_immediately"
-	SubscriptionChangePlanParamsProrationBillingModeDifferenceImmediately SubscriptionChangePlanParamsProrationBillingMode = "difference_immediately"
-)
-
-func (r SubscriptionChangePlanParamsProrationBillingMode) IsKnown() bool {
-	switch r {
-	case SubscriptionChangePlanParamsProrationBillingModeProratedImmediately, SubscriptionChangePlanParamsProrationBillingModeFullImmediately, SubscriptionChangePlanParamsProrationBillingModeDifferenceImmediately:
-		return true
-	}
-	return false
-}
-
-// Controls behavior when the plan change payment fails.
-//
-//   - `prevent_change`: Keep subscription on current plan until payment succeeds
-//   - `apply_change` (default): Apply plan change immediately regardless of payment
-//     outcome
-//
-// If not specified, uses the business-level default setting.
-type SubscriptionChangePlanParamsOnPaymentFailure string
-
-const (
-	SubscriptionChangePlanParamsOnPaymentFailurePreventChange SubscriptionChangePlanParamsOnPaymentFailure = "prevent_change"
-	SubscriptionChangePlanParamsOnPaymentFailureApplyChange   SubscriptionChangePlanParamsOnPaymentFailure = "apply_change"
-)
-
-func (r SubscriptionChangePlanParamsOnPaymentFailure) IsKnown() bool {
-	switch r {
-	case SubscriptionChangePlanParamsOnPaymentFailurePreventChange, SubscriptionChangePlanParamsOnPaymentFailureApplyChange:
-		return true
-	}
-	return false
+	return apijson.MarshalRoot(r.UpdateSubscriptionPlanReq)
 }
 
 type SubscriptionChargeParams struct {
@@ -1537,69 +1600,11 @@ func (r SubscriptionChargeParamsCustomerBalanceConfig) MarshalJSON() (data []byt
 }
 
 type SubscriptionPreviewChangePlanParams struct {
-	// Unique identifier of the product to subscribe to
-	ProductID param.Field[string] `json:"product_id" api:"required"`
-	// Proration Billing Mode
-	ProrationBillingMode param.Field[SubscriptionPreviewChangePlanParamsProrationBillingMode] `json:"proration_billing_mode" api:"required"`
-	// Number of units to subscribe for. Must be at least 1.
-	Quantity param.Field[int64] `json:"quantity" api:"required"`
-	// Addons for the new plan. Note : Leaving this empty would remove any existing
-	// addons
-	Addons param.Field[[]AttachAddonParam] `json:"addons"`
-	// Metadata for the payment. If not passed, the metadata of the subscription will
-	// be taken
-	Metadata param.Field[map[string]string] `json:"metadata"`
-	// Controls behavior when the plan change payment fails.
-	//
-	//   - `prevent_change`: Keep subscription on current plan until payment succeeds
-	//   - `apply_change` (default): Apply plan change immediately regardless of payment
-	//     outcome
-	//
-	// If not specified, uses the business-level default setting.
-	OnPaymentFailure param.Field[SubscriptionPreviewChangePlanParamsOnPaymentFailure] `json:"on_payment_failure"`
+	UpdateSubscriptionPlanReq UpdateSubscriptionPlanReqParam `json:"update_subscription_plan_req" api:"required"`
 }
 
 func (r SubscriptionPreviewChangePlanParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Proration Billing Mode
-type SubscriptionPreviewChangePlanParamsProrationBillingMode string
-
-const (
-	SubscriptionPreviewChangePlanParamsProrationBillingModeProratedImmediately   SubscriptionPreviewChangePlanParamsProrationBillingMode = "prorated_immediately"
-	SubscriptionPreviewChangePlanParamsProrationBillingModeFullImmediately       SubscriptionPreviewChangePlanParamsProrationBillingMode = "full_immediately"
-	SubscriptionPreviewChangePlanParamsProrationBillingModeDifferenceImmediately SubscriptionPreviewChangePlanParamsProrationBillingMode = "difference_immediately"
-)
-
-func (r SubscriptionPreviewChangePlanParamsProrationBillingMode) IsKnown() bool {
-	switch r {
-	case SubscriptionPreviewChangePlanParamsProrationBillingModeProratedImmediately, SubscriptionPreviewChangePlanParamsProrationBillingModeFullImmediately, SubscriptionPreviewChangePlanParamsProrationBillingModeDifferenceImmediately:
-		return true
-	}
-	return false
-}
-
-// Controls behavior when the plan change payment fails.
-//
-//   - `prevent_change`: Keep subscription on current plan until payment succeeds
-//   - `apply_change` (default): Apply plan change immediately regardless of payment
-//     outcome
-//
-// If not specified, uses the business-level default setting.
-type SubscriptionPreviewChangePlanParamsOnPaymentFailure string
-
-const (
-	SubscriptionPreviewChangePlanParamsOnPaymentFailurePreventChange SubscriptionPreviewChangePlanParamsOnPaymentFailure = "prevent_change"
-	SubscriptionPreviewChangePlanParamsOnPaymentFailureApplyChange   SubscriptionPreviewChangePlanParamsOnPaymentFailure = "apply_change"
-)
-
-func (r SubscriptionPreviewChangePlanParamsOnPaymentFailure) IsKnown() bool {
-	switch r {
-	case SubscriptionPreviewChangePlanParamsOnPaymentFailurePreventChange, SubscriptionPreviewChangePlanParamsOnPaymentFailureApplyChange:
-		return true
-	}
-	return false
+	return apijson.MarshalRoot(r.UpdateSubscriptionPlanReq)
 }
 
 type SubscriptionGetUsageHistoryParams struct {
