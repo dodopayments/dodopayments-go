@@ -289,6 +289,136 @@ func (r AttachAddonParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+// Response struct representing credit entitlement cart details for a subscription
+type CreditEntitlementCartResponse struct {
+	CreditEntitlementID   string `json:"credit_entitlement_id" api:"required"`
+	CreditEntitlementName string `json:"credit_entitlement_name" api:"required"`
+	CreditsAmount         string `json:"credits_amount" api:"required"`
+	// Customer's current overage balance for this entitlement
+	OverageBalance string `json:"overage_balance" api:"required"`
+	// Controls how overage is handled at the end of a billing cycle.
+	//
+	// | Preset                     | Charge at billing | Credits reduce overage | Preserve overage at reset |
+	// | -------------------------- | :---------------: | :--------------------: | :-----------------------: |
+	// | `forgive_at_reset`         |        No         |           No           |            No             |
+	// | `invoice_at_billing`       |        Yes        |           No           |            No             |
+	// | `carry_deficit`            |        No         |           No           |            Yes            |
+	// | `carry_deficit_auto_repay` |        No         |          Yes           |            Yes            |
+	OverageBehavior CbbOverageBehavior `json:"overage_behavior" api:"required"`
+	OverageEnabled  bool               `json:"overage_enabled" api:"required"`
+	ProductID       string             `json:"product_id" api:"required"`
+	// Customer's current remaining credit balance for this entitlement
+	RemainingBalance string `json:"remaining_balance" api:"required"`
+	RolloverEnabled  bool   `json:"rollover_enabled" api:"required"`
+	// Unit label for the credit entitlement (e.g., "API Calls", "Tokens")
+	Unit                       string                            `json:"unit" api:"required"`
+	ExpiresAfterDays           int64                             `json:"expires_after_days" api:"nullable"`
+	LowBalanceThresholdPercent int64                             `json:"low_balance_threshold_percent" api:"nullable"`
+	MaxRolloverCount           int64                             `json:"max_rollover_count" api:"nullable"`
+	OverageLimit               string                            `json:"overage_limit" api:"nullable"`
+	RolloverPercentage         int64                             `json:"rollover_percentage" api:"nullable"`
+	RolloverTimeframeCount     int64                             `json:"rollover_timeframe_count" api:"nullable"`
+	RolloverTimeframeInterval  TimeInterval                      `json:"rollover_timeframe_interval" api:"nullable"`
+	JSON                       creditEntitlementCartResponseJSON `json:"-"`
+}
+
+// creditEntitlementCartResponseJSON contains the JSON metadata for the struct
+// [CreditEntitlementCartResponse]
+type creditEntitlementCartResponseJSON struct {
+	CreditEntitlementID        apijson.Field
+	CreditEntitlementName      apijson.Field
+	CreditsAmount              apijson.Field
+	OverageBalance             apijson.Field
+	OverageBehavior            apijson.Field
+	OverageEnabled             apijson.Field
+	ProductID                  apijson.Field
+	RemainingBalance           apijson.Field
+	RolloverEnabled            apijson.Field
+	Unit                       apijson.Field
+	ExpiresAfterDays           apijson.Field
+	LowBalanceThresholdPercent apijson.Field
+	MaxRolloverCount           apijson.Field
+	OverageLimit               apijson.Field
+	RolloverPercentage         apijson.Field
+	RolloverTimeframeCount     apijson.Field
+	RolloverTimeframeInterval  apijson.Field
+	raw                        string
+	ExtraFields                map[string]apijson.Field
+}
+
+func (r *CreditEntitlementCartResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditEntitlementCartResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+// Response struct representing usage-based meter cart details for a subscription
+type MeterCartResponseItem struct {
+	Currency        Currency                  `json:"currency" api:"required"`
+	FreeThreshold   int64                     `json:"free_threshold" api:"required"`
+	MeasurementUnit string                    `json:"measurement_unit" api:"required"`
+	MeterID         string                    `json:"meter_id" api:"required"`
+	Name            string                    `json:"name" api:"required"`
+	Description     string                    `json:"description" api:"nullable"`
+	PricePerUnit    string                    `json:"price_per_unit" api:"nullable"`
+	JSON            meterCartResponseItemJSON `json:"-"`
+}
+
+// meterCartResponseItemJSON contains the JSON metadata for the struct
+// [MeterCartResponseItem]
+type meterCartResponseItemJSON struct {
+	Currency        apijson.Field
+	FreeThreshold   apijson.Field
+	MeasurementUnit apijson.Field
+	MeterID         apijson.Field
+	Name            apijson.Field
+	Description     apijson.Field
+	PricePerUnit    apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *MeterCartResponseItem) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r meterCartResponseItemJSON) RawJSON() string {
+	return r.raw
+}
+
+// Response struct representing meter-credit entitlement mapping cart details for a
+// subscription
+type MeterCreditEntitlementCartResponse struct {
+	CreditEntitlementID string                                 `json:"credit_entitlement_id" api:"required"`
+	MeterID             string                                 `json:"meter_id" api:"required"`
+	MeterName           string                                 `json:"meter_name" api:"required"`
+	MeterUnitsPerCredit string                                 `json:"meter_units_per_credit" api:"required"`
+	ProductID           string                                 `json:"product_id" api:"required"`
+	JSON                meterCreditEntitlementCartResponseJSON `json:"-"`
+}
+
+// meterCreditEntitlementCartResponseJSON contains the JSON metadata for the struct
+// [MeterCreditEntitlementCartResponse]
+type meterCreditEntitlementCartResponseJSON struct {
+	CreditEntitlementID apijson.Field
+	MeterID             apijson.Field
+	MeterName           apijson.Field
+	MeterUnitsPerCredit apijson.Field
+	ProductID           apijson.Field
+	raw                 string
+	ExtraFields         map[string]apijson.Field
+}
+
+func (r *MeterCreditEntitlementCartResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r meterCreditEntitlementCartResponseJSON) RawJSON() string {
+	return r.raw
+}
+
 type OnDemandSubscriptionParam struct {
 	// If set as True, does not perform any charge and only authorizes payment method
 	// details for future use.
@@ -324,7 +454,7 @@ type Subscription struct {
 	// Timestamp when the subscription was created
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Credit entitlement cart settings for this subscription
-	CreditEntitlementCart []SubscriptionCreditEntitlementCart `json:"credit_entitlement_cart" api:"required"`
+	CreditEntitlementCart []CreditEntitlementCartResponse `json:"credit_entitlement_cart" api:"required"`
 	// Currency used for the subscription payments
 	Currency Currency `json:"currency" api:"required"`
 	// Customer details associated with the subscription
@@ -332,9 +462,9 @@ type Subscription struct {
 	// Additional custom data associated with the subscription
 	Metadata map[string]string `json:"metadata" api:"required"`
 	// Meter credit entitlement cart settings for this subscription
-	MeterCreditEntitlementCart []SubscriptionMeterCreditEntitlementCart `json:"meter_credit_entitlement_cart" api:"required"`
+	MeterCreditEntitlementCart []MeterCreditEntitlementCartResponse `json:"meter_credit_entitlement_cart" api:"required"`
 	// Meters associated with this subscription (for usage-based billing)
-	Meters []SubscriptionMeter `json:"meters" api:"required"`
+	Meters []MeterCartResponseItem `json:"meters" api:"required"`
 	// Timestamp of the next scheduled billing. Indicates the end of current billing
 	// period
 	NextBillingDate time.Time `json:"next_billing_date" api:"required" format:"date-time"`
@@ -424,136 +554,6 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionJSON) RawJSON() string {
-	return r.raw
-}
-
-// Response struct representing credit entitlement cart details for a subscription
-type SubscriptionCreditEntitlementCart struct {
-	CreditEntitlementID   string `json:"credit_entitlement_id" api:"required"`
-	CreditEntitlementName string `json:"credit_entitlement_name" api:"required"`
-	CreditsAmount         string `json:"credits_amount" api:"required"`
-	// Customer's current overage balance for this entitlement
-	OverageBalance string `json:"overage_balance" api:"required"`
-	// Controls how overage is handled at the end of a billing cycle.
-	//
-	// | Preset                     | Charge at billing | Credits reduce overage | Preserve overage at reset |
-	// | -------------------------- | :---------------: | :--------------------: | :-----------------------: |
-	// | `forgive_at_reset`         |        No         |           No           |            No             |
-	// | `invoice_at_billing`       |        Yes        |           No           |            No             |
-	// | `carry_deficit`            |        No         |           No           |            Yes            |
-	// | `carry_deficit_auto_repay` |        No         |          Yes           |            Yes            |
-	OverageBehavior CbbOverageBehavior `json:"overage_behavior" api:"required"`
-	OverageEnabled  bool               `json:"overage_enabled" api:"required"`
-	ProductID       string             `json:"product_id" api:"required"`
-	// Customer's current remaining credit balance for this entitlement
-	RemainingBalance string `json:"remaining_balance" api:"required"`
-	RolloverEnabled  bool   `json:"rollover_enabled" api:"required"`
-	// Unit label for the credit entitlement (e.g., "API Calls", "Tokens")
-	Unit                       string                                `json:"unit" api:"required"`
-	ExpiresAfterDays           int64                                 `json:"expires_after_days" api:"nullable"`
-	LowBalanceThresholdPercent int64                                 `json:"low_balance_threshold_percent" api:"nullable"`
-	MaxRolloverCount           int64                                 `json:"max_rollover_count" api:"nullable"`
-	OverageLimit               string                                `json:"overage_limit" api:"nullable"`
-	RolloverPercentage         int64                                 `json:"rollover_percentage" api:"nullable"`
-	RolloverTimeframeCount     int64                                 `json:"rollover_timeframe_count" api:"nullable"`
-	RolloverTimeframeInterval  TimeInterval                          `json:"rollover_timeframe_interval" api:"nullable"`
-	JSON                       subscriptionCreditEntitlementCartJSON `json:"-"`
-}
-
-// subscriptionCreditEntitlementCartJSON contains the JSON metadata for the struct
-// [SubscriptionCreditEntitlementCart]
-type subscriptionCreditEntitlementCartJSON struct {
-	CreditEntitlementID        apijson.Field
-	CreditEntitlementName      apijson.Field
-	CreditsAmount              apijson.Field
-	OverageBalance             apijson.Field
-	OverageBehavior            apijson.Field
-	OverageEnabled             apijson.Field
-	ProductID                  apijson.Field
-	RemainingBalance           apijson.Field
-	RolloverEnabled            apijson.Field
-	Unit                       apijson.Field
-	ExpiresAfterDays           apijson.Field
-	LowBalanceThresholdPercent apijson.Field
-	MaxRolloverCount           apijson.Field
-	OverageLimit               apijson.Field
-	RolloverPercentage         apijson.Field
-	RolloverTimeframeCount     apijson.Field
-	RolloverTimeframeInterval  apijson.Field
-	raw                        string
-	ExtraFields                map[string]apijson.Field
-}
-
-func (r *SubscriptionCreditEntitlementCart) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionCreditEntitlementCartJSON) RawJSON() string {
-	return r.raw
-}
-
-// Response struct representing meter-credit entitlement mapping cart details for a
-// subscription
-type SubscriptionMeterCreditEntitlementCart struct {
-	CreditEntitlementID string                                     `json:"credit_entitlement_id" api:"required"`
-	MeterID             string                                     `json:"meter_id" api:"required"`
-	MeterName           string                                     `json:"meter_name" api:"required"`
-	MeterUnitsPerCredit string                                     `json:"meter_units_per_credit" api:"required"`
-	ProductID           string                                     `json:"product_id" api:"required"`
-	JSON                subscriptionMeterCreditEntitlementCartJSON `json:"-"`
-}
-
-// subscriptionMeterCreditEntitlementCartJSON contains the JSON metadata for the
-// struct [SubscriptionMeterCreditEntitlementCart]
-type subscriptionMeterCreditEntitlementCartJSON struct {
-	CreditEntitlementID apijson.Field
-	MeterID             apijson.Field
-	MeterName           apijson.Field
-	MeterUnitsPerCredit apijson.Field
-	ProductID           apijson.Field
-	raw                 string
-	ExtraFields         map[string]apijson.Field
-}
-
-func (r *SubscriptionMeterCreditEntitlementCart) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionMeterCreditEntitlementCartJSON) RawJSON() string {
-	return r.raw
-}
-
-// Response struct representing usage-based meter cart details for a subscription
-type SubscriptionMeter struct {
-	Currency        Currency              `json:"currency" api:"required"`
-	FreeThreshold   int64                 `json:"free_threshold" api:"required"`
-	MeasurementUnit string                `json:"measurement_unit" api:"required"`
-	MeterID         string                `json:"meter_id" api:"required"`
-	Name            string                `json:"name" api:"required"`
-	Description     string                `json:"description" api:"nullable"`
-	PricePerUnit    string                `json:"price_per_unit" api:"nullable"`
-	JSON            subscriptionMeterJSON `json:"-"`
-}
-
-// subscriptionMeterJSON contains the JSON metadata for the struct
-// [SubscriptionMeter]
-type subscriptionMeterJSON struct {
-	Currency        apijson.Field
-	FreeThreshold   apijson.Field
-	MeasurementUnit apijson.Field
-	MeterID         apijson.Field
-	Name            apijson.Field
-	Description     apijson.Field
-	PricePerUnit    apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
-}
-
-func (r *SubscriptionMeter) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionMeterJSON) RawJSON() string {
 	return r.raw
 }
 
