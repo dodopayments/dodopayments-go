@@ -252,6 +252,139 @@ func (r CbbProrationBehavior) IsKnown() bool {
 	return false
 }
 
+// Response struct for credit entitlement mapping
+type CreditEntitlementMappingResponse struct {
+	// Unique ID of this mapping
+	ID string `json:"id" api:"required" format:"uuid"`
+	// ID of the credit entitlement
+	CreditEntitlementID string `json:"credit_entitlement_id" api:"required"`
+	// Name of the credit entitlement
+	CreditEntitlementName string `json:"credit_entitlement_name" api:"required"`
+	// Unit label for the credit entitlement
+	CreditEntitlementUnit string `json:"credit_entitlement_unit" api:"required"`
+	// Number of credits granted
+	CreditsAmount string `json:"credits_amount" api:"required"`
+	// Controls how overage is handled at billing cycle end.
+	OverageBehavior CbbOverageBehavior `json:"overage_behavior" api:"required"`
+	// Whether overage is enabled
+	OverageEnabled bool `json:"overage_enabled" api:"required"`
+	// Proration behavior for credit grants during plan changes
+	ProrationBehavior CbbProrationBehavior `json:"proration_behavior" api:"required"`
+	// Whether rollover is enabled
+	RolloverEnabled bool `json:"rollover_enabled" api:"required"`
+	// Whether trial credits expire after trial
+	TrialCreditsExpireAfterTrial bool `json:"trial_credits_expire_after_trial" api:"required"`
+	// Currency
+	Currency Currency `json:"currency" api:"nullable"`
+	// Days until credits expire
+	ExpiresAfterDays int64 `json:"expires_after_days" api:"nullable"`
+	// Low balance threshold percentage
+	LowBalanceThresholdPercent int64 `json:"low_balance_threshold_percent" api:"nullable"`
+	// Maximum rollover cycles
+	MaxRolloverCount int64 `json:"max_rollover_count" api:"nullable"`
+	// Overage limit
+	OverageLimit string `json:"overage_limit" api:"nullable"`
+	// Price per unit
+	PricePerUnit string `json:"price_per_unit" api:"nullable"`
+	// Rollover percentage
+	RolloverPercentage int64 `json:"rollover_percentage" api:"nullable"`
+	// Rollover timeframe count
+	RolloverTimeframeCount int64 `json:"rollover_timeframe_count" api:"nullable"`
+	// Rollover timeframe interval
+	RolloverTimeframeInterval TimeInterval `json:"rollover_timeframe_interval" api:"nullable"`
+	// Trial credits
+	TrialCredits string                               `json:"trial_credits" api:"nullable"`
+	JSON         creditEntitlementMappingResponseJSON `json:"-"`
+}
+
+// creditEntitlementMappingResponseJSON contains the JSON metadata for the struct
+// [CreditEntitlementMappingResponse]
+type creditEntitlementMappingResponseJSON struct {
+	ID                           apijson.Field
+	CreditEntitlementID          apijson.Field
+	CreditEntitlementName        apijson.Field
+	CreditEntitlementUnit        apijson.Field
+	CreditsAmount                apijson.Field
+	OverageBehavior              apijson.Field
+	OverageEnabled               apijson.Field
+	ProrationBehavior            apijson.Field
+	RolloverEnabled              apijson.Field
+	TrialCreditsExpireAfterTrial apijson.Field
+	Currency                     apijson.Field
+	ExpiresAfterDays             apijson.Field
+	LowBalanceThresholdPercent   apijson.Field
+	MaxRolloverCount             apijson.Field
+	OverageLimit                 apijson.Field
+	PricePerUnit                 apijson.Field
+	RolloverPercentage           apijson.Field
+	RolloverTimeframeCount       apijson.Field
+	RolloverTimeframeInterval    apijson.Field
+	TrialCredits                 apijson.Field
+	raw                          string
+	ExtraFields                  map[string]apijson.Field
+}
+
+func (r *CreditEntitlementMappingResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditEntitlementMappingResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type DigitalProductDelivery struct {
+	// External URL to digital product
+	ExternalURL string `json:"external_url" api:"nullable"`
+	// Uploaded files ids of digital product
+	Files []DigitalProductDeliveryFile `json:"files" api:"nullable"`
+	// Instructions to download and use the digital product
+	Instructions string                     `json:"instructions" api:"nullable"`
+	JSON         digitalProductDeliveryJSON `json:"-"`
+}
+
+// digitalProductDeliveryJSON contains the JSON metadata for the struct
+// [DigitalProductDelivery]
+type digitalProductDeliveryJSON struct {
+	ExternalURL  apijson.Field
+	Files        apijson.Field
+	Instructions apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *DigitalProductDelivery) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r digitalProductDeliveryJSON) RawJSON() string {
+	return r.raw
+}
+
+type DigitalProductDeliveryFile struct {
+	FileID   string                         `json:"file_id" api:"required" format:"uuid"`
+	FileName string                         `json:"file_name" api:"required"`
+	URL      string                         `json:"url" api:"required"`
+	JSON     digitalProductDeliveryFileJSON `json:"-"`
+}
+
+// digitalProductDeliveryFileJSON contains the JSON metadata for the struct
+// [DigitalProductDeliveryFile]
+type digitalProductDeliveryFileJSON struct {
+	FileID      apijson.Field
+	FileName    apijson.Field
+	URL         apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *DigitalProductDeliveryFile) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r digitalProductDeliveryFileJSON) RawJSON() string {
+	return r.raw
+}
+
 type LicenseKeyDuration struct {
 	Count    int64                  `json:"count" api:"required"`
 	Interval TimeInterval           `json:"interval" api:"required"`
@@ -792,7 +925,7 @@ type Product struct {
 	// Timestamp when the product was created.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Attached credit entitlements with settings
-	CreditEntitlements []ProductCreditEntitlement `json:"credit_entitlements" api:"required"`
+	CreditEntitlements []CreditEntitlementMappingResponse `json:"credit_entitlements" api:"required"`
 	// Indicates if the product is recurring (e.g., subscriptions).
 	IsRecurring bool `json:"is_recurring" api:"required"`
 	// Indicates whether the product requires a license key.
@@ -810,8 +943,8 @@ type Product struct {
 	// Available Addons for subscription products
 	Addons []string `json:"addons" api:"nullable"`
 	// Description of the product, optional.
-	Description            string                        `json:"description" api:"nullable"`
-	DigitalProductDelivery ProductDigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
+	Description            string                 `json:"description" api:"nullable"`
+	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
 	// URL of the product image, optional.
 	Image string `json:"image" api:"nullable"`
 	// Message sent upon license key activation, if applicable.
@@ -858,139 +991,6 @@ func (r *Product) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r productJSON) RawJSON() string {
-	return r.raw
-}
-
-// Response struct for credit entitlement mapping
-type ProductCreditEntitlement struct {
-	// Unique ID of this mapping
-	ID string `json:"id" api:"required" format:"uuid"`
-	// ID of the credit entitlement
-	CreditEntitlementID string `json:"credit_entitlement_id" api:"required"`
-	// Name of the credit entitlement
-	CreditEntitlementName string `json:"credit_entitlement_name" api:"required"`
-	// Unit label for the credit entitlement
-	CreditEntitlementUnit string `json:"credit_entitlement_unit" api:"required"`
-	// Number of credits granted
-	CreditsAmount string `json:"credits_amount" api:"required"`
-	// Controls how overage is handled at billing cycle end.
-	OverageBehavior CbbOverageBehavior `json:"overage_behavior" api:"required"`
-	// Whether overage is enabled
-	OverageEnabled bool `json:"overage_enabled" api:"required"`
-	// Proration behavior for credit grants during plan changes
-	ProrationBehavior CbbProrationBehavior `json:"proration_behavior" api:"required"`
-	// Whether rollover is enabled
-	RolloverEnabled bool `json:"rollover_enabled" api:"required"`
-	// Whether trial credits expire after trial
-	TrialCreditsExpireAfterTrial bool `json:"trial_credits_expire_after_trial" api:"required"`
-	// Currency
-	Currency Currency `json:"currency" api:"nullable"`
-	// Days until credits expire
-	ExpiresAfterDays int64 `json:"expires_after_days" api:"nullable"`
-	// Low balance threshold percentage
-	LowBalanceThresholdPercent int64 `json:"low_balance_threshold_percent" api:"nullable"`
-	// Maximum rollover cycles
-	MaxRolloverCount int64 `json:"max_rollover_count" api:"nullable"`
-	// Overage limit
-	OverageLimit string `json:"overage_limit" api:"nullable"`
-	// Price per unit
-	PricePerUnit string `json:"price_per_unit" api:"nullable"`
-	// Rollover percentage
-	RolloverPercentage int64 `json:"rollover_percentage" api:"nullable"`
-	// Rollover timeframe count
-	RolloverTimeframeCount int64 `json:"rollover_timeframe_count" api:"nullable"`
-	// Rollover timeframe interval
-	RolloverTimeframeInterval TimeInterval `json:"rollover_timeframe_interval" api:"nullable"`
-	// Trial credits
-	TrialCredits string                       `json:"trial_credits" api:"nullable"`
-	JSON         productCreditEntitlementJSON `json:"-"`
-}
-
-// productCreditEntitlementJSON contains the JSON metadata for the struct
-// [ProductCreditEntitlement]
-type productCreditEntitlementJSON struct {
-	ID                           apijson.Field
-	CreditEntitlementID          apijson.Field
-	CreditEntitlementName        apijson.Field
-	CreditEntitlementUnit        apijson.Field
-	CreditsAmount                apijson.Field
-	OverageBehavior              apijson.Field
-	OverageEnabled               apijson.Field
-	ProrationBehavior            apijson.Field
-	RolloverEnabled              apijson.Field
-	TrialCreditsExpireAfterTrial apijson.Field
-	Currency                     apijson.Field
-	ExpiresAfterDays             apijson.Field
-	LowBalanceThresholdPercent   apijson.Field
-	MaxRolloverCount             apijson.Field
-	OverageLimit                 apijson.Field
-	PricePerUnit                 apijson.Field
-	RolloverPercentage           apijson.Field
-	RolloverTimeframeCount       apijson.Field
-	RolloverTimeframeInterval    apijson.Field
-	TrialCredits                 apijson.Field
-	raw                          string
-	ExtraFields                  map[string]apijson.Field
-}
-
-func (r *ProductCreditEntitlement) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productCreditEntitlementJSON) RawJSON() string {
-	return r.raw
-}
-
-type ProductDigitalProductDelivery struct {
-	// External URL to digital product
-	ExternalURL string `json:"external_url" api:"nullable"`
-	// Uploaded files ids of digital product
-	Files []ProductDigitalProductDeliveryFile `json:"files" api:"nullable"`
-	// Instructions to download and use the digital product
-	Instructions string                            `json:"instructions" api:"nullable"`
-	JSON         productDigitalProductDeliveryJSON `json:"-"`
-}
-
-// productDigitalProductDeliveryJSON contains the JSON metadata for the struct
-// [ProductDigitalProductDelivery]
-type productDigitalProductDeliveryJSON struct {
-	ExternalURL  apijson.Field
-	Files        apijson.Field
-	Instructions apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
-}
-
-func (r *ProductDigitalProductDelivery) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productDigitalProductDeliveryJSON) RawJSON() string {
-	return r.raw
-}
-
-type ProductDigitalProductDeliveryFile struct {
-	FileID   string                                `json:"file_id" api:"required" format:"uuid"`
-	FileName string                                `json:"file_name" api:"required"`
-	URL      string                                `json:"url" api:"required"`
-	JSON     productDigitalProductDeliveryFileJSON `json:"-"`
-}
-
-// productDigitalProductDeliveryFileJSON contains the JSON metadata for the struct
-// [ProductDigitalProductDeliveryFile]
-type productDigitalProductDeliveryFileJSON struct {
-	FileID      apijson.Field
-	FileName    apijson.Field
-	URL         apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductDigitalProductDeliveryFile) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productDigitalProductDeliveryFileJSON) RawJSON() string {
 	return r.raw
 }
 
