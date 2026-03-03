@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.86.1 (2026-03-03)
+
+Full Changelog: [v1.86.0...v1.86.1](https://github.com/dodopayments/dodopayments-go/compare/v1.86.0...v1.86.1)
+
+### Chores
+
+* **internal:** codegen related update ([59043e4](https://github.com/dodopayments/dodopayments-go/commit/59043e4f2b4b402f6846033444c763d05b3531a1))
+* **tests:** update webhook tests ([55559b4](https://github.com/dodopayments/dodopayments-go/commit/55559b42a7fb29cfb973342dc676921f895ce35c))
+
 ## 1.86.0 (2026-03-01)
 
 Full Changelog: [v1.84.1...v1.86.0](https://github.com/dodopayments/dodopayments-go/compare/v1.84.1...v1.86.0)
