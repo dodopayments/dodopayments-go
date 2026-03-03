@@ -186,13 +186,13 @@ func TestWebhookUnwrap(t *testing.T) {
 	payload := []byte(`{"business_id":"business_id","data":{"id":"id","amount":"amount","balance_after":"balance_after","balance_before":"balance_before","business_id":"business_id","created_at":"2019-12-27T18:11:19.117Z","credit_entitlement_id":"credit_entitlement_id","customer_id":"customer_id","is_credit":true,"overage_after":"overage_after","overage_before":"overage_before","transaction_type":"credit_added","description":"description","grant_id":"grant_id","reference_id":"reference_id","reference_type":"reference_type"},"timestamp":"2019-12-27T18:11:19.117Z","type":"credit.added"}`)
 	wh, err := standardwebhooks.NewWebhook("whsec_c2VjcmV0Cg==")
 	if err != nil {
-		t.Error("Failed to sign test webhook message")
+		t.Fatal("Failed to sign test webhook message", err)
 	}
 	msgID := "1"
 	now := time.Now()
 	sig, err := wh.Sign(msgID, now, payload)
 	if err != nil {
-		t.Error("Failed to sign test webhook message:", err)
+		t.Fatal("Failed to sign test webhook message:", err)
 	}
 	headers := make(http.Header)
 	headers.Set("webhook-signature", sig)
@@ -200,6 +200,6 @@ func TestWebhookUnwrap(t *testing.T) {
 	headers.Set("webhook-timestamp", strconv.FormatInt(now.Unix(), 10))
 	_, err = client.Webhooks.Unwrap(payload, headers)
 	if err != nil {
-		t.Error("Failed to unwrap webhook:", err)
+		t.Fatal("Failed to unwrap webhook:", err)
 	}
 }
