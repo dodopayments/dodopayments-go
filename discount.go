@@ -136,6 +136,9 @@ type Discount struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The unique discount ID
 	DiscountID string `json:"discount_id" api:"required"`
+	// Whether this discount should be preserved when a subscription changes plans.
+	// Default: false (discount is removed on plan change)
+	PreserveOnPlanChange bool `json:"preserve_on_plan_change" api:"required"`
 	// List of product IDs to which this discount is restricted.
 	RestrictedTo []string `json:"restricted_to" api:"required"`
 	// How many times this discount has been used.
@@ -157,20 +160,21 @@ type Discount struct {
 
 // discountJSON contains the JSON metadata for the struct [Discount]
 type discountJSON struct {
-	Amount             apijson.Field
-	BusinessID         apijson.Field
-	Code               apijson.Field
-	CreatedAt          apijson.Field
-	DiscountID         apijson.Field
-	RestrictedTo       apijson.Field
-	TimesUsed          apijson.Field
-	Type               apijson.Field
-	ExpiresAt          apijson.Field
-	Name               apijson.Field
-	SubscriptionCycles apijson.Field
-	UsageLimit         apijson.Field
-	raw                string
-	ExtraFields        map[string]apijson.Field
+	Amount               apijson.Field
+	BusinessID           apijson.Field
+	Code                 apijson.Field
+	CreatedAt            apijson.Field
+	DiscountID           apijson.Field
+	PreserveOnPlanChange apijson.Field
+	RestrictedTo         apijson.Field
+	TimesUsed            apijson.Field
+	Type                 apijson.Field
+	ExpiresAt            apijson.Field
+	Name                 apijson.Field
+	SubscriptionCycles   apijson.Field
+	UsageLimit           apijson.Field
+	raw                  string
+	ExtraFields          map[string]apijson.Field
 }
 
 func (r *Discount) UnmarshalJSON(data []byte) (err error) {
@@ -215,6 +219,9 @@ type DiscountNewParams struct {
 	// When the discount expires, if ever.
 	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
 	Name      param.Field[string]    `json:"name"`
+	// Whether this discount should be preserved when a subscription changes plans.
+	// Default: false (discount is removed on plan change)
+	PreserveOnPlanChange param.Field[bool] `json:"preserve_on_plan_change"`
 	// List of product IDs to restrict usage (if any).
 	RestrictedTo param.Field[[]string] `json:"restricted_to"`
 	// Number of subscription billing cycles this discount is valid for. If not
@@ -242,6 +249,9 @@ type DiscountUpdateParams struct {
 	Code      param.Field[string]    `json:"code"`
 	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
 	Name      param.Field[string]    `json:"name"`
+	// Whether this discount should be preserved when a subscription changes plans. If
+	// not provided, the existing value is kept.
+	PreserveOnPlanChange param.Field[bool] `json:"preserve_on_plan_change"`
 	// If present, replaces all restricted product IDs with this new set. To remove all
 	// restrictions, send empty array
 	RestrictedTo param.Field[[]string] `json:"restricted_to"`
