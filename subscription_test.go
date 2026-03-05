@@ -215,6 +215,7 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 					AddonID:  dodopayments.F("addon_id"),
 					Quantity: dodopayments.F(int64(0)),
 				}}),
+				DiscountCode: dodopayments.F("discount_code"),
 				Metadata: dodopayments.F(map[string]string{
 					"foo": "string",
 				}),
@@ -293,6 +294,7 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 					AddonID:  dodopayments.F("addon_id"),
 					Quantity: dodopayments.F(int64(0)),
 				}}),
+				DiscountCode: dodopayments.F("discount_code"),
 				Metadata: dodopayments.F(map[string]string{
 					"foo": "string",
 				}),
