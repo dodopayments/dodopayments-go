@@ -27,14 +27,15 @@ func TestDiscountNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Discounts.New(context.TODO(), dodopayments.DiscountNewParams{
-		Amount:             dodopayments.F(int64(0)),
-		Type:               dodopayments.F(dodopayments.DiscountTypePercentage),
-		Code:               dodopayments.F("code"),
-		ExpiresAt:          dodopayments.F(time.Now()),
-		Name:               dodopayments.F("name"),
-		RestrictedTo:       dodopayments.F([]string{"string"}),
-		SubscriptionCycles: dodopayments.F(int64(0)),
-		UsageLimit:         dodopayments.F(int64(0)),
+		Amount:               dodopayments.F(int64(0)),
+		Type:                 dodopayments.F(dodopayments.DiscountTypePercentage),
+		Code:                 dodopayments.F("code"),
+		ExpiresAt:            dodopayments.F(time.Now()),
+		Name:                 dodopayments.F("name"),
+		PreserveOnPlanChange: dodopayments.F(true),
+		RestrictedTo:         dodopayments.F([]string{"string"}),
+		SubscriptionCycles:   dodopayments.F(int64(0)),
+		UsageLimit:           dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -83,14 +84,15 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"discount_id",
 		dodopayments.DiscountUpdateParams{
-			Amount:             dodopayments.F(int64(0)),
-			Code:               dodopayments.F("code"),
-			ExpiresAt:          dodopayments.F(time.Now()),
-			Name:               dodopayments.F("name"),
-			RestrictedTo:       dodopayments.F([]string{"string"}),
-			SubscriptionCycles: dodopayments.F(int64(0)),
-			Type:               dodopayments.F(dodopayments.DiscountTypePercentage),
-			UsageLimit:         dodopayments.F(int64(0)),
+			Amount:               dodopayments.F(int64(0)),
+			Code:                 dodopayments.F("code"),
+			ExpiresAt:            dodopayments.F(time.Now()),
+			Name:                 dodopayments.F("name"),
+			PreserveOnPlanChange: dodopayments.F(true),
+			RestrictedTo:         dodopayments.F([]string{"string"}),
+			SubscriptionCycles:   dodopayments.F(int64(0)),
+			Type:                 dodopayments.F(dodopayments.DiscountTypePercentage),
+			UsageLimit:           dodopayments.F(int64(0)),
 		},
 	)
 	if err != nil {
