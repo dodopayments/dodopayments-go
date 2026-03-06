@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.87.1 (2026-03-06)
+
+Full Changelog: [v1.87.0...v1.87.1](https://github.com/dodopayments/dodopayments-go/compare/v1.87.0...v1.87.1)
+
+### Chores
+
+* **internal:** codegen related update ([dec84ff](https://github.com/dodopayments/dodopayments-go/commit/dec84ffac33ed28612f5cbe25c1b0dc53ea133ea))
+* **test:** do not count install time for mock server timeout ([78b6475](https://github.com/dodopayments/dodopayments-go/commit/78b6475bcad991327af554fca637c5d4ec7c3732))
+
 ## 1.87.0 (2026-03-05)
 
 Full Changelog: [v1.86.1...v1.87.0](https://github.com/dodopayments/dodopayments-go/compare/v1.86.1...v1.87.0)
