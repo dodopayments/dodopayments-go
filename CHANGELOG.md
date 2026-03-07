@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.87.2 (2026-03-07)
+
+Full Changelog: [v1.87.1...v1.87.2](https://github.com/dodopayments/dodopayments-go/compare/v1.87.1...v1.87.2)
+
+### Chores
+
+* **ci:** skip uploading artifacts on stainless-internal branches ([9d75464](https://github.com/dodopayments/dodopayments-go/commit/9d75464f29400fffabad5a37140b7a65535f9db9))
+
 ## 1.87.1 (2026-03-06)
 
 Full Changelog: [v1.87.0...v1.87.1](https://github.com/dodopayments/dodopayments-go/compare/v1.87.0...v1.87.1)
