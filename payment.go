@@ -43,18 +43,18 @@ func (r *PaymentService) New(ctx context.Context, body PaymentNewParams, opts ..
 	opts = slices.Concat(r.Options, opts)
 	path := "payments"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *PaymentService) Get(ctx context.Context, paymentID string, opts ...option.RequestOption) (res *Payment, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if paymentID == "" {
 		err = errors.New("missing required payment_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("payments/%s", paymentID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *PaymentService) List(ctx context.Context, query PaymentListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[PaymentListResponse], err error) {
@@ -82,11 +82,11 @@ func (r *PaymentService) GetLineItems(ctx context.Context, paymentID string, opt
 	opts = slices.Concat(r.Options, opts)
 	if paymentID == "" {
 		err = errors.New("missing required payment_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("payments/%s/line-items", paymentID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 type AttachExistingCustomerParam struct {

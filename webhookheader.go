@@ -39,11 +39,11 @@ func (r *WebhookHeaderService) Get(ctx context.Context, webhookID string, opts .
 	opts = slices.Concat(r.Options, opts)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("webhooks/%s/headers", webhookID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Patch a webhook by id
@@ -52,11 +52,11 @@ func (r *WebhookHeaderService) Update(ctx context.Context, webhookID string, bod
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("webhooks/%s/headers", webhookID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, nil, opts...)
-	return
+	return err
 }
 
 // The value of the headers is returned in the `headers` field.

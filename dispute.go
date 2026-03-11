@@ -42,11 +42,11 @@ func (r *DisputeService) Get(ctx context.Context, disputeID string, opts ...opti
 	opts = slices.Concat(r.Options, opts)
 	if disputeID == "" {
 		err = errors.New("missing required dispute_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("disputes/%s", disputeID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *DisputeService) List(ctx context.Context, query DisputeListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[DisputeListResponse], err error) {

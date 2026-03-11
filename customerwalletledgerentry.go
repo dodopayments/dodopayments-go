@@ -42,11 +42,11 @@ func (r *CustomerWalletLedgerEntryService) New(ctx context.Context, customerID s
 	opts = slices.Concat(r.Options, opts)
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("customers/%s/wallets/ledger-entries", customerID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *CustomerWalletLedgerEntryService) List(ctx context.Context, customerID string, query CustomerWalletLedgerEntryListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[CustomerWalletTransaction], err error) {
@@ -55,7 +55,7 @@ func (r *CustomerWalletLedgerEntryService) List(ctx context.Context, customerID 
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("customers/%s/wallets/ledger-entries", customerID)
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
