@@ -42,22 +42,22 @@ func (r *LicenseKeyInstanceService) Get(ctx context.Context, id string, opts ...
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("license_key_instances/%s", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *LicenseKeyInstanceService) Update(ctx context.Context, id string, body LicenseKeyInstanceUpdateParams, opts ...option.RequestOption) (res *LicenseKeyInstance, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("license_key_instances/%s", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *LicenseKeyInstanceService) List(ctx context.Context, query LicenseKeyInstanceListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[LicenseKeyInstance], err error) {

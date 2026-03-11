@@ -44,7 +44,7 @@ func (r *DiscountService) New(ctx context.Context, body DiscountNewParams, opts 
 	opts = slices.Concat(r.Options, opts)
 	path := "discounts"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // GET /discounts/{discount_id}
@@ -52,11 +52,11 @@ func (r *DiscountService) Get(ctx context.Context, discountID string, opts ...op
 	opts = slices.Concat(r.Options, opts)
 	if discountID == "" {
 		err = errors.New("missing required discount_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("discounts/%s", discountID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // PATCH /discounts/{discount_id}
@@ -64,11 +64,11 @@ func (r *DiscountService) Update(ctx context.Context, discountID string, body Di
 	opts = slices.Concat(r.Options, opts)
 	if discountID == "" {
 		err = errors.New("missing required discount_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("discounts/%s", discountID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // GET /discounts
@@ -100,11 +100,11 @@ func (r *DiscountService) Delete(ctx context.Context, discountID string, opts ..
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if discountID == "" {
 		err = errors.New("missing required discount_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("discounts/%s", discountID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Validate and fetch a discount by its code name (e.g., "SAVE20"). This allows
@@ -114,11 +114,11 @@ func (r *DiscountService) GetByCode(ctx context.Context, code string, opts ...op
 	opts = slices.Concat(r.Options, opts)
 	if code == "" {
 		err = errors.New("missing required code parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("discounts/code/%s", code)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 type Discount struct {

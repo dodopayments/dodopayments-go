@@ -37,7 +37,7 @@ func (r *LicenseService) Activate(ctx context.Context, body LicenseActivateParam
 	opts = slices.Concat(r.Options, opts)
 	path := "licenses/activate"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *LicenseService) Deactivate(ctx context.Context, body LicenseDeactivateParams, opts ...option.RequestOption) (err error) {
@@ -45,14 +45,14 @@ func (r *LicenseService) Deactivate(ctx context.Context, body LicenseDeactivateP
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	path := "licenses/deactivate"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
-	return
+	return err
 }
 
 func (r *LicenseService) Validate(ctx context.Context, body LicenseValidateParams, opts ...option.RequestOption) (res *LicenseValidateResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "licenses/validate"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 type LicenseActivateResponse struct {

@@ -38,7 +38,7 @@ func TestUserAgentHeader(t *testing.T) {
 			},
 		}),
 	)
-	client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
+	_, _ = client.CheckoutSessions.New(context.Background(), dodopayments.CheckoutSessionNewParams{
 		CheckoutSessionRequest: dodopayments.CheckoutSessionRequestParam{
 			ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
 				ProductID: dodopayments.F("product_id"),

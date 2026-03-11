@@ -40,11 +40,11 @@ func (r *ProductImageService) Update(ctx context.Context, id string, body Produc
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("products/%s/images", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 type ProductImageUpdateResponse struct {
