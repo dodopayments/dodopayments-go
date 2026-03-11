@@ -42,18 +42,18 @@ func (r *RefundService) New(ctx context.Context, body RefundNewParams, opts ...o
 	opts = slices.Concat(r.Options, opts)
 	path := "refunds"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *RefundService) Get(ctx context.Context, refundID string, opts ...option.RequestOption) (res *Refund, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if refundID == "" {
 		err = errors.New("missing required refund_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("refunds/%s", refundID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *RefundService) List(ctx context.Context, query RefundListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[RefundListItem], err error) {

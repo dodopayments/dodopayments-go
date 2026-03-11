@@ -42,29 +42,29 @@ func (r *AddonService) New(ctx context.Context, body AddonNewParams, opts ...opt
 	opts = slices.Concat(r.Options, opts)
 	path := "addons"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *AddonService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *AddonResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("addons/%s", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *AddonService) Update(ctx context.Context, id string, body AddonUpdateParams, opts ...option.RequestOption) (res *AddonResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("addons/%s", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *AddonService) List(ctx context.Context, query AddonListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[AddonResponse], err error) {
@@ -92,11 +92,11 @@ func (r *AddonService) UpdateImages(ctx context.Context, id string, opts ...opti
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("addons/%s/images", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 type AddonResponse struct {

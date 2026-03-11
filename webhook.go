@@ -48,7 +48,7 @@ func (r *WebhookService) New(ctx context.Context, body WebhookNewParams, opts ..
 	opts = slices.Concat(r.Options, opts)
 	path := "webhooks"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Get a webhook by id
@@ -56,11 +56,11 @@ func (r *WebhookService) Get(ctx context.Context, webhookID string, opts ...opti
 	opts = slices.Concat(r.Options, opts)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("webhooks/%s", webhookID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Patch a webhook by id
@@ -68,11 +68,11 @@ func (r *WebhookService) Update(ctx context.Context, webhookID string, body Webh
 	opts = slices.Concat(r.Options, opts)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("webhooks/%s", webhookID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // List all webhooks
@@ -104,11 +104,11 @@ func (r *WebhookService) Delete(ctx context.Context, webhookID string, opts ...o
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("webhooks/%s", webhookID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Get webhook secret by id
@@ -116,11 +116,11 @@ func (r *WebhookService) GetSecret(ctx context.Context, webhookID string, opts .
 	opts = slices.Concat(r.Options, opts)
 	if webhookID == "" {
 		err = errors.New("missing required webhook_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("webhooks/%s/secret", webhookID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *WebhookService) UnsafeUnwrap(payload []byte, opts ...option.RequestOption) (*UnsafeUnwrapWebhookEvent, error) {

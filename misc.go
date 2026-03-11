@@ -34,7 +34,7 @@ func (r *MiscService) ListSupportedCountries(ctx context.Context, opts ...option
 	opts = slices.Concat(r.Options, opts)
 	path := "checkout/supported_countries"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // ISO country code alpha2 variant

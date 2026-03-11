@@ -59,15 +59,15 @@ func (r *CreditEntitlementBalanceService) Get(ctx context.Context, creditEntitle
 	opts = slices.Concat(r.Options, opts)
 	if creditEntitlementID == "" {
 		err = errors.New("missing required credit_entitlement_id parameter")
-		return
+		return nil, err
 	}
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("credit-entitlements/%s/balances/%s", creditEntitlementID, customerID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Returns a paginated list of customer credit balances for the given credit
@@ -98,7 +98,7 @@ func (r *CreditEntitlementBalanceService) List(ctx context.Context, creditEntitl
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	if creditEntitlementID == "" {
 		err = errors.New("missing required credit_entitlement_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("credit-entitlements/%s/balances", creditEntitlementID)
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
@@ -170,15 +170,15 @@ func (r *CreditEntitlementBalanceService) NewLedgerEntry(ctx context.Context, cr
 	opts = slices.Concat(r.Options, opts)
 	if creditEntitlementID == "" {
 		err = errors.New("missing required credit_entitlement_id parameter")
-		return
+		return nil, err
 	}
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("credit-entitlements/%s/balances/%s/ledger-entries", creditEntitlementID, customerID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Returns a paginated list of credit grants with optional filtering by status.
@@ -209,11 +209,11 @@ func (r *CreditEntitlementBalanceService) ListGrants(ctx context.Context, credit
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	if creditEntitlementID == "" {
 		err = errors.New("missing required credit_entitlement_id parameter")
-		return
+		return nil, err
 	}
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("credit-entitlements/%s/balances/%s/grants", creditEntitlementID, customerID)
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
@@ -284,11 +284,11 @@ func (r *CreditEntitlementBalanceService) ListLedger(ctx context.Context, credit
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	if creditEntitlementID == "" {
 		err = errors.New("missing required credit_entitlement_id parameter")
-		return
+		return nil, err
 	}
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("credit-entitlements/%s/balances/%s/ledger", creditEntitlementID, customerID)
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)

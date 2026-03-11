@@ -39,25 +39,25 @@ func (r *CheckoutSessionService) New(ctx context.Context, body CheckoutSessionNe
 	opts = slices.Concat(r.Options, opts)
 	path := "checkouts"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *CheckoutSessionService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *CheckoutSessionStatus, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("checkouts/%s", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *CheckoutSessionService) Preview(ctx context.Context, body CheckoutSessionPreviewParams, opts ...option.RequestOption) (res *CheckoutSessionPreviewResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "checkouts/preview"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 type CheckoutSessionBillingAddressParam struct {

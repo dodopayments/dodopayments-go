@@ -45,29 +45,29 @@ func (r *SubscriptionService) New(ctx context.Context, body SubscriptionNewParam
 	opts = slices.Concat(r.Options, opts)
 	path := "subscriptions"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *SubscriptionService) Get(ctx context.Context, subscriptionID string, opts ...option.RequestOption) (res *Subscription, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if subscriptionID == "" {
 		err = errors.New("missing required subscription_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("subscriptions/%s", subscriptionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *SubscriptionService) Update(ctx context.Context, subscriptionID string, body SubscriptionUpdateParams, opts ...option.RequestOption) (res *Subscription, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if subscriptionID == "" {
 		err = errors.New("missing required subscription_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("subscriptions/%s", subscriptionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *SubscriptionService) List(ctx context.Context, query SubscriptionListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[SubscriptionListResponse], err error) {
@@ -96,44 +96,44 @@ func (r *SubscriptionService) ChangePlan(ctx context.Context, subscriptionID str
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if subscriptionID == "" {
 		err = errors.New("missing required subscription_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("subscriptions/%s/change-plan", subscriptionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
-	return
+	return err
 }
 
 func (r *SubscriptionService) Charge(ctx context.Context, subscriptionID string, body SubscriptionChargeParams, opts ...option.RequestOption) (res *SubscriptionChargeResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if subscriptionID == "" {
 		err = errors.New("missing required subscription_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("subscriptions/%s/charge", subscriptionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *SubscriptionService) PreviewChangePlan(ctx context.Context, subscriptionID string, body SubscriptionPreviewChangePlanParams, opts ...option.RequestOption) (res *SubscriptionPreviewChangePlanResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if subscriptionID == "" {
 		err = errors.New("missing required subscription_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("subscriptions/%s/change-plan/preview", subscriptionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *SubscriptionService) GetCreditUsage(ctx context.Context, subscriptionID string, opts ...option.RequestOption) (res *SubscriptionGetCreditUsageResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if subscriptionID == "" {
 		err = errors.New("missing required subscription_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("subscriptions/%s/credit-usage", subscriptionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Get detailed usage history for a subscription that includes usage-based billing
@@ -184,7 +184,7 @@ func (r *SubscriptionService) GetUsageHistory(ctx context.Context, subscriptionI
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	if subscriptionID == "" {
 		err = errors.New("missing required subscription_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("subscriptions/%s/usage-history", subscriptionID)
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
@@ -249,11 +249,11 @@ func (r *SubscriptionService) UpdatePaymentMethod(ctx context.Context, subscript
 	opts = slices.Concat(r.Options, opts)
 	if subscriptionID == "" {
 		err = errors.New("missing required subscription_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("subscriptions/%s/update-payment-method", subscriptionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Response struct representing subscription details
