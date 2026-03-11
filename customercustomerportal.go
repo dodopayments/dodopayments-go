@@ -39,11 +39,11 @@ func (r *CustomerCustomerPortalService) New(ctx context.Context, customerID stri
 	opts = slices.Concat(r.Options, opts)
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("customers/%s/customer-portal/session", customerID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 type CustomerCustomerPortalNewParams struct {

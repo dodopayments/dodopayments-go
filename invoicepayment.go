@@ -37,11 +37,11 @@ func (r *InvoicePaymentService) Get(ctx context.Context, paymentID string, opts 
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
 	if paymentID == "" {
 		err = errors.New("missing required payment_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("invoices/payments/%s", paymentID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 func (r *InvoicePaymentService) GetRefund(ctx context.Context, refundID string, opts ...option.RequestOption) (res *http.Response, err error) {
@@ -49,9 +49,9 @@ func (r *InvoicePaymentService) GetRefund(ctx context.Context, refundID string, 
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
 	if refundID == "" {
 		err = errors.New("missing required refund_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("invoices/refunds/%s", refundID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }

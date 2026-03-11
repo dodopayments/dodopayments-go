@@ -87,7 +87,7 @@ func (r *CreditEntitlementService) New(ctx context.Context, body CreditEntitleme
 	opts = slices.Concat(r.Options, opts)
 	path := "credit-entitlements"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Returns the full details of a single credit entitlement including all
@@ -118,11 +118,11 @@ func (r *CreditEntitlementService) Get(ctx context.Context, id string, opts ...o
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("credit-entitlements/%s", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Allows partial updates to a credit entitlement's configuration. Only the fields
@@ -186,11 +186,11 @@ func (r *CreditEntitlementService) Update(ctx context.Context, id string, body C
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("credit-entitlements/%s", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, nil, opts...)
-	return
+	return err
 }
 
 // Returns a paginated list of credit entitlements, allowing filtering of deleted
@@ -271,11 +271,11 @@ func (r *CreditEntitlementService) Delete(ctx context.Context, id string, opts .
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("credit-entitlements/%s", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Undeletes a soft-deleted credit entitlement by clearing `deleted_at`, making it
@@ -323,11 +323,11 @@ func (r *CreditEntitlementService) Undelete(ctx context.Context, id string, opts
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if id == "" {
 		err = errors.New("missing required id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("credit-entitlements/%s/undelete", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Controls how overage is handled at the end of a billing cycle.

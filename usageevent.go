@@ -73,11 +73,11 @@ func (r *UsageEventService) Get(ctx context.Context, eventID string, opts ...opt
 	opts = slices.Concat(r.Options, opts)
 	if eventID == "" {
 		err = errors.New("missing required event_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("events/%s", eventID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Fetch events from your account with powerful filtering capabilities. This
@@ -211,7 +211,7 @@ func (r *UsageEventService) Ingest(ctx context.Context, body UsageEventIngestPar
 	opts = slices.Concat(r.Options, opts)
 	path := "events/ingest"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 type Event struct {
