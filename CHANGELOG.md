@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.87.2 (2026-03-21)
+
+Full Changelog: [v1.87.1...v1.87.2](https://github.com/dodopayments/dodopayments-go/compare/v1.87.1...v1.87.2)
+
+### Chores
+
+* **ci:** skip uploading artifacts on stainless-internal branches ([9d75464](https://github.com/dodopayments/dodopayments-go/commit/9d75464f29400fffabad5a37140b7a65535f9db9))
+* **internal:** codegen related update ([90c95f5](https://github.com/dodopayments/dodopayments-go/commit/90c95f55844c2f81d65e4af3d6f9a244ec00255b))
+* **internal:** minor cleanup ([b59dde1](https://github.com/dodopayments/dodopayments-go/commit/b59dde149662b6e042e13399ddccc59e63feede5))
+* **internal:** tweak CI branches ([0f0e330](https://github.com/dodopayments/dodopayments-go/commit/0f0e3301cd590a647aa973e0972291a8282a20c7))
+* **internal:** use explicit returns ([65fc75d](https://github.com/dodopayments/dodopayments-go/commit/65fc75dc4de7a0ede17bd230836ed62ab10de839))
+* **internal:** use explicit returns in more places ([464cb5c](https://github.com/dodopayments/dodopayments-go/commit/464cb5cde9353c917b8609e494acb8949c0e3bd5))
+* **tests:** bump steady to v0.19.4 ([239c321](https://github.com/dodopayments/dodopayments-go/commit/239c321ccf895096691a5a64fd71409fa622e31b))
+* **tests:** bump steady to v0.19.5 ([0e4ec1c](https://github.com/dodopayments/dodopayments-go/commit/0e4ec1c7f385c45b46af8081f8fdb0fcc906526a))
+
+
+### Refactors
+
+* **tests:** switch from prism to steady ([d3fac9d](https://github.com/dodopayments/dodopayments-go/commit/d3fac9da5345e1617ebb7da281e490fa7e3063d8))
+
 ## 1.87.1 (2026-03-06)
 
 Full Changelog: [v1.87.0...v1.87.1](https://github.com/dodopayments/dodopayments-go/compare/v1.87.0...v1.87.1)
