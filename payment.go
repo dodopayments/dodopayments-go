@@ -430,6 +430,9 @@ func (r paymentJSON) RawJSON() string {
 	return r.raw
 }
 
+// All supported payment method types (from Hyperswitch).
+//
+// Used for disabled-payment-methods filtering and validation.
 type PaymentMethodTypes string
 
 const (

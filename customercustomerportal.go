@@ -47,6 +47,9 @@ func (r *CustomerCustomerPortalService) New(ctx context.Context, customerID stri
 }
 
 type CustomerCustomerPortalNewParams struct {
+	// Optional return URL for this session. Overrides the business-level default. This
+	// URL will be shown as a "Return to {business}" back button in the portal.
+	ReturnURL param.Field[string] `query:"return_url"`
 	// If true, will send link to user.
 	SendEmail param.Field[bool] `query:"send_email"`
 }
