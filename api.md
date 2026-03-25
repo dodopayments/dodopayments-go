@@ -30,16 +30,9 @@ Params Types:
 
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#AttachExistingCustomerParam">AttachExistingCustomerParam</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#BillingAddressParam">BillingAddressParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CustomFieldResponseParam">CustomFieldResponseParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CustomerLimitedDetailsParam">CustomerLimitedDetailsParam</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CustomerRequestUnionParam">CustomerRequestUnionParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#IntentStatus">IntentStatus</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#NewCustomerParam">NewCustomerParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#OneTimeProductCartItemParam">OneTimeProductCartItemParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentParam">PaymentParam</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentMethodTypes">PaymentMethodTypes</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentRefundStatus">PaymentRefundStatus</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#RefundListItemParam">RefundListItemParam</a>
 
 Response Types:
 
@@ -67,13 +60,8 @@ Methods:
 
 Params Types:
 
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#AddonCartResponseItemParam">AddonCartResponseItemParam</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#AttachAddonParam">AttachAddonParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CreditEntitlementCartResponseParam">CreditEntitlementCartResponseParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#MeterCartResponseItemParam">MeterCartResponseItemParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#MeterCreditEntitlementCartResponseParam">MeterCreditEntitlementCartResponseParam</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#OnDemandSubscriptionParam">OnDemandSubscriptionParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionParam">SubscriptionParam</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionStatus">SubscriptionStatus</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#TimeInterval">TimeInterval</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#UpdateSubscriptionPlanReqParam">UpdateSubscriptionPlanReqParam</a>
@@ -116,7 +104,6 @@ Methods:
 Methods:
 
 - <code title="get /invoices/payments/{payment_id}">client.Invoices.Payments.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#InvoicePaymentService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, paymentID <a href="https://pkg.go.dev/builtin#string">string</a>) (\*http.Response, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /invoices/payouts/{payout_id}">client.Invoices.Payments.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#InvoicePaymentService.GetPayout">GetPayout</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, payoutID <a href="https://pkg.go.dev/builtin#string">string</a>) (\*http.Response, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="get /invoices/refunds/{refund_id}">client.Invoices.Payments.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#InvoicePaymentService.GetRefund">GetRefund</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, refundID <a href="https://pkg.go.dev/builtin#string">string</a>) (\*http.Response, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Licenses
@@ -133,11 +120,6 @@ Methods:
 - <code title="post /licenses/validate">client.Licenses.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#LicenseService.Validate">Validate</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#LicenseValidateParams">LicenseValidateParams</a>) (\*<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#LicenseValidateResponse">LicenseValidateResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # LicenseKeys
-
-Params Types:
-
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#LicenseKeyParam">LicenseKeyParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#LicenseKeyStatus">LicenseKeyStatus</a>
 
 Response Types:
 
@@ -210,11 +192,6 @@ Methods:
 
 # Refunds
 
-Params Types:
-
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#RefundParam">RefundParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#RefundStatus">RefundStatus</a>
-
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#Refund">Refund</a>
@@ -227,13 +204,6 @@ Methods:
 - <code title="get /refunds">client.Refunds.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#RefundService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#RefundListParams">RefundListParams</a>) (\*<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go/packages/pagination">pagination</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go/packages/pagination#DefaultPageNumberPagination">DefaultPageNumberPagination</a>[<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#RefundListItem">RefundListItem</a>], <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Disputes
-
-Params Types:
-
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeParam">DisputeParam</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeStage">DisputeStage</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#DisputeStatus">DisputeStatus</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#GetDisputeParam">GetDisputeParam</a>
 
 Response Types:
 
@@ -476,7 +446,6 @@ Methods:
 Params Types:
 
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#WebhookEventType">WebhookEventType</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#WebhookPayloadParam">WebhookPayloadParam</a>
 
 # UsageEvents
 
@@ -554,7 +523,6 @@ Methods:
 
 Params Types:
 
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CreditLedgerEntryParam">CreditLedgerEntryParam</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#LedgerEntryType">LedgerEntryType</a>
 
 Response Types:
@@ -572,53 +540,3 @@ Methods:
 - <code title="post /credit-entitlements/{credit_entitlement_id}/balances/{customer_id}/ledger-entries">client.CreditEntitlements.Balances.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CreditEntitlementBalanceService.NewLedgerEntry">NewLedgerEntry</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, creditEntitlementID <a href="https://pkg.go.dev/builtin#string">string</a>, customerID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CreditEntitlementBalanceNewLedgerEntryParams">CreditEntitlementBalanceNewLedgerEntryParams</a>) (\*<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CreditEntitlementBalanceNewLedgerEntryResponse">CreditEntitlementBalanceNewLedgerEntryResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="get /credit-entitlements/{credit_entitlement_id}/balances/{customer_id}/grants">client.CreditEntitlements.Balances.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CreditEntitlementBalanceService.ListGrants">ListGrants</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, creditEntitlementID <a href="https://pkg.go.dev/builtin#string">string</a>, customerID <a href="https://pkg.go.dev/builtin#string">string</a>, query <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CreditEntitlementBalanceListGrantsParams">CreditEntitlementBalanceListGrantsParams</a>) (\*<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go/packages/pagination">pagination</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go/packages/pagination#DefaultPageNumberPagination">DefaultPageNumberPagination</a>[<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CreditEntitlementBalanceListGrantsResponse">CreditEntitlementBalanceListGrantsResponse</a>], <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="get /credit-entitlements/{credit_entitlement_id}/balances/{customer_id}/ledger">client.CreditEntitlements.Balances.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CreditEntitlementBalanceService.ListLedger">ListLedger</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, creditEntitlementID <a href="https://pkg.go.dev/builtin#string">string</a>, customerID <a href="https://pkg.go.dev/builtin#string">string</a>, query <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CreditEntitlementBalanceListLedgerParams">CreditEntitlementBalanceListLedgerParams</a>) (\*<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go/packages/pagination">pagination</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go/packages/pagination#DefaultPageNumberPagination">DefaultPageNumberPagination</a>[<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#CreditLedgerEntry">CreditLedgerEntry</a>], <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-
-# ProductCollections
-
-Response Types:
-
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionNewResponse">ProductCollectionNewResponse</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGetResponse">ProductCollectionGetResponse</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionListResponse">ProductCollectionListResponse</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionUnarchiveResponse">ProductCollectionUnarchiveResponse</a>
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionUpdateImagesResponse">ProductCollectionUpdateImagesResponse</a>
-
-Methods:
-
-- <code title="post /product-collections">client.ProductCollections.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionNewParams">ProductCollectionNewParams</a>) (\*<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionNewResponse">ProductCollectionNewResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /product-collections/{id}">client.ProductCollections.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGetResponse">ProductCollectionGetResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="patch /product-collections/{id}">client.ProductCollections.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionUpdateParams">ProductCollectionUpdateParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
-- <code title="get /product-collections">client.ProductCollections.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionListParams">ProductCollectionListParams</a>) (\*<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go/packages/pagination">pagination</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go/packages/pagination#DefaultPageNumberPagination">DefaultPageNumberPagination</a>[<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionListResponse">ProductCollectionListResponse</a>], <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="delete /product-collections/{id}">client.ProductCollections.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
-- <code title="post /product-collections/{id}/unarchive">client.ProductCollections.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionService.Unarchive">Unarchive</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionUnarchiveResponse">ProductCollectionUnarchiveResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="put /product-collections/{id}/images">client.ProductCollections.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionService.UpdateImages">UpdateImages</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionUpdateImagesParams">ProductCollectionUpdateImagesParams</a>) (\*<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionUpdateImagesResponse">ProductCollectionUpdateImagesResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-
-## Groups
-
-Response Types:
-
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupNewResponse">ProductCollectionGroupNewResponse</a>
-
-Methods:
-
-- <code title="post /product-collections/{id}/groups">client.ProductCollections.Groups.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupNewParams">ProductCollectionGroupNewParams</a>) (\*<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupNewResponse">ProductCollectionGroupNewResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="patch /product-collections/{id}/groups/{group_id}">client.ProductCollections.Groups.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, groupID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupUpdateParams">ProductCollectionGroupUpdateParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
-- <code title="delete /product-collections/{id}/groups/{group_id}">client.ProductCollections.Groups.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, groupID <a href="https://pkg.go.dev/builtin#string">string</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
-
-### Items
-
-Response Types:
-
-- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupItemNewResponse">ProductCollectionGroupItemNewResponse</a>
-
-Methods:
-
-- <code title="post /product-collections/{id}/groups/{group_id}/items">client.ProductCollections.Groups.Items.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupItemService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, groupID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupItemNewParams">ProductCollectionGroupItemNewParams</a>) (\*[]<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupItemNewResponse">ProductCollectionGroupItemNewResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="patch /product-collections/{id}/groups/{group_id}/items/{item_id}">client.ProductCollections.Groups.Items.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupItemService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, groupID <a href="https://pkg.go.dev/builtin#string">string</a>, itemID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupItemUpdateParams">ProductCollectionGroupItemUpdateParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
-- <code title="delete /product-collections/{id}/groups/{group_id}/items/{item_id}">client.ProductCollections.Groups.Items.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#ProductCollectionGroupItemService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, groupID <a href="https://pkg.go.dev/builtin#string">string</a>, itemID <a href="https://pkg.go.dev/builtin#string">string</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
-
-# YourWebhookURL
-
-Methods:
-
-- <code title="post /your-webhook-url">client.YourWebhookURL.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#YourWebhookURLService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#YourWebhookURLNewParams">YourWebhookURLNewParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
