@@ -91,6 +91,18 @@ func (r *SubscriptionService) ListAutoPaging(ctx context.Context, query Subscrip
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
+func (r *SubscriptionService) CancelChangePlan(ctx context.Context, subscriptionID string, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	if subscriptionID == "" {
+		err = errors.New("missing required subscription_id parameter")
+		return err
+	}
+	path := fmt.Sprintf("subscriptions/%s/change-plan/scheduled", subscriptionID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
+	return err
+}
+
 func (r *SubscriptionService) ChangePlan(ctx context.Context, subscriptionID string, body SubscriptionChangePlanParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
@@ -280,6 +292,16 @@ func (r addonCartResponseItemJSON) RawJSON() string {
 	return r.raw
 }
 
+// Response struct representing subscription details
+type AddonCartResponseItemParam struct {
+	AddonID  param.Field[string] `json:"addon_id" api:"required"`
+	Quantity param.Field[int64]  `json:"quantity" api:"required"`
+}
+
+func (r AddonCartResponseItemParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type AttachAddonParam struct {
 	AddonID  param.Field[string] `json:"addon_id" api:"required"`
 	Quantity param.Field[int64]  `json:"quantity" api:"required"`
@@ -354,6 +376,42 @@ func (r creditEntitlementCartResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+// Response struct representing credit entitlement cart details for a subscription
+type CreditEntitlementCartResponseParam struct {
+	CreditEntitlementID   param.Field[string] `json:"credit_entitlement_id" api:"required"`
+	CreditEntitlementName param.Field[string] `json:"credit_entitlement_name" api:"required"`
+	CreditsAmount         param.Field[string] `json:"credits_amount" api:"required"`
+	// Customer's current overage balance for this entitlement
+	OverageBalance param.Field[string] `json:"overage_balance" api:"required"`
+	// Controls how overage is handled at the end of a billing cycle.
+	//
+	// | Preset                     | Charge at billing | Credits reduce overage | Preserve overage at reset |
+	// | -------------------------- | :---------------: | :--------------------: | :-----------------------: |
+	// | `forgive_at_reset`         |        No         |           No           |            No             |
+	// | `invoice_at_billing`       |        Yes        |           No           |            No             |
+	// | `carry_deficit`            |        No         |           No           |            Yes            |
+	// | `carry_deficit_auto_repay` |        No         |          Yes           |            Yes            |
+	OverageBehavior param.Field[CbbOverageBehavior] `json:"overage_behavior" api:"required"`
+	OverageEnabled  param.Field[bool]               `json:"overage_enabled" api:"required"`
+	ProductID       param.Field[string]             `json:"product_id" api:"required"`
+	// Customer's current remaining credit balance for this entitlement
+	RemainingBalance param.Field[string] `json:"remaining_balance" api:"required"`
+	RolloverEnabled  param.Field[bool]   `json:"rollover_enabled" api:"required"`
+	// Unit label for the credit entitlement (e.g., "API Calls", "Tokens")
+	Unit                       param.Field[string]       `json:"unit" api:"required"`
+	ExpiresAfterDays           param.Field[int64]        `json:"expires_after_days"`
+	LowBalanceThresholdPercent param.Field[int64]        `json:"low_balance_threshold_percent"`
+	MaxRolloverCount           param.Field[int64]        `json:"max_rollover_count"`
+	OverageLimit               param.Field[string]       `json:"overage_limit"`
+	RolloverPercentage         param.Field[int64]        `json:"rollover_percentage"`
+	RolloverTimeframeCount     param.Field[int64]        `json:"rollover_timeframe_count"`
+	RolloverTimeframeInterval  param.Field[TimeInterval] `json:"rollover_timeframe_interval"`
+}
+
+func (r CreditEntitlementCartResponseParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 // Response struct representing usage-based meter cart details for a subscription
 type MeterCartResponseItem struct {
 	Currency        Currency                  `json:"currency" api:"required"`
@@ -388,6 +446,21 @@ func (r meterCartResponseItemJSON) RawJSON() string {
 	return r.raw
 }
 
+// Response struct representing usage-based meter cart details for a subscription
+type MeterCartResponseItemParam struct {
+	Currency        param.Field[Currency] `json:"currency" api:"required"`
+	FreeThreshold   param.Field[int64]    `json:"free_threshold" api:"required"`
+	MeasurementUnit param.Field[string]   `json:"measurement_unit" api:"required"`
+	MeterID         param.Field[string]   `json:"meter_id" api:"required"`
+	Name            param.Field[string]   `json:"name" api:"required"`
+	Description     param.Field[string]   `json:"description"`
+	PricePerUnit    param.Field[string]   `json:"price_per_unit"`
+}
+
+func (r MeterCartResponseItemParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 // Response struct representing meter-credit entitlement mapping cart details for a
 // subscription
 type MeterCreditEntitlementCartResponse struct {
@@ -417,6 +490,20 @@ func (r *MeterCreditEntitlementCartResponse) UnmarshalJSON(data []byte) (err err
 
 func (r meterCreditEntitlementCartResponseJSON) RawJSON() string {
 	return r.raw
+}
+
+// Response struct representing meter-credit entitlement mapping cart details for a
+// subscription
+type MeterCreditEntitlementCartResponseParam struct {
+	CreditEntitlementID param.Field[string] `json:"credit_entitlement_id" api:"required"`
+	MeterID             param.Field[string] `json:"meter_id" api:"required"`
+	MeterName           param.Field[string] `json:"meter_name" api:"required"`
+	MeterUnitsPerCredit param.Field[string] `json:"meter_units_per_credit" api:"required"`
+	ProductID           param.Field[string] `json:"product_id" api:"required"`
+}
+
+func (r MeterCreditEntitlementCartResponseParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type OnDemandSubscriptionParam struct {
@@ -630,6 +717,117 @@ func (r *SubscriptionScheduledChangeAddon) UnmarshalJSON(data []byte) (err error
 
 func (r subscriptionScheduledChangeAddonJSON) RawJSON() string {
 	return r.raw
+}
+
+// Response struct representing subscription details
+type SubscriptionParam struct {
+	// Addons associated with this subscription
+	Addons param.Field[[]AddonCartResponseItemParam] `json:"addons" api:"required"`
+	// Billing address details for payments
+	Billing param.Field[BillingAddressParam] `json:"billing" api:"required"`
+	// Indicates if the subscription will cancel at the next billing date
+	CancelAtNextBillingDate param.Field[bool] `json:"cancel_at_next_billing_date" api:"required"`
+	// Timestamp when the subscription was created
+	CreatedAt param.Field[time.Time] `json:"created_at" api:"required" format:"date-time"`
+	// Credit entitlement cart settings for this subscription
+	CreditEntitlementCart param.Field[[]CreditEntitlementCartResponseParam] `json:"credit_entitlement_cart" api:"required"`
+	// Currency used for the subscription payments
+	Currency param.Field[Currency] `json:"currency" api:"required"`
+	// Customer details associated with the subscription
+	Customer param.Field[CustomerLimitedDetailsParam] `json:"customer" api:"required"`
+	// Additional custom data associated with the subscription
+	Metadata param.Field[map[string]string] `json:"metadata" api:"required"`
+	// Meter credit entitlement cart settings for this subscription
+	MeterCreditEntitlementCart param.Field[[]MeterCreditEntitlementCartResponseParam] `json:"meter_credit_entitlement_cart" api:"required"`
+	// Meters associated with this subscription (for usage-based billing)
+	Meters param.Field[[]MeterCartResponseItemParam] `json:"meters" api:"required"`
+	// Timestamp of the next scheduled billing. Indicates the end of current billing
+	// period
+	NextBillingDate param.Field[time.Time] `json:"next_billing_date" api:"required" format:"date-time"`
+	// Wether the subscription is on-demand or not
+	OnDemand param.Field[bool] `json:"on_demand" api:"required"`
+	// Number of payment frequency intervals
+	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count" api:"required"`
+	// Time interval for payment frequency (e.g. month, year)
+	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval" api:"required"`
+	// Timestamp of the last payment. Indicates the start of current billing period
+	PreviousBillingDate param.Field[time.Time] `json:"previous_billing_date" api:"required" format:"date-time"`
+	// Identifier of the product associated with this subscription
+	ProductID param.Field[string] `json:"product_id" api:"required"`
+	// Number of units/items included in the subscription
+	Quantity param.Field[int64] `json:"quantity" api:"required"`
+	// Amount charged before tax for each recurring payment in smallest currency unit
+	// (e.g. cents)
+	RecurringPreTaxAmount param.Field[int64] `json:"recurring_pre_tax_amount" api:"required"`
+	// Current status of the subscription
+	Status param.Field[SubscriptionStatus] `json:"status" api:"required"`
+	// Unique identifier for the subscription
+	SubscriptionID param.Field[string] `json:"subscription_id" api:"required"`
+	// Number of subscription period intervals
+	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count" api:"required"`
+	// Time interval for the subscription period (e.g. month, year)
+	SubscriptionPeriodInterval param.Field[TimeInterval] `json:"subscription_period_interval" api:"required"`
+	// Indicates if the recurring_pre_tax_amount is tax inclusive
+	TaxInclusive param.Field[bool] `json:"tax_inclusive" api:"required"`
+	// Number of days in the trial period (0 if no trial)
+	TrialPeriodDays param.Field[int64] `json:"trial_period_days" api:"required"`
+	// Cancelled timestamp if the subscription is cancelled
+	CancelledAt param.Field[time.Time] `json:"cancelled_at" format:"date-time"`
+	// Customer's responses to custom fields collected during checkout
+	CustomFieldResponses param.Field[[]CustomFieldResponseParam] `json:"custom_field_responses"`
+	// Number of remaining discount cycles if discount is applied
+	DiscountCyclesRemaining param.Field[int64] `json:"discount_cycles_remaining"`
+	// The discount id if discount is applied
+	DiscountID param.Field[string] `json:"discount_id"`
+	// Timestamp when the subscription will expire
+	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
+	// Saved payment method id used for recurring charges
+	PaymentMethodID param.Field[string] `json:"payment_method_id"`
+	// Scheduled plan change details, if any
+	ScheduledChange param.Field[SubscriptionScheduledChangeParam] `json:"scheduled_change"`
+	// Tax identifier provided for this subscription (if applicable)
+	TaxID param.Field[string] `json:"tax_id"`
+}
+
+func (r SubscriptionParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Scheduled plan change details, if any
+type SubscriptionScheduledChangeParam struct {
+	// The scheduled plan change ID
+	ID param.Field[string] `json:"id" api:"required"`
+	// Addons included in the scheduled change
+	Addons param.Field[[]SubscriptionScheduledChangeAddonParam] `json:"addons" api:"required"`
+	// When this scheduled change was created
+	CreatedAt param.Field[time.Time] `json:"created_at" api:"required" format:"date-time"`
+	// When the change will be applied
+	EffectiveAt param.Field[time.Time] `json:"effective_at" api:"required" format:"date-time"`
+	// The product ID the subscription will change to
+	ProductID param.Field[string] `json:"product_id" api:"required"`
+	// Quantity for the new plan
+	Quantity param.Field[int64] `json:"quantity" api:"required"`
+	// Description of the product being changed to
+	ProductDescription param.Field[string] `json:"product_description"`
+	// Name of the product being changed to
+	ProductName param.Field[string] `json:"product_name"`
+}
+
+func (r SubscriptionScheduledChangeParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type SubscriptionScheduledChangeAddonParam struct {
+	// The addon ID
+	AddonID param.Field[string] `json:"addon_id" api:"required"`
+	// Name of the addon
+	Name param.Field[string] `json:"name" api:"required"`
+	// Quantity of the addon
+	Quantity param.Field[int64] `json:"quantity" api:"required"`
+}
+
+func (r SubscriptionScheduledChangeAddonParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type SubscriptionStatus string
