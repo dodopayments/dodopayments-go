@@ -90,7 +90,7 @@ type CheckoutSessionCustomizationParam struct {
 	ShowOrderDetails param.Field[bool] `json:"show_order_details"`
 	// Theme of the page (determines which mode - light/dark/system - to use)
 	//
-	// Default is `System`.
+	// If not provided, uses the business-configured theme from business_themes table.
 	Theme param.Field[CheckoutSessionCustomizationTheme] `json:"theme"`
 	// Optional custom theme configuration with colors for light and dark modes
 	ThemeConfig param.Field[ThemeConfigParam] `json:"theme_config"`
@@ -102,7 +102,7 @@ func (r CheckoutSessionCustomizationParam) MarshalJSON() (data []byte, err error
 
 // Theme of the page (determines which mode - light/dark/system - to use)
 //
-// Default is `System`.
+// If not provided, uses the business-configured theme from business_themes table.
 type CheckoutSessionCustomizationTheme string
 
 const (
@@ -172,6 +172,9 @@ type CheckoutSessionRequestParam struct {
 	BillingAddress param.Field[CheckoutSessionBillingAddressParam] `json:"billing_address"`
 	// This field is ingored if adaptive pricing is disabled
 	BillingCurrency param.Field[Currency] `json:"billing_currency"`
+	// The URL to redirect the customer if they cancel or go back from the checkout. If
+	// not provided, the back button will not be displayed.
+	CancelURL param.Field[string] `json:"cancel_url"`
 	// If confirm is true, all the details will be finalized. If required data is
 	// missing, an API error is thrown.
 	Confirm param.Field[bool] `json:"confirm"`

@@ -216,6 +216,7 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 					Quantity: dodopayments.F(int64(0)),
 				}}),
 				DiscountCode: dodopayments.F("discount_code"),
+				EffectiveAt:  dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
 				Metadata: dodopayments.F(map[string]string{
 					"foo": "string",
 				}),
@@ -295,6 +296,7 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 					Quantity: dodopayments.F(int64(0)),
 				}}),
 				DiscountCode: dodopayments.F("discount_code"),
+				EffectiveAt:  dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
 				Metadata: dodopayments.F(map[string]string{
 					"foo": "string",
 				}),

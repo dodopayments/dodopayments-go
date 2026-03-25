@@ -29,6 +29,7 @@ func TestCustomerCustomerPortalNewWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"customer_id",
 		dodopayments.CustomerCustomerPortalNewParams{
+			ReturnURL: dodopayments.F("return_url"),
 			SendEmail: dodopayments.F(true),
 		},
 	)

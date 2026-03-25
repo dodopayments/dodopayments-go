@@ -45,6 +45,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 				Zipcode: dodopayments.F("zipcode"),
 			}),
 			BillingCurrency: dodopayments.F(dodopayments.CurrencyAed),
+			CancelURL:       dodopayments.F("cancel_url"),
 			Confirm:         dodopayments.F(true),
 			CustomFields: dodopayments.F([]dodopayments.CustomFieldParam{{
 				FieldType:   dodopayments.F(dodopayments.CustomFieldFieldTypeText),
@@ -210,6 +211,7 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 				Zipcode: dodopayments.F("zipcode"),
 			}),
 			BillingCurrency: dodopayments.F(dodopayments.CurrencyAed),
+			CancelURL:       dodopayments.F("cancel_url"),
 			Confirm:         dodopayments.F(true),
 			CustomFields: dodopayments.F([]dodopayments.CustomFieldParam{{
 				FieldType:   dodopayments.F(dodopayments.CustomFieldFieldTypeText),

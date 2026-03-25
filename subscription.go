@@ -507,6 +507,8 @@ type Subscription struct {
 	ExpiresAt time.Time `json:"expires_at" api:"nullable" format:"date-time"`
 	// Saved payment method id used for recurring charges
 	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
+	// Scheduled plan change details, if any
+	ScheduledChange SubscriptionScheduledChange `json:"scheduled_change" api:"nullable"`
 	// Tax identifier provided for this subscription (if applicable)
 	TaxID string           `json:"tax_id" api:"nullable"`
 	JSON  subscriptionJSON `json:"-"`
@@ -544,6 +546,7 @@ type subscriptionJSON struct {
 	DiscountID                 apijson.Field
 	ExpiresAt                  apijson.Field
 	PaymentMethodID            apijson.Field
+	ScheduledChange            apijson.Field
 	TaxID                      apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
@@ -554,6 +557,78 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionJSON) RawJSON() string {
+	return r.raw
+}
+
+// Scheduled plan change details, if any
+type SubscriptionScheduledChange struct {
+	// The scheduled plan change ID
+	ID string `json:"id" api:"required"`
+	// Addons included in the scheduled change
+	Addons []SubscriptionScheduledChangeAddon `json:"addons" api:"required"`
+	// When this scheduled change was created
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// When the change will be applied
+	EffectiveAt time.Time `json:"effective_at" api:"required" format:"date-time"`
+	// The product ID the subscription will change to
+	ProductID string `json:"product_id" api:"required"`
+	// Quantity for the new plan
+	Quantity int64 `json:"quantity" api:"required"`
+	// Description of the product being changed to
+	ProductDescription string `json:"product_description" api:"nullable"`
+	// Name of the product being changed to
+	ProductName string                          `json:"product_name" api:"nullable"`
+	JSON        subscriptionScheduledChangeJSON `json:"-"`
+}
+
+// subscriptionScheduledChangeJSON contains the JSON metadata for the struct
+// [SubscriptionScheduledChange]
+type subscriptionScheduledChangeJSON struct {
+	ID                 apijson.Field
+	Addons             apijson.Field
+	CreatedAt          apijson.Field
+	EffectiveAt        apijson.Field
+	ProductID          apijson.Field
+	Quantity           apijson.Field
+	ProductDescription apijson.Field
+	ProductName        apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
+}
+
+func (r *SubscriptionScheduledChange) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionScheduledChangeJSON) RawJSON() string {
+	return r.raw
+}
+
+type SubscriptionScheduledChangeAddon struct {
+	// The addon ID
+	AddonID string `json:"addon_id" api:"required"`
+	// Name of the addon
+	Name string `json:"name" api:"required"`
+	// Quantity of the addon
+	Quantity int64                                `json:"quantity" api:"required"`
+	JSON     subscriptionScheduledChangeAddonJSON `json:"-"`
+}
+
+// subscriptionScheduledChangeAddonJSON contains the JSON metadata for the struct
+// [SubscriptionScheduledChangeAddon]
+type subscriptionScheduledChangeAddonJSON struct {
+	AddonID     apijson.Field
+	Name        apijson.Field
+	Quantity    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionScheduledChangeAddon) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionScheduledChangeAddonJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -608,6 +683,11 @@ type UpdateSubscriptionPlanReqParam struct {
 	// has an existing discount with `preserve_on_plan_change=true`, the existing
 	// discount will be preserved (if applicable to the new product).
 	DiscountCode param.Field[string] `json:"discount_code"`
+	// When to apply the plan change.
+	//
+	// - `immediately` (default): Apply the plan change right away
+	// - `next_billing_date`: Schedule the change for the next billing date
+	EffectiveAt param.Field[UpdateSubscriptionPlanReqEffectiveAt] `json:"effective_at"`
 	// Metadata for the payment. If not passed, the metadata of the subscription will
 	// be taken
 	Metadata param.Field[map[string]string] `json:"metadata"`
@@ -632,11 +712,31 @@ const (
 	UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately   UpdateSubscriptionPlanReqProrationBillingMode = "prorated_immediately"
 	UpdateSubscriptionPlanReqProrationBillingModeFullImmediately       UpdateSubscriptionPlanReqProrationBillingMode = "full_immediately"
 	UpdateSubscriptionPlanReqProrationBillingModeDifferenceImmediately UpdateSubscriptionPlanReqProrationBillingMode = "difference_immediately"
+	UpdateSubscriptionPlanReqProrationBillingModeDoNotBill             UpdateSubscriptionPlanReqProrationBillingMode = "do_not_bill"
 )
 
 func (r UpdateSubscriptionPlanReqProrationBillingMode) IsKnown() bool {
 	switch r {
-	case UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately, UpdateSubscriptionPlanReqProrationBillingModeFullImmediately, UpdateSubscriptionPlanReqProrationBillingModeDifferenceImmediately:
+	case UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately, UpdateSubscriptionPlanReqProrationBillingModeFullImmediately, UpdateSubscriptionPlanReqProrationBillingModeDifferenceImmediately, UpdateSubscriptionPlanReqProrationBillingModeDoNotBill:
+		return true
+	}
+	return false
+}
+
+// When to apply the plan change.
+//
+// - `immediately` (default): Apply the plan change right away
+// - `next_billing_date`: Schedule the change for the next billing date
+type UpdateSubscriptionPlanReqEffectiveAt string
+
+const (
+	UpdateSubscriptionPlanReqEffectiveAtImmediately     UpdateSubscriptionPlanReqEffectiveAt = "immediately"
+	UpdateSubscriptionPlanReqEffectiveAtNextBillingDate UpdateSubscriptionPlanReqEffectiveAt = "next_billing_date"
+)
+
+func (r UpdateSubscriptionPlanReqEffectiveAt) IsKnown() bool {
+	switch r {
+	case UpdateSubscriptionPlanReqEffectiveAtImmediately, UpdateSubscriptionPlanReqEffectiveAtNextBillingDate:
 		return true
 	}
 	return false
@@ -772,6 +872,8 @@ type SubscriptionListResponse struct {
 	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
 	// Name of the product associated with this subscription
 	ProductName string `json:"product_name" api:"nullable"`
+	// Scheduled plan change details, if any
+	ScheduledChange SubscriptionListResponseScheduledChange `json:"scheduled_change" api:"nullable"`
 	// Tax identifier provided for this subscription (if applicable)
 	TaxID string                       `json:"tax_id" api:"nullable"`
 	JSON  subscriptionListResponseJSON `json:"-"`
@@ -805,6 +907,7 @@ type subscriptionListResponseJSON struct {
 	DiscountID                 apijson.Field
 	PaymentMethodID            apijson.Field
 	ProductName                apijson.Field
+	ScheduledChange            apijson.Field
 	TaxID                      apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
@@ -815,6 +918,78 @@ func (r *SubscriptionListResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionListResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+// Scheduled plan change details, if any
+type SubscriptionListResponseScheduledChange struct {
+	// The scheduled plan change ID
+	ID string `json:"id" api:"required"`
+	// Addons included in the scheduled change
+	Addons []SubscriptionListResponseScheduledChangeAddon `json:"addons" api:"required"`
+	// When this scheduled change was created
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// When the change will be applied
+	EffectiveAt time.Time `json:"effective_at" api:"required" format:"date-time"`
+	// The product ID the subscription will change to
+	ProductID string `json:"product_id" api:"required"`
+	// Quantity for the new plan
+	Quantity int64 `json:"quantity" api:"required"`
+	// Description of the product being changed to
+	ProductDescription string `json:"product_description" api:"nullable"`
+	// Name of the product being changed to
+	ProductName string                                      `json:"product_name" api:"nullable"`
+	JSON        subscriptionListResponseScheduledChangeJSON `json:"-"`
+}
+
+// subscriptionListResponseScheduledChangeJSON contains the JSON metadata for the
+// struct [SubscriptionListResponseScheduledChange]
+type subscriptionListResponseScheduledChangeJSON struct {
+	ID                 apijson.Field
+	Addons             apijson.Field
+	CreatedAt          apijson.Field
+	EffectiveAt        apijson.Field
+	ProductID          apijson.Field
+	Quantity           apijson.Field
+	ProductDescription apijson.Field
+	ProductName        apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
+}
+
+func (r *SubscriptionListResponseScheduledChange) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionListResponseScheduledChangeJSON) RawJSON() string {
+	return r.raw
+}
+
+type SubscriptionListResponseScheduledChangeAddon struct {
+	// The addon ID
+	AddonID string `json:"addon_id" api:"required"`
+	// Name of the addon
+	Name string `json:"name" api:"required"`
+	// Quantity of the addon
+	Quantity int64                                            `json:"quantity" api:"required"`
+	JSON     subscriptionListResponseScheduledChangeAddonJSON `json:"-"`
+}
+
+// subscriptionListResponseScheduledChangeAddonJSON contains the JSON metadata for
+// the struct [SubscriptionListResponseScheduledChangeAddon]
+type subscriptionListResponseScheduledChangeAddonJSON struct {
+	AddonID     apijson.Field
+	Name        apijson.Field
+	Quantity    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionListResponseScheduledChangeAddon) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionListResponseScheduledChangeAddonJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -864,14 +1039,17 @@ func (r subscriptionPreviewChangePlanResponseJSON) RawJSON() string {
 }
 
 type SubscriptionPreviewChangePlanResponseImmediateCharge struct {
-	LineItems []SubscriptionPreviewChangePlanResponseImmediateChargeLineItem `json:"line_items" api:"required"`
-	Summary   SubscriptionPreviewChangePlanResponseImmediateChargeSummary    `json:"summary" api:"required"`
-	JSON      subscriptionPreviewChangePlanResponseImmediateChargeJSON       `json:"-"`
+	// When the plan change will be effective
+	EffectiveAt time.Time                                                      `json:"effective_at" api:"required" format:"date-time"`
+	LineItems   []SubscriptionPreviewChangePlanResponseImmediateChargeLineItem `json:"line_items" api:"required"`
+	Summary     SubscriptionPreviewChangePlanResponseImmediateChargeSummary    `json:"summary" api:"required"`
+	JSON        subscriptionPreviewChangePlanResponseImmediateChargeJSON       `json:"-"`
 }
 
 // subscriptionPreviewChangePlanResponseImmediateChargeJSON contains the JSON
 // metadata for the struct [SubscriptionPreviewChangePlanResponseImmediateCharge]
 type subscriptionPreviewChangePlanResponseImmediateChargeJSON struct {
+	EffectiveAt apijson.Field
 	LineItems   apijson.Field
 	Summary     apijson.Field
 	raw         string
