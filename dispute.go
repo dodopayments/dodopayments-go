@@ -88,6 +88,8 @@ type Dispute struct {
 	DisputeStatus DisputeStatus `json:"dispute_status" api:"required"`
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string `json:"payment_id" api:"required"`
+	// Whether the dispute was resolved by Rapid Dispute Resolution
+	IsResolvedByRdr bool `json:"is_resolved_by_rdr" api:"nullable"`
 	// Remarks
 	Remarks string      `json:"remarks" api:"nullable"`
 	JSON    disputeJSON `json:"-"`
@@ -95,17 +97,18 @@ type Dispute struct {
 
 // disputeJSON contains the JSON metadata for the struct [Dispute]
 type disputeJSON struct {
-	Amount        apijson.Field
-	BusinessID    apijson.Field
-	CreatedAt     apijson.Field
-	Currency      apijson.Field
-	DisputeID     apijson.Field
-	DisputeStage  apijson.Field
-	DisputeStatus apijson.Field
-	PaymentID     apijson.Field
-	Remarks       apijson.Field
-	raw           string
-	ExtraFields   map[string]apijson.Field
+	Amount          apijson.Field
+	BusinessID      apijson.Field
+	CreatedAt       apijson.Field
+	Currency        apijson.Field
+	DisputeID       apijson.Field
+	DisputeStage    apijson.Field
+	DisputeStatus   apijson.Field
+	PaymentID       apijson.Field
+	IsResolvedByRdr apijson.Field
+	Remarks         apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
 }
 
 func (r *Dispute) UnmarshalJSON(data []byte) (err error) {
@@ -172,6 +175,8 @@ type GetDispute struct {
 	DisputeStatus DisputeStatus `json:"dispute_status" api:"required"`
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string `json:"payment_id" api:"required"`
+	// Whether the dispute was resolved by Rapid Dispute Resolution
+	IsResolvedByRdr bool `json:"is_resolved_by_rdr" api:"nullable"`
 	// Reason for the dispute
 	Reason string `json:"reason" api:"nullable"`
 	// Remarks
@@ -181,19 +186,20 @@ type GetDispute struct {
 
 // getDisputeJSON contains the JSON metadata for the struct [GetDispute]
 type getDisputeJSON struct {
-	Amount        apijson.Field
-	BusinessID    apijson.Field
-	CreatedAt     apijson.Field
-	Currency      apijson.Field
-	Customer      apijson.Field
-	DisputeID     apijson.Field
-	DisputeStage  apijson.Field
-	DisputeStatus apijson.Field
-	PaymentID     apijson.Field
-	Reason        apijson.Field
-	Remarks       apijson.Field
-	raw           string
-	ExtraFields   map[string]apijson.Field
+	Amount          apijson.Field
+	BusinessID      apijson.Field
+	CreatedAt       apijson.Field
+	Currency        apijson.Field
+	Customer        apijson.Field
+	DisputeID       apijson.Field
+	DisputeStage    apijson.Field
+	DisputeStatus   apijson.Field
+	PaymentID       apijson.Field
+	IsResolvedByRdr apijson.Field
+	Reason          apijson.Field
+	Remarks         apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
 }
 
 func (r *GetDispute) UnmarshalJSON(data []byte) (err error) {
@@ -221,23 +227,26 @@ type DisputeListResponse struct {
 	// The current status of the dispute.
 	DisputeStatus DisputeStatus `json:"dispute_status" api:"required"`
 	// The unique identifier of the payment associated with the dispute.
-	PaymentID string                  `json:"payment_id" api:"required"`
-	JSON      disputeListResponseJSON `json:"-"`
+	PaymentID string `json:"payment_id" api:"required"`
+	// Whether the dispute was resolved by Rapid Dispute Resolution
+	IsResolvedByRdr bool                    `json:"is_resolved_by_rdr" api:"nullable"`
+	JSON            disputeListResponseJSON `json:"-"`
 }
 
 // disputeListResponseJSON contains the JSON metadata for the struct
 // [DisputeListResponse]
 type disputeListResponseJSON struct {
-	Amount        apijson.Field
-	BusinessID    apijson.Field
-	CreatedAt     apijson.Field
-	Currency      apijson.Field
-	DisputeID     apijson.Field
-	DisputeStage  apijson.Field
-	DisputeStatus apijson.Field
-	PaymentID     apijson.Field
-	raw           string
-	ExtraFields   map[string]apijson.Field
+	Amount          apijson.Field
+	BusinessID      apijson.Field
+	CreatedAt       apijson.Field
+	Currency        apijson.Field
+	DisputeID       apijson.Field
+	DisputeStage    apijson.Field
+	DisputeStatus   apijson.Field
+	PaymentID       apijson.Field
+	IsResolvedByRdr apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
 }
 
 func (r *DisputeListResponse) UnmarshalJSON(data []byte) (err error) {
