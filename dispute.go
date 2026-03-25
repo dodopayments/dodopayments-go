@@ -116,6 +116,32 @@ func (r disputeJSON) RawJSON() string {
 	return r.raw
 }
 
+type DisputeParam struct {
+	// The amount involved in the dispute, represented as a string to accommodate
+	// precision.
+	Amount param.Field[string] `json:"amount" api:"required"`
+	// The unique identifier of the business involved in the dispute.
+	BusinessID param.Field[string] `json:"business_id" api:"required"`
+	// The timestamp of when the dispute was created, in UTC.
+	CreatedAt param.Field[time.Time] `json:"created_at" api:"required" format:"date-time"`
+	// The currency of the disputed amount, represented as an ISO 4217 currency code.
+	Currency param.Field[string] `json:"currency" api:"required"`
+	// The unique identifier of the dispute.
+	DisputeID param.Field[string] `json:"dispute_id" api:"required"`
+	// The current stage of the dispute process.
+	DisputeStage param.Field[DisputeStage] `json:"dispute_stage" api:"required"`
+	// The current status of the dispute.
+	DisputeStatus param.Field[DisputeStatus] `json:"dispute_status" api:"required"`
+	// The unique identifier of the payment associated with the dispute.
+	PaymentID param.Field[string] `json:"payment_id" api:"required"`
+	// Remarks
+	Remarks param.Field[string] `json:"remarks"`
+}
+
+func (r DisputeParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type DisputeStage string
 
 const (
@@ -202,6 +228,36 @@ func (r *GetDispute) UnmarshalJSON(data []byte) (err error) {
 
 func (r getDisputeJSON) RawJSON() string {
 	return r.raw
+}
+
+type GetDisputeParam struct {
+	// The amount involved in the dispute, represented as a string to accommodate
+	// precision.
+	Amount param.Field[string] `json:"amount" api:"required"`
+	// The unique identifier of the business involved in the dispute.
+	BusinessID param.Field[string] `json:"business_id" api:"required"`
+	// The timestamp of when the dispute was created, in UTC.
+	CreatedAt param.Field[time.Time] `json:"created_at" api:"required" format:"date-time"`
+	// The currency of the disputed amount, represented as an ISO 4217 currency code.
+	Currency param.Field[string] `json:"currency" api:"required"`
+	// The customer who filed the dispute
+	Customer param.Field[CustomerLimitedDetailsParam] `json:"customer" api:"required"`
+	// The unique identifier of the dispute.
+	DisputeID param.Field[string] `json:"dispute_id" api:"required"`
+	// The current stage of the dispute process.
+	DisputeStage param.Field[DisputeStage] `json:"dispute_stage" api:"required"`
+	// The current status of the dispute.
+	DisputeStatus param.Field[DisputeStatus] `json:"dispute_status" api:"required"`
+	// The unique identifier of the payment associated with the dispute.
+	PaymentID param.Field[string] `json:"payment_id" api:"required"`
+	// Reason for the dispute
+	Reason param.Field[string] `json:"reason"`
+	// Remarks
+	Remarks param.Field[string] `json:"remarks"`
+}
+
+func (r GetDisputeParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type DisputeListResponse struct {
