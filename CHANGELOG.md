@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.88.0 (2026-03-25)
+
+Full Changelog: [v1.87.2...v1.88.0](https://github.com/dodopayments/dodopayments-go/compare/v1.87.2...v1.88.0)
+
+### Features
+
+* **api:** added cancel change plan endpoint ([c68fcd0](https://github.com/dodopayments/dodopayments-go/commit/c68fcd0c2e4a49de783365397339719c3df0aa84))
+* **api:** updated openapi spec to 1.92.1 ([6488e1c](https://github.com/dodopayments/dodopayments-go/commit/6488e1c853a738de75980ebec8261a94d2bbe677))
+
+
+### Chores
+
+* **ci:** skip lint on metadata-only changes ([b9c8ecf](https://github.com/dodopayments/dodopayments-go/commit/b9c8ecf993428da20107c660342123ffce5cfab1))
+* **internal:** update gitignore ([ff8922e](https://github.com/dodopayments/dodopayments-go/commit/ff8922ef1851077ca3f7cbbf6a0d92480d137e4c))
+* **tests:** bump steady to v0.19.7 ([be6f87f](https://github.com/dodopayments/dodopayments-go/commit/be6f87f41eb75a1c9939abc286131b17f688ff37))
+
 ## 1.87.2 (2026-03-21)
 
 Full Changelog: [v1.87.1...v1.87.2](https://github.com/dodopayments/dodopayments-go/compare/v1.87.1...v1.87.2)
