@@ -405,30 +405,6 @@ func (r CreditLedgerEntryTransactionType) IsKnown() bool {
 	return false
 }
 
-// Response for a ledger entry
-type CreditLedgerEntryParam struct {
-	ID                  param.Field[string]                           `json:"id" api:"required"`
-	Amount              param.Field[string]                           `json:"amount" api:"required"`
-	BalanceAfter        param.Field[string]                           `json:"balance_after" api:"required"`
-	BalanceBefore       param.Field[string]                           `json:"balance_before" api:"required"`
-	BusinessID          param.Field[string]                           `json:"business_id" api:"required"`
-	CreatedAt           param.Field[time.Time]                        `json:"created_at" api:"required" format:"date-time"`
-	CreditEntitlementID param.Field[string]                           `json:"credit_entitlement_id" api:"required"`
-	CustomerID          param.Field[string]                           `json:"customer_id" api:"required"`
-	IsCredit            param.Field[bool]                             `json:"is_credit" api:"required"`
-	OverageAfter        param.Field[string]                           `json:"overage_after" api:"required"`
-	OverageBefore       param.Field[string]                           `json:"overage_before" api:"required"`
-	TransactionType     param.Field[CreditLedgerEntryTransactionType] `json:"transaction_type" api:"required"`
-	Description         param.Field[string]                           `json:"description"`
-	GrantID             param.Field[string]                           `json:"grant_id"`
-	ReferenceID         param.Field[string]                           `json:"reference_id"`
-	ReferenceType       param.Field[string]                           `json:"reference_type"`
-}
-
-func (r CreditLedgerEntryParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 // Response for a customer's credit balance
 type CustomerCreditBalance struct {
 	ID                  string                    `json:"id" api:"required"`

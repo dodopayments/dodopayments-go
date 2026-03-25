@@ -39,8 +39,6 @@ type Client struct {
 	Meters              *MeterService
 	Balances            *BalanceService
 	CreditEntitlements  *CreditEntitlementService
-	ProductCollections  *ProductCollectionService
-	YourWebhookURL      *YourWebhookURLService
 }
 
 // DefaultClientOptions read from the environment (DODO_PAYMENTS_API_KEY,
@@ -92,8 +90,6 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Meters = NewMeterService(opts...)
 	r.Balances = NewBalanceService(opts...)
 	r.CreditEntitlements = NewCreditEntitlementService(opts...)
-	r.ProductCollections = NewProductCollectionService(opts...)
-	r.YourWebhookURL = NewYourWebhookURLService(opts...)
 
 	return
 }

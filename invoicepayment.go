@@ -44,18 +44,6 @@ func (r *InvoicePaymentService) Get(ctx context.Context, paymentID string, opts 
 	return res, err
 }
 
-func (r *InvoicePaymentService) GetPayout(ctx context.Context, payoutID string, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
-	if payoutID == "" {
-		err = errors.New("missing required payout_id parameter")
-		return nil, err
-	}
-	path := fmt.Sprintf("invoices/payouts/%s", payoutID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return res, err
-}
-
 func (r *InvoicePaymentService) GetRefund(ctx context.Context, refundID string, opts ...option.RequestOption) (res *http.Response, err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
