@@ -92,6 +92,22 @@ func (r *CustomerService) ListAutoPaging(ctx context.Context, query CustomerList
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
+func (r *CustomerService) DeletePaymentMethod(ctx context.Context, customerID string, paymentMethodID string, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	if customerID == "" {
+		err = errors.New("missing required customer_id parameter")
+		return err
+	}
+	if paymentMethodID == "" {
+		err = errors.New("missing required payment_method_id parameter")
+		return err
+	}
+	path := fmt.Sprintf("customers/%s/payment-methods/%s", customerID, paymentMethodID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
+	return err
+}
+
 // List all credit entitlements for a customer with their current balances
 func (r *CustomerService) ListCreditEntitlements(ctx context.Context, customerID string, opts ...option.RequestOption) (res *CustomerListCreditEntitlementsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
