@@ -175,18 +175,6 @@ func (r customFieldResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-// Customer's response to a custom field
-type CustomFieldResponseParam struct {
-	// Key matching the custom field definition
-	Key param.Field[string] `json:"key" api:"required"`
-	// Value provided by customer
-	Value param.Field[string] `json:"value" api:"required"`
-}
-
-func (r CustomFieldResponseParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 type CustomerLimitedDetails struct {
 	// Unique identifier for the customer
 	CustomerID string `json:"customer_id" api:"required"`
@@ -219,23 +207,6 @@ func (r *CustomerLimitedDetails) UnmarshalJSON(data []byte) (err error) {
 
 func (r customerLimitedDetailsJSON) RawJSON() string {
 	return r.raw
-}
-
-type CustomerLimitedDetailsParam struct {
-	// Unique identifier for the customer
-	CustomerID param.Field[string] `json:"customer_id" api:"required"`
-	// Email address of the customer
-	Email param.Field[string] `json:"email" api:"required"`
-	// Full name of the customer
-	Name param.Field[string] `json:"name" api:"required"`
-	// Additional metadata associated with the customer
-	Metadata param.Field[map[string]string] `json:"metadata"`
-	// Phone number of the customer
-	PhoneNumber param.Field[string] `json:"phone_number"`
-}
-
-func (r CustomerLimitedDetailsParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 type CustomerRequestParam struct {
@@ -322,15 +293,6 @@ func (r *OneTimeProductCartItem) UnmarshalJSON(data []byte) (err error) {
 
 func (r oneTimeProductCartItemJSON) RawJSON() string {
 	return r.raw
-}
-
-type OneTimeProductCartItemParam struct {
-	ProductID param.Field[string] `json:"product_id" api:"required"`
-	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
-}
-
-func (r OneTimeProductCartItemParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 type Payment struct {
@@ -466,94 +428,6 @@ func (r *Payment) UnmarshalJSON(data []byte) (err error) {
 
 func (r paymentJSON) RawJSON() string {
 	return r.raw
-}
-
-type PaymentParam struct {
-	// Billing address details for payments
-	Billing param.Field[BillingAddressParam] `json:"billing" api:"required"`
-	// brand id this payment belongs to
-	BrandID param.Field[string] `json:"brand_id" api:"required"`
-	// Identifier of the business associated with the payment
-	BusinessID param.Field[string] `json:"business_id" api:"required"`
-	// Timestamp when the payment was created
-	CreatedAt param.Field[time.Time] `json:"created_at" api:"required" format:"date-time"`
-	// Currency used for the payment
-	Currency param.Field[Currency] `json:"currency" api:"required"`
-	// Details about the customer who made the payment
-	Customer param.Field[CustomerLimitedDetailsParam] `json:"customer" api:"required"`
-	// brand id this payment belongs to
-	DigitalProductsDelivered param.Field[bool] `json:"digital_products_delivered" api:"required"`
-	// List of disputes associated with this payment
-	Disputes param.Field[[]DisputeParam] `json:"disputes" api:"required"`
-	// Additional custom data associated with the payment
-	Metadata param.Field[map[string]string] `json:"metadata" api:"required"`
-	// Unique identifier for the payment
-	PaymentID param.Field[string] `json:"payment_id" api:"required"`
-	// List of refunds issued for this payment
-	Refunds param.Field[[]RefundListItemParam] `json:"refunds" api:"required"`
-	// The amount that will be credited to your Dodo balance after currency conversion
-	// and processing. Especially relevant for adaptive pricing where the customer's
-	// payment currency differs from your settlement currency.
-	SettlementAmount param.Field[int64] `json:"settlement_amount" api:"required"`
-	// The currency in which the settlement_amount will be credited to your Dodo
-	// balance. This may differ from the customer's payment currency in adaptive
-	// pricing scenarios.
-	SettlementCurrency param.Field[Currency] `json:"settlement_currency" api:"required"`
-	// Total amount charged to the customer including tax, in smallest currency unit
-	// (e.g. cents)
-	TotalAmount param.Field[int64] `json:"total_amount" api:"required"`
-	// Cardholder name
-	CardHolderName param.Field[string] `json:"card_holder_name"`
-	// ISO2 country code of the card
-	CardIssuingCountry param.Field[CountryCode] `json:"card_issuing_country"`
-	// The last four digits of the card
-	CardLastFour param.Field[string] `json:"card_last_four"`
-	// Card network like VISA, MASTERCARD etc.
-	CardNetwork param.Field[string] `json:"card_network"`
-	// The type of card DEBIT or CREDIT
-	CardType param.Field[string] `json:"card_type"`
-	// If payment is made using a checkout session, this field is set to the id of the
-	// session.
-	CheckoutSessionID param.Field[string] `json:"checkout_session_id"`
-	// Customer's responses to custom fields collected during checkout
-	CustomFieldResponses param.Field[[]CustomFieldResponseParam] `json:"custom_field_responses"`
-	// The discount id if discount is applied
-	DiscountID param.Field[string] `json:"discount_id"`
-	// An error code if the payment failed
-	ErrorCode param.Field[string] `json:"error_code"`
-	// An error message if the payment failed
-	ErrorMessage param.Field[string] `json:"error_message"`
-	// Invoice ID for this payment. Uses India-specific invoice ID if available.
-	InvoiceID param.Field[string] `json:"invoice_id"`
-	// URL to download the invoice PDF for this payment.
-	InvoiceURL param.Field[string] `json:"invoice_url"`
-	// Checkout URL
-	PaymentLink param.Field[string] `json:"payment_link"`
-	// Payment method used by customer (e.g. "card", "bank_transfer")
-	PaymentMethod param.Field[string] `json:"payment_method"`
-	// Specific type of payment method (e.g. "visa", "mastercard")
-	PaymentMethodType param.Field[string] `json:"payment_method_type"`
-	// List of products purchased in a one-time payment
-	ProductCart param.Field[[]OneTimeProductCartItemParam] `json:"product_cart"`
-	// Summary of the refund status for this payment. None if no succeeded refunds
-	// exist.
-	RefundStatus param.Field[PaymentRefundStatus] `json:"refund_status"`
-	// This represents the portion of settlement_amount that corresponds to taxes
-	// collected. Especially relevant for adaptive pricing where the tax component must
-	// be tracked separately in your Dodo balance.
-	SettlementTax param.Field[int64] `json:"settlement_tax"`
-	// Current status of the payment intent
-	Status param.Field[IntentStatus] `json:"status"`
-	// Identifier of the subscription if payment is part of a subscription
-	SubscriptionID param.Field[string] `json:"subscription_id"`
-	// Amount of tax collected in smallest currency unit (e.g. cents)
-	Tax param.Field[int64] `json:"tax"`
-	// Timestamp when the payment was last updated
-	UpdatedAt param.Field[time.Time] `json:"updated_at" format:"date-time"`
-}
-
-func (r PaymentParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 // All supported payment method types (from Hyperswitch).
@@ -734,31 +608,6 @@ func (r *RefundListItem) UnmarshalJSON(data []byte) (err error) {
 
 func (r refundListItemJSON) RawJSON() string {
 	return r.raw
-}
-
-type RefundListItemParam struct {
-	// The unique identifier of the business issuing the refund.
-	BusinessID param.Field[string] `json:"business_id" api:"required"`
-	// The timestamp of when the refund was created in UTC.
-	CreatedAt param.Field[time.Time] `json:"created_at" api:"required" format:"date-time"`
-	// If true the refund is a partial refund
-	IsPartial param.Field[bool] `json:"is_partial" api:"required"`
-	// The unique identifier of the payment associated with the refund.
-	PaymentID param.Field[string] `json:"payment_id" api:"required"`
-	// The unique identifier of the refund.
-	RefundID param.Field[string] `json:"refund_id" api:"required"`
-	// The current status of the refund.
-	Status param.Field[RefundStatus] `json:"status" api:"required"`
-	// The refunded amount.
-	Amount param.Field[int64] `json:"amount"`
-	// The currency of the refund, represented as an ISO 4217 currency code.
-	Currency param.Field[Currency] `json:"currency"`
-	// The reason provided for the refund, if any. Optional.
-	Reason param.Field[string] `json:"reason"`
-}
-
-func (r RefundListItemParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 type PaymentNewResponse struct {
