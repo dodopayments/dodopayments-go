@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.92.1 (2026-03-27)
+
+Full Changelog: [v1.92.0...v1.92.1](https://github.com/dodopayments/dodopayments-go/compare/v1.92.0...v1.92.1)
+
+### Features
+
+* **internal:** support comma format in multipart form encoding ([4102970](https://github.com/dodopayments/dodopayments-go/commit/41029703ff1de102c391e4448d98fc579b2e986d))
+
+
+### Bug Fixes
+
+* prevent duplicate ? in query params ([a739b19](https://github.com/dodopayments/dodopayments-go/commit/a739b19bc8aaaa559d572226fd43c3f7d5169f79))
+
+
+### Chores
+
+* remove unnecessary error check for url parsing ([efdaca3](https://github.com/dodopayments/dodopayments-go/commit/efdaca38203932ffb3e5613289678dae226454a7))
+
 ## 1.92.0 (2026-03-25)
 
 Full Changelog: [v1.88.0...v1.92.0](https://github.com/dodopayments/dodopayments-go/compare/v1.88.0...v1.92.0)
