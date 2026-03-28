@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.92.2 (2026-03-28)
+
+Full Changelog: [v1.92.1...v1.92.2](https://github.com/dodopayments/dodopayments-go/compare/v1.92.1...v1.92.2)
+
+### Chores
+
+* **ci:** support opting out of skipping builds on metadata-only commits ([711b530](https://github.com/dodopayments/dodopayments-go/commit/711b530b9ec98bf9e3d7990ee6067ee223cc839d))
+
 ## 1.92.1 (2026-03-27)
 
 Full Changelog: [v1.92.0...v1.92.1](https://github.com/dodopayments/dodopayments-go/compare/v1.92.0...v1.92.1)
