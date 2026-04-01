@@ -103,29 +103,31 @@ func (r balanceLedgerEntryJSON) RawJSON() string {
 type BalanceLedgerEntryEventType string
 
 const (
-	BalanceLedgerEntryEventTypePayment            BalanceLedgerEntryEventType = "payment"
-	BalanceLedgerEntryEventTypeRefund             BalanceLedgerEntryEventType = "refund"
-	BalanceLedgerEntryEventTypeRefundReversal     BalanceLedgerEntryEventType = "refund_reversal"
-	BalanceLedgerEntryEventTypeDispute            BalanceLedgerEntryEventType = "dispute"
-	BalanceLedgerEntryEventTypeDisputeReversal    BalanceLedgerEntryEventType = "dispute_reversal"
-	BalanceLedgerEntryEventTypeTax                BalanceLedgerEntryEventType = "tax"
-	BalanceLedgerEntryEventTypeTaxReversal        BalanceLedgerEntryEventType = "tax_reversal"
-	BalanceLedgerEntryEventTypePaymentFees        BalanceLedgerEntryEventType = "payment_fees"
-	BalanceLedgerEntryEventTypeRefundFees         BalanceLedgerEntryEventType = "refund_fees"
-	BalanceLedgerEntryEventTypeRefundFeesReversal BalanceLedgerEntryEventType = "refund_fees_reversal"
-	BalanceLedgerEntryEventTypeDisputeFees        BalanceLedgerEntryEventType = "dispute_fees"
-	BalanceLedgerEntryEventTypePayout             BalanceLedgerEntryEventType = "payout"
-	BalanceLedgerEntryEventTypePayoutFees         BalanceLedgerEntryEventType = "payout_fees"
-	BalanceLedgerEntryEventTypePayoutReversal     BalanceLedgerEntryEventType = "payout_reversal"
-	BalanceLedgerEntryEventTypePayoutFeesReversal BalanceLedgerEntryEventType = "payout_fees_reversal"
-	BalanceLedgerEntryEventTypeDodoCredits        BalanceLedgerEntryEventType = "dodo_credits"
-	BalanceLedgerEntryEventTypeAdjustment         BalanceLedgerEntryEventType = "adjustment"
-	BalanceLedgerEntryEventTypeCurrencyConversion BalanceLedgerEntryEventType = "currency_conversion"
+	BalanceLedgerEntryEventTypePayment                  BalanceLedgerEntryEventType = "payment"
+	BalanceLedgerEntryEventTypeRefund                   BalanceLedgerEntryEventType = "refund"
+	BalanceLedgerEntryEventTypeRefundReversal           BalanceLedgerEntryEventType = "refund_reversal"
+	BalanceLedgerEntryEventTypeDispute                  BalanceLedgerEntryEventType = "dispute"
+	BalanceLedgerEntryEventTypeDisputeReversal          BalanceLedgerEntryEventType = "dispute_reversal"
+	BalanceLedgerEntryEventTypeTax                      BalanceLedgerEntryEventType = "tax"
+	BalanceLedgerEntryEventTypeTaxReversal              BalanceLedgerEntryEventType = "tax_reversal"
+	BalanceLedgerEntryEventTypePaymentFees              BalanceLedgerEntryEventType = "payment_fees"
+	BalanceLedgerEntryEventTypeRefundFees               BalanceLedgerEntryEventType = "refund_fees"
+	BalanceLedgerEntryEventTypeRefundFeesReversal       BalanceLedgerEntryEventType = "refund_fees_reversal"
+	BalanceLedgerEntryEventTypeDisputeFees              BalanceLedgerEntryEventType = "dispute_fees"
+	BalanceLedgerEntryEventTypePayout                   BalanceLedgerEntryEventType = "payout"
+	BalanceLedgerEntryEventTypePayoutFees               BalanceLedgerEntryEventType = "payout_fees"
+	BalanceLedgerEntryEventTypePayoutReversal           BalanceLedgerEntryEventType = "payout_reversal"
+	BalanceLedgerEntryEventTypePayoutFeesReversal       BalanceLedgerEntryEventType = "payout_fees_reversal"
+	BalanceLedgerEntryEventTypeDodoCredits              BalanceLedgerEntryEventType = "dodo_credits"
+	BalanceLedgerEntryEventTypeAdjustment               BalanceLedgerEntryEventType = "adjustment"
+	BalanceLedgerEntryEventTypeCurrencyConversion       BalanceLedgerEntryEventType = "currency_conversion"
+	BalanceLedgerEntryEventTypeAbandonedCartRecoveryFee BalanceLedgerEntryEventType = "abandoned_cart_recovery_fee"
+	BalanceLedgerEntryEventTypeDunningFees              BalanceLedgerEntryEventType = "dunning_fees"
 )
 
 func (r BalanceLedgerEntryEventType) IsKnown() bool {
 	switch r {
-	case BalanceLedgerEntryEventTypePayment, BalanceLedgerEntryEventTypeRefund, BalanceLedgerEntryEventTypeRefundReversal, BalanceLedgerEntryEventTypeDispute, BalanceLedgerEntryEventTypeDisputeReversal, BalanceLedgerEntryEventTypeTax, BalanceLedgerEntryEventTypeTaxReversal, BalanceLedgerEntryEventTypePaymentFees, BalanceLedgerEntryEventTypeRefundFees, BalanceLedgerEntryEventTypeRefundFeesReversal, BalanceLedgerEntryEventTypeDisputeFees, BalanceLedgerEntryEventTypePayout, BalanceLedgerEntryEventTypePayoutFees, BalanceLedgerEntryEventTypePayoutReversal, BalanceLedgerEntryEventTypePayoutFeesReversal, BalanceLedgerEntryEventTypeDodoCredits, BalanceLedgerEntryEventTypeAdjustment, BalanceLedgerEntryEventTypeCurrencyConversion:
+	case BalanceLedgerEntryEventTypePayment, BalanceLedgerEntryEventTypeRefund, BalanceLedgerEntryEventTypeRefundReversal, BalanceLedgerEntryEventTypeDispute, BalanceLedgerEntryEventTypeDisputeReversal, BalanceLedgerEntryEventTypeTax, BalanceLedgerEntryEventTypeTaxReversal, BalanceLedgerEntryEventTypePaymentFees, BalanceLedgerEntryEventTypeRefundFees, BalanceLedgerEntryEventTypeRefundFeesReversal, BalanceLedgerEntryEventTypeDisputeFees, BalanceLedgerEntryEventTypePayout, BalanceLedgerEntryEventTypePayoutFees, BalanceLedgerEntryEventTypePayoutReversal, BalanceLedgerEntryEventTypePayoutFeesReversal, BalanceLedgerEntryEventTypeDodoCredits, BalanceLedgerEntryEventTypeAdjustment, BalanceLedgerEntryEventTypeCurrencyConversion, BalanceLedgerEntryEventTypeAbandonedCartRecoveryFee, BalanceLedgerEntryEventTypeDunningFees:
 		return true
 	}
 	return false
@@ -321,29 +323,31 @@ func (r BalanceGetLedgerParamsCurrency) IsKnown() bool {
 type BalanceGetLedgerParamsEventType string
 
 const (
-	BalanceGetLedgerParamsEventTypePayment            BalanceGetLedgerParamsEventType = "payment"
-	BalanceGetLedgerParamsEventTypeRefund             BalanceGetLedgerParamsEventType = "refund"
-	BalanceGetLedgerParamsEventTypeRefundReversal     BalanceGetLedgerParamsEventType = "refund_reversal"
-	BalanceGetLedgerParamsEventTypeDispute            BalanceGetLedgerParamsEventType = "dispute"
-	BalanceGetLedgerParamsEventTypeDisputeReversal    BalanceGetLedgerParamsEventType = "dispute_reversal"
-	BalanceGetLedgerParamsEventTypeTax                BalanceGetLedgerParamsEventType = "tax"
-	BalanceGetLedgerParamsEventTypeTaxReversal        BalanceGetLedgerParamsEventType = "tax_reversal"
-	BalanceGetLedgerParamsEventTypePaymentFees        BalanceGetLedgerParamsEventType = "payment_fees"
-	BalanceGetLedgerParamsEventTypeRefundFees         BalanceGetLedgerParamsEventType = "refund_fees"
-	BalanceGetLedgerParamsEventTypeRefundFeesReversal BalanceGetLedgerParamsEventType = "refund_fees_reversal"
-	BalanceGetLedgerParamsEventTypeDisputeFees        BalanceGetLedgerParamsEventType = "dispute_fees"
-	BalanceGetLedgerParamsEventTypePayout             BalanceGetLedgerParamsEventType = "payout"
-	BalanceGetLedgerParamsEventTypePayoutFees         BalanceGetLedgerParamsEventType = "payout_fees"
-	BalanceGetLedgerParamsEventTypePayoutReversal     BalanceGetLedgerParamsEventType = "payout_reversal"
-	BalanceGetLedgerParamsEventTypePayoutFeesReversal BalanceGetLedgerParamsEventType = "payout_fees_reversal"
-	BalanceGetLedgerParamsEventTypeDodoCredits        BalanceGetLedgerParamsEventType = "dodo_credits"
-	BalanceGetLedgerParamsEventTypeAdjustment         BalanceGetLedgerParamsEventType = "adjustment"
-	BalanceGetLedgerParamsEventTypeCurrencyConversion BalanceGetLedgerParamsEventType = "currency_conversion"
+	BalanceGetLedgerParamsEventTypePayment                  BalanceGetLedgerParamsEventType = "payment"
+	BalanceGetLedgerParamsEventTypeRefund                   BalanceGetLedgerParamsEventType = "refund"
+	BalanceGetLedgerParamsEventTypeRefundReversal           BalanceGetLedgerParamsEventType = "refund_reversal"
+	BalanceGetLedgerParamsEventTypeDispute                  BalanceGetLedgerParamsEventType = "dispute"
+	BalanceGetLedgerParamsEventTypeDisputeReversal          BalanceGetLedgerParamsEventType = "dispute_reversal"
+	BalanceGetLedgerParamsEventTypeTax                      BalanceGetLedgerParamsEventType = "tax"
+	BalanceGetLedgerParamsEventTypeTaxReversal              BalanceGetLedgerParamsEventType = "tax_reversal"
+	BalanceGetLedgerParamsEventTypePaymentFees              BalanceGetLedgerParamsEventType = "payment_fees"
+	BalanceGetLedgerParamsEventTypeRefundFees               BalanceGetLedgerParamsEventType = "refund_fees"
+	BalanceGetLedgerParamsEventTypeRefundFeesReversal       BalanceGetLedgerParamsEventType = "refund_fees_reversal"
+	BalanceGetLedgerParamsEventTypeDisputeFees              BalanceGetLedgerParamsEventType = "dispute_fees"
+	BalanceGetLedgerParamsEventTypePayout                   BalanceGetLedgerParamsEventType = "payout"
+	BalanceGetLedgerParamsEventTypePayoutFees               BalanceGetLedgerParamsEventType = "payout_fees"
+	BalanceGetLedgerParamsEventTypePayoutReversal           BalanceGetLedgerParamsEventType = "payout_reversal"
+	BalanceGetLedgerParamsEventTypePayoutFeesReversal       BalanceGetLedgerParamsEventType = "payout_fees_reversal"
+	BalanceGetLedgerParamsEventTypeDodoCredits              BalanceGetLedgerParamsEventType = "dodo_credits"
+	BalanceGetLedgerParamsEventTypeAdjustment               BalanceGetLedgerParamsEventType = "adjustment"
+	BalanceGetLedgerParamsEventTypeCurrencyConversion       BalanceGetLedgerParamsEventType = "currency_conversion"
+	BalanceGetLedgerParamsEventTypeAbandonedCartRecoveryFee BalanceGetLedgerParamsEventType = "abandoned_cart_recovery_fee"
+	BalanceGetLedgerParamsEventTypeDunningFees              BalanceGetLedgerParamsEventType = "dunning_fees"
 )
 
 func (r BalanceGetLedgerParamsEventType) IsKnown() bool {
 	switch r {
-	case BalanceGetLedgerParamsEventTypePayment, BalanceGetLedgerParamsEventTypeRefund, BalanceGetLedgerParamsEventTypeRefundReversal, BalanceGetLedgerParamsEventTypeDispute, BalanceGetLedgerParamsEventTypeDisputeReversal, BalanceGetLedgerParamsEventTypeTax, BalanceGetLedgerParamsEventTypeTaxReversal, BalanceGetLedgerParamsEventTypePaymentFees, BalanceGetLedgerParamsEventTypeRefundFees, BalanceGetLedgerParamsEventTypeRefundFeesReversal, BalanceGetLedgerParamsEventTypeDisputeFees, BalanceGetLedgerParamsEventTypePayout, BalanceGetLedgerParamsEventTypePayoutFees, BalanceGetLedgerParamsEventTypePayoutReversal, BalanceGetLedgerParamsEventTypePayoutFeesReversal, BalanceGetLedgerParamsEventTypeDodoCredits, BalanceGetLedgerParamsEventTypeAdjustment, BalanceGetLedgerParamsEventTypeCurrencyConversion:
+	case BalanceGetLedgerParamsEventTypePayment, BalanceGetLedgerParamsEventTypeRefund, BalanceGetLedgerParamsEventTypeRefundReversal, BalanceGetLedgerParamsEventTypeDispute, BalanceGetLedgerParamsEventTypeDisputeReversal, BalanceGetLedgerParamsEventTypeTax, BalanceGetLedgerParamsEventTypeTaxReversal, BalanceGetLedgerParamsEventTypePaymentFees, BalanceGetLedgerParamsEventTypeRefundFees, BalanceGetLedgerParamsEventTypeRefundFeesReversal, BalanceGetLedgerParamsEventTypeDisputeFees, BalanceGetLedgerParamsEventTypePayout, BalanceGetLedgerParamsEventTypePayoutFees, BalanceGetLedgerParamsEventTypePayoutReversal, BalanceGetLedgerParamsEventTypePayoutFeesReversal, BalanceGetLedgerParamsEventTypeDodoCredits, BalanceGetLedgerParamsEventTypeAdjustment, BalanceGetLedgerParamsEventTypeCurrencyConversion, BalanceGetLedgerParamsEventTypeAbandonedCartRecoveryFee, BalanceGetLedgerParamsEventTypeDunningFees:
 		return true
 	}
 	return false
