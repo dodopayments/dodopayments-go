@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.93.0 (2026-04-01)
+
+Full Changelog: [v1.92.1...v1.93.0](https://github.com/dodopayments/dodopayments-go/compare/v1.92.1...v1.93.0)
+
+### Features
+
+* **api:** updated openapi spec to v1.93.0 ([445329b](https://github.com/dodopayments/dodopayments-go/commit/445329b17611f39041f0ee30def3a882fc514ef2))
+
+
+### Chores
+
+* **ci:** support opting out of skipping builds on metadata-only commits ([711b530](https://github.com/dodopayments/dodopayments-go/commit/711b530b9ec98bf9e3d7990ee6067ee223cc839d))
+* **tests:** bump steady to v0.20.1 ([b813110](https://github.com/dodopayments/dodopayments-go/commit/b8131106b841650547ac1b0bfc4f3b370e4ae757))
+* **tests:** bump steady to v0.20.2 ([9e0b8e4](https://github.com/dodopayments/dodopayments-go/commit/9e0b8e428fe9e295cb7c321a8e0edc864052f1ba))
+
 ## 1.92.1 (2026-03-27)
 
 Full Changelog: [v1.92.0...v1.92.1](https://github.com/dodopayments/dodopayments-go/compare/v1.92.0...v1.92.1)
