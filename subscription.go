@@ -1661,7 +1661,8 @@ func (r SubscriptionNewParamsOneTimeProductCart) MarshalJSON() (data []byte, err
 type SubscriptionUpdateParams struct {
 	Billing param.Field[BillingAddressParam] `json:"billing"`
 	// When set, the subscription will remain active until the end of billing period
-	CancelAtNextBillingDate param.Field[bool] `json:"cancel_at_next_billing_date"`
+	CancelAtNextBillingDate param.Field[bool]                                 `json:"cancel_at_next_billing_date"`
+	CancelReason            param.Field[SubscriptionUpdateParamsCancelReason] `json:"cancel_reason"`
 	// Update credit entitlement cart settings
 	CreditEntitlementCart param.Field[[]SubscriptionUpdateParamsCreditEntitlementCart] `json:"credit_entitlement_cart"`
 	CustomerName          param.Field[string]                                          `json:"customer_name"`
@@ -1674,6 +1675,22 @@ type SubscriptionUpdateParams struct {
 
 func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+type SubscriptionUpdateParamsCancelReason string
+
+const (
+	SubscriptionUpdateParamsCancelReasonCancelledByCustomer            SubscriptionUpdateParamsCancelReason = "cancelled_by_customer"
+	SubscriptionUpdateParamsCancelReasonCancelledByMerchant            SubscriptionUpdateParamsCancelReason = "cancelled_by_merchant"
+	SubscriptionUpdateParamsCancelReasonCancelledByMerchantSendDunning SubscriptionUpdateParamsCancelReason = "cancelled_by_merchant_send_dunning"
+)
+
+func (r SubscriptionUpdateParamsCancelReason) IsKnown() bool {
+	switch r {
+	case SubscriptionUpdateParamsCancelReasonCancelledByCustomer, SubscriptionUpdateParamsCancelReasonCancelledByMerchant, SubscriptionUpdateParamsCancelReasonCancelledByMerchantSendDunning:
+		return true
+	}
+	return false
 }
 
 type SubscriptionUpdateParamsCreditEntitlementCart struct {
