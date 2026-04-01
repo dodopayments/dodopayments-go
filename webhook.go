@@ -228,6 +228,240 @@ func (r webhookGetSecretResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type AbandonedCheckoutDetectedWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Webhook payload for abandoned_checkout.detected and abandoned_checkout.recovered
+	// events
+	Data AbandonedCheckoutDetectedWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type AbandonedCheckoutDetectedWebhookEventType `json:"type" api:"required"`
+	JSON abandonedCheckoutDetectedWebhookEventJSON `json:"-"`
+}
+
+// abandonedCheckoutDetectedWebhookEventJSON contains the JSON metadata for the
+// struct [AbandonedCheckoutDetectedWebhookEvent]
+type abandonedCheckoutDetectedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AbandonedCheckoutDetectedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r abandonedCheckoutDetectedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r AbandonedCheckoutDetectedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r AbandonedCheckoutDetectedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// Webhook payload for abandoned_checkout.detected and abandoned_checkout.recovered
+// events
+type AbandonedCheckoutDetectedWebhookEventData struct {
+	AbandonedAt        time.Time                                                  `json:"abandoned_at" api:"required" format:"date-time"`
+	AbandonmentReason  AbandonedCheckoutDetectedWebhookEventDataAbandonmentReason `json:"abandonment_reason" api:"required"`
+	CustomerID         string                                                     `json:"customer_id" api:"required"`
+	PaymentID          string                                                     `json:"payment_id" api:"required"`
+	Status             AbandonedCheckoutDetectedWebhookEventDataStatus            `json:"status" api:"required"`
+	RecoveredPaymentID string                                                     `json:"recovered_payment_id" api:"nullable"`
+	JSON               abandonedCheckoutDetectedWebhookEventDataJSON              `json:"-"`
+}
+
+// abandonedCheckoutDetectedWebhookEventDataJSON contains the JSON metadata for the
+// struct [AbandonedCheckoutDetectedWebhookEventData]
+type abandonedCheckoutDetectedWebhookEventDataJSON struct {
+	AbandonedAt        apijson.Field
+	AbandonmentReason  apijson.Field
+	CustomerID         apijson.Field
+	PaymentID          apijson.Field
+	Status             apijson.Field
+	RecoveredPaymentID apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
+}
+
+func (r *AbandonedCheckoutDetectedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r abandonedCheckoutDetectedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type AbandonedCheckoutDetectedWebhookEventDataAbandonmentReason string
+
+const (
+	AbandonedCheckoutDetectedWebhookEventDataAbandonmentReasonPaymentFailed      AbandonedCheckoutDetectedWebhookEventDataAbandonmentReason = "payment_failed"
+	AbandonedCheckoutDetectedWebhookEventDataAbandonmentReasonCheckoutIncomplete AbandonedCheckoutDetectedWebhookEventDataAbandonmentReason = "checkout_incomplete"
+)
+
+func (r AbandonedCheckoutDetectedWebhookEventDataAbandonmentReason) IsKnown() bool {
+	switch r {
+	case AbandonedCheckoutDetectedWebhookEventDataAbandonmentReasonPaymentFailed, AbandonedCheckoutDetectedWebhookEventDataAbandonmentReasonCheckoutIncomplete:
+		return true
+	}
+	return false
+}
+
+type AbandonedCheckoutDetectedWebhookEventDataStatus string
+
+const (
+	AbandonedCheckoutDetectedWebhookEventDataStatusAbandoned  AbandonedCheckoutDetectedWebhookEventDataStatus = "abandoned"
+	AbandonedCheckoutDetectedWebhookEventDataStatusRecovering AbandonedCheckoutDetectedWebhookEventDataStatus = "recovering"
+	AbandonedCheckoutDetectedWebhookEventDataStatusRecovered  AbandonedCheckoutDetectedWebhookEventDataStatus = "recovered"
+	AbandonedCheckoutDetectedWebhookEventDataStatusExhausted  AbandonedCheckoutDetectedWebhookEventDataStatus = "exhausted"
+	AbandonedCheckoutDetectedWebhookEventDataStatusOptedOut   AbandonedCheckoutDetectedWebhookEventDataStatus = "opted_out"
+)
+
+func (r AbandonedCheckoutDetectedWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case AbandonedCheckoutDetectedWebhookEventDataStatusAbandoned, AbandonedCheckoutDetectedWebhookEventDataStatusRecovering, AbandonedCheckoutDetectedWebhookEventDataStatusRecovered, AbandonedCheckoutDetectedWebhookEventDataStatusExhausted, AbandonedCheckoutDetectedWebhookEventDataStatusOptedOut:
+		return true
+	}
+	return false
+}
+
+// The event type
+type AbandonedCheckoutDetectedWebhookEventType string
+
+const (
+	AbandonedCheckoutDetectedWebhookEventTypeAbandonedCheckoutDetected AbandonedCheckoutDetectedWebhookEventType = "abandoned_checkout.detected"
+)
+
+func (r AbandonedCheckoutDetectedWebhookEventType) IsKnown() bool {
+	switch r {
+	case AbandonedCheckoutDetectedWebhookEventTypeAbandonedCheckoutDetected:
+		return true
+	}
+	return false
+}
+
+type AbandonedCheckoutRecoveredWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Webhook payload for abandoned_checkout.detected and abandoned_checkout.recovered
+	// events
+	Data AbandonedCheckoutRecoveredWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type AbandonedCheckoutRecoveredWebhookEventType `json:"type" api:"required"`
+	JSON abandonedCheckoutRecoveredWebhookEventJSON `json:"-"`
+}
+
+// abandonedCheckoutRecoveredWebhookEventJSON contains the JSON metadata for the
+// struct [AbandonedCheckoutRecoveredWebhookEvent]
+type abandonedCheckoutRecoveredWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AbandonedCheckoutRecoveredWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r abandonedCheckoutRecoveredWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r AbandonedCheckoutRecoveredWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r AbandonedCheckoutRecoveredWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// Webhook payload for abandoned_checkout.detected and abandoned_checkout.recovered
+// events
+type AbandonedCheckoutRecoveredWebhookEventData struct {
+	AbandonedAt        time.Time                                                   `json:"abandoned_at" api:"required" format:"date-time"`
+	AbandonmentReason  AbandonedCheckoutRecoveredWebhookEventDataAbandonmentReason `json:"abandonment_reason" api:"required"`
+	CustomerID         string                                                      `json:"customer_id" api:"required"`
+	PaymentID          string                                                      `json:"payment_id" api:"required"`
+	Status             AbandonedCheckoutRecoveredWebhookEventDataStatus            `json:"status" api:"required"`
+	RecoveredPaymentID string                                                      `json:"recovered_payment_id" api:"nullable"`
+	JSON               abandonedCheckoutRecoveredWebhookEventDataJSON              `json:"-"`
+}
+
+// abandonedCheckoutRecoveredWebhookEventDataJSON contains the JSON metadata for
+// the struct [AbandonedCheckoutRecoveredWebhookEventData]
+type abandonedCheckoutRecoveredWebhookEventDataJSON struct {
+	AbandonedAt        apijson.Field
+	AbandonmentReason  apijson.Field
+	CustomerID         apijson.Field
+	PaymentID          apijson.Field
+	Status             apijson.Field
+	RecoveredPaymentID apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
+}
+
+func (r *AbandonedCheckoutRecoveredWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r abandonedCheckoutRecoveredWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type AbandonedCheckoutRecoveredWebhookEventDataAbandonmentReason string
+
+const (
+	AbandonedCheckoutRecoveredWebhookEventDataAbandonmentReasonPaymentFailed      AbandonedCheckoutRecoveredWebhookEventDataAbandonmentReason = "payment_failed"
+	AbandonedCheckoutRecoveredWebhookEventDataAbandonmentReasonCheckoutIncomplete AbandonedCheckoutRecoveredWebhookEventDataAbandonmentReason = "checkout_incomplete"
+)
+
+func (r AbandonedCheckoutRecoveredWebhookEventDataAbandonmentReason) IsKnown() bool {
+	switch r {
+	case AbandonedCheckoutRecoveredWebhookEventDataAbandonmentReasonPaymentFailed, AbandonedCheckoutRecoveredWebhookEventDataAbandonmentReasonCheckoutIncomplete:
+		return true
+	}
+	return false
+}
+
+type AbandonedCheckoutRecoveredWebhookEventDataStatus string
+
+const (
+	AbandonedCheckoutRecoveredWebhookEventDataStatusAbandoned  AbandonedCheckoutRecoveredWebhookEventDataStatus = "abandoned"
+	AbandonedCheckoutRecoveredWebhookEventDataStatusRecovering AbandonedCheckoutRecoveredWebhookEventDataStatus = "recovering"
+	AbandonedCheckoutRecoveredWebhookEventDataStatusRecovered  AbandonedCheckoutRecoveredWebhookEventDataStatus = "recovered"
+	AbandonedCheckoutRecoveredWebhookEventDataStatusExhausted  AbandonedCheckoutRecoveredWebhookEventDataStatus = "exhausted"
+	AbandonedCheckoutRecoveredWebhookEventDataStatusOptedOut   AbandonedCheckoutRecoveredWebhookEventDataStatus = "opted_out"
+)
+
+func (r AbandonedCheckoutRecoveredWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case AbandonedCheckoutRecoveredWebhookEventDataStatusAbandoned, AbandonedCheckoutRecoveredWebhookEventDataStatusRecovering, AbandonedCheckoutRecoveredWebhookEventDataStatusRecovered, AbandonedCheckoutRecoveredWebhookEventDataStatusExhausted, AbandonedCheckoutRecoveredWebhookEventDataStatusOptedOut:
+		return true
+	}
+	return false
+}
+
+// The event type
+type AbandonedCheckoutRecoveredWebhookEventType string
+
+const (
+	AbandonedCheckoutRecoveredWebhookEventTypeAbandonedCheckoutRecovered AbandonedCheckoutRecoveredWebhookEventType = "abandoned_checkout.recovered"
+)
+
+func (r AbandonedCheckoutRecoveredWebhookEventType) IsKnown() bool {
+	switch r {
+	case AbandonedCheckoutRecoveredWebhookEventTypeAbandonedCheckoutRecovered:
+		return true
+	}
+	return false
+}
+
 type CreditAddedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
@@ -1007,6 +1241,232 @@ func (r DisputeWonWebhookEventType) IsKnown() bool {
 	return false
 }
 
+type DunningRecoveredWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Webhook payload for dunning.started and dunning.recovered events
+	Data DunningRecoveredWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type DunningRecoveredWebhookEventType `json:"type" api:"required"`
+	JSON dunningRecoveredWebhookEventJSON `json:"-"`
+}
+
+// dunningRecoveredWebhookEventJSON contains the JSON metadata for the struct
+// [DunningRecoveredWebhookEvent]
+type dunningRecoveredWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *DunningRecoveredWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r dunningRecoveredWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r DunningRecoveredWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r DunningRecoveredWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// Webhook payload for dunning.started and dunning.recovered events
+type DunningRecoveredWebhookEventData struct {
+	CreatedAt      time.Time                                    `json:"created_at" api:"required" format:"date-time"`
+	CustomerID     string                                       `json:"customer_id" api:"required"`
+	Status         DunningRecoveredWebhookEventDataStatus       `json:"status" api:"required"`
+	SubscriptionID string                                       `json:"subscription_id" api:"required"`
+	TriggerState   DunningRecoveredWebhookEventDataTriggerState `json:"trigger_state" api:"required"`
+	PaymentID      string                                       `json:"payment_id" api:"nullable"`
+	JSON           dunningRecoveredWebhookEventDataJSON         `json:"-"`
+}
+
+// dunningRecoveredWebhookEventDataJSON contains the JSON metadata for the struct
+// [DunningRecoveredWebhookEventData]
+type dunningRecoveredWebhookEventDataJSON struct {
+	CreatedAt      apijson.Field
+	CustomerID     apijson.Field
+	Status         apijson.Field
+	SubscriptionID apijson.Field
+	TriggerState   apijson.Field
+	PaymentID      apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
+}
+
+func (r *DunningRecoveredWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r dunningRecoveredWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type DunningRecoveredWebhookEventDataStatus string
+
+const (
+	DunningRecoveredWebhookEventDataStatusRecovering DunningRecoveredWebhookEventDataStatus = "recovering"
+	DunningRecoveredWebhookEventDataStatusRecovered  DunningRecoveredWebhookEventDataStatus = "recovered"
+	DunningRecoveredWebhookEventDataStatusExhausted  DunningRecoveredWebhookEventDataStatus = "exhausted"
+)
+
+func (r DunningRecoveredWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case DunningRecoveredWebhookEventDataStatusRecovering, DunningRecoveredWebhookEventDataStatusRecovered, DunningRecoveredWebhookEventDataStatusExhausted:
+		return true
+	}
+	return false
+}
+
+type DunningRecoveredWebhookEventDataTriggerState string
+
+const (
+	DunningRecoveredWebhookEventDataTriggerStateOnHold    DunningRecoveredWebhookEventDataTriggerState = "on_hold"
+	DunningRecoveredWebhookEventDataTriggerStateCancelled DunningRecoveredWebhookEventDataTriggerState = "cancelled"
+)
+
+func (r DunningRecoveredWebhookEventDataTriggerState) IsKnown() bool {
+	switch r {
+	case DunningRecoveredWebhookEventDataTriggerStateOnHold, DunningRecoveredWebhookEventDataTriggerStateCancelled:
+		return true
+	}
+	return false
+}
+
+// The event type
+type DunningRecoveredWebhookEventType string
+
+const (
+	DunningRecoveredWebhookEventTypeDunningRecovered DunningRecoveredWebhookEventType = "dunning.recovered"
+)
+
+func (r DunningRecoveredWebhookEventType) IsKnown() bool {
+	switch r {
+	case DunningRecoveredWebhookEventTypeDunningRecovered:
+		return true
+	}
+	return false
+}
+
+type DunningStartedWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Webhook payload for dunning.started and dunning.recovered events
+	Data DunningStartedWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type DunningStartedWebhookEventType `json:"type" api:"required"`
+	JSON dunningStartedWebhookEventJSON `json:"-"`
+}
+
+// dunningStartedWebhookEventJSON contains the JSON metadata for the struct
+// [DunningStartedWebhookEvent]
+type dunningStartedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *DunningStartedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r dunningStartedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r DunningStartedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r DunningStartedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// Webhook payload for dunning.started and dunning.recovered events
+type DunningStartedWebhookEventData struct {
+	CreatedAt      time.Time                                  `json:"created_at" api:"required" format:"date-time"`
+	CustomerID     string                                     `json:"customer_id" api:"required"`
+	Status         DunningStartedWebhookEventDataStatus       `json:"status" api:"required"`
+	SubscriptionID string                                     `json:"subscription_id" api:"required"`
+	TriggerState   DunningStartedWebhookEventDataTriggerState `json:"trigger_state" api:"required"`
+	PaymentID      string                                     `json:"payment_id" api:"nullable"`
+	JSON           dunningStartedWebhookEventDataJSON         `json:"-"`
+}
+
+// dunningStartedWebhookEventDataJSON contains the JSON metadata for the struct
+// [DunningStartedWebhookEventData]
+type dunningStartedWebhookEventDataJSON struct {
+	CreatedAt      apijson.Field
+	CustomerID     apijson.Field
+	Status         apijson.Field
+	SubscriptionID apijson.Field
+	TriggerState   apijson.Field
+	PaymentID      apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
+}
+
+func (r *DunningStartedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r dunningStartedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type DunningStartedWebhookEventDataStatus string
+
+const (
+	DunningStartedWebhookEventDataStatusRecovering DunningStartedWebhookEventDataStatus = "recovering"
+	DunningStartedWebhookEventDataStatusRecovered  DunningStartedWebhookEventDataStatus = "recovered"
+	DunningStartedWebhookEventDataStatusExhausted  DunningStartedWebhookEventDataStatus = "exhausted"
+)
+
+func (r DunningStartedWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case DunningStartedWebhookEventDataStatusRecovering, DunningStartedWebhookEventDataStatusRecovered, DunningStartedWebhookEventDataStatusExhausted:
+		return true
+	}
+	return false
+}
+
+type DunningStartedWebhookEventDataTriggerState string
+
+const (
+	DunningStartedWebhookEventDataTriggerStateOnHold    DunningStartedWebhookEventDataTriggerState = "on_hold"
+	DunningStartedWebhookEventDataTriggerStateCancelled DunningStartedWebhookEventDataTriggerState = "cancelled"
+)
+
+func (r DunningStartedWebhookEventDataTriggerState) IsKnown() bool {
+	switch r {
+	case DunningStartedWebhookEventDataTriggerStateOnHold, DunningStartedWebhookEventDataTriggerStateCancelled:
+		return true
+	}
+	return false
+}
+
+// The event type
+type DunningStartedWebhookEventType string
+
+const (
+	DunningStartedWebhookEventTypeDunningStarted DunningStartedWebhookEventType = "dunning.started"
+)
+
+func (r DunningStartedWebhookEventType) IsKnown() bool {
+	switch r {
+	case DunningStartedWebhookEventTypeDunningStarted:
+		return true
+	}
+	return false
+}
+
 type LicenseKeyCreatedWebhookEvent struct {
 	// The business identifier
 	BusinessID string     `json:"business_id" api:"required"`
@@ -1753,9 +2213,12 @@ func (r SubscriptionUpdatedWebhookEventType) IsKnown() bool {
 type UnsafeUnwrapWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// This field can have the runtime type of [CreditLedgerEntry],
-	// [CreditBalanceLowWebhookEventData], [Dispute], [LicenseKey], [Payment],
-	// [Refund], [Subscription].
+	// This field can have the runtime type of
+	// [AbandonedCheckoutDetectedWebhookEventData],
+	// [AbandonedCheckoutRecoveredWebhookEventData], [CreditLedgerEntry],
+	// [CreditBalanceLowWebhookEventData], [Dispute],
+	// [DunningRecoveredWebhookEventData], [DunningStartedWebhookEventData],
+	// [LicenseKey], [Payment], [Refund], [Subscription].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
@@ -1792,7 +2255,8 @@ func (r *UnsafeUnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // AsUnion returns a [UnsafeUnwrapWebhookEventUnion] interface which you can cast
 // to the specific types for more type safety.
 //
-// Possible runtime types of the union are [CreditAddedWebhookEvent],
+// Possible runtime types of the union are [AbandonedCheckoutDetectedWebhookEvent],
+// [AbandonedCheckoutRecoveredWebhookEvent], [CreditAddedWebhookEvent],
 // [CreditBalanceLowWebhookEvent], [CreditDeductedWebhookEvent],
 // [CreditExpiredWebhookEvent], [CreditManualAdjustmentWebhookEvent],
 // [CreditOverageChargedWebhookEvent], [CreditRolledOverWebhookEvent],
@@ -1800,6 +2264,7 @@ func (r *UnsafeUnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
 // [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
 // [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
+// [DunningRecoveredWebhookEvent], [DunningStartedWebhookEvent],
 // [LicenseKeyCreatedWebhookEvent], [PaymentCancelledWebhookEvent],
 // [PaymentFailedWebhookEvent], [PaymentProcessingWebhookEvent],
 // [PaymentSucceededWebhookEvent], [RefundFailedWebhookEvent],
@@ -1812,21 +2277,24 @@ func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
 	return r.union
 }
 
-// Union satisfied by [CreditAddedWebhookEvent], [CreditBalanceLowWebhookEvent],
-// [CreditDeductedWebhookEvent], [CreditExpiredWebhookEvent],
-// [CreditManualAdjustmentWebhookEvent], [CreditOverageChargedWebhookEvent],
-// [CreditRolledOverWebhookEvent], [CreditRolloverForfeitedWebhookEvent],
-// [DisputeAcceptedWebhookEvent], [DisputeCancelledWebhookEvent],
-// [DisputeChallengedWebhookEvent], [DisputeExpiredWebhookEvent],
-// [DisputeLostWebhookEvent], [DisputeOpenedWebhookEvent],
-// [DisputeWonWebhookEvent], [LicenseKeyCreatedWebhookEvent],
-// [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
-// [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
-// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
-// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
-// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
-// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent] or [SubscriptionUpdatedWebhookEvent].
+// Union satisfied by [AbandonedCheckoutDetectedWebhookEvent],
+// [AbandonedCheckoutRecoveredWebhookEvent], [CreditAddedWebhookEvent],
+// [CreditBalanceLowWebhookEvent], [CreditDeductedWebhookEvent],
+// [CreditExpiredWebhookEvent], [CreditManualAdjustmentWebhookEvent],
+// [CreditOverageChargedWebhookEvent], [CreditRolledOverWebhookEvent],
+// [CreditRolloverForfeitedWebhookEvent], [DisputeAcceptedWebhookEvent],
+// [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
+// [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
+// [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
+// [DunningRecoveredWebhookEvent], [DunningStartedWebhookEvent],
+// [LicenseKeyCreatedWebhookEvent], [PaymentCancelledWebhookEvent],
+// [PaymentFailedWebhookEvent], [PaymentProcessingWebhookEvent],
+// [PaymentSucceededWebhookEvent], [RefundFailedWebhookEvent],
+// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
+// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
+// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent] or
+// [SubscriptionUpdatedWebhookEvent].
 type UnsafeUnwrapWebhookEventUnion interface {
 	implementsUnsafeUnwrapWebhookEvent()
 }
@@ -1835,6 +2303,14 @@ func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*UnsafeUnwrapWebhookEventUnion)(nil)).Elem(),
 		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(AbandonedCheckoutDetectedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(AbandonedCheckoutRecoveredWebhookEvent{}),
+		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(CreditAddedWebhookEvent{}),
@@ -1894,6 +2370,14 @@ func init() {
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(DisputeWonWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(DunningRecoveredWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(DunningStartedWebhookEvent{}),
 		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
@@ -1962,41 +2446,45 @@ func init() {
 type UnsafeUnwrapWebhookEventType string
 
 const (
-	UnsafeUnwrapWebhookEventTypeCreditAdded             UnsafeUnwrapWebhookEventType = "credit.added"
-	UnsafeUnwrapWebhookEventTypeCreditBalanceLow        UnsafeUnwrapWebhookEventType = "credit.balance_low"
-	UnsafeUnwrapWebhookEventTypeCreditDeducted          UnsafeUnwrapWebhookEventType = "credit.deducted"
-	UnsafeUnwrapWebhookEventTypeCreditExpired           UnsafeUnwrapWebhookEventType = "credit.expired"
-	UnsafeUnwrapWebhookEventTypeCreditManualAdjustment  UnsafeUnwrapWebhookEventType = "credit.manual_adjustment"
-	UnsafeUnwrapWebhookEventTypeCreditOverageCharged    UnsafeUnwrapWebhookEventType = "credit.overage_charged"
-	UnsafeUnwrapWebhookEventTypeCreditRolledOver        UnsafeUnwrapWebhookEventType = "credit.rolled_over"
-	UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited UnsafeUnwrapWebhookEventType = "credit.rollover_forfeited"
-	UnsafeUnwrapWebhookEventTypeDisputeAccepted         UnsafeUnwrapWebhookEventType = "dispute.accepted"
-	UnsafeUnwrapWebhookEventTypeDisputeCancelled        UnsafeUnwrapWebhookEventType = "dispute.cancelled"
-	UnsafeUnwrapWebhookEventTypeDisputeChallenged       UnsafeUnwrapWebhookEventType = "dispute.challenged"
-	UnsafeUnwrapWebhookEventTypeDisputeExpired          UnsafeUnwrapWebhookEventType = "dispute.expired"
-	UnsafeUnwrapWebhookEventTypeDisputeLost             UnsafeUnwrapWebhookEventType = "dispute.lost"
-	UnsafeUnwrapWebhookEventTypeDisputeOpened           UnsafeUnwrapWebhookEventType = "dispute.opened"
-	UnsafeUnwrapWebhookEventTypeDisputeWon              UnsafeUnwrapWebhookEventType = "dispute.won"
-	UnsafeUnwrapWebhookEventTypeLicenseKeyCreated       UnsafeUnwrapWebhookEventType = "license_key.created"
-	UnsafeUnwrapWebhookEventTypePaymentCancelled        UnsafeUnwrapWebhookEventType = "payment.cancelled"
-	UnsafeUnwrapWebhookEventTypePaymentFailed           UnsafeUnwrapWebhookEventType = "payment.failed"
-	UnsafeUnwrapWebhookEventTypePaymentProcessing       UnsafeUnwrapWebhookEventType = "payment.processing"
-	UnsafeUnwrapWebhookEventTypePaymentSucceeded        UnsafeUnwrapWebhookEventType = "payment.succeeded"
-	UnsafeUnwrapWebhookEventTypeRefundFailed            UnsafeUnwrapWebhookEventType = "refund.failed"
-	UnsafeUnwrapWebhookEventTypeRefundSucceeded         UnsafeUnwrapWebhookEventType = "refund.succeeded"
-	UnsafeUnwrapWebhookEventTypeSubscriptionActive      UnsafeUnwrapWebhookEventType = "subscription.active"
-	UnsafeUnwrapWebhookEventTypeSubscriptionCancelled   UnsafeUnwrapWebhookEventType = "subscription.cancelled"
-	UnsafeUnwrapWebhookEventTypeSubscriptionExpired     UnsafeUnwrapWebhookEventType = "subscription.expired"
-	UnsafeUnwrapWebhookEventTypeSubscriptionFailed      UnsafeUnwrapWebhookEventType = "subscription.failed"
-	UnsafeUnwrapWebhookEventTypeSubscriptionOnHold      UnsafeUnwrapWebhookEventType = "subscription.on_hold"
-	UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged UnsafeUnwrapWebhookEventType = "subscription.plan_changed"
-	UnsafeUnwrapWebhookEventTypeSubscriptionRenewed     UnsafeUnwrapWebhookEventType = "subscription.renewed"
-	UnsafeUnwrapWebhookEventTypeSubscriptionUpdated     UnsafeUnwrapWebhookEventType = "subscription.updated"
+	UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected  UnsafeUnwrapWebhookEventType = "abandoned_checkout.detected"
+	UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered UnsafeUnwrapWebhookEventType = "abandoned_checkout.recovered"
+	UnsafeUnwrapWebhookEventTypeCreditAdded                UnsafeUnwrapWebhookEventType = "credit.added"
+	UnsafeUnwrapWebhookEventTypeCreditBalanceLow           UnsafeUnwrapWebhookEventType = "credit.balance_low"
+	UnsafeUnwrapWebhookEventTypeCreditDeducted             UnsafeUnwrapWebhookEventType = "credit.deducted"
+	UnsafeUnwrapWebhookEventTypeCreditExpired              UnsafeUnwrapWebhookEventType = "credit.expired"
+	UnsafeUnwrapWebhookEventTypeCreditManualAdjustment     UnsafeUnwrapWebhookEventType = "credit.manual_adjustment"
+	UnsafeUnwrapWebhookEventTypeCreditOverageCharged       UnsafeUnwrapWebhookEventType = "credit.overage_charged"
+	UnsafeUnwrapWebhookEventTypeCreditRolledOver           UnsafeUnwrapWebhookEventType = "credit.rolled_over"
+	UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited    UnsafeUnwrapWebhookEventType = "credit.rollover_forfeited"
+	UnsafeUnwrapWebhookEventTypeDisputeAccepted            UnsafeUnwrapWebhookEventType = "dispute.accepted"
+	UnsafeUnwrapWebhookEventTypeDisputeCancelled           UnsafeUnwrapWebhookEventType = "dispute.cancelled"
+	UnsafeUnwrapWebhookEventTypeDisputeChallenged          UnsafeUnwrapWebhookEventType = "dispute.challenged"
+	UnsafeUnwrapWebhookEventTypeDisputeExpired             UnsafeUnwrapWebhookEventType = "dispute.expired"
+	UnsafeUnwrapWebhookEventTypeDisputeLost                UnsafeUnwrapWebhookEventType = "dispute.lost"
+	UnsafeUnwrapWebhookEventTypeDisputeOpened              UnsafeUnwrapWebhookEventType = "dispute.opened"
+	UnsafeUnwrapWebhookEventTypeDisputeWon                 UnsafeUnwrapWebhookEventType = "dispute.won"
+	UnsafeUnwrapWebhookEventTypeDunningRecovered           UnsafeUnwrapWebhookEventType = "dunning.recovered"
+	UnsafeUnwrapWebhookEventTypeDunningStarted             UnsafeUnwrapWebhookEventType = "dunning.started"
+	UnsafeUnwrapWebhookEventTypeLicenseKeyCreated          UnsafeUnwrapWebhookEventType = "license_key.created"
+	UnsafeUnwrapWebhookEventTypePaymentCancelled           UnsafeUnwrapWebhookEventType = "payment.cancelled"
+	UnsafeUnwrapWebhookEventTypePaymentFailed              UnsafeUnwrapWebhookEventType = "payment.failed"
+	UnsafeUnwrapWebhookEventTypePaymentProcessing          UnsafeUnwrapWebhookEventType = "payment.processing"
+	UnsafeUnwrapWebhookEventTypePaymentSucceeded           UnsafeUnwrapWebhookEventType = "payment.succeeded"
+	UnsafeUnwrapWebhookEventTypeRefundFailed               UnsafeUnwrapWebhookEventType = "refund.failed"
+	UnsafeUnwrapWebhookEventTypeRefundSucceeded            UnsafeUnwrapWebhookEventType = "refund.succeeded"
+	UnsafeUnwrapWebhookEventTypeSubscriptionActive         UnsafeUnwrapWebhookEventType = "subscription.active"
+	UnsafeUnwrapWebhookEventTypeSubscriptionCancelled      UnsafeUnwrapWebhookEventType = "subscription.cancelled"
+	UnsafeUnwrapWebhookEventTypeSubscriptionExpired        UnsafeUnwrapWebhookEventType = "subscription.expired"
+	UnsafeUnwrapWebhookEventTypeSubscriptionFailed         UnsafeUnwrapWebhookEventType = "subscription.failed"
+	UnsafeUnwrapWebhookEventTypeSubscriptionOnHold         UnsafeUnwrapWebhookEventType = "subscription.on_hold"
+	UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged    UnsafeUnwrapWebhookEventType = "subscription.plan_changed"
+	UnsafeUnwrapWebhookEventTypeSubscriptionRenewed        UnsafeUnwrapWebhookEventType = "subscription.renewed"
+	UnsafeUnwrapWebhookEventTypeSubscriptionUpdated        UnsafeUnwrapWebhookEventType = "subscription.updated"
 )
 
 func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected, UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeDunningRecovered, UnsafeUnwrapWebhookEventTypeDunningStarted, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false
@@ -2005,9 +2493,12 @@ func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 type UnwrapWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// This field can have the runtime type of [CreditLedgerEntry],
-	// [CreditBalanceLowWebhookEventData], [Dispute], [LicenseKey], [Payment],
-	// [Refund], [Subscription].
+	// This field can have the runtime type of
+	// [AbandonedCheckoutDetectedWebhookEventData],
+	// [AbandonedCheckoutRecoveredWebhookEventData], [CreditLedgerEntry],
+	// [CreditBalanceLowWebhookEventData], [Dispute],
+	// [DunningRecoveredWebhookEventData], [DunningStartedWebhookEventData],
+	// [LicenseKey], [Payment], [Refund], [Subscription].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
@@ -2044,7 +2535,8 @@ func (r *UnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // AsUnion returns a [UnwrapWebhookEventUnion] interface which you can cast to the
 // specific types for more type safety.
 //
-// Possible runtime types of the union are [CreditAddedWebhookEvent],
+// Possible runtime types of the union are [AbandonedCheckoutDetectedWebhookEvent],
+// [AbandonedCheckoutRecoveredWebhookEvent], [CreditAddedWebhookEvent],
 // [CreditBalanceLowWebhookEvent], [CreditDeductedWebhookEvent],
 // [CreditExpiredWebhookEvent], [CreditManualAdjustmentWebhookEvent],
 // [CreditOverageChargedWebhookEvent], [CreditRolledOverWebhookEvent],
@@ -2052,6 +2544,7 @@ func (r *UnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
 // [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
 // [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
+// [DunningRecoveredWebhookEvent], [DunningStartedWebhookEvent],
 // [LicenseKeyCreatedWebhookEvent], [PaymentCancelledWebhookEvent],
 // [PaymentFailedWebhookEvent], [PaymentProcessingWebhookEvent],
 // [PaymentSucceededWebhookEvent], [RefundFailedWebhookEvent],
@@ -2064,21 +2557,24 @@ func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
 	return r.union
 }
 
-// Union satisfied by [CreditAddedWebhookEvent], [CreditBalanceLowWebhookEvent],
-// [CreditDeductedWebhookEvent], [CreditExpiredWebhookEvent],
-// [CreditManualAdjustmentWebhookEvent], [CreditOverageChargedWebhookEvent],
-// [CreditRolledOverWebhookEvent], [CreditRolloverForfeitedWebhookEvent],
-// [DisputeAcceptedWebhookEvent], [DisputeCancelledWebhookEvent],
-// [DisputeChallengedWebhookEvent], [DisputeExpiredWebhookEvent],
-// [DisputeLostWebhookEvent], [DisputeOpenedWebhookEvent],
-// [DisputeWonWebhookEvent], [LicenseKeyCreatedWebhookEvent],
-// [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
-// [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
-// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
-// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
-// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
-// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent] or [SubscriptionUpdatedWebhookEvent].
+// Union satisfied by [AbandonedCheckoutDetectedWebhookEvent],
+// [AbandonedCheckoutRecoveredWebhookEvent], [CreditAddedWebhookEvent],
+// [CreditBalanceLowWebhookEvent], [CreditDeductedWebhookEvent],
+// [CreditExpiredWebhookEvent], [CreditManualAdjustmentWebhookEvent],
+// [CreditOverageChargedWebhookEvent], [CreditRolledOverWebhookEvent],
+// [CreditRolloverForfeitedWebhookEvent], [DisputeAcceptedWebhookEvent],
+// [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
+// [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
+// [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
+// [DunningRecoveredWebhookEvent], [DunningStartedWebhookEvent],
+// [LicenseKeyCreatedWebhookEvent], [PaymentCancelledWebhookEvent],
+// [PaymentFailedWebhookEvent], [PaymentProcessingWebhookEvent],
+// [PaymentSucceededWebhookEvent], [RefundFailedWebhookEvent],
+// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
+// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
+// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent] or
+// [SubscriptionUpdatedWebhookEvent].
 type UnwrapWebhookEventUnion interface {
 	implementsUnwrapWebhookEvent()
 }
@@ -2087,6 +2583,14 @@ func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*UnwrapWebhookEventUnion)(nil)).Elem(),
 		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(AbandonedCheckoutDetectedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(AbandonedCheckoutRecoveredWebhookEvent{}),
+		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(CreditAddedWebhookEvent{}),
@@ -2146,6 +2650,14 @@ func init() {
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(DisputeWonWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(DunningRecoveredWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(DunningStartedWebhookEvent{}),
 		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
@@ -2214,41 +2726,45 @@ func init() {
 type UnwrapWebhookEventType string
 
 const (
-	UnwrapWebhookEventTypeCreditAdded             UnwrapWebhookEventType = "credit.added"
-	UnwrapWebhookEventTypeCreditBalanceLow        UnwrapWebhookEventType = "credit.balance_low"
-	UnwrapWebhookEventTypeCreditDeducted          UnwrapWebhookEventType = "credit.deducted"
-	UnwrapWebhookEventTypeCreditExpired           UnwrapWebhookEventType = "credit.expired"
-	UnwrapWebhookEventTypeCreditManualAdjustment  UnwrapWebhookEventType = "credit.manual_adjustment"
-	UnwrapWebhookEventTypeCreditOverageCharged    UnwrapWebhookEventType = "credit.overage_charged"
-	UnwrapWebhookEventTypeCreditRolledOver        UnwrapWebhookEventType = "credit.rolled_over"
-	UnwrapWebhookEventTypeCreditRolloverForfeited UnwrapWebhookEventType = "credit.rollover_forfeited"
-	UnwrapWebhookEventTypeDisputeAccepted         UnwrapWebhookEventType = "dispute.accepted"
-	UnwrapWebhookEventTypeDisputeCancelled        UnwrapWebhookEventType = "dispute.cancelled"
-	UnwrapWebhookEventTypeDisputeChallenged       UnwrapWebhookEventType = "dispute.challenged"
-	UnwrapWebhookEventTypeDisputeExpired          UnwrapWebhookEventType = "dispute.expired"
-	UnwrapWebhookEventTypeDisputeLost             UnwrapWebhookEventType = "dispute.lost"
-	UnwrapWebhookEventTypeDisputeOpened           UnwrapWebhookEventType = "dispute.opened"
-	UnwrapWebhookEventTypeDisputeWon              UnwrapWebhookEventType = "dispute.won"
-	UnwrapWebhookEventTypeLicenseKeyCreated       UnwrapWebhookEventType = "license_key.created"
-	UnwrapWebhookEventTypePaymentCancelled        UnwrapWebhookEventType = "payment.cancelled"
-	UnwrapWebhookEventTypePaymentFailed           UnwrapWebhookEventType = "payment.failed"
-	UnwrapWebhookEventTypePaymentProcessing       UnwrapWebhookEventType = "payment.processing"
-	UnwrapWebhookEventTypePaymentSucceeded        UnwrapWebhookEventType = "payment.succeeded"
-	UnwrapWebhookEventTypeRefundFailed            UnwrapWebhookEventType = "refund.failed"
-	UnwrapWebhookEventTypeRefundSucceeded         UnwrapWebhookEventType = "refund.succeeded"
-	UnwrapWebhookEventTypeSubscriptionActive      UnwrapWebhookEventType = "subscription.active"
-	UnwrapWebhookEventTypeSubscriptionCancelled   UnwrapWebhookEventType = "subscription.cancelled"
-	UnwrapWebhookEventTypeSubscriptionExpired     UnwrapWebhookEventType = "subscription.expired"
-	UnwrapWebhookEventTypeSubscriptionFailed      UnwrapWebhookEventType = "subscription.failed"
-	UnwrapWebhookEventTypeSubscriptionOnHold      UnwrapWebhookEventType = "subscription.on_hold"
-	UnwrapWebhookEventTypeSubscriptionPlanChanged UnwrapWebhookEventType = "subscription.plan_changed"
-	UnwrapWebhookEventTypeSubscriptionRenewed     UnwrapWebhookEventType = "subscription.renewed"
-	UnwrapWebhookEventTypeSubscriptionUpdated     UnwrapWebhookEventType = "subscription.updated"
+	UnwrapWebhookEventTypeAbandonedCheckoutDetected  UnwrapWebhookEventType = "abandoned_checkout.detected"
+	UnwrapWebhookEventTypeAbandonedCheckoutRecovered UnwrapWebhookEventType = "abandoned_checkout.recovered"
+	UnwrapWebhookEventTypeCreditAdded                UnwrapWebhookEventType = "credit.added"
+	UnwrapWebhookEventTypeCreditBalanceLow           UnwrapWebhookEventType = "credit.balance_low"
+	UnwrapWebhookEventTypeCreditDeducted             UnwrapWebhookEventType = "credit.deducted"
+	UnwrapWebhookEventTypeCreditExpired              UnwrapWebhookEventType = "credit.expired"
+	UnwrapWebhookEventTypeCreditManualAdjustment     UnwrapWebhookEventType = "credit.manual_adjustment"
+	UnwrapWebhookEventTypeCreditOverageCharged       UnwrapWebhookEventType = "credit.overage_charged"
+	UnwrapWebhookEventTypeCreditRolledOver           UnwrapWebhookEventType = "credit.rolled_over"
+	UnwrapWebhookEventTypeCreditRolloverForfeited    UnwrapWebhookEventType = "credit.rollover_forfeited"
+	UnwrapWebhookEventTypeDisputeAccepted            UnwrapWebhookEventType = "dispute.accepted"
+	UnwrapWebhookEventTypeDisputeCancelled           UnwrapWebhookEventType = "dispute.cancelled"
+	UnwrapWebhookEventTypeDisputeChallenged          UnwrapWebhookEventType = "dispute.challenged"
+	UnwrapWebhookEventTypeDisputeExpired             UnwrapWebhookEventType = "dispute.expired"
+	UnwrapWebhookEventTypeDisputeLost                UnwrapWebhookEventType = "dispute.lost"
+	UnwrapWebhookEventTypeDisputeOpened              UnwrapWebhookEventType = "dispute.opened"
+	UnwrapWebhookEventTypeDisputeWon                 UnwrapWebhookEventType = "dispute.won"
+	UnwrapWebhookEventTypeDunningRecovered           UnwrapWebhookEventType = "dunning.recovered"
+	UnwrapWebhookEventTypeDunningStarted             UnwrapWebhookEventType = "dunning.started"
+	UnwrapWebhookEventTypeLicenseKeyCreated          UnwrapWebhookEventType = "license_key.created"
+	UnwrapWebhookEventTypePaymentCancelled           UnwrapWebhookEventType = "payment.cancelled"
+	UnwrapWebhookEventTypePaymentFailed              UnwrapWebhookEventType = "payment.failed"
+	UnwrapWebhookEventTypePaymentProcessing          UnwrapWebhookEventType = "payment.processing"
+	UnwrapWebhookEventTypePaymentSucceeded           UnwrapWebhookEventType = "payment.succeeded"
+	UnwrapWebhookEventTypeRefundFailed               UnwrapWebhookEventType = "refund.failed"
+	UnwrapWebhookEventTypeRefundSucceeded            UnwrapWebhookEventType = "refund.succeeded"
+	UnwrapWebhookEventTypeSubscriptionActive         UnwrapWebhookEventType = "subscription.active"
+	UnwrapWebhookEventTypeSubscriptionCancelled      UnwrapWebhookEventType = "subscription.cancelled"
+	UnwrapWebhookEventTypeSubscriptionExpired        UnwrapWebhookEventType = "subscription.expired"
+	UnwrapWebhookEventTypeSubscriptionFailed         UnwrapWebhookEventType = "subscription.failed"
+	UnwrapWebhookEventTypeSubscriptionOnHold         UnwrapWebhookEventType = "subscription.on_hold"
+	UnwrapWebhookEventTypeSubscriptionPlanChanged    UnwrapWebhookEventType = "subscription.plan_changed"
+	UnwrapWebhookEventTypeSubscriptionRenewed        UnwrapWebhookEventType = "subscription.renewed"
+	UnwrapWebhookEventTypeSubscriptionUpdated        UnwrapWebhookEventType = "subscription.updated"
 )
 
 func (r UnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnwrapWebhookEventTypeAbandonedCheckoutDetected, UnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeDunningRecovered, UnwrapWebhookEventTypeDunningStarted, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false

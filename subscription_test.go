@@ -126,6 +126,7 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 				Zipcode: dodopayments.F("zipcode"),
 			}),
 			CancelAtNextBillingDate: dodopayments.F(true),
+			CancelReason:            dodopayments.F(dodopayments.SubscriptionUpdateParamsCancelReasonCancelledByCustomer),
 			CreditEntitlementCart: dodopayments.F([]dodopayments.SubscriptionUpdateParamsCreditEntitlementCart{{
 				CreditEntitlementID:        dodopayments.F("credit_entitlement_id"),
 				CreditsAmount:              dodopayments.F("credits_amount"),

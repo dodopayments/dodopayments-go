@@ -25,6 +25,7 @@ import (
 // the [NewPayoutService] method instead.
 type PayoutService struct {
 	Options []option.RequestOption
+	Breakup *PayoutBreakupService
 }
 
 // NewPayoutService generates a new service that applies the given options to each
@@ -33,6 +34,7 @@ type PayoutService struct {
 func NewPayoutService(opts ...option.RequestOption) (r *PayoutService) {
 	r = &PayoutService{}
 	r.Options = opts
+	r.Breakup = NewPayoutBreakupService(opts...)
 	return
 }
 
