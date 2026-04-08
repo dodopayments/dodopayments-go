@@ -27,10 +27,13 @@ func TestDiscountNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Discounts.New(context.TODO(), dodopayments.DiscountNewParams{
-		Amount:               dodopayments.F(int64(0)),
-		Type:                 dodopayments.F(dodopayments.DiscountTypePercentage),
-		Code:                 dodopayments.F("code"),
-		ExpiresAt:            dodopayments.F(time.Now()),
+		Amount:    dodopayments.F(int64(0)),
+		Type:      dodopayments.F(dodopayments.DiscountTypePercentage),
+		Code:      dodopayments.F("code"),
+		ExpiresAt: dodopayments.F(time.Now()),
+		Metadata: dodopayments.F(map[string]string{
+			"foo": "string",
+		}),
 		Name:                 dodopayments.F("name"),
 		PreserveOnPlanChange: dodopayments.F(true),
 		RestrictedTo:         dodopayments.F([]string{"string"}),
@@ -84,9 +87,12 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"discount_id",
 		dodopayments.DiscountUpdateParams{
-			Amount:               dodopayments.F(int64(0)),
-			Code:                 dodopayments.F("code"),
-			ExpiresAt:            dodopayments.F(time.Now()),
+			Amount:    dodopayments.F(int64(0)),
+			Code:      dodopayments.F("code"),
+			ExpiresAt: dodopayments.F(time.Now()),
+			Metadata: dodopayments.F(map[string]string{
+				"foo": "string",
+			}),
 			Name:                 dodopayments.F("name"),
 			PreserveOnPlanChange: dodopayments.F(true),
 			RestrictedTo:         dodopayments.F([]string{"string"}),
