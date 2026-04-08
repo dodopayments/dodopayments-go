@@ -135,7 +135,8 @@ type Discount struct {
 	// Timestamp when the discount is created
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The unique discount ID
-	DiscountID string `json:"discount_id" api:"required"`
+	DiscountID string            `json:"discount_id" api:"required"`
+	Metadata   map[string]string `json:"metadata" api:"required"`
 	// Whether this discount should be preserved when a subscription changes plans.
 	// Default: false (discount is removed on plan change)
 	PreserveOnPlanChange bool `json:"preserve_on_plan_change" api:"required"`
@@ -165,6 +166,7 @@ type discountJSON struct {
 	Code                 apijson.Field
 	CreatedAt            apijson.Field
 	DiscountID           apijson.Field
+	Metadata             apijson.Field
 	PreserveOnPlanChange apijson.Field
 	RestrictedTo         apijson.Field
 	TimesUsed            apijson.Field
@@ -218,7 +220,9 @@ type DiscountNewParams struct {
 	Code param.Field[string] `json:"code"`
 	// When the discount expires, if ever.
 	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
-	Name      param.Field[string]    `json:"name"`
+	// Additional metadata for the discount
+	Metadata param.Field[map[string]string] `json:"metadata"`
+	Name     param.Field[string]            `json:"name"`
 	// Whether this discount should be preserved when a subscription changes plans.
 	// Default: false (discount is removed on plan change)
 	PreserveOnPlanChange param.Field[bool] `json:"preserve_on_plan_change"`
@@ -248,7 +252,9 @@ type DiscountUpdateParams struct {
 	// If present, update the discount code (uppercase).
 	Code      param.Field[string]    `json:"code"`
 	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
-	Name      param.Field[string]    `json:"name"`
+	// Additional metadata for the discount
+	Metadata param.Field[map[string]string] `json:"metadata"`
+	Name     param.Field[string]            `json:"name"`
 	// Whether this discount should be preserved when a subscription changes plans. If
 	// not provided, the existing value is kept.
 	PreserveOnPlanChange param.Field[bool] `json:"preserve_on_plan_change"`
