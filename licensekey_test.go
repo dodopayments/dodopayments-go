@@ -14,6 +14,34 @@ import (
 	"github.com/dodopayments/dodopayments-go/option"
 )
 
+func TestLicenseKeyNewWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.LicenseKeys.New(context.TODO(), dodopayments.LicenseKeyNewParams{
+		CustomerID:       dodopayments.F("customer_id"),
+		Key:              dodopayments.F("key"),
+		ProductID:        dodopayments.F("product_id"),
+		ActivationsLimit: dodopayments.F(int64(0)),
+		ExpiresAt:        dodopayments.F(time.Now()),
+	})
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
 func TestLicenseKeyGet(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -85,6 +113,7 @@ func TestLicenseKeyListWithOptionalParams(t *testing.T) {
 		PageNumber:   dodopayments.F(int64(0)),
 		PageSize:     dodopayments.F(int64(0)),
 		ProductID:    dodopayments.F("product_id"),
+		Source:       dodopayments.F(dodopayments.LicenseKeyListParamsSourceAuto),
 		Status:       dodopayments.F(dodopayments.LicenseKeyListParamsStatusActive),
 	})
 	if err != nil {

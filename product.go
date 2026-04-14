@@ -926,9 +926,13 @@ type Product struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Attached credit entitlements with settings
 	CreditEntitlements []CreditEntitlementMappingResponse `json:"credit_entitlements" api:"required"`
+	// Attached entitlements (integration-based access grants)
+	Entitlements []ProductEntitlement `json:"entitlements" api:"required"`
 	// Indicates if the product is recurring (e.g., subscriptions).
 	IsRecurring bool `json:"is_recurring" api:"required"`
 	// Indicates whether the product requires a license key.
+	//
+	// Deprecated: deprecated
 	LicenseKeyEnabled bool `json:"license_key_enabled" api:"required"`
 	// Additional custom data associated with the product
 	Metadata map[string]string `json:"metadata" api:"required"`
@@ -948,8 +952,12 @@ type Product struct {
 	// URL of the product image, optional.
 	Image string `json:"image" api:"nullable"`
 	// Message sent upon license key activation, if applicable.
+	//
+	// Deprecated: deprecated
 	LicenseKeyActivationMessage string `json:"license_key_activation_message" api:"nullable"`
 	// Limit on the number of activations for the license key, if enabled.
+	//
+	// Deprecated: deprecated
 	LicenseKeyActivationsLimit int64 `json:"license_key_activations_limit" api:"nullable"`
 	// Duration of the license key validity, if enabled.
 	LicenseKeyDuration LicenseKeyDuration `json:"license_key_duration" api:"nullable"`
@@ -966,6 +974,7 @@ type productJSON struct {
 	BusinessID                  apijson.Field
 	CreatedAt                   apijson.Field
 	CreditEntitlements          apijson.Field
+	Entitlements                apijson.Field
 	IsRecurring                 apijson.Field
 	LicenseKeyEnabled           apijson.Field
 	Metadata                    apijson.Field
@@ -994,11 +1003,402 @@ func (r productJSON) RawJSON() string {
 	return r.raw
 }
 
+// Summary of an entitlement attached to a product
+type ProductEntitlement struct {
+	ID string `json:"id" api:"required"`
+	// Platform-specific configuration for an entitlement. Each variant uses unique
+	// field names so `#[serde(untagged)]` can disambiguate correctly.
+	IntegrationConfig ProductEntitlementsIntegrationConfig `json:"integration_config" api:"required"`
+	IntegrationType   ProductEntitlementsIntegrationType   `json:"integration_type" api:"required"`
+	Name              string                               `json:"name" api:"required"`
+	Description       string                               `json:"description" api:"nullable"`
+	JSON              productEntitlementJSON               `json:"-"`
+}
+
+// productEntitlementJSON contains the JSON metadata for the struct
+// [ProductEntitlement]
+type productEntitlementJSON struct {
+	ID                apijson.Field
+	IntegrationConfig apijson.Field
+	IntegrationType   apijson.Field
+	Name              apijson.Field
+	Description       apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *ProductEntitlement) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productEntitlementJSON) RawJSON() string {
+	return r.raw
+}
+
+// Platform-specific configuration for an entitlement. Each variant uses unique
+// field names so `#[serde(untagged)]` can disambiguate correctly.
+type ProductEntitlementsIntegrationConfig struct {
+	ActivationMessage string `json:"activation_message" api:"nullable"`
+	ActivationsLimit  int64  `json:"activations_limit" api:"nullable"`
+	ChatID            string `json:"chat_id"`
+	// This field can have the runtime type of [[]string].
+	DigitalFileIDs   interface{} `json:"digital_file_ids"`
+	DurationCount    int64       `json:"duration_count" api:"nullable"`
+	DurationInterval string      `json:"duration_interval" api:"nullable"`
+	ExternalURL      string      `json:"external_url" api:"nullable"`
+	FigmaFileID      string      `json:"figma_file_id"`
+	FramerTemplateID string      `json:"framer_template_id"`
+	GuildID          string      `json:"guild_id"`
+	Instructions     string      `json:"instructions" api:"nullable"`
+	NotionTemplateID string      `json:"notion_template_id"`
+	// One of: pull, push, admin, maintain, triage
+	Permission string                                   `json:"permission"`
+	RoleID     string                                   `json:"role_id" api:"nullable"`
+	TargetID   string                                   `json:"target_id"`
+	JSON       productEntitlementsIntegrationConfigJSON `json:"-"`
+	union      ProductEntitlementsIntegrationConfigUnion
+}
+
+// productEntitlementsIntegrationConfigJSON contains the JSON metadata for the
+// struct [ProductEntitlementsIntegrationConfig]
+type productEntitlementsIntegrationConfigJSON struct {
+	ActivationMessage apijson.Field
+	ActivationsLimit  apijson.Field
+	ChatID            apijson.Field
+	DigitalFileIDs    apijson.Field
+	DurationCount     apijson.Field
+	DurationInterval  apijson.Field
+	ExternalURL       apijson.Field
+	FigmaFileID       apijson.Field
+	FramerTemplateID  apijson.Field
+	GuildID           apijson.Field
+	Instructions      apijson.Field
+	NotionTemplateID  apijson.Field
+	Permission        apijson.Field
+	RoleID            apijson.Field
+	TargetID          apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r productEntitlementsIntegrationConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r *ProductEntitlementsIntegrationConfig) UnmarshalJSON(data []byte) (err error) {
+	*r = ProductEntitlementsIntegrationConfig{}
+	err = apijson.UnmarshalRoot(data, &r.union)
+	if err != nil {
+		return err
+	}
+	return apijson.Port(r.union, &r)
+}
+
+// AsUnion returns a [ProductEntitlementsIntegrationConfigUnion] interface which
+// you can cast to the specific types for more type safety.
+//
+// Possible runtime types of the union are
+// [ProductEntitlementsIntegrationConfigGitHubConfig],
+// [ProductEntitlementsIntegrationConfigDiscordConfig],
+// [ProductEntitlementsIntegrationConfigTelegramConfig],
+// [ProductEntitlementsIntegrationConfigFigmaConfig],
+// [ProductEntitlementsIntegrationConfigFramerConfig],
+// [ProductEntitlementsIntegrationConfigNotionConfig],
+// [ProductEntitlementsIntegrationConfigDigitalFilesConfig],
+// [ProductEntitlementsIntegrationConfigLicenseKeyConfig].
+func (r ProductEntitlementsIntegrationConfig) AsUnion() ProductEntitlementsIntegrationConfigUnion {
+	return r.union
+}
+
+// Platform-specific configuration for an entitlement. Each variant uses unique
+// field names so `#[serde(untagged)]` can disambiguate correctly.
+//
+// Union satisfied by [ProductEntitlementsIntegrationConfigGitHubConfig],
+// [ProductEntitlementsIntegrationConfigDiscordConfig],
+// [ProductEntitlementsIntegrationConfigTelegramConfig],
+// [ProductEntitlementsIntegrationConfigFigmaConfig],
+// [ProductEntitlementsIntegrationConfigFramerConfig],
+// [ProductEntitlementsIntegrationConfigNotionConfig],
+// [ProductEntitlementsIntegrationConfigDigitalFilesConfig] or
+// [ProductEntitlementsIntegrationConfigLicenseKeyConfig].
+type ProductEntitlementsIntegrationConfigUnion interface {
+	implementsProductEntitlementsIntegrationConfig()
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*ProductEntitlementsIntegrationConfigUnion)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigGitHubConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigDiscordConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigTelegramConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigFigmaConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigFramerConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigNotionConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigDigitalFilesConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigLicenseKeyConfig{}),
+		},
+	)
+}
+
+type ProductEntitlementsIntegrationConfigGitHubConfig struct {
+	// One of: pull, push, admin, maintain, triage
+	Permission string                                               `json:"permission" api:"required"`
+	TargetID   string                                               `json:"target_id" api:"required"`
+	JSON       productEntitlementsIntegrationConfigGitHubConfigJSON `json:"-"`
+}
+
+// productEntitlementsIntegrationConfigGitHubConfigJSON contains the JSON metadata
+// for the struct [ProductEntitlementsIntegrationConfigGitHubConfig]
+type productEntitlementsIntegrationConfigGitHubConfigJSON struct {
+	Permission  apijson.Field
+	TargetID    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductEntitlementsIntegrationConfigGitHubConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productEntitlementsIntegrationConfigGitHubConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductEntitlementsIntegrationConfigGitHubConfig) implementsProductEntitlementsIntegrationConfig() {
+}
+
+type ProductEntitlementsIntegrationConfigDiscordConfig struct {
+	GuildID string                                                `json:"guild_id" api:"required"`
+	RoleID  string                                                `json:"role_id" api:"nullable"`
+	JSON    productEntitlementsIntegrationConfigDiscordConfigJSON `json:"-"`
+}
+
+// productEntitlementsIntegrationConfigDiscordConfigJSON contains the JSON metadata
+// for the struct [ProductEntitlementsIntegrationConfigDiscordConfig]
+type productEntitlementsIntegrationConfigDiscordConfigJSON struct {
+	GuildID     apijson.Field
+	RoleID      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductEntitlementsIntegrationConfigDiscordConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productEntitlementsIntegrationConfigDiscordConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductEntitlementsIntegrationConfigDiscordConfig) implementsProductEntitlementsIntegrationConfig() {
+}
+
+type ProductEntitlementsIntegrationConfigTelegramConfig struct {
+	ChatID string                                                 `json:"chat_id" api:"required"`
+	JSON   productEntitlementsIntegrationConfigTelegramConfigJSON `json:"-"`
+}
+
+// productEntitlementsIntegrationConfigTelegramConfigJSON contains the JSON
+// metadata for the struct [ProductEntitlementsIntegrationConfigTelegramConfig]
+type productEntitlementsIntegrationConfigTelegramConfigJSON struct {
+	ChatID      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductEntitlementsIntegrationConfigTelegramConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productEntitlementsIntegrationConfigTelegramConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductEntitlementsIntegrationConfigTelegramConfig) implementsProductEntitlementsIntegrationConfig() {
+}
+
+type ProductEntitlementsIntegrationConfigFigmaConfig struct {
+	FigmaFileID string                                              `json:"figma_file_id" api:"required"`
+	JSON        productEntitlementsIntegrationConfigFigmaConfigJSON `json:"-"`
+}
+
+// productEntitlementsIntegrationConfigFigmaConfigJSON contains the JSON metadata
+// for the struct [ProductEntitlementsIntegrationConfigFigmaConfig]
+type productEntitlementsIntegrationConfigFigmaConfigJSON struct {
+	FigmaFileID apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductEntitlementsIntegrationConfigFigmaConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productEntitlementsIntegrationConfigFigmaConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductEntitlementsIntegrationConfigFigmaConfig) implementsProductEntitlementsIntegrationConfig() {
+}
+
+type ProductEntitlementsIntegrationConfigFramerConfig struct {
+	FramerTemplateID string                                               `json:"framer_template_id" api:"required"`
+	JSON             productEntitlementsIntegrationConfigFramerConfigJSON `json:"-"`
+}
+
+// productEntitlementsIntegrationConfigFramerConfigJSON contains the JSON metadata
+// for the struct [ProductEntitlementsIntegrationConfigFramerConfig]
+type productEntitlementsIntegrationConfigFramerConfigJSON struct {
+	FramerTemplateID apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *ProductEntitlementsIntegrationConfigFramerConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productEntitlementsIntegrationConfigFramerConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductEntitlementsIntegrationConfigFramerConfig) implementsProductEntitlementsIntegrationConfig() {
+}
+
+type ProductEntitlementsIntegrationConfigNotionConfig struct {
+	NotionTemplateID string                                               `json:"notion_template_id" api:"required"`
+	JSON             productEntitlementsIntegrationConfigNotionConfigJSON `json:"-"`
+}
+
+// productEntitlementsIntegrationConfigNotionConfigJSON contains the JSON metadata
+// for the struct [ProductEntitlementsIntegrationConfigNotionConfig]
+type productEntitlementsIntegrationConfigNotionConfigJSON struct {
+	NotionTemplateID apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *ProductEntitlementsIntegrationConfigNotionConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productEntitlementsIntegrationConfigNotionConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductEntitlementsIntegrationConfigNotionConfig) implementsProductEntitlementsIntegrationConfig() {
+}
+
+type ProductEntitlementsIntegrationConfigDigitalFilesConfig struct {
+	DigitalFileIDs []string                                                   `json:"digital_file_ids" api:"required"`
+	ExternalURL    string                                                     `json:"external_url" api:"nullable"`
+	Instructions   string                                                     `json:"instructions" api:"nullable"`
+	JSON           productEntitlementsIntegrationConfigDigitalFilesConfigJSON `json:"-"`
+}
+
+// productEntitlementsIntegrationConfigDigitalFilesConfigJSON contains the JSON
+// metadata for the struct [ProductEntitlementsIntegrationConfigDigitalFilesConfig]
+type productEntitlementsIntegrationConfigDigitalFilesConfigJSON struct {
+	DigitalFileIDs apijson.Field
+	ExternalURL    apijson.Field
+	Instructions   apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
+}
+
+func (r *ProductEntitlementsIntegrationConfigDigitalFilesConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productEntitlementsIntegrationConfigDigitalFilesConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductEntitlementsIntegrationConfigDigitalFilesConfig) implementsProductEntitlementsIntegrationConfig() {
+}
+
+type ProductEntitlementsIntegrationConfigLicenseKeyConfig struct {
+	ActivationMessage string                                                   `json:"activation_message" api:"nullable"`
+	ActivationsLimit  int64                                                    `json:"activations_limit" api:"nullable"`
+	DurationCount     int64                                                    `json:"duration_count" api:"nullable"`
+	DurationInterval  string                                                   `json:"duration_interval" api:"nullable"`
+	JSON              productEntitlementsIntegrationConfigLicenseKeyConfigJSON `json:"-"`
+}
+
+// productEntitlementsIntegrationConfigLicenseKeyConfigJSON contains the JSON
+// metadata for the struct [ProductEntitlementsIntegrationConfigLicenseKeyConfig]
+type productEntitlementsIntegrationConfigLicenseKeyConfigJSON struct {
+	ActivationMessage apijson.Field
+	ActivationsLimit  apijson.Field
+	DurationCount     apijson.Field
+	DurationInterval  apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *ProductEntitlementsIntegrationConfigLicenseKeyConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productEntitlementsIntegrationConfigLicenseKeyConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductEntitlementsIntegrationConfigLicenseKeyConfig) implementsProductEntitlementsIntegrationConfig() {
+}
+
+type ProductEntitlementsIntegrationType string
+
+const (
+	ProductEntitlementsIntegrationTypeDiscord      ProductEntitlementsIntegrationType = "discord"
+	ProductEntitlementsIntegrationTypeTelegram     ProductEntitlementsIntegrationType = "telegram"
+	ProductEntitlementsIntegrationTypeGitHub       ProductEntitlementsIntegrationType = "github"
+	ProductEntitlementsIntegrationTypeFigma        ProductEntitlementsIntegrationType = "figma"
+	ProductEntitlementsIntegrationTypeFramer       ProductEntitlementsIntegrationType = "framer"
+	ProductEntitlementsIntegrationTypeNotion       ProductEntitlementsIntegrationType = "notion"
+	ProductEntitlementsIntegrationTypeDigitalFiles ProductEntitlementsIntegrationType = "digital_files"
+	ProductEntitlementsIntegrationTypeLicenseKey   ProductEntitlementsIntegrationType = "license_key"
+)
+
+func (r ProductEntitlementsIntegrationType) IsKnown() bool {
+	switch r {
+	case ProductEntitlementsIntegrationTypeDiscord, ProductEntitlementsIntegrationTypeTelegram, ProductEntitlementsIntegrationTypeGitHub, ProductEntitlementsIntegrationTypeFigma, ProductEntitlementsIntegrationTypeFramer, ProductEntitlementsIntegrationTypeNotion, ProductEntitlementsIntegrationTypeDigitalFiles, ProductEntitlementsIntegrationTypeLicenseKey:
+		return true
+	}
+	return false
+}
+
 type ProductListResponse struct {
 	// Unique identifier for the business to which the product belongs.
 	BusinessID string `json:"business_id" api:"required"`
 	// Timestamp when the product was created.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Entitlements linked to this product
+	Entitlements []ProductListResponseEntitlement `json:"entitlements" api:"required"`
 	// Indicates if the product is recurring (e.g., subscriptions).
 	IsRecurring bool `json:"is_recurring" api:"required"`
 	// Additional custom data associated with the product
@@ -1040,6 +1440,7 @@ type ProductListResponse struct {
 type productListResponseJSON struct {
 	BusinessID   apijson.Field
 	CreatedAt    apijson.Field
+	Entitlements apijson.Field
 	IsRecurring  apijson.Field
 	Metadata     apijson.Field
 	ProductID    apijson.Field
@@ -1062,6 +1463,404 @@ func (r *ProductListResponse) UnmarshalJSON(data []byte) (err error) {
 
 func (r productListResponseJSON) RawJSON() string {
 	return r.raw
+}
+
+// Summary of an entitlement attached to a product
+type ProductListResponseEntitlement struct {
+	ID string `json:"id" api:"required"`
+	// Platform-specific configuration for an entitlement. Each variant uses unique
+	// field names so `#[serde(untagged)]` can disambiguate correctly.
+	IntegrationConfig ProductListResponseEntitlementsIntegrationConfig `json:"integration_config" api:"required"`
+	IntegrationType   ProductListResponseEntitlementsIntegrationType   `json:"integration_type" api:"required"`
+	Name              string                                           `json:"name" api:"required"`
+	Description       string                                           `json:"description" api:"nullable"`
+	JSON              productListResponseEntitlementJSON               `json:"-"`
+}
+
+// productListResponseEntitlementJSON contains the JSON metadata for the struct
+// [ProductListResponseEntitlement]
+type productListResponseEntitlementJSON struct {
+	ID                apijson.Field
+	IntegrationConfig apijson.Field
+	IntegrationType   apijson.Field
+	Name              apijson.Field
+	Description       apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *ProductListResponseEntitlement) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productListResponseEntitlementJSON) RawJSON() string {
+	return r.raw
+}
+
+// Platform-specific configuration for an entitlement. Each variant uses unique
+// field names so `#[serde(untagged)]` can disambiguate correctly.
+type ProductListResponseEntitlementsIntegrationConfig struct {
+	ActivationMessage string `json:"activation_message" api:"nullable"`
+	ActivationsLimit  int64  `json:"activations_limit" api:"nullable"`
+	ChatID            string `json:"chat_id"`
+	// This field can have the runtime type of [[]string].
+	DigitalFileIDs   interface{} `json:"digital_file_ids"`
+	DurationCount    int64       `json:"duration_count" api:"nullable"`
+	DurationInterval string      `json:"duration_interval" api:"nullable"`
+	ExternalURL      string      `json:"external_url" api:"nullable"`
+	FigmaFileID      string      `json:"figma_file_id"`
+	FramerTemplateID string      `json:"framer_template_id"`
+	GuildID          string      `json:"guild_id"`
+	Instructions     string      `json:"instructions" api:"nullable"`
+	NotionTemplateID string      `json:"notion_template_id"`
+	// One of: pull, push, admin, maintain, triage
+	Permission string                                               `json:"permission"`
+	RoleID     string                                               `json:"role_id" api:"nullable"`
+	TargetID   string                                               `json:"target_id"`
+	JSON       productListResponseEntitlementsIntegrationConfigJSON `json:"-"`
+	union      ProductListResponseEntitlementsIntegrationConfigUnion
+}
+
+// productListResponseEntitlementsIntegrationConfigJSON contains the JSON metadata
+// for the struct [ProductListResponseEntitlementsIntegrationConfig]
+type productListResponseEntitlementsIntegrationConfigJSON struct {
+	ActivationMessage apijson.Field
+	ActivationsLimit  apijson.Field
+	ChatID            apijson.Field
+	DigitalFileIDs    apijson.Field
+	DurationCount     apijson.Field
+	DurationInterval  apijson.Field
+	ExternalURL       apijson.Field
+	FigmaFileID       apijson.Field
+	FramerTemplateID  apijson.Field
+	GuildID           apijson.Field
+	Instructions      apijson.Field
+	NotionTemplateID  apijson.Field
+	Permission        apijson.Field
+	RoleID            apijson.Field
+	TargetID          apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r productListResponseEntitlementsIntegrationConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r *ProductListResponseEntitlementsIntegrationConfig) UnmarshalJSON(data []byte) (err error) {
+	*r = ProductListResponseEntitlementsIntegrationConfig{}
+	err = apijson.UnmarshalRoot(data, &r.union)
+	if err != nil {
+		return err
+	}
+	return apijson.Port(r.union, &r)
+}
+
+// AsUnion returns a [ProductListResponseEntitlementsIntegrationConfigUnion]
+// interface which you can cast to the specific types for more type safety.
+//
+// Possible runtime types of the union are
+// [ProductListResponseEntitlementsIntegrationConfigGitHubConfig],
+// [ProductListResponseEntitlementsIntegrationConfigDiscordConfig],
+// [ProductListResponseEntitlementsIntegrationConfigTelegramConfig],
+// [ProductListResponseEntitlementsIntegrationConfigFigmaConfig],
+// [ProductListResponseEntitlementsIntegrationConfigFramerConfig],
+// [ProductListResponseEntitlementsIntegrationConfigNotionConfig],
+// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig],
+// [ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig].
+func (r ProductListResponseEntitlementsIntegrationConfig) AsUnion() ProductListResponseEntitlementsIntegrationConfigUnion {
+	return r.union
+}
+
+// Platform-specific configuration for an entitlement. Each variant uses unique
+// field names so `#[serde(untagged)]` can disambiguate correctly.
+//
+// Union satisfied by
+// [ProductListResponseEntitlementsIntegrationConfigGitHubConfig],
+// [ProductListResponseEntitlementsIntegrationConfigDiscordConfig],
+// [ProductListResponseEntitlementsIntegrationConfigTelegramConfig],
+// [ProductListResponseEntitlementsIntegrationConfigFigmaConfig],
+// [ProductListResponseEntitlementsIntegrationConfigFramerConfig],
+// [ProductListResponseEntitlementsIntegrationConfigNotionConfig],
+// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig] or
+// [ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig].
+type ProductListResponseEntitlementsIntegrationConfigUnion interface {
+	implementsProductListResponseEntitlementsIntegrationConfig()
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*ProductListResponseEntitlementsIntegrationConfigUnion)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigGitHubConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigDiscordConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigTelegramConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigFigmaConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigFramerConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigNotionConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig{}),
+		},
+	)
+}
+
+type ProductListResponseEntitlementsIntegrationConfigGitHubConfig struct {
+	// One of: pull, push, admin, maintain, triage
+	Permission string                                                           `json:"permission" api:"required"`
+	TargetID   string                                                           `json:"target_id" api:"required"`
+	JSON       productListResponseEntitlementsIntegrationConfigGitHubConfigJSON `json:"-"`
+}
+
+// productListResponseEntitlementsIntegrationConfigGitHubConfigJSON contains the
+// JSON metadata for the struct
+// [ProductListResponseEntitlementsIntegrationConfigGitHubConfig]
+type productListResponseEntitlementsIntegrationConfigGitHubConfigJSON struct {
+	Permission  apijson.Field
+	TargetID    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductListResponseEntitlementsIntegrationConfigGitHubConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productListResponseEntitlementsIntegrationConfigGitHubConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductListResponseEntitlementsIntegrationConfigGitHubConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
+}
+
+type ProductListResponseEntitlementsIntegrationConfigDiscordConfig struct {
+	GuildID string                                                            `json:"guild_id" api:"required"`
+	RoleID  string                                                            `json:"role_id" api:"nullable"`
+	JSON    productListResponseEntitlementsIntegrationConfigDiscordConfigJSON `json:"-"`
+}
+
+// productListResponseEntitlementsIntegrationConfigDiscordConfigJSON contains the
+// JSON metadata for the struct
+// [ProductListResponseEntitlementsIntegrationConfigDiscordConfig]
+type productListResponseEntitlementsIntegrationConfigDiscordConfigJSON struct {
+	GuildID     apijson.Field
+	RoleID      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductListResponseEntitlementsIntegrationConfigDiscordConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productListResponseEntitlementsIntegrationConfigDiscordConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductListResponseEntitlementsIntegrationConfigDiscordConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
+}
+
+type ProductListResponseEntitlementsIntegrationConfigTelegramConfig struct {
+	ChatID string                                                             `json:"chat_id" api:"required"`
+	JSON   productListResponseEntitlementsIntegrationConfigTelegramConfigJSON `json:"-"`
+}
+
+// productListResponseEntitlementsIntegrationConfigTelegramConfigJSON contains the
+// JSON metadata for the struct
+// [ProductListResponseEntitlementsIntegrationConfigTelegramConfig]
+type productListResponseEntitlementsIntegrationConfigTelegramConfigJSON struct {
+	ChatID      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductListResponseEntitlementsIntegrationConfigTelegramConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productListResponseEntitlementsIntegrationConfigTelegramConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductListResponseEntitlementsIntegrationConfigTelegramConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
+}
+
+type ProductListResponseEntitlementsIntegrationConfigFigmaConfig struct {
+	FigmaFileID string                                                          `json:"figma_file_id" api:"required"`
+	JSON        productListResponseEntitlementsIntegrationConfigFigmaConfigJSON `json:"-"`
+}
+
+// productListResponseEntitlementsIntegrationConfigFigmaConfigJSON contains the
+// JSON metadata for the struct
+// [ProductListResponseEntitlementsIntegrationConfigFigmaConfig]
+type productListResponseEntitlementsIntegrationConfigFigmaConfigJSON struct {
+	FigmaFileID apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductListResponseEntitlementsIntegrationConfigFigmaConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productListResponseEntitlementsIntegrationConfigFigmaConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductListResponseEntitlementsIntegrationConfigFigmaConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
+}
+
+type ProductListResponseEntitlementsIntegrationConfigFramerConfig struct {
+	FramerTemplateID string                                                           `json:"framer_template_id" api:"required"`
+	JSON             productListResponseEntitlementsIntegrationConfigFramerConfigJSON `json:"-"`
+}
+
+// productListResponseEntitlementsIntegrationConfigFramerConfigJSON contains the
+// JSON metadata for the struct
+// [ProductListResponseEntitlementsIntegrationConfigFramerConfig]
+type productListResponseEntitlementsIntegrationConfigFramerConfigJSON struct {
+	FramerTemplateID apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *ProductListResponseEntitlementsIntegrationConfigFramerConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productListResponseEntitlementsIntegrationConfigFramerConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductListResponseEntitlementsIntegrationConfigFramerConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
+}
+
+type ProductListResponseEntitlementsIntegrationConfigNotionConfig struct {
+	NotionTemplateID string                                                           `json:"notion_template_id" api:"required"`
+	JSON             productListResponseEntitlementsIntegrationConfigNotionConfigJSON `json:"-"`
+}
+
+// productListResponseEntitlementsIntegrationConfigNotionConfigJSON contains the
+// JSON metadata for the struct
+// [ProductListResponseEntitlementsIntegrationConfigNotionConfig]
+type productListResponseEntitlementsIntegrationConfigNotionConfigJSON struct {
+	NotionTemplateID apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *ProductListResponseEntitlementsIntegrationConfigNotionConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productListResponseEntitlementsIntegrationConfigNotionConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductListResponseEntitlementsIntegrationConfigNotionConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
+}
+
+type ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig struct {
+	DigitalFileIDs []string                                                               `json:"digital_file_ids" api:"required"`
+	ExternalURL    string                                                                 `json:"external_url" api:"nullable"`
+	Instructions   string                                                                 `json:"instructions" api:"nullable"`
+	JSON           productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON `json:"-"`
+}
+
+// productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON contains
+// the JSON metadata for the struct
+// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig]
+type productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON struct {
+	DigitalFileIDs apijson.Field
+	ExternalURL    apijson.Field
+	Instructions   apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
+}
+
+func (r *ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
+}
+
+type ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig struct {
+	ActivationMessage string                                                               `json:"activation_message" api:"nullable"`
+	ActivationsLimit  int64                                                                `json:"activations_limit" api:"nullable"`
+	DurationCount     int64                                                                `json:"duration_count" api:"nullable"`
+	DurationInterval  string                                                               `json:"duration_interval" api:"nullable"`
+	JSON              productListResponseEntitlementsIntegrationConfigLicenseKeyConfigJSON `json:"-"`
+}
+
+// productListResponseEntitlementsIntegrationConfigLicenseKeyConfigJSON contains
+// the JSON metadata for the struct
+// [ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig]
+type productListResponseEntitlementsIntegrationConfigLicenseKeyConfigJSON struct {
+	ActivationMessage apijson.Field
+	ActivationsLimit  apijson.Field
+	DurationCount     apijson.Field
+	DurationInterval  apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productListResponseEntitlementsIntegrationConfigLicenseKeyConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
+}
+
+type ProductListResponseEntitlementsIntegrationType string
+
+const (
+	ProductListResponseEntitlementsIntegrationTypeDiscord      ProductListResponseEntitlementsIntegrationType = "discord"
+	ProductListResponseEntitlementsIntegrationTypeTelegram     ProductListResponseEntitlementsIntegrationType = "telegram"
+	ProductListResponseEntitlementsIntegrationTypeGitHub       ProductListResponseEntitlementsIntegrationType = "github"
+	ProductListResponseEntitlementsIntegrationTypeFigma        ProductListResponseEntitlementsIntegrationType = "figma"
+	ProductListResponseEntitlementsIntegrationTypeFramer       ProductListResponseEntitlementsIntegrationType = "framer"
+	ProductListResponseEntitlementsIntegrationTypeNotion       ProductListResponseEntitlementsIntegrationType = "notion"
+	ProductListResponseEntitlementsIntegrationTypeDigitalFiles ProductListResponseEntitlementsIntegrationType = "digital_files"
+	ProductListResponseEntitlementsIntegrationTypeLicenseKey   ProductListResponseEntitlementsIntegrationType = "license_key"
+)
+
+func (r ProductListResponseEntitlementsIntegrationType) IsKnown() bool {
+	switch r {
+	case ProductListResponseEntitlementsIntegrationTypeDiscord, ProductListResponseEntitlementsIntegrationTypeTelegram, ProductListResponseEntitlementsIntegrationTypeGitHub, ProductListResponseEntitlementsIntegrationTypeFigma, ProductListResponseEntitlementsIntegrationTypeFramer, ProductListResponseEntitlementsIntegrationTypeNotion, ProductListResponseEntitlementsIntegrationTypeDigitalFiles, ProductListResponseEntitlementsIntegrationTypeLicenseKey:
+		return true
+	}
+	return false
 }
 
 type ProductUpdateFilesResponse struct {
@@ -1104,6 +1903,8 @@ type ProductNewParams struct {
 	Description param.Field[string] `json:"description"`
 	// Choose how you would like you digital product delivered
 	DigitalProductDelivery param.Field[ProductNewParamsDigitalProductDelivery] `json:"digital_product_delivery"`
+	// Optional entitlement IDs to attach to this product (max 20)
+	EntitlementIDs param.Field[[]string] `json:"entitlement_ids"`
 	// Optional message displayed during license key activation
 	LicenseKeyActivationMessage param.Field[string] `json:"license_key_activation_message"`
 	// The number of times the license key can be activated. Must be 0 or greater
@@ -1145,6 +1946,9 @@ type ProductUpdateParams struct {
 	Description param.Field[string] `json:"description"`
 	// Choose how you would like you digital product delivered
 	DigitalProductDelivery param.Field[ProductUpdateParamsDigitalProductDelivery] `json:"digital_product_delivery"`
+	// Entitlement IDs to attach (replaces all existing when present) Send empty array
+	// to remove all, omit field to leave unchanged
+	EntitlementIDs param.Field[[]string] `json:"entitlement_ids"`
 	// Product image id after its uploaded to S3
 	ImageID param.Field[string] `json:"image_id" format:"uuid"`
 	// Message sent to the customer upon license key activation.
