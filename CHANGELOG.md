@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.95.1 (2026-04-18)
+
+Full Changelog: [v1.95.0...v1.95.1](https://github.com/dodopayments/dodopayments-go/compare/v1.95.0...v1.95.1)
+
+### Chores
+
+* **tests:** bump steady to v0.22.1 ([561f3d1](https://github.com/dodopayments/dodopayments-go/commit/561f3d1f1ef26c8698f911c6c2d09d4c784eaf2f))
+
 ## 1.95.0 (2026-04-14)
 
 Full Changelog: [v1.94.0...v1.95.0](https://github.com/dodopayments/dodopayments-go/compare/v1.94.0...v1.95.0)
