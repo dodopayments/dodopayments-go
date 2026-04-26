@@ -45,7 +45,7 @@ type Client struct {
 // DODO_PAYMENTS_WEBHOOK_KEY, DODO_PAYMENTS_BASE_URL). This should be used to
 // initialize new clients.
 func DefaultClientOptions() []option.RequestOption {
-	defaults := []option.RequestOption{option.WithEnvironmentLiveMode()}
+	defaults := []option.RequestOption{option.WithHTTPClient(defaultHTTPClient()), option.WithEnvironmentLiveMode()}
 	if o, ok := os.LookupEnv("DODO_PAYMENTS_BASE_URL"); ok {
 		defaults = append(defaults, option.WithBaseURL(o))
 	}
