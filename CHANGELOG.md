@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.96.0 (2026-04-28)
+
+Full Changelog: [v1.95.1...v1.96.0](https://github.com/dodopayments/dodopayments-go/compare/v1.95.1...v1.96.0)
+
+### Features
+
+* **go:** add default http client with timeout ([e9a1b49](https://github.com/dodopayments/dodopayments-go/commit/e9a1b498e559654d238f05fcbe38618c1c6cc824))
+* support setting headers via env ([a97703f](https://github.com/dodopayments/dodopayments-go/commit/a97703f3375ff3c3e9ed59091c27fceea852069b))
+
+
+### Chores
+
+* **internal:** codegen related update ([7c64d56](https://github.com/dodopayments/dodopayments-go/commit/7c64d56ad976619620eb56ee2288ce15225049b5))
+* **internal:** codegen related update ([c7c508f](https://github.com/dodopayments/dodopayments-go/commit/c7c508fe4968dcb5accb4228cab799cfcb3dbdcd))
+* **internal:** more robust bootstrap script ([8a58c80](https://github.com/dodopayments/dodopayments-go/commit/8a58c806671e30ff669f4b70fd39470852af0573))
+
 ## 1.95.1 (2026-04-18)
 
 Full Changelog: [v1.95.0...v1.95.1](https://github.com/dodopayments/dodopayments-go/compare/v1.95.0...v1.95.1)
