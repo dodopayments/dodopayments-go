@@ -64,7 +64,9 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 			ExternalURL:  dodopayments.F("external_url"),
 			Instructions: dodopayments.F("instructions"),
 		}),
-		EntitlementIDs:              dodopayments.F([]string{"string"}),
+		Entitlements: dodopayments.F([]dodopayments.ProductNewParamsEntitlement{{
+			EntitlementID: dodopayments.F("entitlement_id"),
+		}}),
 		LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
 		LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),
 		LicenseKeyDuration: dodopayments.F(dodopayments.LicenseKeyDurationParam{
@@ -150,7 +152,9 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 				Files:        dodopayments.F([]string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"}),
 				Instructions: dodopayments.F("instructions"),
 			}),
-			EntitlementIDs:              dodopayments.F([]string{"string"}),
+			Entitlements: dodopayments.F([]dodopayments.ProductUpdateParamsEntitlement{{
+				EntitlementID: dodopayments.F("entitlement_id"),
+			}}),
 			ImageID:                     dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
 			LicenseKeyActivationMessage: dodopayments.F("license_key_activation_message"),
 			LicenseKeyActivationsLimit:  dodopayments.F(int64(0)),

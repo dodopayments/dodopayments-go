@@ -392,6 +392,7 @@ const (
 	CreditLedgerEntryTransactionTypeCreditRolledOver  CreditLedgerEntryTransactionType = "credit_rolled_over"
 	CreditLedgerEntryTransactionTypeRolloverForfeited CreditLedgerEntryTransactionType = "rollover_forfeited"
 	CreditLedgerEntryTransactionTypeOverageCharged    CreditLedgerEntryTransactionType = "overage_charged"
+	CreditLedgerEntryTransactionTypeOverageReset      CreditLedgerEntryTransactionType = "overage_reset"
 	CreditLedgerEntryTransactionTypeAutoTopUp         CreditLedgerEntryTransactionType = "auto_top_up"
 	CreditLedgerEntryTransactionTypeManualAdjustment  CreditLedgerEntryTransactionType = "manual_adjustment"
 	CreditLedgerEntryTransactionTypeRefund            CreditLedgerEntryTransactionType = "refund"
@@ -399,7 +400,7 @@ const (
 
 func (r CreditLedgerEntryTransactionType) IsKnown() bool {
 	switch r {
-	case CreditLedgerEntryTransactionTypeCreditAdded, CreditLedgerEntryTransactionTypeCreditDeducted, CreditLedgerEntryTransactionTypeCreditExpired, CreditLedgerEntryTransactionTypeCreditRolledOver, CreditLedgerEntryTransactionTypeRolloverForfeited, CreditLedgerEntryTransactionTypeOverageCharged, CreditLedgerEntryTransactionTypeAutoTopUp, CreditLedgerEntryTransactionTypeManualAdjustment, CreditLedgerEntryTransactionTypeRefund:
+	case CreditLedgerEntryTransactionTypeCreditAdded, CreditLedgerEntryTransactionTypeCreditDeducted, CreditLedgerEntryTransactionTypeCreditExpired, CreditLedgerEntryTransactionTypeCreditRolledOver, CreditLedgerEntryTransactionTypeRolloverForfeited, CreditLedgerEntryTransactionTypeOverageCharged, CreditLedgerEntryTransactionTypeOverageReset, CreditLedgerEntryTransactionTypeAutoTopUp, CreditLedgerEntryTransactionTypeManualAdjustment, CreditLedgerEntryTransactionTypeRefund:
 		return true
 	}
 	return false

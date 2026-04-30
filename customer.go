@@ -120,6 +120,18 @@ func (r *CustomerService) ListCreditEntitlements(ctx context.Context, customerID
 	return res, err
 }
 
+// List all entitlement grants delivered (or in flight) to a customer.
+func (r *CustomerService) ListEntitlements(ctx context.Context, customerID string, opts ...option.RequestOption) (res *CustomerListEntitlementsResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if customerID == "" {
+		err = errors.New("missing required customer_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("customers/%s/entitlements", customerID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return res, err
+}
+
 func (r *CustomerService) GetPaymentMethods(ctx context.Context, customerID string, opts ...option.RequestOption) (res *CustomerGetPaymentMethodsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if customerID == "" {
@@ -242,6 +254,106 @@ func (r *CustomerListCreditEntitlementsResponseItem) UnmarshalJSON(data []byte) 
 
 func (r customerListCreditEntitlementsResponseItemJSON) RawJSON() string {
 	return r.raw
+}
+
+type CustomerListEntitlementsResponse struct {
+	Items []CustomerListEntitlementsResponseItem `json:"items" api:"required"`
+	JSON  customerListEntitlementsResponseJSON   `json:"-"`
+}
+
+// customerListEntitlementsResponseJSON contains the JSON metadata for the struct
+// [CustomerListEntitlementsResponse]
+type customerListEntitlementsResponseJSON struct {
+	Items       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CustomerListEntitlementsResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r customerListEntitlementsResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type CustomerListEntitlementsResponseItem struct {
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// The entitlement this grant belongs to.
+	EntitlementID   string `json:"entitlement_id" api:"required"`
+	EntitlementName string `json:"entitlement_name" api:"required"`
+	// Grant id (the per-customer row in `entitlement_grants`).
+	GrantID                string                                               `json:"grant_id" api:"required"`
+	IntegrationType        CustomerListEntitlementsResponseItemsIntegrationType `json:"integration_type" api:"required"`
+	Status                 CustomerListEntitlementsResponseItemsStatus          `json:"status" api:"required"`
+	UpdatedAt              time.Time                                            `json:"updated_at" api:"required" format:"date-time"`
+	DeliveredAt            time.Time                                            `json:"delivered_at" api:"nullable" format:"date-time"`
+	EntitlementDescription string                                               `json:"entitlement_description" api:"nullable"`
+	RevokedAt              time.Time                                            `json:"revoked_at" api:"nullable" format:"date-time"`
+	JSON                   customerListEntitlementsResponseItemJSON             `json:"-"`
+}
+
+// customerListEntitlementsResponseItemJSON contains the JSON metadata for the
+// struct [CustomerListEntitlementsResponseItem]
+type customerListEntitlementsResponseItemJSON struct {
+	CreatedAt              apijson.Field
+	EntitlementID          apijson.Field
+	EntitlementName        apijson.Field
+	GrantID                apijson.Field
+	IntegrationType        apijson.Field
+	Status                 apijson.Field
+	UpdatedAt              apijson.Field
+	DeliveredAt            apijson.Field
+	EntitlementDescription apijson.Field
+	RevokedAt              apijson.Field
+	raw                    string
+	ExtraFields            map[string]apijson.Field
+}
+
+func (r *CustomerListEntitlementsResponseItem) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r customerListEntitlementsResponseItemJSON) RawJSON() string {
+	return r.raw
+}
+
+type CustomerListEntitlementsResponseItemsIntegrationType string
+
+const (
+	CustomerListEntitlementsResponseItemsIntegrationTypeDiscord      CustomerListEntitlementsResponseItemsIntegrationType = "discord"
+	CustomerListEntitlementsResponseItemsIntegrationTypeTelegram     CustomerListEntitlementsResponseItemsIntegrationType = "telegram"
+	CustomerListEntitlementsResponseItemsIntegrationTypeGitHub       CustomerListEntitlementsResponseItemsIntegrationType = "github"
+	CustomerListEntitlementsResponseItemsIntegrationTypeFigma        CustomerListEntitlementsResponseItemsIntegrationType = "figma"
+	CustomerListEntitlementsResponseItemsIntegrationTypeFramer       CustomerListEntitlementsResponseItemsIntegrationType = "framer"
+	CustomerListEntitlementsResponseItemsIntegrationTypeNotion       CustomerListEntitlementsResponseItemsIntegrationType = "notion"
+	CustomerListEntitlementsResponseItemsIntegrationTypeDigitalFiles CustomerListEntitlementsResponseItemsIntegrationType = "digital_files"
+	CustomerListEntitlementsResponseItemsIntegrationTypeLicenseKey   CustomerListEntitlementsResponseItemsIntegrationType = "license_key"
+)
+
+func (r CustomerListEntitlementsResponseItemsIntegrationType) IsKnown() bool {
+	switch r {
+	case CustomerListEntitlementsResponseItemsIntegrationTypeDiscord, CustomerListEntitlementsResponseItemsIntegrationTypeTelegram, CustomerListEntitlementsResponseItemsIntegrationTypeGitHub, CustomerListEntitlementsResponseItemsIntegrationTypeFigma, CustomerListEntitlementsResponseItemsIntegrationTypeFramer, CustomerListEntitlementsResponseItemsIntegrationTypeNotion, CustomerListEntitlementsResponseItemsIntegrationTypeDigitalFiles, CustomerListEntitlementsResponseItemsIntegrationTypeLicenseKey:
+		return true
+	}
+	return false
+}
+
+type CustomerListEntitlementsResponseItemsStatus string
+
+const (
+	CustomerListEntitlementsResponseItemsStatusPending   CustomerListEntitlementsResponseItemsStatus = "pending"
+	CustomerListEntitlementsResponseItemsStatusDelivered CustomerListEntitlementsResponseItemsStatus = "delivered"
+	CustomerListEntitlementsResponseItemsStatusFailed    CustomerListEntitlementsResponseItemsStatus = "failed"
+	CustomerListEntitlementsResponseItemsStatusRevoked   CustomerListEntitlementsResponseItemsStatus = "revoked"
+)
+
+func (r CustomerListEntitlementsResponseItemsStatus) IsKnown() bool {
+	switch r {
+	case CustomerListEntitlementsResponseItemsStatusPending, CustomerListEntitlementsResponseItemsStatusDelivered, CustomerListEntitlementsResponseItemsStatusFailed, CustomerListEntitlementsResponseItemsStatusRevoked:
+		return true
+	}
+	return false
 }
 
 type CustomerGetPaymentMethodsResponse struct {
