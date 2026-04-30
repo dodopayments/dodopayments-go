@@ -1519,8 +1519,8 @@ func (r DunningStartedWebhookEventType) IsKnown() bool {
 
 type EntitlementGrantCreatedWebhookEvent struct {
 	// The business identifier
-	BusinessID string                                  `json:"business_id" api:"required"`
-	Data       EntitlementGrantCreatedWebhookEventData `json:"data" api:"required"`
+	BusinessID string           `json:"business_id" api:"required"`
+	Data       EntitlementGrant `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -1551,113 +1551,6 @@ func (r EntitlementGrantCreatedWebhookEvent) implementsUnsafeUnwrapWebhookEvent(
 
 func (r EntitlementGrantCreatedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-type EntitlementGrantCreatedWebhookEventData struct {
-	ID            string                                        `json:"id" api:"required"`
-	BusinessID    string                                        `json:"business_id" api:"required"`
-	CreatedAt     time.Time                                     `json:"created_at" api:"required" format:"date-time"`
-	CustomerID    string                                        `json:"customer_id" api:"required"`
-	EntitlementID string                                        `json:"entitlement_id" api:"required"`
-	ExternalID    string                                        `json:"external_id" api:"required"`
-	Status        EntitlementGrantCreatedWebhookEventDataStatus `json:"status" api:"required"`
-	UpdatedAt     time.Time                                     `json:"updated_at" api:"required" format:"date-time"`
-	DeliveredAt   time.Time                                     `json:"delivered_at" api:"nullable" format:"date-time"`
-	// Present only when the entitlement integration_type is `digital_files`. Populated
-	// eagerly on every list and single-record endpoint.
-	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
-	ErrorCode              string                 `json:"error_code" api:"nullable"`
-	ErrorMessage           string                 `json:"error_message" api:"nullable"`
-	// Present only when the entitlement integration_type is `license_key`.
-	LicenseKey       EntitlementGrantCreatedWebhookEventDataLicenseKey `json:"license_key" api:"nullable"`
-	Metadata         interface{}                                       `json:"metadata"`
-	OAuthExpiresAt   time.Time                                         `json:"oauth_expires_at" api:"nullable" format:"date-time"`
-	OAuthURL         string                                            `json:"oauth_url" api:"nullable"`
-	PaymentID        string                                            `json:"payment_id" api:"nullable"`
-	RevocationReason string                                            `json:"revocation_reason" api:"nullable"`
-	RevokedAt        time.Time                                         `json:"revoked_at" api:"nullable" format:"date-time"`
-	SubscriptionID   string                                            `json:"subscription_id" api:"nullable"`
-	JSON             entitlementGrantCreatedWebhookEventDataJSON       `json:"-"`
-}
-
-// entitlementGrantCreatedWebhookEventDataJSON contains the JSON metadata for the
-// struct [EntitlementGrantCreatedWebhookEventData]
-type entitlementGrantCreatedWebhookEventDataJSON struct {
-	ID                     apijson.Field
-	BusinessID             apijson.Field
-	CreatedAt              apijson.Field
-	CustomerID             apijson.Field
-	EntitlementID          apijson.Field
-	ExternalID             apijson.Field
-	Status                 apijson.Field
-	UpdatedAt              apijson.Field
-	DeliveredAt            apijson.Field
-	DigitalProductDelivery apijson.Field
-	ErrorCode              apijson.Field
-	ErrorMessage           apijson.Field
-	LicenseKey             apijson.Field
-	Metadata               apijson.Field
-	OAuthExpiresAt         apijson.Field
-	OAuthURL               apijson.Field
-	PaymentID              apijson.Field
-	RevocationReason       apijson.Field
-	RevokedAt              apijson.Field
-	SubscriptionID         apijson.Field
-	raw                    string
-	ExtraFields            map[string]apijson.Field
-}
-
-func (r *EntitlementGrantCreatedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r entitlementGrantCreatedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-type EntitlementGrantCreatedWebhookEventDataStatus string
-
-const (
-	EntitlementGrantCreatedWebhookEventDataStatusPending   EntitlementGrantCreatedWebhookEventDataStatus = "Pending"
-	EntitlementGrantCreatedWebhookEventDataStatusDelivered EntitlementGrantCreatedWebhookEventDataStatus = "Delivered"
-	EntitlementGrantCreatedWebhookEventDataStatusFailed    EntitlementGrantCreatedWebhookEventDataStatus = "Failed"
-	EntitlementGrantCreatedWebhookEventDataStatusRevoked   EntitlementGrantCreatedWebhookEventDataStatus = "Revoked"
-)
-
-func (r EntitlementGrantCreatedWebhookEventDataStatus) IsKnown() bool {
-	switch r {
-	case EntitlementGrantCreatedWebhookEventDataStatusPending, EntitlementGrantCreatedWebhookEventDataStatusDelivered, EntitlementGrantCreatedWebhookEventDataStatusFailed, EntitlementGrantCreatedWebhookEventDataStatusRevoked:
-		return true
-	}
-	return false
-}
-
-// Present only when the entitlement integration_type is `license_key`.
-type EntitlementGrantCreatedWebhookEventDataLicenseKey struct {
-	ActivationsUsed  int64                                                 `json:"activations_used" api:"required"`
-	Key              string                                                `json:"key" api:"required"`
-	ActivationsLimit int64                                                 `json:"activations_limit" api:"nullable"`
-	ExpiresAt        time.Time                                             `json:"expires_at" api:"nullable" format:"date-time"`
-	JSON             entitlementGrantCreatedWebhookEventDataLicenseKeyJSON `json:"-"`
-}
-
-// entitlementGrantCreatedWebhookEventDataLicenseKeyJSON contains the JSON metadata
-// for the struct [EntitlementGrantCreatedWebhookEventDataLicenseKey]
-type entitlementGrantCreatedWebhookEventDataLicenseKeyJSON struct {
-	ActivationsUsed  apijson.Field
-	Key              apijson.Field
-	ActivationsLimit apijson.Field
-	ExpiresAt        apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *EntitlementGrantCreatedWebhookEventDataLicenseKey) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r entitlementGrantCreatedWebhookEventDataLicenseKeyJSON) RawJSON() string {
-	return r.raw
-}
-
 // The event type
 type EntitlementGrantCreatedWebhookEventType string
 
@@ -1675,8 +1568,8 @@ func (r EntitlementGrantCreatedWebhookEventType) IsKnown() bool {
 
 type EntitlementGrantDeliveredWebhookEvent struct {
 	// The business identifier
-	BusinessID string                                    `json:"business_id" api:"required"`
-	Data       EntitlementGrantDeliveredWebhookEventData `json:"data" api:"required"`
+	BusinessID string           `json:"business_id" api:"required"`
+	Data       EntitlementGrant `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -1707,113 +1600,6 @@ func (r EntitlementGrantDeliveredWebhookEvent) implementsUnsafeUnwrapWebhookEven
 
 func (r EntitlementGrantDeliveredWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-type EntitlementGrantDeliveredWebhookEventData struct {
-	ID            string                                          `json:"id" api:"required"`
-	BusinessID    string                                          `json:"business_id" api:"required"`
-	CreatedAt     time.Time                                       `json:"created_at" api:"required" format:"date-time"`
-	CustomerID    string                                          `json:"customer_id" api:"required"`
-	EntitlementID string                                          `json:"entitlement_id" api:"required"`
-	ExternalID    string                                          `json:"external_id" api:"required"`
-	Status        EntitlementGrantDeliveredWebhookEventDataStatus `json:"status" api:"required"`
-	UpdatedAt     time.Time                                       `json:"updated_at" api:"required" format:"date-time"`
-	DeliveredAt   time.Time                                       `json:"delivered_at" api:"nullable" format:"date-time"`
-	// Present only when the entitlement integration_type is `digital_files`. Populated
-	// eagerly on every list and single-record endpoint.
-	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
-	ErrorCode              string                 `json:"error_code" api:"nullable"`
-	ErrorMessage           string                 `json:"error_message" api:"nullable"`
-	// Present only when the entitlement integration_type is `license_key`.
-	LicenseKey       EntitlementGrantDeliveredWebhookEventDataLicenseKey `json:"license_key" api:"nullable"`
-	Metadata         interface{}                                         `json:"metadata"`
-	OAuthExpiresAt   time.Time                                           `json:"oauth_expires_at" api:"nullable" format:"date-time"`
-	OAuthURL         string                                              `json:"oauth_url" api:"nullable"`
-	PaymentID        string                                              `json:"payment_id" api:"nullable"`
-	RevocationReason string                                              `json:"revocation_reason" api:"nullable"`
-	RevokedAt        time.Time                                           `json:"revoked_at" api:"nullable" format:"date-time"`
-	SubscriptionID   string                                              `json:"subscription_id" api:"nullable"`
-	JSON             entitlementGrantDeliveredWebhookEventDataJSON       `json:"-"`
-}
-
-// entitlementGrantDeliveredWebhookEventDataJSON contains the JSON metadata for the
-// struct [EntitlementGrantDeliveredWebhookEventData]
-type entitlementGrantDeliveredWebhookEventDataJSON struct {
-	ID                     apijson.Field
-	BusinessID             apijson.Field
-	CreatedAt              apijson.Field
-	CustomerID             apijson.Field
-	EntitlementID          apijson.Field
-	ExternalID             apijson.Field
-	Status                 apijson.Field
-	UpdatedAt              apijson.Field
-	DeliveredAt            apijson.Field
-	DigitalProductDelivery apijson.Field
-	ErrorCode              apijson.Field
-	ErrorMessage           apijson.Field
-	LicenseKey             apijson.Field
-	Metadata               apijson.Field
-	OAuthExpiresAt         apijson.Field
-	OAuthURL               apijson.Field
-	PaymentID              apijson.Field
-	RevocationReason       apijson.Field
-	RevokedAt              apijson.Field
-	SubscriptionID         apijson.Field
-	raw                    string
-	ExtraFields            map[string]apijson.Field
-}
-
-func (r *EntitlementGrantDeliveredWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r entitlementGrantDeliveredWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-type EntitlementGrantDeliveredWebhookEventDataStatus string
-
-const (
-	EntitlementGrantDeliveredWebhookEventDataStatusPending   EntitlementGrantDeliveredWebhookEventDataStatus = "Pending"
-	EntitlementGrantDeliveredWebhookEventDataStatusDelivered EntitlementGrantDeliveredWebhookEventDataStatus = "Delivered"
-	EntitlementGrantDeliveredWebhookEventDataStatusFailed    EntitlementGrantDeliveredWebhookEventDataStatus = "Failed"
-	EntitlementGrantDeliveredWebhookEventDataStatusRevoked   EntitlementGrantDeliveredWebhookEventDataStatus = "Revoked"
-)
-
-func (r EntitlementGrantDeliveredWebhookEventDataStatus) IsKnown() bool {
-	switch r {
-	case EntitlementGrantDeliveredWebhookEventDataStatusPending, EntitlementGrantDeliveredWebhookEventDataStatusDelivered, EntitlementGrantDeliveredWebhookEventDataStatusFailed, EntitlementGrantDeliveredWebhookEventDataStatusRevoked:
-		return true
-	}
-	return false
-}
-
-// Present only when the entitlement integration_type is `license_key`.
-type EntitlementGrantDeliveredWebhookEventDataLicenseKey struct {
-	ActivationsUsed  int64                                                   `json:"activations_used" api:"required"`
-	Key              string                                                  `json:"key" api:"required"`
-	ActivationsLimit int64                                                   `json:"activations_limit" api:"nullable"`
-	ExpiresAt        time.Time                                               `json:"expires_at" api:"nullable" format:"date-time"`
-	JSON             entitlementGrantDeliveredWebhookEventDataLicenseKeyJSON `json:"-"`
-}
-
-// entitlementGrantDeliveredWebhookEventDataLicenseKeyJSON contains the JSON
-// metadata for the struct [EntitlementGrantDeliveredWebhookEventDataLicenseKey]
-type entitlementGrantDeliveredWebhookEventDataLicenseKeyJSON struct {
-	ActivationsUsed  apijson.Field
-	Key              apijson.Field
-	ActivationsLimit apijson.Field
-	ExpiresAt        apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *EntitlementGrantDeliveredWebhookEventDataLicenseKey) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r entitlementGrantDeliveredWebhookEventDataLicenseKeyJSON) RawJSON() string {
-	return r.raw
-}
-
 // The event type
 type EntitlementGrantDeliveredWebhookEventType string
 
@@ -1831,8 +1617,8 @@ func (r EntitlementGrantDeliveredWebhookEventType) IsKnown() bool {
 
 type EntitlementGrantFailedWebhookEvent struct {
 	// The business identifier
-	BusinessID string                                 `json:"business_id" api:"required"`
-	Data       EntitlementGrantFailedWebhookEventData `json:"data" api:"required"`
+	BusinessID string           `json:"business_id" api:"required"`
+	Data       EntitlementGrant `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -1863,113 +1649,6 @@ func (r EntitlementGrantFailedWebhookEvent) implementsUnsafeUnwrapWebhookEvent()
 
 func (r EntitlementGrantFailedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
-type EntitlementGrantFailedWebhookEventData struct {
-	ID            string                                       `json:"id" api:"required"`
-	BusinessID    string                                       `json:"business_id" api:"required"`
-	CreatedAt     time.Time                                    `json:"created_at" api:"required" format:"date-time"`
-	CustomerID    string                                       `json:"customer_id" api:"required"`
-	EntitlementID string                                       `json:"entitlement_id" api:"required"`
-	ExternalID    string                                       `json:"external_id" api:"required"`
-	Status        EntitlementGrantFailedWebhookEventDataStatus `json:"status" api:"required"`
-	UpdatedAt     time.Time                                    `json:"updated_at" api:"required" format:"date-time"`
-	DeliveredAt   time.Time                                    `json:"delivered_at" api:"nullable" format:"date-time"`
-	// Present only when the entitlement integration_type is `digital_files`. Populated
-	// eagerly on every list and single-record endpoint.
-	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
-	ErrorCode              string                 `json:"error_code" api:"nullable"`
-	ErrorMessage           string                 `json:"error_message" api:"nullable"`
-	// Present only when the entitlement integration_type is `license_key`.
-	LicenseKey       EntitlementGrantFailedWebhookEventDataLicenseKey `json:"license_key" api:"nullable"`
-	Metadata         interface{}                                      `json:"metadata"`
-	OAuthExpiresAt   time.Time                                        `json:"oauth_expires_at" api:"nullable" format:"date-time"`
-	OAuthURL         string                                           `json:"oauth_url" api:"nullable"`
-	PaymentID        string                                           `json:"payment_id" api:"nullable"`
-	RevocationReason string                                           `json:"revocation_reason" api:"nullable"`
-	RevokedAt        time.Time                                        `json:"revoked_at" api:"nullable" format:"date-time"`
-	SubscriptionID   string                                           `json:"subscription_id" api:"nullable"`
-	JSON             entitlementGrantFailedWebhookEventDataJSON       `json:"-"`
-}
-
-// entitlementGrantFailedWebhookEventDataJSON contains the JSON metadata for the
-// struct [EntitlementGrantFailedWebhookEventData]
-type entitlementGrantFailedWebhookEventDataJSON struct {
-	ID                     apijson.Field
-	BusinessID             apijson.Field
-	CreatedAt              apijson.Field
-	CustomerID             apijson.Field
-	EntitlementID          apijson.Field
-	ExternalID             apijson.Field
-	Status                 apijson.Field
-	UpdatedAt              apijson.Field
-	DeliveredAt            apijson.Field
-	DigitalProductDelivery apijson.Field
-	ErrorCode              apijson.Field
-	ErrorMessage           apijson.Field
-	LicenseKey             apijson.Field
-	Metadata               apijson.Field
-	OAuthExpiresAt         apijson.Field
-	OAuthURL               apijson.Field
-	PaymentID              apijson.Field
-	RevocationReason       apijson.Field
-	RevokedAt              apijson.Field
-	SubscriptionID         apijson.Field
-	raw                    string
-	ExtraFields            map[string]apijson.Field
-}
-
-func (r *EntitlementGrantFailedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r entitlementGrantFailedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-type EntitlementGrantFailedWebhookEventDataStatus string
-
-const (
-	EntitlementGrantFailedWebhookEventDataStatusPending   EntitlementGrantFailedWebhookEventDataStatus = "Pending"
-	EntitlementGrantFailedWebhookEventDataStatusDelivered EntitlementGrantFailedWebhookEventDataStatus = "Delivered"
-	EntitlementGrantFailedWebhookEventDataStatusFailed    EntitlementGrantFailedWebhookEventDataStatus = "Failed"
-	EntitlementGrantFailedWebhookEventDataStatusRevoked   EntitlementGrantFailedWebhookEventDataStatus = "Revoked"
-)
-
-func (r EntitlementGrantFailedWebhookEventDataStatus) IsKnown() bool {
-	switch r {
-	case EntitlementGrantFailedWebhookEventDataStatusPending, EntitlementGrantFailedWebhookEventDataStatusDelivered, EntitlementGrantFailedWebhookEventDataStatusFailed, EntitlementGrantFailedWebhookEventDataStatusRevoked:
-		return true
-	}
-	return false
-}
-
-// Present only when the entitlement integration_type is `license_key`.
-type EntitlementGrantFailedWebhookEventDataLicenseKey struct {
-	ActivationsUsed  int64                                                `json:"activations_used" api:"required"`
-	Key              string                                               `json:"key" api:"required"`
-	ActivationsLimit int64                                                `json:"activations_limit" api:"nullable"`
-	ExpiresAt        time.Time                                            `json:"expires_at" api:"nullable" format:"date-time"`
-	JSON             entitlementGrantFailedWebhookEventDataLicenseKeyJSON `json:"-"`
-}
-
-// entitlementGrantFailedWebhookEventDataLicenseKeyJSON contains the JSON metadata
-// for the struct [EntitlementGrantFailedWebhookEventDataLicenseKey]
-type entitlementGrantFailedWebhookEventDataLicenseKeyJSON struct {
-	ActivationsUsed  apijson.Field
-	Key              apijson.Field
-	ActivationsLimit apijson.Field
-	ExpiresAt        apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *EntitlementGrantFailedWebhookEventDataLicenseKey) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r entitlementGrantFailedWebhookEventDataLicenseKeyJSON) RawJSON() string {
-	return r.raw
-}
-
 // The event type
 type EntitlementGrantFailedWebhookEventType string
 
@@ -1987,8 +1666,8 @@ func (r EntitlementGrantFailedWebhookEventType) IsKnown() bool {
 
 type EntitlementGrantRevokedWebhookEvent struct {
 	// The business identifier
-	BusinessID string                                  `json:"business_id" api:"required"`
-	Data       EntitlementGrantRevokedWebhookEventData `json:"data" api:"required"`
+	BusinessID string           `json:"business_id" api:"required"`
+	Data       EntitlementGrant `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -2018,113 +1697,6 @@ func (r entitlementGrantRevokedWebhookEventJSON) RawJSON() string {
 func (r EntitlementGrantRevokedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r EntitlementGrantRevokedWebhookEvent) implementsUnwrapWebhookEvent() {}
-
-type EntitlementGrantRevokedWebhookEventData struct {
-	ID            string                                        `json:"id" api:"required"`
-	BusinessID    string                                        `json:"business_id" api:"required"`
-	CreatedAt     time.Time                                     `json:"created_at" api:"required" format:"date-time"`
-	CustomerID    string                                        `json:"customer_id" api:"required"`
-	EntitlementID string                                        `json:"entitlement_id" api:"required"`
-	ExternalID    string                                        `json:"external_id" api:"required"`
-	Status        EntitlementGrantRevokedWebhookEventDataStatus `json:"status" api:"required"`
-	UpdatedAt     time.Time                                     `json:"updated_at" api:"required" format:"date-time"`
-	DeliveredAt   time.Time                                     `json:"delivered_at" api:"nullable" format:"date-time"`
-	// Present only when the entitlement integration_type is `digital_files`. Populated
-	// eagerly on every list and single-record endpoint.
-	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
-	ErrorCode              string                 `json:"error_code" api:"nullable"`
-	ErrorMessage           string                 `json:"error_message" api:"nullable"`
-	// Present only when the entitlement integration_type is `license_key`.
-	LicenseKey       EntitlementGrantRevokedWebhookEventDataLicenseKey `json:"license_key" api:"nullable"`
-	Metadata         interface{}                                       `json:"metadata"`
-	OAuthExpiresAt   time.Time                                         `json:"oauth_expires_at" api:"nullable" format:"date-time"`
-	OAuthURL         string                                            `json:"oauth_url" api:"nullable"`
-	PaymentID        string                                            `json:"payment_id" api:"nullable"`
-	RevocationReason string                                            `json:"revocation_reason" api:"nullable"`
-	RevokedAt        time.Time                                         `json:"revoked_at" api:"nullable" format:"date-time"`
-	SubscriptionID   string                                            `json:"subscription_id" api:"nullable"`
-	JSON             entitlementGrantRevokedWebhookEventDataJSON       `json:"-"`
-}
-
-// entitlementGrantRevokedWebhookEventDataJSON contains the JSON metadata for the
-// struct [EntitlementGrantRevokedWebhookEventData]
-type entitlementGrantRevokedWebhookEventDataJSON struct {
-	ID                     apijson.Field
-	BusinessID             apijson.Field
-	CreatedAt              apijson.Field
-	CustomerID             apijson.Field
-	EntitlementID          apijson.Field
-	ExternalID             apijson.Field
-	Status                 apijson.Field
-	UpdatedAt              apijson.Field
-	DeliveredAt            apijson.Field
-	DigitalProductDelivery apijson.Field
-	ErrorCode              apijson.Field
-	ErrorMessage           apijson.Field
-	LicenseKey             apijson.Field
-	Metadata               apijson.Field
-	OAuthExpiresAt         apijson.Field
-	OAuthURL               apijson.Field
-	PaymentID              apijson.Field
-	RevocationReason       apijson.Field
-	RevokedAt              apijson.Field
-	SubscriptionID         apijson.Field
-	raw                    string
-	ExtraFields            map[string]apijson.Field
-}
-
-func (r *EntitlementGrantRevokedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r entitlementGrantRevokedWebhookEventDataJSON) RawJSON() string {
-	return r.raw
-}
-
-type EntitlementGrantRevokedWebhookEventDataStatus string
-
-const (
-	EntitlementGrantRevokedWebhookEventDataStatusPending   EntitlementGrantRevokedWebhookEventDataStatus = "Pending"
-	EntitlementGrantRevokedWebhookEventDataStatusDelivered EntitlementGrantRevokedWebhookEventDataStatus = "Delivered"
-	EntitlementGrantRevokedWebhookEventDataStatusFailed    EntitlementGrantRevokedWebhookEventDataStatus = "Failed"
-	EntitlementGrantRevokedWebhookEventDataStatusRevoked   EntitlementGrantRevokedWebhookEventDataStatus = "Revoked"
-)
-
-func (r EntitlementGrantRevokedWebhookEventDataStatus) IsKnown() bool {
-	switch r {
-	case EntitlementGrantRevokedWebhookEventDataStatusPending, EntitlementGrantRevokedWebhookEventDataStatusDelivered, EntitlementGrantRevokedWebhookEventDataStatusFailed, EntitlementGrantRevokedWebhookEventDataStatusRevoked:
-		return true
-	}
-	return false
-}
-
-// Present only when the entitlement integration_type is `license_key`.
-type EntitlementGrantRevokedWebhookEventDataLicenseKey struct {
-	ActivationsUsed  int64                                                 `json:"activations_used" api:"required"`
-	Key              string                                                `json:"key" api:"required"`
-	ActivationsLimit int64                                                 `json:"activations_limit" api:"nullable"`
-	ExpiresAt        time.Time                                             `json:"expires_at" api:"nullable" format:"date-time"`
-	JSON             entitlementGrantRevokedWebhookEventDataLicenseKeyJSON `json:"-"`
-}
-
-// entitlementGrantRevokedWebhookEventDataLicenseKeyJSON contains the JSON metadata
-// for the struct [EntitlementGrantRevokedWebhookEventDataLicenseKey]
-type entitlementGrantRevokedWebhookEventDataLicenseKeyJSON struct {
-	ActivationsUsed  apijson.Field
-	Key              apijson.Field
-	ActivationsLimit apijson.Field
-	ExpiresAt        apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *EntitlementGrantRevokedWebhookEventDataLicenseKey) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r entitlementGrantRevokedWebhookEventDataLicenseKeyJSON) RawJSON() string {
-	return r.raw
-}
 
 // The event type
 type EntitlementGrantRevokedWebhookEventType string
@@ -2892,11 +2464,7 @@ type UnsafeUnwrapWebhookEvent struct {
 	// [AbandonedCheckoutRecoveredWebhookEventData], [CreditLedgerEntry],
 	// [CreditBalanceLowWebhookEventData], [Dispute],
 	// [DunningRecoveredWebhookEventData], [DunningStartedWebhookEventData],
-	// [EntitlementGrantCreatedWebhookEventData],
-	// [EntitlementGrantDeliveredWebhookEventData],
-	// [EntitlementGrantFailedWebhookEventData],
-	// [EntitlementGrantRevokedWebhookEventData], [LicenseKey], [Payment], [Refund],
-	// [Subscription].
+	// [EntitlementGrant], [LicenseKey], [Payment], [Refund], [Subscription].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
@@ -3205,11 +2773,7 @@ type UnwrapWebhookEvent struct {
 	// [AbandonedCheckoutRecoveredWebhookEventData], [CreditLedgerEntry],
 	// [CreditBalanceLowWebhookEventData], [Dispute],
 	// [DunningRecoveredWebhookEventData], [DunningStartedWebhookEventData],
-	// [EntitlementGrantCreatedWebhookEventData],
-	// [EntitlementGrantDeliveredWebhookEventData],
-	// [EntitlementGrantFailedWebhookEventData],
-	// [EntitlementGrantRevokedWebhookEventData], [LicenseKey], [Payment], [Refund],
-	// [Subscription].
+	// [EntitlementGrant], [LicenseKey], [Payment], [Refund], [Subscription].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`

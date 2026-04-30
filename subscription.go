@@ -301,6 +301,27 @@ func (r AttachAddonParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type CancellationFeedback string
+
+const (
+	CancellationFeedbackTooExpensive    CancellationFeedback = "too_expensive"
+	CancellationFeedbackMissingFeatures CancellationFeedback = "missing_features"
+	CancellationFeedbackSwitchedService CancellationFeedback = "switched_service"
+	CancellationFeedbackUnused          CancellationFeedback = "unused"
+	CancellationFeedbackCustomerService CancellationFeedback = "customer_service"
+	CancellationFeedbackLowQuality      CancellationFeedback = "low_quality"
+	CancellationFeedbackTooComplex      CancellationFeedback = "too_complex"
+	CancellationFeedbackOther           CancellationFeedback = "other"
+)
+
+func (r CancellationFeedback) IsKnown() bool {
+	switch r {
+	case CancellationFeedbackTooExpensive, CancellationFeedbackMissingFeatures, CancellationFeedbackSwitchedService, CancellationFeedbackUnused, CancellationFeedbackCustomerService, CancellationFeedbackLowQuality, CancellationFeedbackTooComplex, CancellationFeedbackOther:
+		return true
+	}
+	return false
+}
+
 // Response struct representing credit entitlement cart details for a subscription
 type CreditEntitlementCartResponse struct {
 	CreditEntitlementID   string `json:"credit_entitlement_id" api:"required"`
@@ -455,6 +476,77 @@ func (r OnDemandSubscriptionParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type ScheduledPlanChange struct {
+	// The scheduled plan change ID
+	ID string `json:"id" api:"required"`
+	// Addons included in the scheduled change
+	Addons []ScheduledPlanChangeAddon `json:"addons" api:"required"`
+	// When this scheduled change was created
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// When the change will be applied
+	EffectiveAt time.Time `json:"effective_at" api:"required" format:"date-time"`
+	// The product ID the subscription will change to
+	ProductID string `json:"product_id" api:"required"`
+	// Quantity for the new plan
+	Quantity int64 `json:"quantity" api:"required"`
+	// Description of the product being changed to
+	ProductDescription string `json:"product_description" api:"nullable"`
+	// Name of the product being changed to
+	ProductName string                  `json:"product_name" api:"nullable"`
+	JSON        scheduledPlanChangeJSON `json:"-"`
+}
+
+// scheduledPlanChangeJSON contains the JSON metadata for the struct
+// [ScheduledPlanChange]
+type scheduledPlanChangeJSON struct {
+	ID                 apijson.Field
+	Addons             apijson.Field
+	CreatedAt          apijson.Field
+	EffectiveAt        apijson.Field
+	ProductID          apijson.Field
+	Quantity           apijson.Field
+	ProductDescription apijson.Field
+	ProductName        apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
+}
+
+func (r *ScheduledPlanChange) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r scheduledPlanChangeJSON) RawJSON() string {
+	return r.raw
+}
+
+type ScheduledPlanChangeAddon struct {
+	// The addon ID
+	AddonID string `json:"addon_id" api:"required"`
+	// Name of the addon
+	Name string `json:"name" api:"required"`
+	// Quantity of the addon
+	Quantity int64                        `json:"quantity" api:"required"`
+	JSON     scheduledPlanChangeAddonJSON `json:"-"`
+}
+
+// scheduledPlanChangeAddonJSON contains the JSON metadata for the struct
+// [ScheduledPlanChangeAddon]
+type scheduledPlanChangeAddonJSON struct {
+	AddonID     apijson.Field
+	Name        apijson.Field
+	Quantity    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ScheduledPlanChangeAddon) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r scheduledPlanChangeAddonJSON) RawJSON() string {
+	return r.raw
+}
+
 // Response struct representing subscription details
 type Subscription struct {
 	// Addons associated with this subscription
@@ -510,7 +602,7 @@ type Subscription struct {
 	// Free-text cancellation comment, if any
 	CancellationComment string `json:"cancellation_comment" api:"nullable"`
 	// Customer-supplied churn reason, if any
-	CancellationFeedback SubscriptionCancellationFeedback `json:"cancellation_feedback" api:"nullable"`
+	CancellationFeedback CancellationFeedback `json:"cancellation_feedback" api:"nullable"`
 	// Cancelled timestamp if the subscription is cancelled
 	CancelledAt time.Time `json:"cancelled_at" api:"nullable" format:"date-time"`
 	// Customer's responses to custom fields collected during checkout
@@ -524,7 +616,7 @@ type Subscription struct {
 	// Saved payment method id used for recurring charges
 	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
 	// Scheduled plan change details, if any
-	ScheduledChange SubscriptionScheduledChange `json:"scheduled_change" api:"nullable"`
+	ScheduledChange ScheduledPlanChange `json:"scheduled_change" api:"nullable"`
 	// Tax identifier provided for this subscription (if applicable)
 	TaxID string           `json:"tax_id" api:"nullable"`
 	JSON  subscriptionJSON `json:"-"`
@@ -575,100 +667,6 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionJSON) RawJSON() string {
-	return r.raw
-}
-
-// Customer-supplied churn reason, if any
-type SubscriptionCancellationFeedback string
-
-const (
-	SubscriptionCancellationFeedbackTooExpensive    SubscriptionCancellationFeedback = "too_expensive"
-	SubscriptionCancellationFeedbackMissingFeatures SubscriptionCancellationFeedback = "missing_features"
-	SubscriptionCancellationFeedbackSwitchedService SubscriptionCancellationFeedback = "switched_service"
-	SubscriptionCancellationFeedbackUnused          SubscriptionCancellationFeedback = "unused"
-	SubscriptionCancellationFeedbackCustomerService SubscriptionCancellationFeedback = "customer_service"
-	SubscriptionCancellationFeedbackLowQuality      SubscriptionCancellationFeedback = "low_quality"
-	SubscriptionCancellationFeedbackTooComplex      SubscriptionCancellationFeedback = "too_complex"
-	SubscriptionCancellationFeedbackOther           SubscriptionCancellationFeedback = "other"
-)
-
-func (r SubscriptionCancellationFeedback) IsKnown() bool {
-	switch r {
-	case SubscriptionCancellationFeedbackTooExpensive, SubscriptionCancellationFeedbackMissingFeatures, SubscriptionCancellationFeedbackSwitchedService, SubscriptionCancellationFeedbackUnused, SubscriptionCancellationFeedbackCustomerService, SubscriptionCancellationFeedbackLowQuality, SubscriptionCancellationFeedbackTooComplex, SubscriptionCancellationFeedbackOther:
-		return true
-	}
-	return false
-}
-
-// Scheduled plan change details, if any
-type SubscriptionScheduledChange struct {
-	// The scheduled plan change ID
-	ID string `json:"id" api:"required"`
-	// Addons included in the scheduled change
-	Addons []SubscriptionScheduledChangeAddon `json:"addons" api:"required"`
-	// When this scheduled change was created
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// When the change will be applied
-	EffectiveAt time.Time `json:"effective_at" api:"required" format:"date-time"`
-	// The product ID the subscription will change to
-	ProductID string `json:"product_id" api:"required"`
-	// Quantity for the new plan
-	Quantity int64 `json:"quantity" api:"required"`
-	// Description of the product being changed to
-	ProductDescription string `json:"product_description" api:"nullable"`
-	// Name of the product being changed to
-	ProductName string                          `json:"product_name" api:"nullable"`
-	JSON        subscriptionScheduledChangeJSON `json:"-"`
-}
-
-// subscriptionScheduledChangeJSON contains the JSON metadata for the struct
-// [SubscriptionScheduledChange]
-type subscriptionScheduledChangeJSON struct {
-	ID                 apijson.Field
-	Addons             apijson.Field
-	CreatedAt          apijson.Field
-	EffectiveAt        apijson.Field
-	ProductID          apijson.Field
-	Quantity           apijson.Field
-	ProductDescription apijson.Field
-	ProductName        apijson.Field
-	raw                string
-	ExtraFields        map[string]apijson.Field
-}
-
-func (r *SubscriptionScheduledChange) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionScheduledChangeJSON) RawJSON() string {
-	return r.raw
-}
-
-type SubscriptionScheduledChangeAddon struct {
-	// The addon ID
-	AddonID string `json:"addon_id" api:"required"`
-	// Name of the addon
-	Name string `json:"name" api:"required"`
-	// Quantity of the addon
-	Quantity int64                                `json:"quantity" api:"required"`
-	JSON     subscriptionScheduledChangeAddonJSON `json:"-"`
-}
-
-// subscriptionScheduledChangeAddonJSON contains the JSON metadata for the struct
-// [SubscriptionScheduledChangeAddon]
-type subscriptionScheduledChangeAddonJSON struct {
-	AddonID     apijson.Field
-	Name        apijson.Field
-	Quantity    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionScheduledChangeAddon) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionScheduledChangeAddonJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -829,7 +827,7 @@ type SubscriptionNewResponse struct {
 	// Expiry timestamp of the payment link
 	ExpiresOn time.Time `json:"expires_on" api:"nullable" format:"date-time"`
 	// One time products associated with the purchase of subscription
-	OneTimeProductCart []OneTimeProductCartItem `json:"one_time_product_cart" api:"nullable"`
+	OneTimeProductCart []SubscriptionNewResponseOneTimeProductCart `json:"one_time_product_cart" api:"nullable"`
 	// URL to checkout page
 	PaymentLink string                      `json:"payment_link" api:"nullable"`
 	JSON        subscriptionNewResponseJSON `json:"-"`
@@ -858,6 +856,29 @@ func (r *SubscriptionNewResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionNewResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type SubscriptionNewResponseOneTimeProductCart struct {
+	ProductID string                                        `json:"product_id" api:"required"`
+	Quantity  int64                                         `json:"quantity" api:"required"`
+	JSON      subscriptionNewResponseOneTimeProductCartJSON `json:"-"`
+}
+
+// subscriptionNewResponseOneTimeProductCartJSON contains the JSON metadata for the
+// struct [SubscriptionNewResponseOneTimeProductCart]
+type subscriptionNewResponseOneTimeProductCartJSON struct {
+	ProductID   apijson.Field
+	Quantity    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionNewResponseOneTimeProductCart) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionNewResponseOneTimeProductCartJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -916,7 +937,7 @@ type SubscriptionListResponse struct {
 	// Name of the product associated with this subscription
 	ProductName string `json:"product_name" api:"nullable"`
 	// Scheduled plan change details, if any
-	ScheduledChange SubscriptionListResponseScheduledChange `json:"scheduled_change" api:"nullable"`
+	ScheduledChange ScheduledPlanChange `json:"scheduled_change" api:"nullable"`
 	// Tax identifier provided for this subscription (if applicable)
 	TaxID string                       `json:"tax_id" api:"nullable"`
 	JSON  subscriptionListResponseJSON `json:"-"`
@@ -961,78 +982,6 @@ func (r *SubscriptionListResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionListResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-// Scheduled plan change details, if any
-type SubscriptionListResponseScheduledChange struct {
-	// The scheduled plan change ID
-	ID string `json:"id" api:"required"`
-	// Addons included in the scheduled change
-	Addons []SubscriptionListResponseScheduledChangeAddon `json:"addons" api:"required"`
-	// When this scheduled change was created
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// When the change will be applied
-	EffectiveAt time.Time `json:"effective_at" api:"required" format:"date-time"`
-	// The product ID the subscription will change to
-	ProductID string `json:"product_id" api:"required"`
-	// Quantity for the new plan
-	Quantity int64 `json:"quantity" api:"required"`
-	// Description of the product being changed to
-	ProductDescription string `json:"product_description" api:"nullable"`
-	// Name of the product being changed to
-	ProductName string                                      `json:"product_name" api:"nullable"`
-	JSON        subscriptionListResponseScheduledChangeJSON `json:"-"`
-}
-
-// subscriptionListResponseScheduledChangeJSON contains the JSON metadata for the
-// struct [SubscriptionListResponseScheduledChange]
-type subscriptionListResponseScheduledChangeJSON struct {
-	ID                 apijson.Field
-	Addons             apijson.Field
-	CreatedAt          apijson.Field
-	EffectiveAt        apijson.Field
-	ProductID          apijson.Field
-	Quantity           apijson.Field
-	ProductDescription apijson.Field
-	ProductName        apijson.Field
-	raw                string
-	ExtraFields        map[string]apijson.Field
-}
-
-func (r *SubscriptionListResponseScheduledChange) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionListResponseScheduledChangeJSON) RawJSON() string {
-	return r.raw
-}
-
-type SubscriptionListResponseScheduledChangeAddon struct {
-	// The addon ID
-	AddonID string `json:"addon_id" api:"required"`
-	// Name of the addon
-	Name string `json:"name" api:"required"`
-	// Quantity of the addon
-	Quantity int64                                            `json:"quantity" api:"required"`
-	JSON     subscriptionListResponseScheduledChangeAddonJSON `json:"-"`
-}
-
-// subscriptionListResponseScheduledChangeAddonJSON contains the JSON metadata for
-// the struct [SubscriptionListResponseScheduledChangeAddon]
-type subscriptionListResponseScheduledChangeAddonJSON struct {
-	AddonID     apijson.Field
-	Name        apijson.Field
-	Quantity    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionListResponseScheduledChangeAddon) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionListResponseScheduledChangeAddonJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -1655,7 +1604,7 @@ type SubscriptionNewParams struct {
 	OnDemand param.Field[OnDemandSubscriptionParam] `json:"on_demand"`
 	// List of one time products that will be bundled with the first payment for this
 	// subscription
-	OneTimeProductCart param.Field[[]SubscriptionNewParamsOneTimeProductCart] `json:"one_time_product_cart"`
+	OneTimeProductCart param.Field[[]OneTimeProductCartItemParam] `json:"one_time_product_cart"`
 	// If true, generates a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional payment method ID to use for this subscription. If provided,
@@ -1687,19 +1636,6 @@ func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-type SubscriptionNewParamsOneTimeProductCart struct {
-	ProductID param.Field[string] `json:"product_id" api:"required"`
-	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
-	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
-	// amount will be ignored Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Amount param.Field[int64] `json:"amount"`
-}
-
-func (r SubscriptionNewParamsOneTimeProductCart) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 type SubscriptionUpdateParams struct {
 	Billing param.Field[BillingAddressParam] `json:"billing"`
 	// When set, the subscription will remain active until the end of billing period
@@ -1710,7 +1646,7 @@ type SubscriptionUpdateParams struct {
 	CancellationComment param.Field[string] `json:"cancellation_comment"`
 	// Customer-supplied churn reason (only valid when cancelling or scheduling
 	// cancellation).
-	CancellationFeedback param.Field[SubscriptionUpdateParamsCancellationFeedback] `json:"cancellation_feedback"`
+	CancellationFeedback param.Field[CancellationFeedback] `json:"cancellation_feedback"`
 	// Update credit entitlement cart settings
 	CreditEntitlementCart param.Field[[]SubscriptionUpdateParamsCreditEntitlementCart] `json:"credit_entitlement_cart"`
 	CustomerName          param.Field[string]                                          `json:"customer_name"`
@@ -1737,29 +1673,6 @@ const (
 func (r SubscriptionUpdateParamsCancelReason) IsKnown() bool {
 	switch r {
 	case SubscriptionUpdateParamsCancelReasonCancelledByCustomer, SubscriptionUpdateParamsCancelReasonCancelledByMerchant, SubscriptionUpdateParamsCancelReasonCancelledByMerchantSendDunning, SubscriptionUpdateParamsCancelReasonDodoTeam:
-		return true
-	}
-	return false
-}
-
-// Customer-supplied churn reason (only valid when cancelling or scheduling
-// cancellation).
-type SubscriptionUpdateParamsCancellationFeedback string
-
-const (
-	SubscriptionUpdateParamsCancellationFeedbackTooExpensive    SubscriptionUpdateParamsCancellationFeedback = "too_expensive"
-	SubscriptionUpdateParamsCancellationFeedbackMissingFeatures SubscriptionUpdateParamsCancellationFeedback = "missing_features"
-	SubscriptionUpdateParamsCancellationFeedbackSwitchedService SubscriptionUpdateParamsCancellationFeedback = "switched_service"
-	SubscriptionUpdateParamsCancellationFeedbackUnused          SubscriptionUpdateParamsCancellationFeedback = "unused"
-	SubscriptionUpdateParamsCancellationFeedbackCustomerService SubscriptionUpdateParamsCancellationFeedback = "customer_service"
-	SubscriptionUpdateParamsCancellationFeedbackLowQuality      SubscriptionUpdateParamsCancellationFeedback = "low_quality"
-	SubscriptionUpdateParamsCancellationFeedbackTooComplex      SubscriptionUpdateParamsCancellationFeedback = "too_complex"
-	SubscriptionUpdateParamsCancellationFeedbackOther           SubscriptionUpdateParamsCancellationFeedback = "other"
-)
-
-func (r SubscriptionUpdateParamsCancellationFeedback) IsKnown() bool {
-	switch r {
-	case SubscriptionUpdateParamsCancellationFeedbackTooExpensive, SubscriptionUpdateParamsCancellationFeedbackMissingFeatures, SubscriptionUpdateParamsCancellationFeedbackSwitchedService, SubscriptionUpdateParamsCancellationFeedbackUnused, SubscriptionUpdateParamsCancellationFeedbackCustomerService, SubscriptionUpdateParamsCancellationFeedbackLowQuality, SubscriptionUpdateParamsCancellationFeedbackTooComplex, SubscriptionUpdateParamsCancellationFeedbackOther:
 		return true
 	}
 	return false

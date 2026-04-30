@@ -58,7 +58,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 			ProductDescription:            dodopayments.F("product_description"),
 			ProductPrice:                  dodopayments.F(int64(0)),
 		}),
-		OneTimeProductCart: dodopayments.F([]dodopayments.SubscriptionNewParamsOneTimeProductCart{{
+		OneTimeProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
 			ProductID: dodopayments.F("product_id"),
 			Quantity:  dodopayments.F(int64(0)),
 			Amount:    dodopayments.F(int64(0)),
@@ -130,7 +130,7 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 			CancelAtNextBillingDate: dodopayments.F(true),
 			CancelReason:            dodopayments.F(dodopayments.SubscriptionUpdateParamsCancelReasonCancelledByCustomer),
 			CancellationComment:     dodopayments.F("cancellation_comment"),
-			CancellationFeedback:    dodopayments.F(dodopayments.SubscriptionUpdateParamsCancellationFeedbackTooExpensive),
+			CancellationFeedback:    dodopayments.F(dodopayments.CancellationFeedbackTooExpensive),
 			CreditEntitlementCart: dodopayments.F([]dodopayments.SubscriptionUpdateParamsCreditEntitlementCart{{
 				CreditEntitlementID:        dodopayments.F("credit_entitlement_id"),
 				CreditsAmount:              dodopayments.F("credits_amount"),
