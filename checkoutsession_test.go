@@ -124,8 +124,10 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 				AllowTaxID:                  dodopayments.F(true),
 				AlwaysCreateNewCustomer:     dodopayments.F(true),
 				RedirectImmediately:         dodopayments.F(true),
+				RequirePhoneNumber:          dodopayments.F(true),
 			}),
-			Force3DS: dodopayments.F(true),
+			Force3DS:                 dodopayments.F(true),
+			MandateMinAmountInrPaise: dodopayments.F(int64(0)),
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),
@@ -290,8 +292,10 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 				AllowTaxID:                  dodopayments.F(true),
 				AlwaysCreateNewCustomer:     dodopayments.F(true),
 				RedirectImmediately:         dodopayments.F(true),
+				RequirePhoneNumber:          dodopayments.F(true),
 			}),
-			Force3DS: dodopayments.F(true),
+			Force3DS:                 dodopayments.F(true),
+			MandateMinAmountInrPaise: dodopayments.F(int64(0)),
 			Metadata: dodopayments.F(map[string]string{
 				"foo": "string",
 			}),

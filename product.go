@@ -332,21 +332,22 @@ func (r creditEntitlementMappingResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+// Digital-product-delivery payload for a grant. Populated for grants whose
+// entitlement has `integration_type = 'digital_files'`. `files` carries presigned
+// download URLs; the source (EE service or legacy in-process S3 presigning) is
+// opaque to the caller.
 type DigitalProductDelivery struct {
-	// External URL to digital product
-	ExternalURL string `json:"external_url" api:"nullable"`
-	// Uploaded files ids of digital product
-	Files []DigitalProductDeliveryFile `json:"files" api:"nullable"`
-	// Instructions to download and use the digital product
-	Instructions string                     `json:"instructions" api:"nullable"`
-	JSON         digitalProductDeliveryJSON `json:"-"`
+	Files        []DigitalProductDeliveryFile `json:"files" api:"required"`
+	ExternalURL  string                       `json:"external_url" api:"nullable"`
+	Instructions string                       `json:"instructions" api:"nullable"`
+	JSON         digitalProductDeliveryJSON   `json:"-"`
 }
 
 // digitalProductDeliveryJSON contains the JSON metadata for the struct
 // [DigitalProductDelivery]
 type digitalProductDeliveryJSON struct {
-	ExternalURL  apijson.Field
 	Files        apijson.Field
+	ExternalURL  apijson.Field
 	Instructions apijson.Field
 	raw          string
 	ExtraFields  map[string]apijson.Field
@@ -361,18 +362,25 @@ func (r digitalProductDeliveryJSON) RawJSON() string {
 }
 
 type DigitalProductDeliveryFile struct {
-	FileID   string                         `json:"file_id" api:"required" format:"uuid"`
-	FileName string                         `json:"file_name" api:"required"`
-	URL      string                         `json:"url" api:"required"`
-	JSON     digitalProductDeliveryFileJSON `json:"-"`
+	DownloadURL string `json:"download_url" api:"required"`
+	// Seconds until `download_url` expires.
+	ExpiresIn   int64                          `json:"expires_in" api:"required"`
+	FileID      string                         `json:"file_id" api:"required"`
+	Filename    string                         `json:"filename" api:"required"`
+	ContentType string                         `json:"content_type" api:"nullable"`
+	FileSize    int64                          `json:"file_size" api:"nullable"`
+	JSON        digitalProductDeliveryFileJSON `json:"-"`
 }
 
 // digitalProductDeliveryFileJSON contains the JSON metadata for the struct
 // [DigitalProductDeliveryFile]
 type digitalProductDeliveryFileJSON struct {
+	DownloadURL apijson.Field
+	ExpiresIn   apijson.Field
 	FileID      apijson.Field
-	FileName    apijson.Field
-	URL         apijson.Field
+	Filename    apijson.Field
+	ContentType apijson.Field
+	FileSize    apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -947,7 +955,11 @@ type Product struct {
 	// Available Addons for subscription products
 	Addons []string `json:"addons" api:"nullable"`
 	// Description of the product, optional.
-	Description            string                 `json:"description" api:"nullable"`
+	Description string `json:"description" api:"nullable"`
+	// Digital-product-delivery payload for a grant. Populated for grants whose
+	// entitlement has `integration_type = 'digital_files'`. `files` carries presigned
+	// download URLs; the source (EE service or legacy in-process S3 presigning) is
+	// opaque to the caller.
 	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
 	// URL of the product image, optional.
 	Image string `json:"image" api:"nullable"`
@@ -1003,11 +1015,18 @@ func (r productJSON) RawJSON() string {
 	return r.raw
 }
 
-// Summary of an entitlement attached to a product
+// Summary of an entitlement attached to a product.
+//
+// `integration_config` uses [`IntegrationConfigResponse`] (NOT the persisted
+// [`IntegrationConfig`]) so digital_files entitlements embed the resolved
+// `digital_files` object — matching what `GET /entitlements/{id}` returns. All
+// other variants pass through unchanged via `#[serde(untagged)]`.
 type ProductEntitlement struct {
 	ID string `json:"id" api:"required"`
-	// Platform-specific configuration for an entitlement. Each variant uses unique
-	// field names so `#[serde(untagged)]` can disambiguate correctly.
+	// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
+	// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
+	// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
+	// ID-only via [`IntegrationConfig`]; this enum is response-only.
 	IntegrationConfig ProductEntitlementsIntegrationConfig `json:"integration_config" api:"required"`
 	IntegrationType   ProductEntitlementsIntegrationType   `json:"integration_type" api:"required"`
 	Name              string                               `json:"name" api:"required"`
@@ -1035,28 +1054,28 @@ func (r productEntitlementJSON) RawJSON() string {
 	return r.raw
 }
 
-// Platform-specific configuration for an entitlement. Each variant uses unique
-// field names so `#[serde(untagged)]` can disambiguate correctly.
+// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
+// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
+// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
+// ID-only via [`IntegrationConfig`]; this enum is response-only.
 type ProductEntitlementsIntegrationConfig struct {
 	ActivationMessage string `json:"activation_message" api:"nullable"`
 	ActivationsLimit  int64  `json:"activations_limit" api:"nullable"`
 	ChatID            string `json:"chat_id"`
-	// This field can have the runtime type of [[]string].
-	DigitalFileIDs   interface{} `json:"digital_file_ids"`
-	DurationCount    int64       `json:"duration_count" api:"nullable"`
-	DurationInterval string      `json:"duration_interval" api:"nullable"`
-	ExternalURL      string      `json:"external_url" api:"nullable"`
-	FigmaFileID      string      `json:"figma_file_id"`
-	FramerTemplateID string      `json:"framer_template_id"`
-	GuildID          string      `json:"guild_id"`
-	Instructions     string      `json:"instructions" api:"nullable"`
-	NotionTemplateID string      `json:"notion_template_id"`
-	// One of: pull, push, admin, maintain, triage
-	Permission string                                   `json:"permission"`
-	RoleID     string                                   `json:"role_id" api:"nullable"`
-	TargetID   string                                   `json:"target_id"`
-	JSON       productEntitlementsIntegrationConfigJSON `json:"-"`
-	union      ProductEntitlementsIntegrationConfigUnion
+	// This field can have the runtime type of
+	// [ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles].
+	DigitalFiles     interface{}                              `json:"digital_files"`
+	DurationCount    int64                                    `json:"duration_count" api:"nullable"`
+	DurationInterval TimeInterval                             `json:"duration_interval" api:"nullable"`
+	FigmaFileID      string                                   `json:"figma_file_id"`
+	FramerTemplateID string                                   `json:"framer_template_id"`
+	GuildID          string                                   `json:"guild_id"`
+	NotionTemplateID string                                   `json:"notion_template_id"`
+	Permission       string                                   `json:"permission"`
+	RoleID           string                                   `json:"role_id" api:"nullable"`
+	TargetID         string                                   `json:"target_id"`
+	JSON             productEntitlementsIntegrationConfigJSON `json:"-"`
+	union            ProductEntitlementsIntegrationConfigUnion
 }
 
 // productEntitlementsIntegrationConfigJSON contains the JSON metadata for the
@@ -1065,14 +1084,12 @@ type productEntitlementsIntegrationConfigJSON struct {
 	ActivationMessage apijson.Field
 	ActivationsLimit  apijson.Field
 	ChatID            apijson.Field
-	DigitalFileIDs    apijson.Field
+	DigitalFiles      apijson.Field
 	DurationCount     apijson.Field
 	DurationInterval  apijson.Field
-	ExternalURL       apijson.Field
 	FigmaFileID       apijson.Field
 	FramerTemplateID  apijson.Field
 	GuildID           apijson.Field
-	Instructions      apijson.Field
 	NotionTemplateID  apijson.Field
 	Permission        apijson.Field
 	RoleID            apijson.Field
@@ -1110,8 +1127,10 @@ func (r ProductEntitlementsIntegrationConfig) AsUnion() ProductEntitlementsInteg
 	return r.union
 }
 
-// Platform-specific configuration for an entitlement. Each variant uses unique
-// field names so `#[serde(untagged)]` can disambiguate correctly.
+// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
+// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
+// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
+// ID-only via [`IntegrationConfig`]; this enum is response-only.
 //
 // Union satisfied by [ProductEntitlementsIntegrationConfigGitHubConfig],
 // [ProductEntitlementsIntegrationConfigDiscordConfig],
@@ -1165,7 +1184,6 @@ func init() {
 }
 
 type ProductEntitlementsIntegrationConfigGitHubConfig struct {
-	// One of: pull, push, admin, maintain, triage
 	Permission string                                               `json:"permission" api:"required"`
 	TargetID   string                                               `json:"target_id" api:"required"`
 	JSON       productEntitlementsIntegrationConfigGitHubConfigJSON `json:"-"`
@@ -1314,20 +1332,20 @@ func (r ProductEntitlementsIntegrationConfigNotionConfig) implementsProductEntit
 }
 
 type ProductEntitlementsIntegrationConfigDigitalFilesConfig struct {
-	DigitalFileIDs []string                                                   `json:"digital_file_ids" api:"required"`
-	ExternalURL    string                                                     `json:"external_url" api:"nullable"`
-	Instructions   string                                                     `json:"instructions" api:"nullable"`
-	JSON           productEntitlementsIntegrationConfigDigitalFilesConfigJSON `json:"-"`
+	// Populated digital-files payload for entitlement read surfaces. Mirrors
+	// `DigitalProductDelivery` but is sourced from an entitlement's
+	// `integration_config` (not a grant) and tags each file with its origin (`legacy`
+	// vs `ee`).
+	DigitalFiles ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles `json:"digital_files" api:"required"`
+	JSON         productEntitlementsIntegrationConfigDigitalFilesConfigJSON         `json:"-"`
 }
 
 // productEntitlementsIntegrationConfigDigitalFilesConfigJSON contains the JSON
 // metadata for the struct [ProductEntitlementsIntegrationConfigDigitalFilesConfig]
 type productEntitlementsIntegrationConfigDigitalFilesConfigJSON struct {
-	DigitalFileIDs apijson.Field
-	ExternalURL    apijson.Field
-	Instructions   apijson.Field
-	raw            string
-	ExtraFields    map[string]apijson.Field
+	DigitalFiles apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
 }
 
 func (r *ProductEntitlementsIntegrationConfigDigitalFilesConfig) UnmarshalJSON(data []byte) (err error) {
@@ -1341,11 +1359,78 @@ func (r productEntitlementsIntegrationConfigDigitalFilesConfigJSON) RawJSON() st
 func (r ProductEntitlementsIntegrationConfigDigitalFilesConfig) implementsProductEntitlementsIntegrationConfig() {
 }
 
+// Populated digital-files payload for entitlement read surfaces. Mirrors
+// `DigitalProductDelivery` but is sourced from an entitlement's
+// `integration_config` (not a grant) and tags each file with its origin (`legacy`
+// vs `ee`).
+type ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles struct {
+	Files        []ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile `json:"files" api:"required"`
+	ExternalURL  string                                                                   `json:"external_url" api:"nullable"`
+	Instructions string                                                                   `json:"instructions" api:"nullable"`
+	JSON         productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON   `json:"-"`
+}
+
+// productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON contains
+// the JSON metadata for the struct
+// [ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles]
+type productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON struct {
+	Files        apijson.Field
+	ExternalURL  apijson.Field
+	Instructions apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON) RawJSON() string {
+	return r.raw
+}
+
+type ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile struct {
+	DownloadURL string `json:"download_url" api:"required"`
+	// Seconds until `download_url` expires.
+	ExpiresIn int64  `json:"expires_in" api:"required"`
+	FileID    string `json:"file_id" api:"required"`
+	Filename  string `json:"filename" api:"required"`
+	// `"legacy"` for files in `product_files`, `"ee"` for files managed by the
+	// Entitlements Engine.
+	Source      string                                                                     `json:"source" api:"required"`
+	ContentType string                                                                     `json:"content_type" api:"nullable"`
+	FileSize    int64                                                                      `json:"file_size" api:"nullable"`
+	JSON        productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON `json:"-"`
+}
+
+// productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON
+// contains the JSON metadata for the struct
+// [ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile]
+type productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON struct {
+	DownloadURL apijson.Field
+	ExpiresIn   apijson.Field
+	FileID      apijson.Field
+	Filename    apijson.Field
+	Source      apijson.Field
+	ContentType apijson.Field
+	FileSize    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON) RawJSON() string {
+	return r.raw
+}
+
 type ProductEntitlementsIntegrationConfigLicenseKeyConfig struct {
 	ActivationMessage string                                                   `json:"activation_message" api:"nullable"`
 	ActivationsLimit  int64                                                    `json:"activations_limit" api:"nullable"`
 	DurationCount     int64                                                    `json:"duration_count" api:"nullable"`
-	DurationInterval  string                                                   `json:"duration_interval" api:"nullable"`
+	DurationInterval  TimeInterval                                             `json:"duration_interval" api:"nullable"`
 	JSON              productEntitlementsIntegrationConfigLicenseKeyConfigJSON `json:"-"`
 }
 
@@ -1465,11 +1550,18 @@ func (r productListResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-// Summary of an entitlement attached to a product
+// Summary of an entitlement attached to a product.
+//
+// `integration_config` uses [`IntegrationConfigResponse`] (NOT the persisted
+// [`IntegrationConfig`]) so digital_files entitlements embed the resolved
+// `digital_files` object — matching what `GET /entitlements/{id}` returns. All
+// other variants pass through unchanged via `#[serde(untagged)]`.
 type ProductListResponseEntitlement struct {
 	ID string `json:"id" api:"required"`
-	// Platform-specific configuration for an entitlement. Each variant uses unique
-	// field names so `#[serde(untagged)]` can disambiguate correctly.
+	// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
+	// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
+	// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
+	// ID-only via [`IntegrationConfig`]; this enum is response-only.
 	IntegrationConfig ProductListResponseEntitlementsIntegrationConfig `json:"integration_config" api:"required"`
 	IntegrationType   ProductListResponseEntitlementsIntegrationType   `json:"integration_type" api:"required"`
 	Name              string                                           `json:"name" api:"required"`
@@ -1497,28 +1589,28 @@ func (r productListResponseEntitlementJSON) RawJSON() string {
 	return r.raw
 }
 
-// Platform-specific configuration for an entitlement. Each variant uses unique
-// field names so `#[serde(untagged)]` can disambiguate correctly.
+// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
+// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
+// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
+// ID-only via [`IntegrationConfig`]; this enum is response-only.
 type ProductListResponseEntitlementsIntegrationConfig struct {
 	ActivationMessage string `json:"activation_message" api:"nullable"`
 	ActivationsLimit  int64  `json:"activations_limit" api:"nullable"`
 	ChatID            string `json:"chat_id"`
-	// This field can have the runtime type of [[]string].
-	DigitalFileIDs   interface{} `json:"digital_file_ids"`
-	DurationCount    int64       `json:"duration_count" api:"nullable"`
-	DurationInterval string      `json:"duration_interval" api:"nullable"`
-	ExternalURL      string      `json:"external_url" api:"nullable"`
-	FigmaFileID      string      `json:"figma_file_id"`
-	FramerTemplateID string      `json:"framer_template_id"`
-	GuildID          string      `json:"guild_id"`
-	Instructions     string      `json:"instructions" api:"nullable"`
-	NotionTemplateID string      `json:"notion_template_id"`
-	// One of: pull, push, admin, maintain, triage
-	Permission string                                               `json:"permission"`
-	RoleID     string                                               `json:"role_id" api:"nullable"`
-	TargetID   string                                               `json:"target_id"`
-	JSON       productListResponseEntitlementsIntegrationConfigJSON `json:"-"`
-	union      ProductListResponseEntitlementsIntegrationConfigUnion
+	// This field can have the runtime type of
+	// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles].
+	DigitalFiles     interface{}                                          `json:"digital_files"`
+	DurationCount    int64                                                `json:"duration_count" api:"nullable"`
+	DurationInterval TimeInterval                                         `json:"duration_interval" api:"nullable"`
+	FigmaFileID      string                                               `json:"figma_file_id"`
+	FramerTemplateID string                                               `json:"framer_template_id"`
+	GuildID          string                                               `json:"guild_id"`
+	NotionTemplateID string                                               `json:"notion_template_id"`
+	Permission       string                                               `json:"permission"`
+	RoleID           string                                               `json:"role_id" api:"nullable"`
+	TargetID         string                                               `json:"target_id"`
+	JSON             productListResponseEntitlementsIntegrationConfigJSON `json:"-"`
+	union            ProductListResponseEntitlementsIntegrationConfigUnion
 }
 
 // productListResponseEntitlementsIntegrationConfigJSON contains the JSON metadata
@@ -1527,14 +1619,12 @@ type productListResponseEntitlementsIntegrationConfigJSON struct {
 	ActivationMessage apijson.Field
 	ActivationsLimit  apijson.Field
 	ChatID            apijson.Field
-	DigitalFileIDs    apijson.Field
+	DigitalFiles      apijson.Field
 	DurationCount     apijson.Field
 	DurationInterval  apijson.Field
-	ExternalURL       apijson.Field
 	FigmaFileID       apijson.Field
 	FramerTemplateID  apijson.Field
 	GuildID           apijson.Field
-	Instructions      apijson.Field
 	NotionTemplateID  apijson.Field
 	Permission        apijson.Field
 	RoleID            apijson.Field
@@ -1572,8 +1662,10 @@ func (r ProductListResponseEntitlementsIntegrationConfig) AsUnion() ProductListR
 	return r.union
 }
 
-// Platform-specific configuration for an entitlement. Each variant uses unique
-// field names so `#[serde(untagged)]` can disambiguate correctly.
+// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
+// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
+// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
+// ID-only via [`IntegrationConfig`]; this enum is response-only.
 //
 // Union satisfied by
 // [ProductListResponseEntitlementsIntegrationConfigGitHubConfig],
@@ -1628,7 +1720,6 @@ func init() {
 }
 
 type ProductListResponseEntitlementsIntegrationConfigGitHubConfig struct {
-	// One of: pull, push, admin, maintain, triage
 	Permission string                                                           `json:"permission" api:"required"`
 	TargetID   string                                                           `json:"target_id" api:"required"`
 	JSON       productListResponseEntitlementsIntegrationConfigGitHubConfigJSON `json:"-"`
@@ -1783,21 +1874,21 @@ func (r ProductListResponseEntitlementsIntegrationConfigNotionConfig) implements
 }
 
 type ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig struct {
-	DigitalFileIDs []string                                                               `json:"digital_file_ids" api:"required"`
-	ExternalURL    string                                                                 `json:"external_url" api:"nullable"`
-	Instructions   string                                                                 `json:"instructions" api:"nullable"`
-	JSON           productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON `json:"-"`
+	// Populated digital-files payload for entitlement read surfaces. Mirrors
+	// `DigitalProductDelivery` but is sourced from an entitlement's
+	// `integration_config` (not a grant) and tags each file with its origin (`legacy`
+	// vs `ee`).
+	DigitalFiles ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles `json:"digital_files" api:"required"`
+	JSON         productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON         `json:"-"`
 }
 
 // productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON contains
 // the JSON metadata for the struct
 // [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig]
 type productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON struct {
-	DigitalFileIDs apijson.Field
-	ExternalURL    apijson.Field
-	Instructions   apijson.Field
-	raw            string
-	ExtraFields    map[string]apijson.Field
+	DigitalFiles apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
 }
 
 func (r *ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig) UnmarshalJSON(data []byte) (err error) {
@@ -1811,11 +1902,78 @@ func (r productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON) 
 func (r ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
 }
 
+// Populated digital-files payload for entitlement read surfaces. Mirrors
+// `DigitalProductDelivery` but is sourced from an entitlement's
+// `integration_config` (not a grant) and tags each file with its origin (`legacy`
+// vs `ee`).
+type ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles struct {
+	Files        []ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile `json:"files" api:"required"`
+	ExternalURL  string                                                                               `json:"external_url" api:"nullable"`
+	Instructions string                                                                               `json:"instructions" api:"nullable"`
+	JSON         productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON   `json:"-"`
+}
+
+// productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON
+// contains the JSON metadata for the struct
+// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles]
+type productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON struct {
+	Files        apijson.Field
+	ExternalURL  apijson.Field
+	Instructions apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON) RawJSON() string {
+	return r.raw
+}
+
+type ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile struct {
+	DownloadURL string `json:"download_url" api:"required"`
+	// Seconds until `download_url` expires.
+	ExpiresIn int64  `json:"expires_in" api:"required"`
+	FileID    string `json:"file_id" api:"required"`
+	Filename  string `json:"filename" api:"required"`
+	// `"legacy"` for files in `product_files`, `"ee"` for files managed by the
+	// Entitlements Engine.
+	Source      string                                                                                 `json:"source" api:"required"`
+	ContentType string                                                                                 `json:"content_type" api:"nullable"`
+	FileSize    int64                                                                                  `json:"file_size" api:"nullable"`
+	JSON        productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON `json:"-"`
+}
+
+// productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON
+// contains the JSON metadata for the struct
+// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile]
+type productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON struct {
+	DownloadURL apijson.Field
+	ExpiresIn   apijson.Field
+	FileID      apijson.Field
+	Filename    apijson.Field
+	Source      apijson.Field
+	ContentType apijson.Field
+	FileSize    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON) RawJSON() string {
+	return r.raw
+}
+
 type ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig struct {
 	ActivationMessage string                                                               `json:"activation_message" api:"nullable"`
 	ActivationsLimit  int64                                                                `json:"activations_limit" api:"nullable"`
 	DurationCount     int64                                                                `json:"duration_count" api:"nullable"`
-	DurationInterval  string                                                               `json:"duration_interval" api:"nullable"`
+	DurationInterval  TimeInterval                                                         `json:"duration_interval" api:"nullable"`
 	JSON              productListResponseEntitlementsIntegrationConfigLicenseKeyConfigJSON `json:"-"`
 }
 
@@ -1902,18 +2060,33 @@ type ProductNewParams struct {
 	// Optional description of the product
 	Description param.Field[string] `json:"description"`
 	// Choose how you would like you digital product delivered
+	//
+	// deprecated: use entitlements instead
 	DigitalProductDelivery param.Field[ProductNewParamsDigitalProductDelivery] `json:"digital_product_delivery"`
-	// Optional entitlement IDs to attach to this product (max 20)
-	EntitlementIDs param.Field[[]string] `json:"entitlement_ids"`
+	// Optional entitlements to attach to this product (max 20)
+	Entitlements param.Field[[]ProductNewParamsEntitlement] `json:"entitlements"`
 	// Optional message displayed during license key activation
+	//
+	// deprecated: use entitlements instead. Ignored when a `license_key` entitlement
+	// is attached via the `entitlements` field.
 	LicenseKeyActivationMessage param.Field[string] `json:"license_key_activation_message"`
 	// The number of times the license key can be activated. Must be 0 or greater
+	//
+	// deprecated: use entitlements instead. Ignored when a `license_key` entitlement
+	// is attached via the `entitlements` field.
 	LicenseKeyActivationsLimit param.Field[int64] `json:"license_key_activations_limit"`
 	// Duration configuration for the license key. Set to null if you don't want the
 	// license key to expire. For subscriptions, the lifetime of the license key is
 	// tied to the subscription period
+	//
+	// deprecated: use entitlements instead. Ignored when a `license_key` entitlement
+	// is attached via the `entitlements` field.
 	LicenseKeyDuration param.Field[LicenseKeyDurationParam] `json:"license_key_duration"`
 	// When true, generates and sends a license key to your customer. Defaults to false
+	//
+	// deprecated: use entitlements instead. If a `license_key` entitlement is also
+	// attached via the `entitlements` field, the `license_key_*` config fields below
+	// are ignored — the attached entitlement's config is the source of truth.
 	LicenseKeyEnabled param.Field[bool] `json:"license_key_enabled"`
 	// Additional metadata for the product
 	Metadata param.Field[map[string]string] `json:"metadata"`
@@ -1924,6 +2097,8 @@ func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
 }
 
 // Choose how you would like you digital product delivered
+//
+// deprecated: use entitlements instead
 type ProductNewParamsDigitalProductDelivery struct {
 	// External URL to digital product
 	ExternalURL param.Field[string] `json:"external_url"`
@@ -1932,6 +2107,20 @@ type ProductNewParamsDigitalProductDelivery struct {
 }
 
 func (r ProductNewParamsDigitalProductDelivery) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Request struct for attaching an entitlement to a product.
+//
+// Mirrors the `credit_entitlements` attach shape — every "attach something to a
+// product" array takes objects, not bare IDs. Uniform shape leaves room for
+// per-attachment settings later without another API break.
+type ProductNewParamsEntitlement struct {
+	// ID of the entitlement to attach to the product
+	EntitlementID param.Field[string] `json:"entitlement_id" api:"required"`
+}
+
+func (r ProductNewParamsEntitlement) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
@@ -1945,31 +2134,41 @@ type ProductUpdateParams struct {
 	// Description of the product, optional and must be at most 1000 characters.
 	Description param.Field[string] `json:"description"`
 	// Choose how you would like you digital product delivered
+	//
+	// deprecated: use entitlements instead
 	DigitalProductDelivery param.Field[ProductUpdateParamsDigitalProductDelivery] `json:"digital_product_delivery"`
-	// Entitlement IDs to attach (replaces all existing when present) Send empty array
-	// to remove all, omit field to leave unchanged
-	EntitlementIDs param.Field[[]string] `json:"entitlement_ids"`
+	// Entitlements to attach (replaces all existing when present) Send empty array to
+	// remove all, omit field to leave unchanged
+	Entitlements param.Field[[]ProductUpdateParamsEntitlement] `json:"entitlements"`
 	// Product image id after its uploaded to S3
 	ImageID param.Field[string] `json:"image_id" format:"uuid"`
 	// Message sent to the customer upon license key activation.
 	//
 	// Only applicable if `license_key_enabled` is `true`. This message contains
 	// instructions for activating the license key.
+	//
+	// deprecated: use entitlements instead
 	LicenseKeyActivationMessage param.Field[string] `json:"license_key_activation_message"`
 	// Limit for the number of activations for the license key.
 	//
 	// Only applicable if `license_key_enabled` is `true`. Represents the maximum
 	// number of times the license key can be activated.
+	//
+	// deprecated: use entitlements instead
 	LicenseKeyActivationsLimit param.Field[int64] `json:"license_key_activations_limit"`
 	// Duration of the license key if enabled.
 	//
 	// Only applicable if `license_key_enabled` is `true`. Represents the duration in
 	// days for which the license key is valid.
+	//
+	// deprecated: use entitlements instead
 	LicenseKeyDuration param.Field[LicenseKeyDurationParam] `json:"license_key_duration"`
 	// Whether the product requires a license key.
 	//
 	// If `true`, additional fields related to license key (duration, activations
 	// limit, activation message) become applicable.
+	//
+	// deprecated: use entitlements instead
 	LicenseKeyEnabled param.Field[bool] `json:"license_key_enabled"`
 	// Additional metadata for the product
 	Metadata param.Field[map[string]string] `json:"metadata"`
@@ -1986,6 +2185,8 @@ func (r ProductUpdateParams) MarshalJSON() (data []byte, err error) {
 }
 
 // Choose how you would like you digital product delivered
+//
+// deprecated: use entitlements instead
 type ProductUpdateParamsDigitalProductDelivery struct {
 	// External URL to digital product
 	ExternalURL param.Field[string] `json:"external_url"`
@@ -1996,6 +2197,20 @@ type ProductUpdateParamsDigitalProductDelivery struct {
 }
 
 func (r ProductUpdateParamsDigitalProductDelivery) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Request struct for attaching an entitlement to a product.
+//
+// Mirrors the `credit_entitlements` attach shape — every "attach something to a
+// product" array takes objects, not bare IDs. Uniform shape leaves room for
+// per-attachment settings later without another API break.
+type ProductUpdateParamsEntitlement struct {
+	// ID of the entitlement to attach to the product
+	EntitlementID param.Field[string] `json:"entitlement_id" api:"required"`
+}
+
+func (r ProductUpdateParamsEntitlement) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 

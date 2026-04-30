@@ -798,6 +798,56 @@ func (r CreditOverageChargedWebhookEventType) IsKnown() bool {
 	return false
 }
 
+type CreditOverageResetWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Response for a ledger entry
+	Data CreditLedgerEntry `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type CreditOverageResetWebhookEventType `json:"type" api:"required"`
+	JSON creditOverageResetWebhookEventJSON `json:"-"`
+}
+
+// creditOverageResetWebhookEventJSON contains the JSON metadata for the struct
+// [CreditOverageResetWebhookEvent]
+type creditOverageResetWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CreditOverageResetWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r creditOverageResetWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r CreditOverageResetWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r CreditOverageResetWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type CreditOverageResetWebhookEventType string
+
+const (
+	CreditOverageResetWebhookEventTypeCreditOverageReset CreditOverageResetWebhookEventType = "credit.overage_reset"
+)
+
+func (r CreditOverageResetWebhookEventType) IsKnown() bool {
+	switch r {
+	case CreditOverageResetWebhookEventTypeCreditOverageReset:
+		return true
+	}
+	return false
+}
+
 type CreditRolledOverWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
@@ -1462,6 +1512,630 @@ const (
 func (r DunningStartedWebhookEventType) IsKnown() bool {
 	switch r {
 	case DunningStartedWebhookEventTypeDunningStarted:
+		return true
+	}
+	return false
+}
+
+type EntitlementGrantCreatedWebhookEvent struct {
+	// The business identifier
+	BusinessID string                                  `json:"business_id" api:"required"`
+	Data       EntitlementGrantCreatedWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type EntitlementGrantCreatedWebhookEventType `json:"type" api:"required"`
+	JSON entitlementGrantCreatedWebhookEventJSON `json:"-"`
+}
+
+// entitlementGrantCreatedWebhookEventJSON contains the JSON metadata for the
+// struct [EntitlementGrantCreatedWebhookEvent]
+type entitlementGrantCreatedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *EntitlementGrantCreatedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantCreatedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r EntitlementGrantCreatedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r EntitlementGrantCreatedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+type EntitlementGrantCreatedWebhookEventData struct {
+	ID            string                                        `json:"id" api:"required"`
+	BusinessID    string                                        `json:"business_id" api:"required"`
+	CreatedAt     time.Time                                     `json:"created_at" api:"required" format:"date-time"`
+	CustomerID    string                                        `json:"customer_id" api:"required"`
+	EntitlementID string                                        `json:"entitlement_id" api:"required"`
+	ExternalID    string                                        `json:"external_id" api:"required"`
+	Status        EntitlementGrantCreatedWebhookEventDataStatus `json:"status" api:"required"`
+	UpdatedAt     time.Time                                     `json:"updated_at" api:"required" format:"date-time"`
+	DeliveredAt   time.Time                                     `json:"delivered_at" api:"nullable" format:"date-time"`
+	// Present only when the entitlement integration_type is `digital_files`. Populated
+	// eagerly on every list and single-record endpoint.
+	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
+	ErrorCode              string                 `json:"error_code" api:"nullable"`
+	ErrorMessage           string                 `json:"error_message" api:"nullable"`
+	// Present only when the entitlement integration_type is `license_key`.
+	LicenseKey       EntitlementGrantCreatedWebhookEventDataLicenseKey `json:"license_key" api:"nullable"`
+	Metadata         interface{}                                       `json:"metadata"`
+	OAuthExpiresAt   time.Time                                         `json:"oauth_expires_at" api:"nullable" format:"date-time"`
+	OAuthURL         string                                            `json:"oauth_url" api:"nullable"`
+	PaymentID        string                                            `json:"payment_id" api:"nullable"`
+	RevocationReason string                                            `json:"revocation_reason" api:"nullable"`
+	RevokedAt        time.Time                                         `json:"revoked_at" api:"nullable" format:"date-time"`
+	SubscriptionID   string                                            `json:"subscription_id" api:"nullable"`
+	JSON             entitlementGrantCreatedWebhookEventDataJSON       `json:"-"`
+}
+
+// entitlementGrantCreatedWebhookEventDataJSON contains the JSON metadata for the
+// struct [EntitlementGrantCreatedWebhookEventData]
+type entitlementGrantCreatedWebhookEventDataJSON struct {
+	ID                     apijson.Field
+	BusinessID             apijson.Field
+	CreatedAt              apijson.Field
+	CustomerID             apijson.Field
+	EntitlementID          apijson.Field
+	ExternalID             apijson.Field
+	Status                 apijson.Field
+	UpdatedAt              apijson.Field
+	DeliveredAt            apijson.Field
+	DigitalProductDelivery apijson.Field
+	ErrorCode              apijson.Field
+	ErrorMessage           apijson.Field
+	LicenseKey             apijson.Field
+	Metadata               apijson.Field
+	OAuthExpiresAt         apijson.Field
+	OAuthURL               apijson.Field
+	PaymentID              apijson.Field
+	RevocationReason       apijson.Field
+	RevokedAt              apijson.Field
+	SubscriptionID         apijson.Field
+	raw                    string
+	ExtraFields            map[string]apijson.Field
+}
+
+func (r *EntitlementGrantCreatedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantCreatedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type EntitlementGrantCreatedWebhookEventDataStatus string
+
+const (
+	EntitlementGrantCreatedWebhookEventDataStatusPending   EntitlementGrantCreatedWebhookEventDataStatus = "Pending"
+	EntitlementGrantCreatedWebhookEventDataStatusDelivered EntitlementGrantCreatedWebhookEventDataStatus = "Delivered"
+	EntitlementGrantCreatedWebhookEventDataStatusFailed    EntitlementGrantCreatedWebhookEventDataStatus = "Failed"
+	EntitlementGrantCreatedWebhookEventDataStatusRevoked   EntitlementGrantCreatedWebhookEventDataStatus = "Revoked"
+)
+
+func (r EntitlementGrantCreatedWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case EntitlementGrantCreatedWebhookEventDataStatusPending, EntitlementGrantCreatedWebhookEventDataStatusDelivered, EntitlementGrantCreatedWebhookEventDataStatusFailed, EntitlementGrantCreatedWebhookEventDataStatusRevoked:
+		return true
+	}
+	return false
+}
+
+// Present only when the entitlement integration_type is `license_key`.
+type EntitlementGrantCreatedWebhookEventDataLicenseKey struct {
+	ActivationsUsed  int64                                                 `json:"activations_used" api:"required"`
+	Key              string                                                `json:"key" api:"required"`
+	ActivationsLimit int64                                                 `json:"activations_limit" api:"nullable"`
+	ExpiresAt        time.Time                                             `json:"expires_at" api:"nullable" format:"date-time"`
+	JSON             entitlementGrantCreatedWebhookEventDataLicenseKeyJSON `json:"-"`
+}
+
+// entitlementGrantCreatedWebhookEventDataLicenseKeyJSON contains the JSON metadata
+// for the struct [EntitlementGrantCreatedWebhookEventDataLicenseKey]
+type entitlementGrantCreatedWebhookEventDataLicenseKeyJSON struct {
+	ActivationsUsed  apijson.Field
+	Key              apijson.Field
+	ActivationsLimit apijson.Field
+	ExpiresAt        apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *EntitlementGrantCreatedWebhookEventDataLicenseKey) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantCreatedWebhookEventDataLicenseKeyJSON) RawJSON() string {
+	return r.raw
+}
+
+// The event type
+type EntitlementGrantCreatedWebhookEventType string
+
+const (
+	EntitlementGrantCreatedWebhookEventTypeEntitlementGrantCreated EntitlementGrantCreatedWebhookEventType = "entitlement_grant.created"
+)
+
+func (r EntitlementGrantCreatedWebhookEventType) IsKnown() bool {
+	switch r {
+	case EntitlementGrantCreatedWebhookEventTypeEntitlementGrantCreated:
+		return true
+	}
+	return false
+}
+
+type EntitlementGrantDeliveredWebhookEvent struct {
+	// The business identifier
+	BusinessID string                                    `json:"business_id" api:"required"`
+	Data       EntitlementGrantDeliveredWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type EntitlementGrantDeliveredWebhookEventType `json:"type" api:"required"`
+	JSON entitlementGrantDeliveredWebhookEventJSON `json:"-"`
+}
+
+// entitlementGrantDeliveredWebhookEventJSON contains the JSON metadata for the
+// struct [EntitlementGrantDeliveredWebhookEvent]
+type entitlementGrantDeliveredWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *EntitlementGrantDeliveredWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantDeliveredWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r EntitlementGrantDeliveredWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r EntitlementGrantDeliveredWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+type EntitlementGrantDeliveredWebhookEventData struct {
+	ID            string                                          `json:"id" api:"required"`
+	BusinessID    string                                          `json:"business_id" api:"required"`
+	CreatedAt     time.Time                                       `json:"created_at" api:"required" format:"date-time"`
+	CustomerID    string                                          `json:"customer_id" api:"required"`
+	EntitlementID string                                          `json:"entitlement_id" api:"required"`
+	ExternalID    string                                          `json:"external_id" api:"required"`
+	Status        EntitlementGrantDeliveredWebhookEventDataStatus `json:"status" api:"required"`
+	UpdatedAt     time.Time                                       `json:"updated_at" api:"required" format:"date-time"`
+	DeliveredAt   time.Time                                       `json:"delivered_at" api:"nullable" format:"date-time"`
+	// Present only when the entitlement integration_type is `digital_files`. Populated
+	// eagerly on every list and single-record endpoint.
+	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
+	ErrorCode              string                 `json:"error_code" api:"nullable"`
+	ErrorMessage           string                 `json:"error_message" api:"nullable"`
+	// Present only when the entitlement integration_type is `license_key`.
+	LicenseKey       EntitlementGrantDeliveredWebhookEventDataLicenseKey `json:"license_key" api:"nullable"`
+	Metadata         interface{}                                         `json:"metadata"`
+	OAuthExpiresAt   time.Time                                           `json:"oauth_expires_at" api:"nullable" format:"date-time"`
+	OAuthURL         string                                              `json:"oauth_url" api:"nullable"`
+	PaymentID        string                                              `json:"payment_id" api:"nullable"`
+	RevocationReason string                                              `json:"revocation_reason" api:"nullable"`
+	RevokedAt        time.Time                                           `json:"revoked_at" api:"nullable" format:"date-time"`
+	SubscriptionID   string                                              `json:"subscription_id" api:"nullable"`
+	JSON             entitlementGrantDeliveredWebhookEventDataJSON       `json:"-"`
+}
+
+// entitlementGrantDeliveredWebhookEventDataJSON contains the JSON metadata for the
+// struct [EntitlementGrantDeliveredWebhookEventData]
+type entitlementGrantDeliveredWebhookEventDataJSON struct {
+	ID                     apijson.Field
+	BusinessID             apijson.Field
+	CreatedAt              apijson.Field
+	CustomerID             apijson.Field
+	EntitlementID          apijson.Field
+	ExternalID             apijson.Field
+	Status                 apijson.Field
+	UpdatedAt              apijson.Field
+	DeliveredAt            apijson.Field
+	DigitalProductDelivery apijson.Field
+	ErrorCode              apijson.Field
+	ErrorMessage           apijson.Field
+	LicenseKey             apijson.Field
+	Metadata               apijson.Field
+	OAuthExpiresAt         apijson.Field
+	OAuthURL               apijson.Field
+	PaymentID              apijson.Field
+	RevocationReason       apijson.Field
+	RevokedAt              apijson.Field
+	SubscriptionID         apijson.Field
+	raw                    string
+	ExtraFields            map[string]apijson.Field
+}
+
+func (r *EntitlementGrantDeliveredWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantDeliveredWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type EntitlementGrantDeliveredWebhookEventDataStatus string
+
+const (
+	EntitlementGrantDeliveredWebhookEventDataStatusPending   EntitlementGrantDeliveredWebhookEventDataStatus = "Pending"
+	EntitlementGrantDeliveredWebhookEventDataStatusDelivered EntitlementGrantDeliveredWebhookEventDataStatus = "Delivered"
+	EntitlementGrantDeliveredWebhookEventDataStatusFailed    EntitlementGrantDeliveredWebhookEventDataStatus = "Failed"
+	EntitlementGrantDeliveredWebhookEventDataStatusRevoked   EntitlementGrantDeliveredWebhookEventDataStatus = "Revoked"
+)
+
+func (r EntitlementGrantDeliveredWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case EntitlementGrantDeliveredWebhookEventDataStatusPending, EntitlementGrantDeliveredWebhookEventDataStatusDelivered, EntitlementGrantDeliveredWebhookEventDataStatusFailed, EntitlementGrantDeliveredWebhookEventDataStatusRevoked:
+		return true
+	}
+	return false
+}
+
+// Present only when the entitlement integration_type is `license_key`.
+type EntitlementGrantDeliveredWebhookEventDataLicenseKey struct {
+	ActivationsUsed  int64                                                   `json:"activations_used" api:"required"`
+	Key              string                                                  `json:"key" api:"required"`
+	ActivationsLimit int64                                                   `json:"activations_limit" api:"nullable"`
+	ExpiresAt        time.Time                                               `json:"expires_at" api:"nullable" format:"date-time"`
+	JSON             entitlementGrantDeliveredWebhookEventDataLicenseKeyJSON `json:"-"`
+}
+
+// entitlementGrantDeliveredWebhookEventDataLicenseKeyJSON contains the JSON
+// metadata for the struct [EntitlementGrantDeliveredWebhookEventDataLicenseKey]
+type entitlementGrantDeliveredWebhookEventDataLicenseKeyJSON struct {
+	ActivationsUsed  apijson.Field
+	Key              apijson.Field
+	ActivationsLimit apijson.Field
+	ExpiresAt        apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *EntitlementGrantDeliveredWebhookEventDataLicenseKey) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantDeliveredWebhookEventDataLicenseKeyJSON) RawJSON() string {
+	return r.raw
+}
+
+// The event type
+type EntitlementGrantDeliveredWebhookEventType string
+
+const (
+	EntitlementGrantDeliveredWebhookEventTypeEntitlementGrantDelivered EntitlementGrantDeliveredWebhookEventType = "entitlement_grant.delivered"
+)
+
+func (r EntitlementGrantDeliveredWebhookEventType) IsKnown() bool {
+	switch r {
+	case EntitlementGrantDeliveredWebhookEventTypeEntitlementGrantDelivered:
+		return true
+	}
+	return false
+}
+
+type EntitlementGrantFailedWebhookEvent struct {
+	// The business identifier
+	BusinessID string                                 `json:"business_id" api:"required"`
+	Data       EntitlementGrantFailedWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type EntitlementGrantFailedWebhookEventType `json:"type" api:"required"`
+	JSON entitlementGrantFailedWebhookEventJSON `json:"-"`
+}
+
+// entitlementGrantFailedWebhookEventJSON contains the JSON metadata for the struct
+// [EntitlementGrantFailedWebhookEvent]
+type entitlementGrantFailedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *EntitlementGrantFailedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantFailedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r EntitlementGrantFailedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r EntitlementGrantFailedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+type EntitlementGrantFailedWebhookEventData struct {
+	ID            string                                       `json:"id" api:"required"`
+	BusinessID    string                                       `json:"business_id" api:"required"`
+	CreatedAt     time.Time                                    `json:"created_at" api:"required" format:"date-time"`
+	CustomerID    string                                       `json:"customer_id" api:"required"`
+	EntitlementID string                                       `json:"entitlement_id" api:"required"`
+	ExternalID    string                                       `json:"external_id" api:"required"`
+	Status        EntitlementGrantFailedWebhookEventDataStatus `json:"status" api:"required"`
+	UpdatedAt     time.Time                                    `json:"updated_at" api:"required" format:"date-time"`
+	DeliveredAt   time.Time                                    `json:"delivered_at" api:"nullable" format:"date-time"`
+	// Present only when the entitlement integration_type is `digital_files`. Populated
+	// eagerly on every list and single-record endpoint.
+	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
+	ErrorCode              string                 `json:"error_code" api:"nullable"`
+	ErrorMessage           string                 `json:"error_message" api:"nullable"`
+	// Present only when the entitlement integration_type is `license_key`.
+	LicenseKey       EntitlementGrantFailedWebhookEventDataLicenseKey `json:"license_key" api:"nullable"`
+	Metadata         interface{}                                      `json:"metadata"`
+	OAuthExpiresAt   time.Time                                        `json:"oauth_expires_at" api:"nullable" format:"date-time"`
+	OAuthURL         string                                           `json:"oauth_url" api:"nullable"`
+	PaymentID        string                                           `json:"payment_id" api:"nullable"`
+	RevocationReason string                                           `json:"revocation_reason" api:"nullable"`
+	RevokedAt        time.Time                                        `json:"revoked_at" api:"nullable" format:"date-time"`
+	SubscriptionID   string                                           `json:"subscription_id" api:"nullable"`
+	JSON             entitlementGrantFailedWebhookEventDataJSON       `json:"-"`
+}
+
+// entitlementGrantFailedWebhookEventDataJSON contains the JSON metadata for the
+// struct [EntitlementGrantFailedWebhookEventData]
+type entitlementGrantFailedWebhookEventDataJSON struct {
+	ID                     apijson.Field
+	BusinessID             apijson.Field
+	CreatedAt              apijson.Field
+	CustomerID             apijson.Field
+	EntitlementID          apijson.Field
+	ExternalID             apijson.Field
+	Status                 apijson.Field
+	UpdatedAt              apijson.Field
+	DeliveredAt            apijson.Field
+	DigitalProductDelivery apijson.Field
+	ErrorCode              apijson.Field
+	ErrorMessage           apijson.Field
+	LicenseKey             apijson.Field
+	Metadata               apijson.Field
+	OAuthExpiresAt         apijson.Field
+	OAuthURL               apijson.Field
+	PaymentID              apijson.Field
+	RevocationReason       apijson.Field
+	RevokedAt              apijson.Field
+	SubscriptionID         apijson.Field
+	raw                    string
+	ExtraFields            map[string]apijson.Field
+}
+
+func (r *EntitlementGrantFailedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantFailedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type EntitlementGrantFailedWebhookEventDataStatus string
+
+const (
+	EntitlementGrantFailedWebhookEventDataStatusPending   EntitlementGrantFailedWebhookEventDataStatus = "Pending"
+	EntitlementGrantFailedWebhookEventDataStatusDelivered EntitlementGrantFailedWebhookEventDataStatus = "Delivered"
+	EntitlementGrantFailedWebhookEventDataStatusFailed    EntitlementGrantFailedWebhookEventDataStatus = "Failed"
+	EntitlementGrantFailedWebhookEventDataStatusRevoked   EntitlementGrantFailedWebhookEventDataStatus = "Revoked"
+)
+
+func (r EntitlementGrantFailedWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case EntitlementGrantFailedWebhookEventDataStatusPending, EntitlementGrantFailedWebhookEventDataStatusDelivered, EntitlementGrantFailedWebhookEventDataStatusFailed, EntitlementGrantFailedWebhookEventDataStatusRevoked:
+		return true
+	}
+	return false
+}
+
+// Present only when the entitlement integration_type is `license_key`.
+type EntitlementGrantFailedWebhookEventDataLicenseKey struct {
+	ActivationsUsed  int64                                                `json:"activations_used" api:"required"`
+	Key              string                                               `json:"key" api:"required"`
+	ActivationsLimit int64                                                `json:"activations_limit" api:"nullable"`
+	ExpiresAt        time.Time                                            `json:"expires_at" api:"nullable" format:"date-time"`
+	JSON             entitlementGrantFailedWebhookEventDataLicenseKeyJSON `json:"-"`
+}
+
+// entitlementGrantFailedWebhookEventDataLicenseKeyJSON contains the JSON metadata
+// for the struct [EntitlementGrantFailedWebhookEventDataLicenseKey]
+type entitlementGrantFailedWebhookEventDataLicenseKeyJSON struct {
+	ActivationsUsed  apijson.Field
+	Key              apijson.Field
+	ActivationsLimit apijson.Field
+	ExpiresAt        apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *EntitlementGrantFailedWebhookEventDataLicenseKey) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantFailedWebhookEventDataLicenseKeyJSON) RawJSON() string {
+	return r.raw
+}
+
+// The event type
+type EntitlementGrantFailedWebhookEventType string
+
+const (
+	EntitlementGrantFailedWebhookEventTypeEntitlementGrantFailed EntitlementGrantFailedWebhookEventType = "entitlement_grant.failed"
+)
+
+func (r EntitlementGrantFailedWebhookEventType) IsKnown() bool {
+	switch r {
+	case EntitlementGrantFailedWebhookEventTypeEntitlementGrantFailed:
+		return true
+	}
+	return false
+}
+
+type EntitlementGrantRevokedWebhookEvent struct {
+	// The business identifier
+	BusinessID string                                  `json:"business_id" api:"required"`
+	Data       EntitlementGrantRevokedWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type EntitlementGrantRevokedWebhookEventType `json:"type" api:"required"`
+	JSON entitlementGrantRevokedWebhookEventJSON `json:"-"`
+}
+
+// entitlementGrantRevokedWebhookEventJSON contains the JSON metadata for the
+// struct [EntitlementGrantRevokedWebhookEvent]
+type entitlementGrantRevokedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *EntitlementGrantRevokedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantRevokedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r EntitlementGrantRevokedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r EntitlementGrantRevokedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+type EntitlementGrantRevokedWebhookEventData struct {
+	ID            string                                        `json:"id" api:"required"`
+	BusinessID    string                                        `json:"business_id" api:"required"`
+	CreatedAt     time.Time                                     `json:"created_at" api:"required" format:"date-time"`
+	CustomerID    string                                        `json:"customer_id" api:"required"`
+	EntitlementID string                                        `json:"entitlement_id" api:"required"`
+	ExternalID    string                                        `json:"external_id" api:"required"`
+	Status        EntitlementGrantRevokedWebhookEventDataStatus `json:"status" api:"required"`
+	UpdatedAt     time.Time                                     `json:"updated_at" api:"required" format:"date-time"`
+	DeliveredAt   time.Time                                     `json:"delivered_at" api:"nullable" format:"date-time"`
+	// Present only when the entitlement integration_type is `digital_files`. Populated
+	// eagerly on every list and single-record endpoint.
+	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
+	ErrorCode              string                 `json:"error_code" api:"nullable"`
+	ErrorMessage           string                 `json:"error_message" api:"nullable"`
+	// Present only when the entitlement integration_type is `license_key`.
+	LicenseKey       EntitlementGrantRevokedWebhookEventDataLicenseKey `json:"license_key" api:"nullable"`
+	Metadata         interface{}                                       `json:"metadata"`
+	OAuthExpiresAt   time.Time                                         `json:"oauth_expires_at" api:"nullable" format:"date-time"`
+	OAuthURL         string                                            `json:"oauth_url" api:"nullable"`
+	PaymentID        string                                            `json:"payment_id" api:"nullable"`
+	RevocationReason string                                            `json:"revocation_reason" api:"nullable"`
+	RevokedAt        time.Time                                         `json:"revoked_at" api:"nullable" format:"date-time"`
+	SubscriptionID   string                                            `json:"subscription_id" api:"nullable"`
+	JSON             entitlementGrantRevokedWebhookEventDataJSON       `json:"-"`
+}
+
+// entitlementGrantRevokedWebhookEventDataJSON contains the JSON metadata for the
+// struct [EntitlementGrantRevokedWebhookEventData]
+type entitlementGrantRevokedWebhookEventDataJSON struct {
+	ID                     apijson.Field
+	BusinessID             apijson.Field
+	CreatedAt              apijson.Field
+	CustomerID             apijson.Field
+	EntitlementID          apijson.Field
+	ExternalID             apijson.Field
+	Status                 apijson.Field
+	UpdatedAt              apijson.Field
+	DeliveredAt            apijson.Field
+	DigitalProductDelivery apijson.Field
+	ErrorCode              apijson.Field
+	ErrorMessage           apijson.Field
+	LicenseKey             apijson.Field
+	Metadata               apijson.Field
+	OAuthExpiresAt         apijson.Field
+	OAuthURL               apijson.Field
+	PaymentID              apijson.Field
+	RevocationReason       apijson.Field
+	RevokedAt              apijson.Field
+	SubscriptionID         apijson.Field
+	raw                    string
+	ExtraFields            map[string]apijson.Field
+}
+
+func (r *EntitlementGrantRevokedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantRevokedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type EntitlementGrantRevokedWebhookEventDataStatus string
+
+const (
+	EntitlementGrantRevokedWebhookEventDataStatusPending   EntitlementGrantRevokedWebhookEventDataStatus = "Pending"
+	EntitlementGrantRevokedWebhookEventDataStatusDelivered EntitlementGrantRevokedWebhookEventDataStatus = "Delivered"
+	EntitlementGrantRevokedWebhookEventDataStatusFailed    EntitlementGrantRevokedWebhookEventDataStatus = "Failed"
+	EntitlementGrantRevokedWebhookEventDataStatusRevoked   EntitlementGrantRevokedWebhookEventDataStatus = "Revoked"
+)
+
+func (r EntitlementGrantRevokedWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case EntitlementGrantRevokedWebhookEventDataStatusPending, EntitlementGrantRevokedWebhookEventDataStatusDelivered, EntitlementGrantRevokedWebhookEventDataStatusFailed, EntitlementGrantRevokedWebhookEventDataStatusRevoked:
+		return true
+	}
+	return false
+}
+
+// Present only when the entitlement integration_type is `license_key`.
+type EntitlementGrantRevokedWebhookEventDataLicenseKey struct {
+	ActivationsUsed  int64                                                 `json:"activations_used" api:"required"`
+	Key              string                                                `json:"key" api:"required"`
+	ActivationsLimit int64                                                 `json:"activations_limit" api:"nullable"`
+	ExpiresAt        time.Time                                             `json:"expires_at" api:"nullable" format:"date-time"`
+	JSON             entitlementGrantRevokedWebhookEventDataLicenseKeyJSON `json:"-"`
+}
+
+// entitlementGrantRevokedWebhookEventDataLicenseKeyJSON contains the JSON metadata
+// for the struct [EntitlementGrantRevokedWebhookEventDataLicenseKey]
+type entitlementGrantRevokedWebhookEventDataLicenseKeyJSON struct {
+	ActivationsUsed  apijson.Field
+	Key              apijson.Field
+	ActivationsLimit apijson.Field
+	ExpiresAt        apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *EntitlementGrantRevokedWebhookEventDataLicenseKey) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantRevokedWebhookEventDataLicenseKeyJSON) RawJSON() string {
+	return r.raw
+}
+
+// The event type
+type EntitlementGrantRevokedWebhookEventType string
+
+const (
+	EntitlementGrantRevokedWebhookEventTypeEntitlementGrantRevoked EntitlementGrantRevokedWebhookEventType = "entitlement_grant.revoked"
+)
+
+func (r EntitlementGrantRevokedWebhookEventType) IsKnown() bool {
+	switch r {
+	case EntitlementGrantRevokedWebhookEventTypeEntitlementGrantRevoked:
 		return true
 	}
 	return false
@@ -2218,7 +2892,11 @@ type UnsafeUnwrapWebhookEvent struct {
 	// [AbandonedCheckoutRecoveredWebhookEventData], [CreditLedgerEntry],
 	// [CreditBalanceLowWebhookEventData], [Dispute],
 	// [DunningRecoveredWebhookEventData], [DunningStartedWebhookEventData],
-	// [LicenseKey], [Payment], [Refund], [Subscription].
+	// [EntitlementGrantCreatedWebhookEventData],
+	// [EntitlementGrantDeliveredWebhookEventData],
+	// [EntitlementGrantFailedWebhookEventData],
+	// [EntitlementGrantRevokedWebhookEventData], [LicenseKey], [Payment], [Refund],
+	// [Subscription].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
@@ -2259,20 +2937,22 @@ func (r *UnsafeUnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [AbandonedCheckoutRecoveredWebhookEvent], [CreditAddedWebhookEvent],
 // [CreditBalanceLowWebhookEvent], [CreditDeductedWebhookEvent],
 // [CreditExpiredWebhookEvent], [CreditManualAdjustmentWebhookEvent],
-// [CreditOverageChargedWebhookEvent], [CreditRolledOverWebhookEvent],
-// [CreditRolloverForfeitedWebhookEvent], [DisputeAcceptedWebhookEvent],
-// [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
-// [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
-// [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
-// [DunningRecoveredWebhookEvent], [DunningStartedWebhookEvent],
-// [LicenseKeyCreatedWebhookEvent], [PaymentCancelledWebhookEvent],
-// [PaymentFailedWebhookEvent], [PaymentProcessingWebhookEvent],
-// [PaymentSucceededWebhookEvent], [RefundFailedWebhookEvent],
-// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
-// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
-// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
-// [SubscriptionUpdatedWebhookEvent].
+// [CreditOverageChargedWebhookEvent], [CreditOverageResetWebhookEvent],
+// [CreditRolledOverWebhookEvent], [CreditRolloverForfeitedWebhookEvent],
+// [DisputeAcceptedWebhookEvent], [DisputeCancelledWebhookEvent],
+// [DisputeChallengedWebhookEvent], [DisputeExpiredWebhookEvent],
+// [DisputeLostWebhookEvent], [DisputeOpenedWebhookEvent],
+// [DisputeWonWebhookEvent], [DunningRecoveredWebhookEvent],
+// [DunningStartedWebhookEvent], [EntitlementGrantCreatedWebhookEvent],
+// [EntitlementGrantDeliveredWebhookEvent], [EntitlementGrantFailedWebhookEvent],
+// [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
+// [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
+// [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
+// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
+// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
+// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
+// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
+// [SubscriptionRenewedWebhookEvent], [SubscriptionUpdatedWebhookEvent].
 func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
 	return r.union
 }
@@ -2281,20 +2961,22 @@ func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
 // [AbandonedCheckoutRecoveredWebhookEvent], [CreditAddedWebhookEvent],
 // [CreditBalanceLowWebhookEvent], [CreditDeductedWebhookEvent],
 // [CreditExpiredWebhookEvent], [CreditManualAdjustmentWebhookEvent],
-// [CreditOverageChargedWebhookEvent], [CreditRolledOverWebhookEvent],
-// [CreditRolloverForfeitedWebhookEvent], [DisputeAcceptedWebhookEvent],
-// [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
-// [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
-// [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
-// [DunningRecoveredWebhookEvent], [DunningStartedWebhookEvent],
-// [LicenseKeyCreatedWebhookEvent], [PaymentCancelledWebhookEvent],
-// [PaymentFailedWebhookEvent], [PaymentProcessingWebhookEvent],
-// [PaymentSucceededWebhookEvent], [RefundFailedWebhookEvent],
-// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
-// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
-// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent] or
-// [SubscriptionUpdatedWebhookEvent].
+// [CreditOverageChargedWebhookEvent], [CreditOverageResetWebhookEvent],
+// [CreditRolledOverWebhookEvent], [CreditRolloverForfeitedWebhookEvent],
+// [DisputeAcceptedWebhookEvent], [DisputeCancelledWebhookEvent],
+// [DisputeChallengedWebhookEvent], [DisputeExpiredWebhookEvent],
+// [DisputeLostWebhookEvent], [DisputeOpenedWebhookEvent],
+// [DisputeWonWebhookEvent], [DunningRecoveredWebhookEvent],
+// [DunningStartedWebhookEvent], [EntitlementGrantCreatedWebhookEvent],
+// [EntitlementGrantDeliveredWebhookEvent], [EntitlementGrantFailedWebhookEvent],
+// [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
+// [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
+// [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
+// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
+// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
+// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
+// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
+// [SubscriptionRenewedWebhookEvent] or [SubscriptionUpdatedWebhookEvent].
 type UnsafeUnwrapWebhookEventUnion interface {
 	implementsUnsafeUnwrapWebhookEvent()
 }
@@ -2334,6 +3016,10 @@ func init() {
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(CreditOverageChargedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditOverageResetWebhookEvent{}),
 		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
@@ -2378,6 +3064,22 @@ func init() {
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(DunningStartedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(EntitlementGrantCreatedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(EntitlementGrantDeliveredWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(EntitlementGrantFailedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(EntitlementGrantRevokedWebhookEvent{}),
 		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
@@ -2454,6 +3156,7 @@ const (
 	UnsafeUnwrapWebhookEventTypeCreditExpired              UnsafeUnwrapWebhookEventType = "credit.expired"
 	UnsafeUnwrapWebhookEventTypeCreditManualAdjustment     UnsafeUnwrapWebhookEventType = "credit.manual_adjustment"
 	UnsafeUnwrapWebhookEventTypeCreditOverageCharged       UnsafeUnwrapWebhookEventType = "credit.overage_charged"
+	UnsafeUnwrapWebhookEventTypeCreditOverageReset         UnsafeUnwrapWebhookEventType = "credit.overage_reset"
 	UnsafeUnwrapWebhookEventTypeCreditRolledOver           UnsafeUnwrapWebhookEventType = "credit.rolled_over"
 	UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited    UnsafeUnwrapWebhookEventType = "credit.rollover_forfeited"
 	UnsafeUnwrapWebhookEventTypeDisputeAccepted            UnsafeUnwrapWebhookEventType = "dispute.accepted"
@@ -2465,6 +3168,10 @@ const (
 	UnsafeUnwrapWebhookEventTypeDisputeWon                 UnsafeUnwrapWebhookEventType = "dispute.won"
 	UnsafeUnwrapWebhookEventTypeDunningRecovered           UnsafeUnwrapWebhookEventType = "dunning.recovered"
 	UnsafeUnwrapWebhookEventTypeDunningStarted             UnsafeUnwrapWebhookEventType = "dunning.started"
+	UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated    UnsafeUnwrapWebhookEventType = "entitlement_grant.created"
+	UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered  UnsafeUnwrapWebhookEventType = "entitlement_grant.delivered"
+	UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed     UnsafeUnwrapWebhookEventType = "entitlement_grant.failed"
+	UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked    UnsafeUnwrapWebhookEventType = "entitlement_grant.revoked"
 	UnsafeUnwrapWebhookEventTypeLicenseKeyCreated          UnsafeUnwrapWebhookEventType = "license_key.created"
 	UnsafeUnwrapWebhookEventTypePaymentCancelled           UnsafeUnwrapWebhookEventType = "payment.cancelled"
 	UnsafeUnwrapWebhookEventTypePaymentFailed              UnsafeUnwrapWebhookEventType = "payment.failed"
@@ -2484,7 +3191,7 @@ const (
 
 func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected, UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeDunningRecovered, UnsafeUnwrapWebhookEventTypeDunningStarted, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected, UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditOverageReset, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeDunningRecovered, UnsafeUnwrapWebhookEventTypeDunningStarted, UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated, UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered, UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed, UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false
@@ -2498,7 +3205,11 @@ type UnwrapWebhookEvent struct {
 	// [AbandonedCheckoutRecoveredWebhookEventData], [CreditLedgerEntry],
 	// [CreditBalanceLowWebhookEventData], [Dispute],
 	// [DunningRecoveredWebhookEventData], [DunningStartedWebhookEventData],
-	// [LicenseKey], [Payment], [Refund], [Subscription].
+	// [EntitlementGrantCreatedWebhookEventData],
+	// [EntitlementGrantDeliveredWebhookEventData],
+	// [EntitlementGrantFailedWebhookEventData],
+	// [EntitlementGrantRevokedWebhookEventData], [LicenseKey], [Payment], [Refund],
+	// [Subscription].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
@@ -2539,20 +3250,22 @@ func (r *UnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [AbandonedCheckoutRecoveredWebhookEvent], [CreditAddedWebhookEvent],
 // [CreditBalanceLowWebhookEvent], [CreditDeductedWebhookEvent],
 // [CreditExpiredWebhookEvent], [CreditManualAdjustmentWebhookEvent],
-// [CreditOverageChargedWebhookEvent], [CreditRolledOverWebhookEvent],
-// [CreditRolloverForfeitedWebhookEvent], [DisputeAcceptedWebhookEvent],
-// [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
-// [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
-// [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
-// [DunningRecoveredWebhookEvent], [DunningStartedWebhookEvent],
-// [LicenseKeyCreatedWebhookEvent], [PaymentCancelledWebhookEvent],
-// [PaymentFailedWebhookEvent], [PaymentProcessingWebhookEvent],
-// [PaymentSucceededWebhookEvent], [RefundFailedWebhookEvent],
-// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
-// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
-// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
-// [SubscriptionUpdatedWebhookEvent].
+// [CreditOverageChargedWebhookEvent], [CreditOverageResetWebhookEvent],
+// [CreditRolledOverWebhookEvent], [CreditRolloverForfeitedWebhookEvent],
+// [DisputeAcceptedWebhookEvent], [DisputeCancelledWebhookEvent],
+// [DisputeChallengedWebhookEvent], [DisputeExpiredWebhookEvent],
+// [DisputeLostWebhookEvent], [DisputeOpenedWebhookEvent],
+// [DisputeWonWebhookEvent], [DunningRecoveredWebhookEvent],
+// [DunningStartedWebhookEvent], [EntitlementGrantCreatedWebhookEvent],
+// [EntitlementGrantDeliveredWebhookEvent], [EntitlementGrantFailedWebhookEvent],
+// [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
+// [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
+// [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
+// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
+// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
+// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
+// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
+// [SubscriptionRenewedWebhookEvent], [SubscriptionUpdatedWebhookEvent].
 func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
 	return r.union
 }
@@ -2561,20 +3274,22 @@ func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
 // [AbandonedCheckoutRecoveredWebhookEvent], [CreditAddedWebhookEvent],
 // [CreditBalanceLowWebhookEvent], [CreditDeductedWebhookEvent],
 // [CreditExpiredWebhookEvent], [CreditManualAdjustmentWebhookEvent],
-// [CreditOverageChargedWebhookEvent], [CreditRolledOverWebhookEvent],
-// [CreditRolloverForfeitedWebhookEvent], [DisputeAcceptedWebhookEvent],
-// [DisputeCancelledWebhookEvent], [DisputeChallengedWebhookEvent],
-// [DisputeExpiredWebhookEvent], [DisputeLostWebhookEvent],
-// [DisputeOpenedWebhookEvent], [DisputeWonWebhookEvent],
-// [DunningRecoveredWebhookEvent], [DunningStartedWebhookEvent],
-// [LicenseKeyCreatedWebhookEvent], [PaymentCancelledWebhookEvent],
-// [PaymentFailedWebhookEvent], [PaymentProcessingWebhookEvent],
-// [PaymentSucceededWebhookEvent], [RefundFailedWebhookEvent],
-// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
-// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
-// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent] or
-// [SubscriptionUpdatedWebhookEvent].
+// [CreditOverageChargedWebhookEvent], [CreditOverageResetWebhookEvent],
+// [CreditRolledOverWebhookEvent], [CreditRolloverForfeitedWebhookEvent],
+// [DisputeAcceptedWebhookEvent], [DisputeCancelledWebhookEvent],
+// [DisputeChallengedWebhookEvent], [DisputeExpiredWebhookEvent],
+// [DisputeLostWebhookEvent], [DisputeOpenedWebhookEvent],
+// [DisputeWonWebhookEvent], [DunningRecoveredWebhookEvent],
+// [DunningStartedWebhookEvent], [EntitlementGrantCreatedWebhookEvent],
+// [EntitlementGrantDeliveredWebhookEvent], [EntitlementGrantFailedWebhookEvent],
+// [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
+// [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
+// [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
+// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
+// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
+// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
+// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
+// [SubscriptionRenewedWebhookEvent] or [SubscriptionUpdatedWebhookEvent].
 type UnwrapWebhookEventUnion interface {
 	implementsUnwrapWebhookEvent()
 }
@@ -2614,6 +3329,10 @@ func init() {
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(CreditOverageChargedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(CreditOverageResetWebhookEvent{}),
 		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
@@ -2658,6 +3377,22 @@ func init() {
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(DunningStartedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(EntitlementGrantCreatedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(EntitlementGrantDeliveredWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(EntitlementGrantFailedWebhookEvent{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(EntitlementGrantRevokedWebhookEvent{}),
 		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
@@ -2734,6 +3469,7 @@ const (
 	UnwrapWebhookEventTypeCreditExpired              UnwrapWebhookEventType = "credit.expired"
 	UnwrapWebhookEventTypeCreditManualAdjustment     UnwrapWebhookEventType = "credit.manual_adjustment"
 	UnwrapWebhookEventTypeCreditOverageCharged       UnwrapWebhookEventType = "credit.overage_charged"
+	UnwrapWebhookEventTypeCreditOverageReset         UnwrapWebhookEventType = "credit.overage_reset"
 	UnwrapWebhookEventTypeCreditRolledOver           UnwrapWebhookEventType = "credit.rolled_over"
 	UnwrapWebhookEventTypeCreditRolloverForfeited    UnwrapWebhookEventType = "credit.rollover_forfeited"
 	UnwrapWebhookEventTypeDisputeAccepted            UnwrapWebhookEventType = "dispute.accepted"
@@ -2745,6 +3481,10 @@ const (
 	UnwrapWebhookEventTypeDisputeWon                 UnwrapWebhookEventType = "dispute.won"
 	UnwrapWebhookEventTypeDunningRecovered           UnwrapWebhookEventType = "dunning.recovered"
 	UnwrapWebhookEventTypeDunningStarted             UnwrapWebhookEventType = "dunning.started"
+	UnwrapWebhookEventTypeEntitlementGrantCreated    UnwrapWebhookEventType = "entitlement_grant.created"
+	UnwrapWebhookEventTypeEntitlementGrantDelivered  UnwrapWebhookEventType = "entitlement_grant.delivered"
+	UnwrapWebhookEventTypeEntitlementGrantFailed     UnwrapWebhookEventType = "entitlement_grant.failed"
+	UnwrapWebhookEventTypeEntitlementGrantRevoked    UnwrapWebhookEventType = "entitlement_grant.revoked"
 	UnwrapWebhookEventTypeLicenseKeyCreated          UnwrapWebhookEventType = "license_key.created"
 	UnwrapWebhookEventTypePaymentCancelled           UnwrapWebhookEventType = "payment.cancelled"
 	UnwrapWebhookEventTypePaymentFailed              UnwrapWebhookEventType = "payment.failed"
@@ -2764,7 +3504,7 @@ const (
 
 func (r UnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnwrapWebhookEventTypeAbandonedCheckoutDetected, UnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeDunningRecovered, UnwrapWebhookEventTypeDunningStarted, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnwrapWebhookEventTypeAbandonedCheckoutDetected, UnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditOverageReset, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeDunningRecovered, UnwrapWebhookEventTypeDunningStarted, UnwrapWebhookEventTypeEntitlementGrantCreated, UnwrapWebhookEventTypeEntitlementGrantDelivered, UnwrapWebhookEventTypeEntitlementGrantFailed, UnwrapWebhookEventTypeEntitlementGrantRevoked, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false

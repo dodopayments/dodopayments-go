@@ -507,6 +507,10 @@ type Subscription struct {
 	TaxInclusive bool `json:"tax_inclusive" api:"required"`
 	// Number of days in the trial period (0 if no trial)
 	TrialPeriodDays int64 `json:"trial_period_days" api:"required"`
+	// Free-text cancellation comment, if any
+	CancellationComment string `json:"cancellation_comment" api:"nullable"`
+	// Customer-supplied churn reason, if any
+	CancellationFeedback SubscriptionCancellationFeedback `json:"cancellation_feedback" api:"nullable"`
 	// Cancelled timestamp if the subscription is cancelled
 	CancelledAt time.Time `json:"cancelled_at" api:"nullable" format:"date-time"`
 	// Customer's responses to custom fields collected during checkout
@@ -552,6 +556,8 @@ type subscriptionJSON struct {
 	SubscriptionPeriodInterval apijson.Field
 	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
+	CancellationComment        apijson.Field
+	CancellationFeedback       apijson.Field
 	CancelledAt                apijson.Field
 	CustomFieldResponses       apijson.Field
 	DiscountCyclesRemaining    apijson.Field
@@ -570,6 +576,28 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 
 func (r subscriptionJSON) RawJSON() string {
 	return r.raw
+}
+
+// Customer-supplied churn reason, if any
+type SubscriptionCancellationFeedback string
+
+const (
+	SubscriptionCancellationFeedbackTooExpensive    SubscriptionCancellationFeedback = "too_expensive"
+	SubscriptionCancellationFeedbackMissingFeatures SubscriptionCancellationFeedback = "missing_features"
+	SubscriptionCancellationFeedbackSwitchedService SubscriptionCancellationFeedback = "switched_service"
+	SubscriptionCancellationFeedbackUnused          SubscriptionCancellationFeedback = "unused"
+	SubscriptionCancellationFeedbackCustomerService SubscriptionCancellationFeedback = "customer_service"
+	SubscriptionCancellationFeedbackLowQuality      SubscriptionCancellationFeedback = "low_quality"
+	SubscriptionCancellationFeedbackTooComplex      SubscriptionCancellationFeedback = "too_complex"
+	SubscriptionCancellationFeedbackOther           SubscriptionCancellationFeedback = "other"
+)
+
+func (r SubscriptionCancellationFeedback) IsKnown() bool {
+	switch r {
+	case SubscriptionCancellationFeedbackTooExpensive, SubscriptionCancellationFeedbackMissingFeatures, SubscriptionCancellationFeedbackSwitchedService, SubscriptionCancellationFeedbackUnused, SubscriptionCancellationFeedbackCustomerService, SubscriptionCancellationFeedbackLowQuality, SubscriptionCancellationFeedbackTooComplex, SubscriptionCancellationFeedbackOther:
+		return true
+	}
+	return false
 }
 
 // Scheduled plan change details, if any
@@ -687,6 +715,9 @@ type UpdateSubscriptionPlanReqParam struct {
 	ProrationBillingMode param.Field[UpdateSubscriptionPlanReqProrationBillingMode] `json:"proration_billing_mode" api:"required"`
 	// Number of units to subscribe for. Must be at least 1.
 	Quantity param.Field[int64] `json:"quantity" api:"required"`
+	// Whether adaptive currency fees should be included in the price (true) or added
+	// on top (false). If not specified, uses the subscription's stored setting.
+	AdaptiveCurrencyFeesInclusive param.Field[bool] `json:"adaptive_currency_fees_inclusive"`
 	// Addons for the new plan. Note : Leaving this empty would remove any existing
 	// addons
 	Addons param.Field[[]AttachAddonParam] `json:"addons"`
@@ -1612,6 +1643,13 @@ type SubscriptionNewParams struct {
 	DiscountCode param.Field[string] `json:"discount_code"`
 	// Override merchant default 3DS behaviour for this subscription
 	Force3DS param.Field[bool] `json:"force_3ds"`
+	// Override the merchant-level mandate floor (in INR paise) for INR e-mandates on
+	// Indian-card recurring payments. The mandate amount sent to the processor is
+	// `max(this_floor, actual_billing_amount)`, so this is effectively the
+	// customer-facing authorization ceiling whenever billing is lower. When unset, the
+	// merchant setting applies; when that's also unset, the system default of ₹15,000
+	// applies.
+	MandateMinAmountInrPaise param.Field[int64] `json:"mandate_min_amount_inr_paise"`
 	// Additional metadata for the subscription Defaults to empty if not specified
 	Metadata param.Field[map[string]string]         `json:"metadata"`
 	OnDemand param.Field[OnDemandSubscriptionParam] `json:"on_demand"`
@@ -1627,6 +1665,10 @@ type SubscriptionNewParams struct {
 	// If true, redirects the customer immediately after payment completion False by
 	// default
 	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`
+	// If true, the customer's phone number is required to create this subscription.
+	// Typically set alongside `payment_link=true` so merchants can enforce phone
+	// collection on the hosted payment page. Defaults to false.
+	RequirePhoneNumber param.Field[bool] `json:"require_phone_number"`
 	// Optional URL to redirect after successful subscription creation
 	ReturnURL param.Field[string] `json:"return_url"`
 	// If true, returns a shortened payment link. Defaults to false if not specified.
@@ -1663,6 +1705,12 @@ type SubscriptionUpdateParams struct {
 	// When set, the subscription will remain active until the end of billing period
 	CancelAtNextBillingDate param.Field[bool]                                 `json:"cancel_at_next_billing_date"`
 	CancelReason            param.Field[SubscriptionUpdateParamsCancelReason] `json:"cancel_reason"`
+	// Free-text cancellation comment (only valid when cancelling or scheduling
+	// cancellation).
+	CancellationComment param.Field[string] `json:"cancellation_comment"`
+	// Customer-supplied churn reason (only valid when cancelling or scheduling
+	// cancellation).
+	CancellationFeedback param.Field[SubscriptionUpdateParamsCancellationFeedback] `json:"cancellation_feedback"`
 	// Update credit entitlement cart settings
 	CreditEntitlementCart param.Field[[]SubscriptionUpdateParamsCreditEntitlementCart] `json:"credit_entitlement_cart"`
 	CustomerName          param.Field[string]                                          `json:"customer_name"`
@@ -1683,11 +1731,35 @@ const (
 	SubscriptionUpdateParamsCancelReasonCancelledByCustomer            SubscriptionUpdateParamsCancelReason = "cancelled_by_customer"
 	SubscriptionUpdateParamsCancelReasonCancelledByMerchant            SubscriptionUpdateParamsCancelReason = "cancelled_by_merchant"
 	SubscriptionUpdateParamsCancelReasonCancelledByMerchantSendDunning SubscriptionUpdateParamsCancelReason = "cancelled_by_merchant_send_dunning"
+	SubscriptionUpdateParamsCancelReasonDodoTeam                       SubscriptionUpdateParamsCancelReason = "dodo_team"
 )
 
 func (r SubscriptionUpdateParamsCancelReason) IsKnown() bool {
 	switch r {
-	case SubscriptionUpdateParamsCancelReasonCancelledByCustomer, SubscriptionUpdateParamsCancelReasonCancelledByMerchant, SubscriptionUpdateParamsCancelReasonCancelledByMerchantSendDunning:
+	case SubscriptionUpdateParamsCancelReasonCancelledByCustomer, SubscriptionUpdateParamsCancelReasonCancelledByMerchant, SubscriptionUpdateParamsCancelReasonCancelledByMerchantSendDunning, SubscriptionUpdateParamsCancelReasonDodoTeam:
+		return true
+	}
+	return false
+}
+
+// Customer-supplied churn reason (only valid when cancelling or scheduling
+// cancellation).
+type SubscriptionUpdateParamsCancellationFeedback string
+
+const (
+	SubscriptionUpdateParamsCancellationFeedbackTooExpensive    SubscriptionUpdateParamsCancellationFeedback = "too_expensive"
+	SubscriptionUpdateParamsCancellationFeedbackMissingFeatures SubscriptionUpdateParamsCancellationFeedback = "missing_features"
+	SubscriptionUpdateParamsCancellationFeedbackSwitchedService SubscriptionUpdateParamsCancellationFeedback = "switched_service"
+	SubscriptionUpdateParamsCancellationFeedbackUnused          SubscriptionUpdateParamsCancellationFeedback = "unused"
+	SubscriptionUpdateParamsCancellationFeedbackCustomerService SubscriptionUpdateParamsCancellationFeedback = "customer_service"
+	SubscriptionUpdateParamsCancellationFeedbackLowQuality      SubscriptionUpdateParamsCancellationFeedback = "low_quality"
+	SubscriptionUpdateParamsCancellationFeedbackTooComplex      SubscriptionUpdateParamsCancellationFeedback = "too_complex"
+	SubscriptionUpdateParamsCancellationFeedbackOther           SubscriptionUpdateParamsCancellationFeedback = "other"
+)
+
+func (r SubscriptionUpdateParamsCancellationFeedback) IsKnown() bool {
+	switch r {
+	case SubscriptionUpdateParamsCancellationFeedbackTooExpensive, SubscriptionUpdateParamsCancellationFeedbackMissingFeatures, SubscriptionUpdateParamsCancellationFeedbackSwitchedService, SubscriptionUpdateParamsCancellationFeedbackUnused, SubscriptionUpdateParamsCancellationFeedbackCustomerService, SubscriptionUpdateParamsCancellationFeedbackLowQuality, SubscriptionUpdateParamsCancellationFeedbackTooComplex, SubscriptionUpdateParamsCancellationFeedbackOther:
 		return true
 	}
 	return false
