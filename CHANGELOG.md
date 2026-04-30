@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.97.0 (2026-04-30)
+
+Full Changelog: [v1.96.0...v1.97.0](https://github.com/dodopayments/dodopayments-go/compare/v1.96.0...v1.97.0)
+
+### Features
+
+* **api:** added more models to make the dx easy ([d5dae55](https://github.com/dodopayments/dodopayments-go/commit/d5dae558d26efa366dc25482842045c89eaf4281))
+* **api:** updated openapi spec to v1.97.5 ([bc88be3](https://github.com/dodopayments/dodopayments-go/commit/bc88be3bf3cb95ab5ce69c66b37c8760f573d33e))
+
 ## 1.96.0 (2026-04-28)
 
 Full Changelog: [v1.95.1...v1.96.0](https://github.com/dodopayments/dodopayments-go/compare/v1.95.1...v1.96.0)
