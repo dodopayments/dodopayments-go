@@ -237,6 +237,20 @@ func (r AttachCreditEntitlementParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+// Request struct for attaching an entitlement to a product.
+//
+// Mirrors the `credit_entitlements` attach shape — every "attach something to a
+// product" array takes objects, not bare IDs. Uniform shape leaves room for
+// per-attachment settings later without another API break.
+type AttachProductEntitlementParam struct {
+	// ID of the entitlement to attach to the product
+	EntitlementID param.Field[string] `json:"entitlement_id" api:"required"`
+}
+
+func (r AttachProductEntitlementParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type CbbProrationBehavior string
 
 const (
@@ -935,7 +949,7 @@ type Product struct {
 	// Attached credit entitlements with settings
 	CreditEntitlements []CreditEntitlementMappingResponse `json:"credit_entitlements" api:"required"`
 	// Attached entitlements (integration-based access grants)
-	Entitlements []ProductEntitlement `json:"entitlements" api:"required"`
+	Entitlements []ProductEntitlementSummary `json:"entitlements" api:"required"`
 	// Indicates if the product is recurring (e.g., subscriptions).
 	IsRecurring bool `json:"is_recurring" api:"required"`
 	// Indicates whether the product requires a license key.
@@ -1021,22 +1035,22 @@ func (r productJSON) RawJSON() string {
 // [`IntegrationConfig`]) so digital_files entitlements embed the resolved
 // `digital_files` object — matching what `GET /entitlements/{id}` returns. All
 // other variants pass through unchanged via `#[serde(untagged)]`.
-type ProductEntitlement struct {
+type ProductEntitlementSummary struct {
 	ID string `json:"id" api:"required"`
 	// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
 	// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
 	// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
 	// ID-only via [`IntegrationConfig`]; this enum is response-only.
-	IntegrationConfig ProductEntitlementsIntegrationConfig `json:"integration_config" api:"required"`
-	IntegrationType   ProductEntitlementsIntegrationType   `json:"integration_type" api:"required"`
-	Name              string                               `json:"name" api:"required"`
-	Description       string                               `json:"description" api:"nullable"`
-	JSON              productEntitlementJSON               `json:"-"`
+	IntegrationConfig IntegrationConfigResponse     `json:"integration_config" api:"required"`
+	IntegrationType   EntitlementIntegrationType    `json:"integration_type" api:"required"`
+	Name              string                        `json:"name" api:"required"`
+	Description       string                        `json:"description" api:"nullable"`
+	JSON              productEntitlementSummaryJSON `json:"-"`
 }
 
-// productEntitlementJSON contains the JSON metadata for the struct
-// [ProductEntitlement]
-type productEntitlementJSON struct {
+// productEntitlementSummaryJSON contains the JSON metadata for the struct
+// [ProductEntitlementSummary]
+type productEntitlementSummaryJSON struct {
 	ID                apijson.Field
 	IntegrationConfig apijson.Field
 	IntegrationType   apijson.Field
@@ -1046,435 +1060,12 @@ type productEntitlementJSON struct {
 	ExtraFields       map[string]apijson.Field
 }
 
-func (r *ProductEntitlement) UnmarshalJSON(data []byte) (err error) {
+func (r *ProductEntitlementSummary) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r productEntitlementJSON) RawJSON() string {
+func (r productEntitlementSummaryJSON) RawJSON() string {
 	return r.raw
-}
-
-// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
-// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
-// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
-// ID-only via [`IntegrationConfig`]; this enum is response-only.
-type ProductEntitlementsIntegrationConfig struct {
-	ActivationMessage string `json:"activation_message" api:"nullable"`
-	ActivationsLimit  int64  `json:"activations_limit" api:"nullable"`
-	ChatID            string `json:"chat_id"`
-	// This field can have the runtime type of
-	// [ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles].
-	DigitalFiles     interface{}                              `json:"digital_files"`
-	DurationCount    int64                                    `json:"duration_count" api:"nullable"`
-	DurationInterval TimeInterval                             `json:"duration_interval" api:"nullable"`
-	FigmaFileID      string                                   `json:"figma_file_id"`
-	FramerTemplateID string                                   `json:"framer_template_id"`
-	GuildID          string                                   `json:"guild_id"`
-	NotionTemplateID string                                   `json:"notion_template_id"`
-	Permission       string                                   `json:"permission"`
-	RoleID           string                                   `json:"role_id" api:"nullable"`
-	TargetID         string                                   `json:"target_id"`
-	JSON             productEntitlementsIntegrationConfigJSON `json:"-"`
-	union            ProductEntitlementsIntegrationConfigUnion
-}
-
-// productEntitlementsIntegrationConfigJSON contains the JSON metadata for the
-// struct [ProductEntitlementsIntegrationConfig]
-type productEntitlementsIntegrationConfigJSON struct {
-	ActivationMessage apijson.Field
-	ActivationsLimit  apijson.Field
-	ChatID            apijson.Field
-	DigitalFiles      apijson.Field
-	DurationCount     apijson.Field
-	DurationInterval  apijson.Field
-	FigmaFileID       apijson.Field
-	FramerTemplateID  apijson.Field
-	GuildID           apijson.Field
-	NotionTemplateID  apijson.Field
-	Permission        apijson.Field
-	RoleID            apijson.Field
-	TargetID          apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
-}
-
-func (r productEntitlementsIntegrationConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r *ProductEntitlementsIntegrationConfig) UnmarshalJSON(data []byte) (err error) {
-	*r = ProductEntitlementsIntegrationConfig{}
-	err = apijson.UnmarshalRoot(data, &r.union)
-	if err != nil {
-		return err
-	}
-	return apijson.Port(r.union, &r)
-}
-
-// AsUnion returns a [ProductEntitlementsIntegrationConfigUnion] interface which
-// you can cast to the specific types for more type safety.
-//
-// Possible runtime types of the union are
-// [ProductEntitlementsIntegrationConfigGitHubConfig],
-// [ProductEntitlementsIntegrationConfigDiscordConfig],
-// [ProductEntitlementsIntegrationConfigTelegramConfig],
-// [ProductEntitlementsIntegrationConfigFigmaConfig],
-// [ProductEntitlementsIntegrationConfigFramerConfig],
-// [ProductEntitlementsIntegrationConfigNotionConfig],
-// [ProductEntitlementsIntegrationConfigDigitalFilesConfig],
-// [ProductEntitlementsIntegrationConfigLicenseKeyConfig].
-func (r ProductEntitlementsIntegrationConfig) AsUnion() ProductEntitlementsIntegrationConfigUnion {
-	return r.union
-}
-
-// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
-// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
-// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
-// ID-only via [`IntegrationConfig`]; this enum is response-only.
-//
-// Union satisfied by [ProductEntitlementsIntegrationConfigGitHubConfig],
-// [ProductEntitlementsIntegrationConfigDiscordConfig],
-// [ProductEntitlementsIntegrationConfigTelegramConfig],
-// [ProductEntitlementsIntegrationConfigFigmaConfig],
-// [ProductEntitlementsIntegrationConfigFramerConfig],
-// [ProductEntitlementsIntegrationConfigNotionConfig],
-// [ProductEntitlementsIntegrationConfigDigitalFilesConfig] or
-// [ProductEntitlementsIntegrationConfigLicenseKeyConfig].
-type ProductEntitlementsIntegrationConfigUnion interface {
-	implementsProductEntitlementsIntegrationConfig()
-}
-
-func init() {
-	apijson.RegisterUnion(
-		reflect.TypeOf((*ProductEntitlementsIntegrationConfigUnion)(nil)).Elem(),
-		"",
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigGitHubConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigDiscordConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigTelegramConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigFigmaConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigFramerConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigNotionConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigDigitalFilesConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductEntitlementsIntegrationConfigLicenseKeyConfig{}),
-		},
-	)
-}
-
-type ProductEntitlementsIntegrationConfigGitHubConfig struct {
-	Permission string                                               `json:"permission" api:"required"`
-	TargetID   string                                               `json:"target_id" api:"required"`
-	JSON       productEntitlementsIntegrationConfigGitHubConfigJSON `json:"-"`
-}
-
-// productEntitlementsIntegrationConfigGitHubConfigJSON contains the JSON metadata
-// for the struct [ProductEntitlementsIntegrationConfigGitHubConfig]
-type productEntitlementsIntegrationConfigGitHubConfigJSON struct {
-	Permission  apijson.Field
-	TargetID    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductEntitlementsIntegrationConfigGitHubConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productEntitlementsIntegrationConfigGitHubConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductEntitlementsIntegrationConfigGitHubConfig) implementsProductEntitlementsIntegrationConfig() {
-}
-
-type ProductEntitlementsIntegrationConfigDiscordConfig struct {
-	GuildID string                                                `json:"guild_id" api:"required"`
-	RoleID  string                                                `json:"role_id" api:"nullable"`
-	JSON    productEntitlementsIntegrationConfigDiscordConfigJSON `json:"-"`
-}
-
-// productEntitlementsIntegrationConfigDiscordConfigJSON contains the JSON metadata
-// for the struct [ProductEntitlementsIntegrationConfigDiscordConfig]
-type productEntitlementsIntegrationConfigDiscordConfigJSON struct {
-	GuildID     apijson.Field
-	RoleID      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductEntitlementsIntegrationConfigDiscordConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productEntitlementsIntegrationConfigDiscordConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductEntitlementsIntegrationConfigDiscordConfig) implementsProductEntitlementsIntegrationConfig() {
-}
-
-type ProductEntitlementsIntegrationConfigTelegramConfig struct {
-	ChatID string                                                 `json:"chat_id" api:"required"`
-	JSON   productEntitlementsIntegrationConfigTelegramConfigJSON `json:"-"`
-}
-
-// productEntitlementsIntegrationConfigTelegramConfigJSON contains the JSON
-// metadata for the struct [ProductEntitlementsIntegrationConfigTelegramConfig]
-type productEntitlementsIntegrationConfigTelegramConfigJSON struct {
-	ChatID      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductEntitlementsIntegrationConfigTelegramConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productEntitlementsIntegrationConfigTelegramConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductEntitlementsIntegrationConfigTelegramConfig) implementsProductEntitlementsIntegrationConfig() {
-}
-
-type ProductEntitlementsIntegrationConfigFigmaConfig struct {
-	FigmaFileID string                                              `json:"figma_file_id" api:"required"`
-	JSON        productEntitlementsIntegrationConfigFigmaConfigJSON `json:"-"`
-}
-
-// productEntitlementsIntegrationConfigFigmaConfigJSON contains the JSON metadata
-// for the struct [ProductEntitlementsIntegrationConfigFigmaConfig]
-type productEntitlementsIntegrationConfigFigmaConfigJSON struct {
-	FigmaFileID apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductEntitlementsIntegrationConfigFigmaConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productEntitlementsIntegrationConfigFigmaConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductEntitlementsIntegrationConfigFigmaConfig) implementsProductEntitlementsIntegrationConfig() {
-}
-
-type ProductEntitlementsIntegrationConfigFramerConfig struct {
-	FramerTemplateID string                                               `json:"framer_template_id" api:"required"`
-	JSON             productEntitlementsIntegrationConfigFramerConfigJSON `json:"-"`
-}
-
-// productEntitlementsIntegrationConfigFramerConfigJSON contains the JSON metadata
-// for the struct [ProductEntitlementsIntegrationConfigFramerConfig]
-type productEntitlementsIntegrationConfigFramerConfigJSON struct {
-	FramerTemplateID apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *ProductEntitlementsIntegrationConfigFramerConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productEntitlementsIntegrationConfigFramerConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductEntitlementsIntegrationConfigFramerConfig) implementsProductEntitlementsIntegrationConfig() {
-}
-
-type ProductEntitlementsIntegrationConfigNotionConfig struct {
-	NotionTemplateID string                                               `json:"notion_template_id" api:"required"`
-	JSON             productEntitlementsIntegrationConfigNotionConfigJSON `json:"-"`
-}
-
-// productEntitlementsIntegrationConfigNotionConfigJSON contains the JSON metadata
-// for the struct [ProductEntitlementsIntegrationConfigNotionConfig]
-type productEntitlementsIntegrationConfigNotionConfigJSON struct {
-	NotionTemplateID apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *ProductEntitlementsIntegrationConfigNotionConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productEntitlementsIntegrationConfigNotionConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductEntitlementsIntegrationConfigNotionConfig) implementsProductEntitlementsIntegrationConfig() {
-}
-
-type ProductEntitlementsIntegrationConfigDigitalFilesConfig struct {
-	// Populated digital-files payload for entitlement read surfaces. Mirrors
-	// `DigitalProductDelivery` but is sourced from an entitlement's
-	// `integration_config` (not a grant) and tags each file with its origin (`legacy`
-	// vs `ee`).
-	DigitalFiles ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles `json:"digital_files" api:"required"`
-	JSON         productEntitlementsIntegrationConfigDigitalFilesConfigJSON         `json:"-"`
-}
-
-// productEntitlementsIntegrationConfigDigitalFilesConfigJSON contains the JSON
-// metadata for the struct [ProductEntitlementsIntegrationConfigDigitalFilesConfig]
-type productEntitlementsIntegrationConfigDigitalFilesConfigJSON struct {
-	DigitalFiles apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
-}
-
-func (r *ProductEntitlementsIntegrationConfigDigitalFilesConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productEntitlementsIntegrationConfigDigitalFilesConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductEntitlementsIntegrationConfigDigitalFilesConfig) implementsProductEntitlementsIntegrationConfig() {
-}
-
-// Populated digital-files payload for entitlement read surfaces. Mirrors
-// `DigitalProductDelivery` but is sourced from an entitlement's
-// `integration_config` (not a grant) and tags each file with its origin (`legacy`
-// vs `ee`).
-type ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles struct {
-	Files        []ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile `json:"files" api:"required"`
-	ExternalURL  string                                                                   `json:"external_url" api:"nullable"`
-	Instructions string                                                                   `json:"instructions" api:"nullable"`
-	JSON         productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON   `json:"-"`
-}
-
-// productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON contains
-// the JSON metadata for the struct
-// [ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles]
-type productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON struct {
-	Files        apijson.Field
-	ExternalURL  apijson.Field
-	Instructions apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
-}
-
-func (r *ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON) RawJSON() string {
-	return r.raw
-}
-
-type ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile struct {
-	DownloadURL string `json:"download_url" api:"required"`
-	// Seconds until `download_url` expires.
-	ExpiresIn int64  `json:"expires_in" api:"required"`
-	FileID    string `json:"file_id" api:"required"`
-	Filename  string `json:"filename" api:"required"`
-	// `"legacy"` for files in `product_files`, `"ee"` for files managed by the
-	// Entitlements Engine.
-	Source      string                                                                     `json:"source" api:"required"`
-	ContentType string                                                                     `json:"content_type" api:"nullable"`
-	FileSize    int64                                                                      `json:"file_size" api:"nullable"`
-	JSON        productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON `json:"-"`
-}
-
-// productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON
-// contains the JSON metadata for the struct
-// [ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile]
-type productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON struct {
-	DownloadURL apijson.Field
-	ExpiresIn   apijson.Field
-	FileID      apijson.Field
-	Filename    apijson.Field
-	Source      apijson.Field
-	ContentType apijson.Field
-	FileSize    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON) RawJSON() string {
-	return r.raw
-}
-
-type ProductEntitlementsIntegrationConfigLicenseKeyConfig struct {
-	ActivationMessage string                                                   `json:"activation_message" api:"nullable"`
-	ActivationsLimit  int64                                                    `json:"activations_limit" api:"nullable"`
-	DurationCount     int64                                                    `json:"duration_count" api:"nullable"`
-	DurationInterval  TimeInterval                                             `json:"duration_interval" api:"nullable"`
-	JSON              productEntitlementsIntegrationConfigLicenseKeyConfigJSON `json:"-"`
-}
-
-// productEntitlementsIntegrationConfigLicenseKeyConfigJSON contains the JSON
-// metadata for the struct [ProductEntitlementsIntegrationConfigLicenseKeyConfig]
-type productEntitlementsIntegrationConfigLicenseKeyConfigJSON struct {
-	ActivationMessage apijson.Field
-	ActivationsLimit  apijson.Field
-	DurationCount     apijson.Field
-	DurationInterval  apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
-}
-
-func (r *ProductEntitlementsIntegrationConfigLicenseKeyConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productEntitlementsIntegrationConfigLicenseKeyConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductEntitlementsIntegrationConfigLicenseKeyConfig) implementsProductEntitlementsIntegrationConfig() {
-}
-
-type ProductEntitlementsIntegrationType string
-
-const (
-	ProductEntitlementsIntegrationTypeDiscord      ProductEntitlementsIntegrationType = "discord"
-	ProductEntitlementsIntegrationTypeTelegram     ProductEntitlementsIntegrationType = "telegram"
-	ProductEntitlementsIntegrationTypeGitHub       ProductEntitlementsIntegrationType = "github"
-	ProductEntitlementsIntegrationTypeFigma        ProductEntitlementsIntegrationType = "figma"
-	ProductEntitlementsIntegrationTypeFramer       ProductEntitlementsIntegrationType = "framer"
-	ProductEntitlementsIntegrationTypeNotion       ProductEntitlementsIntegrationType = "notion"
-	ProductEntitlementsIntegrationTypeDigitalFiles ProductEntitlementsIntegrationType = "digital_files"
-	ProductEntitlementsIntegrationTypeLicenseKey   ProductEntitlementsIntegrationType = "license_key"
-)
-
-func (r ProductEntitlementsIntegrationType) IsKnown() bool {
-	switch r {
-	case ProductEntitlementsIntegrationTypeDiscord, ProductEntitlementsIntegrationTypeTelegram, ProductEntitlementsIntegrationTypeGitHub, ProductEntitlementsIntegrationTypeFigma, ProductEntitlementsIntegrationTypeFramer, ProductEntitlementsIntegrationTypeNotion, ProductEntitlementsIntegrationTypeDigitalFiles, ProductEntitlementsIntegrationTypeLicenseKey:
-		return true
-	}
-	return false
 }
 
 type ProductListResponse struct {
@@ -1483,7 +1074,7 @@ type ProductListResponse struct {
 	// Timestamp when the product was created.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Entitlements linked to this product
-	Entitlements []ProductListResponseEntitlement `json:"entitlements" api:"required"`
+	Entitlements []ProductEntitlementSummary `json:"entitlements" api:"required"`
 	// Indicates if the product is recurring (e.g., subscriptions).
 	IsRecurring bool `json:"is_recurring" api:"required"`
 	// Additional custom data associated with the product
@@ -1550,477 +1141,6 @@ func (r productListResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-// Summary of an entitlement attached to a product.
-//
-// `integration_config` uses [`IntegrationConfigResponse`] (NOT the persisted
-// [`IntegrationConfig`]) so digital_files entitlements embed the resolved
-// `digital_files` object — matching what `GET /entitlements/{id}` returns. All
-// other variants pass through unchanged via `#[serde(untagged)]`.
-type ProductListResponseEntitlement struct {
-	ID string `json:"id" api:"required"`
-	// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
-	// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
-	// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
-	// ID-only via [`IntegrationConfig`]; this enum is response-only.
-	IntegrationConfig ProductListResponseEntitlementsIntegrationConfig `json:"integration_config" api:"required"`
-	IntegrationType   ProductListResponseEntitlementsIntegrationType   `json:"integration_type" api:"required"`
-	Name              string                                           `json:"name" api:"required"`
-	Description       string                                           `json:"description" api:"nullable"`
-	JSON              productListResponseEntitlementJSON               `json:"-"`
-}
-
-// productListResponseEntitlementJSON contains the JSON metadata for the struct
-// [ProductListResponseEntitlement]
-type productListResponseEntitlementJSON struct {
-	ID                apijson.Field
-	IntegrationConfig apijson.Field
-	IntegrationType   apijson.Field
-	Name              apijson.Field
-	Description       apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
-}
-
-func (r *ProductListResponseEntitlement) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseEntitlementJSON) RawJSON() string {
-	return r.raw
-}
-
-// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
-// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
-// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
-// ID-only via [`IntegrationConfig`]; this enum is response-only.
-type ProductListResponseEntitlementsIntegrationConfig struct {
-	ActivationMessage string `json:"activation_message" api:"nullable"`
-	ActivationsLimit  int64  `json:"activations_limit" api:"nullable"`
-	ChatID            string `json:"chat_id"`
-	// This field can have the runtime type of
-	// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles].
-	DigitalFiles     interface{}                                          `json:"digital_files"`
-	DurationCount    int64                                                `json:"duration_count" api:"nullable"`
-	DurationInterval TimeInterval                                         `json:"duration_interval" api:"nullable"`
-	FigmaFileID      string                                               `json:"figma_file_id"`
-	FramerTemplateID string                                               `json:"framer_template_id"`
-	GuildID          string                                               `json:"guild_id"`
-	NotionTemplateID string                                               `json:"notion_template_id"`
-	Permission       string                                               `json:"permission"`
-	RoleID           string                                               `json:"role_id" api:"nullable"`
-	TargetID         string                                               `json:"target_id"`
-	JSON             productListResponseEntitlementsIntegrationConfigJSON `json:"-"`
-	union            ProductListResponseEntitlementsIntegrationConfigUnion
-}
-
-// productListResponseEntitlementsIntegrationConfigJSON contains the JSON metadata
-// for the struct [ProductListResponseEntitlementsIntegrationConfig]
-type productListResponseEntitlementsIntegrationConfigJSON struct {
-	ActivationMessage apijson.Field
-	ActivationsLimit  apijson.Field
-	ChatID            apijson.Field
-	DigitalFiles      apijson.Field
-	DurationCount     apijson.Field
-	DurationInterval  apijson.Field
-	FigmaFileID       apijson.Field
-	FramerTemplateID  apijson.Field
-	GuildID           apijson.Field
-	NotionTemplateID  apijson.Field
-	Permission        apijson.Field
-	RoleID            apijson.Field
-	TargetID          apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
-}
-
-func (r productListResponseEntitlementsIntegrationConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r *ProductListResponseEntitlementsIntegrationConfig) UnmarshalJSON(data []byte) (err error) {
-	*r = ProductListResponseEntitlementsIntegrationConfig{}
-	err = apijson.UnmarshalRoot(data, &r.union)
-	if err != nil {
-		return err
-	}
-	return apijson.Port(r.union, &r)
-}
-
-// AsUnion returns a [ProductListResponseEntitlementsIntegrationConfigUnion]
-// interface which you can cast to the specific types for more type safety.
-//
-// Possible runtime types of the union are
-// [ProductListResponseEntitlementsIntegrationConfigGitHubConfig],
-// [ProductListResponseEntitlementsIntegrationConfigDiscordConfig],
-// [ProductListResponseEntitlementsIntegrationConfigTelegramConfig],
-// [ProductListResponseEntitlementsIntegrationConfigFigmaConfig],
-// [ProductListResponseEntitlementsIntegrationConfigFramerConfig],
-// [ProductListResponseEntitlementsIntegrationConfigNotionConfig],
-// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig],
-// [ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig].
-func (r ProductListResponseEntitlementsIntegrationConfig) AsUnion() ProductListResponseEntitlementsIntegrationConfigUnion {
-	return r.union
-}
-
-// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
-// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
-// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
-// ID-only via [`IntegrationConfig`]; this enum is response-only.
-//
-// Union satisfied by
-// [ProductListResponseEntitlementsIntegrationConfigGitHubConfig],
-// [ProductListResponseEntitlementsIntegrationConfigDiscordConfig],
-// [ProductListResponseEntitlementsIntegrationConfigTelegramConfig],
-// [ProductListResponseEntitlementsIntegrationConfigFigmaConfig],
-// [ProductListResponseEntitlementsIntegrationConfigFramerConfig],
-// [ProductListResponseEntitlementsIntegrationConfigNotionConfig],
-// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig] or
-// [ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig].
-type ProductListResponseEntitlementsIntegrationConfigUnion interface {
-	implementsProductListResponseEntitlementsIntegrationConfig()
-}
-
-func init() {
-	apijson.RegisterUnion(
-		reflect.TypeOf((*ProductListResponseEntitlementsIntegrationConfigUnion)(nil)).Elem(),
-		"",
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigGitHubConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigDiscordConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigTelegramConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigFigmaConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigFramerConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigNotionConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig{}),
-		},
-	)
-}
-
-type ProductListResponseEntitlementsIntegrationConfigGitHubConfig struct {
-	Permission string                                                           `json:"permission" api:"required"`
-	TargetID   string                                                           `json:"target_id" api:"required"`
-	JSON       productListResponseEntitlementsIntegrationConfigGitHubConfigJSON `json:"-"`
-}
-
-// productListResponseEntitlementsIntegrationConfigGitHubConfigJSON contains the
-// JSON metadata for the struct
-// [ProductListResponseEntitlementsIntegrationConfigGitHubConfig]
-type productListResponseEntitlementsIntegrationConfigGitHubConfigJSON struct {
-	Permission  apijson.Field
-	TargetID    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductListResponseEntitlementsIntegrationConfigGitHubConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseEntitlementsIntegrationConfigGitHubConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductListResponseEntitlementsIntegrationConfigGitHubConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
-}
-
-type ProductListResponseEntitlementsIntegrationConfigDiscordConfig struct {
-	GuildID string                                                            `json:"guild_id" api:"required"`
-	RoleID  string                                                            `json:"role_id" api:"nullable"`
-	JSON    productListResponseEntitlementsIntegrationConfigDiscordConfigJSON `json:"-"`
-}
-
-// productListResponseEntitlementsIntegrationConfigDiscordConfigJSON contains the
-// JSON metadata for the struct
-// [ProductListResponseEntitlementsIntegrationConfigDiscordConfig]
-type productListResponseEntitlementsIntegrationConfigDiscordConfigJSON struct {
-	GuildID     apijson.Field
-	RoleID      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductListResponseEntitlementsIntegrationConfigDiscordConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseEntitlementsIntegrationConfigDiscordConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductListResponseEntitlementsIntegrationConfigDiscordConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
-}
-
-type ProductListResponseEntitlementsIntegrationConfigTelegramConfig struct {
-	ChatID string                                                             `json:"chat_id" api:"required"`
-	JSON   productListResponseEntitlementsIntegrationConfigTelegramConfigJSON `json:"-"`
-}
-
-// productListResponseEntitlementsIntegrationConfigTelegramConfigJSON contains the
-// JSON metadata for the struct
-// [ProductListResponseEntitlementsIntegrationConfigTelegramConfig]
-type productListResponseEntitlementsIntegrationConfigTelegramConfigJSON struct {
-	ChatID      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductListResponseEntitlementsIntegrationConfigTelegramConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseEntitlementsIntegrationConfigTelegramConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductListResponseEntitlementsIntegrationConfigTelegramConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
-}
-
-type ProductListResponseEntitlementsIntegrationConfigFigmaConfig struct {
-	FigmaFileID string                                                          `json:"figma_file_id" api:"required"`
-	JSON        productListResponseEntitlementsIntegrationConfigFigmaConfigJSON `json:"-"`
-}
-
-// productListResponseEntitlementsIntegrationConfigFigmaConfigJSON contains the
-// JSON metadata for the struct
-// [ProductListResponseEntitlementsIntegrationConfigFigmaConfig]
-type productListResponseEntitlementsIntegrationConfigFigmaConfigJSON struct {
-	FigmaFileID apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductListResponseEntitlementsIntegrationConfigFigmaConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseEntitlementsIntegrationConfigFigmaConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductListResponseEntitlementsIntegrationConfigFigmaConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
-}
-
-type ProductListResponseEntitlementsIntegrationConfigFramerConfig struct {
-	FramerTemplateID string                                                           `json:"framer_template_id" api:"required"`
-	JSON             productListResponseEntitlementsIntegrationConfigFramerConfigJSON `json:"-"`
-}
-
-// productListResponseEntitlementsIntegrationConfigFramerConfigJSON contains the
-// JSON metadata for the struct
-// [ProductListResponseEntitlementsIntegrationConfigFramerConfig]
-type productListResponseEntitlementsIntegrationConfigFramerConfigJSON struct {
-	FramerTemplateID apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *ProductListResponseEntitlementsIntegrationConfigFramerConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseEntitlementsIntegrationConfigFramerConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductListResponseEntitlementsIntegrationConfigFramerConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
-}
-
-type ProductListResponseEntitlementsIntegrationConfigNotionConfig struct {
-	NotionTemplateID string                                                           `json:"notion_template_id" api:"required"`
-	JSON             productListResponseEntitlementsIntegrationConfigNotionConfigJSON `json:"-"`
-}
-
-// productListResponseEntitlementsIntegrationConfigNotionConfigJSON contains the
-// JSON metadata for the struct
-// [ProductListResponseEntitlementsIntegrationConfigNotionConfig]
-type productListResponseEntitlementsIntegrationConfigNotionConfigJSON struct {
-	NotionTemplateID apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *ProductListResponseEntitlementsIntegrationConfigNotionConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseEntitlementsIntegrationConfigNotionConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductListResponseEntitlementsIntegrationConfigNotionConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
-}
-
-type ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig struct {
-	// Populated digital-files payload for entitlement read surfaces. Mirrors
-	// `DigitalProductDelivery` but is sourced from an entitlement's
-	// `integration_config` (not a grant) and tags each file with its origin (`legacy`
-	// vs `ee`).
-	DigitalFiles ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles `json:"digital_files" api:"required"`
-	JSON         productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON         `json:"-"`
-}
-
-// productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON contains
-// the JSON metadata for the struct
-// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig]
-type productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON struct {
-	DigitalFiles apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
-}
-
-func (r *ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseEntitlementsIntegrationConfigDigitalFilesConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
-}
-
-// Populated digital-files payload for entitlement read surfaces. Mirrors
-// `DigitalProductDelivery` but is sourced from an entitlement's
-// `integration_config` (not a grant) and tags each file with its origin (`legacy`
-// vs `ee`).
-type ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles struct {
-	Files        []ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile `json:"files" api:"required"`
-	ExternalURL  string                                                                               `json:"external_url" api:"nullable"`
-	Instructions string                                                                               `json:"instructions" api:"nullable"`
-	JSON         productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON   `json:"-"`
-}
-
-// productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON
-// contains the JSON metadata for the struct
-// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles]
-type productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON struct {
-	Files        apijson.Field
-	ExternalURL  apijson.Field
-	Instructions apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
-}
-
-func (r *ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFiles) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesJSON) RawJSON() string {
-	return r.raw
-}
-
-type ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile struct {
-	DownloadURL string `json:"download_url" api:"required"`
-	// Seconds until `download_url` expires.
-	ExpiresIn int64  `json:"expires_in" api:"required"`
-	FileID    string `json:"file_id" api:"required"`
-	Filename  string `json:"filename" api:"required"`
-	// `"legacy"` for files in `product_files`, `"ee"` for files managed by the
-	// Entitlements Engine.
-	Source      string                                                                                 `json:"source" api:"required"`
-	ContentType string                                                                                 `json:"content_type" api:"nullable"`
-	FileSize    int64                                                                                  `json:"file_size" api:"nullable"`
-	JSON        productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON `json:"-"`
-}
-
-// productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON
-// contains the JSON metadata for the struct
-// [ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile]
-type productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON struct {
-	DownloadURL apijson.Field
-	ExpiresIn   apijson.Field
-	FileID      apijson.Field
-	Filename    apijson.Field
-	Source      apijson.Field
-	ContentType apijson.Field
-	FileSize    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *ProductListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFile) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseEntitlementsIntegrationConfigDigitalFilesConfigDigitalFilesFileJSON) RawJSON() string {
-	return r.raw
-}
-
-type ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig struct {
-	ActivationMessage string                                                               `json:"activation_message" api:"nullable"`
-	ActivationsLimit  int64                                                                `json:"activations_limit" api:"nullable"`
-	DurationCount     int64                                                                `json:"duration_count" api:"nullable"`
-	DurationInterval  TimeInterval                                                         `json:"duration_interval" api:"nullable"`
-	JSON              productListResponseEntitlementsIntegrationConfigLicenseKeyConfigJSON `json:"-"`
-}
-
-// productListResponseEntitlementsIntegrationConfigLicenseKeyConfigJSON contains
-// the JSON metadata for the struct
-// [ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig]
-type productListResponseEntitlementsIntegrationConfigLicenseKeyConfigJSON struct {
-	ActivationMessage apijson.Field
-	ActivationsLimit  apijson.Field
-	DurationCount     apijson.Field
-	DurationInterval  apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
-}
-
-func (r *ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r productListResponseEntitlementsIntegrationConfigLicenseKeyConfigJSON) RawJSON() string {
-	return r.raw
-}
-
-func (r ProductListResponseEntitlementsIntegrationConfigLicenseKeyConfig) implementsProductListResponseEntitlementsIntegrationConfig() {
-}
-
-type ProductListResponseEntitlementsIntegrationType string
-
-const (
-	ProductListResponseEntitlementsIntegrationTypeDiscord      ProductListResponseEntitlementsIntegrationType = "discord"
-	ProductListResponseEntitlementsIntegrationTypeTelegram     ProductListResponseEntitlementsIntegrationType = "telegram"
-	ProductListResponseEntitlementsIntegrationTypeGitHub       ProductListResponseEntitlementsIntegrationType = "github"
-	ProductListResponseEntitlementsIntegrationTypeFigma        ProductListResponseEntitlementsIntegrationType = "figma"
-	ProductListResponseEntitlementsIntegrationTypeFramer       ProductListResponseEntitlementsIntegrationType = "framer"
-	ProductListResponseEntitlementsIntegrationTypeNotion       ProductListResponseEntitlementsIntegrationType = "notion"
-	ProductListResponseEntitlementsIntegrationTypeDigitalFiles ProductListResponseEntitlementsIntegrationType = "digital_files"
-	ProductListResponseEntitlementsIntegrationTypeLicenseKey   ProductListResponseEntitlementsIntegrationType = "license_key"
-)
-
-func (r ProductListResponseEntitlementsIntegrationType) IsKnown() bool {
-	switch r {
-	case ProductListResponseEntitlementsIntegrationTypeDiscord, ProductListResponseEntitlementsIntegrationTypeTelegram, ProductListResponseEntitlementsIntegrationTypeGitHub, ProductListResponseEntitlementsIntegrationTypeFigma, ProductListResponseEntitlementsIntegrationTypeFramer, ProductListResponseEntitlementsIntegrationTypeNotion, ProductListResponseEntitlementsIntegrationTypeDigitalFiles, ProductListResponseEntitlementsIntegrationTypeLicenseKey:
-		return true
-	}
-	return false
-}
-
 type ProductUpdateFilesResponse struct {
 	FileID string                         `json:"file_id" api:"required" format:"uuid"`
 	URL    string                         `json:"url" api:"required"`
@@ -2064,7 +1184,7 @@ type ProductNewParams struct {
 	// deprecated: use entitlements instead
 	DigitalProductDelivery param.Field[ProductNewParamsDigitalProductDelivery] `json:"digital_product_delivery"`
 	// Optional entitlements to attach to this product (max 20)
-	Entitlements param.Field[[]ProductNewParamsEntitlement] `json:"entitlements"`
+	Entitlements param.Field[[]AttachProductEntitlementParam] `json:"entitlements"`
 	// Optional message displayed during license key activation
 	//
 	// deprecated: use entitlements instead. Ignored when a `license_key` entitlement
@@ -2110,20 +1230,6 @@ func (r ProductNewParamsDigitalProductDelivery) MarshalJSON() (data []byte, err 
 	return apijson.MarshalRoot(r)
 }
 
-// Request struct for attaching an entitlement to a product.
-//
-// Mirrors the `credit_entitlements` attach shape — every "attach something to a
-// product" array takes objects, not bare IDs. Uniform shape leaves room for
-// per-attachment settings later without another API break.
-type ProductNewParamsEntitlement struct {
-	// ID of the entitlement to attach to the product
-	EntitlementID param.Field[string] `json:"entitlement_id" api:"required"`
-}
-
-func (r ProductNewParamsEntitlement) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 type ProductUpdateParams struct {
 	// Available Addons for subscription products
 	Addons  param.Field[[]string] `json:"addons"`
@@ -2139,7 +1245,7 @@ type ProductUpdateParams struct {
 	DigitalProductDelivery param.Field[ProductUpdateParamsDigitalProductDelivery] `json:"digital_product_delivery"`
 	// Entitlements to attach (replaces all existing when present) Send empty array to
 	// remove all, omit field to leave unchanged
-	Entitlements param.Field[[]ProductUpdateParamsEntitlement] `json:"entitlements"`
+	Entitlements param.Field[[]AttachProductEntitlementParam] `json:"entitlements"`
 	// Product image id after its uploaded to S3
 	ImageID param.Field[string] `json:"image_id" format:"uuid"`
 	// Message sent to the customer upon license key activation.
@@ -2197,20 +1303,6 @@ type ProductUpdateParamsDigitalProductDelivery struct {
 }
 
 func (r ProductUpdateParamsDigitalProductDelivery) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-// Request struct for attaching an entitlement to a product.
-//
-// Mirrors the `credit_entitlements` attach shape — every "attach something to a
-// product" array takes objects, not bare IDs. Uniform shape leaves room for
-// per-attachment settings later without another API break.
-type ProductUpdateParamsEntitlement struct {
-	// ID of the entitlement to attach to the product
-	EntitlementID param.Field[string] `json:"entitlement_id" api:"required"`
-}
-
-func (r ProductUpdateParamsEntitlement) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 

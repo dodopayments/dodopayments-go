@@ -273,9 +273,13 @@ func (r NewCustomerParam) MarshalJSON() (data []byte, err error) {
 func (r NewCustomerParam) implementsCustomerRequestUnionParam() {}
 
 type OneTimeProductCartItem struct {
-	ProductID string                     `json:"product_id" api:"required"`
-	Quantity  int64                      `json:"quantity" api:"required"`
-	JSON      oneTimeProductCartItemJSON `json:"-"`
+	ProductID string `json:"product_id" api:"required"`
+	Quantity  int64  `json:"quantity" api:"required"`
+	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
+	// amount will be ignored Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Amount int64                      `json:"amount" api:"nullable"`
+	JSON   oneTimeProductCartItemJSON `json:"-"`
 }
 
 // oneTimeProductCartItemJSON contains the JSON metadata for the struct
@@ -283,6 +287,7 @@ type OneTimeProductCartItem struct {
 type oneTimeProductCartItemJSON struct {
 	ProductID   apijson.Field
 	Quantity    apijson.Field
+	Amount      apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -293,6 +298,19 @@ func (r *OneTimeProductCartItem) UnmarshalJSON(data []byte) (err error) {
 
 func (r oneTimeProductCartItemJSON) RawJSON() string {
 	return r.raw
+}
+
+type OneTimeProductCartItemParam struct {
+	ProductID param.Field[string] `json:"product_id" api:"required"`
+	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
+	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
+	// amount will be ignored Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Amount param.Field[int64] `json:"amount"`
+}
+
+func (r OneTimeProductCartItemParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type Payment struct {
@@ -361,7 +379,7 @@ type Payment struct {
 	// Specific type of payment method (e.g. "visa", "mastercard")
 	PaymentMethodType string `json:"payment_method_type" api:"nullable"`
 	// List of products purchased in a one-time payment
-	ProductCart []OneTimeProductCartItem `json:"product_cart" api:"nullable"`
+	ProductCart []PaymentProductCart `json:"product_cart" api:"nullable"`
 	// Summary of the refund status for this payment. None if no succeeded refunds
 	// exist.
 	RefundStatus PaymentRefundStatus `json:"refund_status" api:"nullable"`
@@ -427,6 +445,29 @@ func (r *Payment) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r paymentJSON) RawJSON() string {
+	return r.raw
+}
+
+type PaymentProductCart struct {
+	ProductID string                 `json:"product_id" api:"required"`
+	Quantity  int64                  `json:"quantity" api:"required"`
+	JSON      paymentProductCartJSON `json:"-"`
+}
+
+// paymentProductCartJSON contains the JSON metadata for the struct
+// [PaymentProductCart]
+type paymentProductCartJSON struct {
+	ProductID   apijson.Field
+	Quantity    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PaymentProductCart) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentProductCartJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -629,8 +670,8 @@ type PaymentNewResponse struct {
 	// Optional URL to a hosted payment page
 	PaymentLink string `json:"payment_link" api:"nullable"`
 	// Optional list of products included in the payment
-	ProductCart []PaymentNewResponseProductCart `json:"product_cart" api:"nullable"`
-	JSON        paymentNewResponseJSON          `json:"-"`
+	ProductCart []OneTimeProductCartItem `json:"product_cart" api:"nullable"`
+	JSON        paymentNewResponseJSON   `json:"-"`
 }
 
 // paymentNewResponseJSON contains the JSON metadata for the struct
@@ -654,34 +695,6 @@ func (r *PaymentNewResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r paymentNewResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type PaymentNewResponseProductCart struct {
-	ProductID string `json:"product_id" api:"required"`
-	Quantity  int64  `json:"quantity" api:"required"`
-	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
-	// amount will be ignored Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Amount int64                             `json:"amount" api:"nullable"`
-	JSON   paymentNewResponseProductCartJSON `json:"-"`
-}
-
-// paymentNewResponseProductCartJSON contains the JSON metadata for the struct
-// [PaymentNewResponseProductCart]
-type paymentNewResponseProductCartJSON struct {
-	ProductID   apijson.Field
-	Quantity    apijson.Field
-	Amount      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PaymentNewResponseProductCart) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentNewResponseProductCartJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -803,7 +816,7 @@ type PaymentNewParams struct {
 	// Customer information for the payment
 	Customer param.Field[CustomerRequestUnionParam] `json:"customer" api:"required"`
 	// List of products in the cart. Must contain at least 1 and at most 100 items.
-	ProductCart param.Field[[]PaymentNewParamsProductCart] `json:"product_cart" api:"required"`
+	ProductCart param.Field[[]OneTimeProductCartItemParam] `json:"product_cart" api:"required"`
 	// Whether adaptive currency fees should be included in the price (true) or added
 	// on top (false). If not specified, defaults to the business-level setting.
 	AdaptiveCurrencyFeesInclusive param.Field[bool] `json:"adaptive_currency_fees_inclusive"`
@@ -850,19 +863,6 @@ type PaymentNewParams struct {
 }
 
 func (r PaymentNewParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type PaymentNewParamsProductCart struct {
-	ProductID param.Field[string] `json:"product_id" api:"required"`
-	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
-	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
-	// amount will be ignored Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Amount param.Field[int64] `json:"amount"`
-}
-
-func (r PaymentNewParamsProductCart) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 

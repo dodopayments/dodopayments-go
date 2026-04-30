@@ -39,7 +39,7 @@ func NewEntitlementGrantService(opts ...option.RequestOption) (r *EntitlementGra
 }
 
 // GET /entitlements/{id}/grants (public API)
-func (r *EntitlementGrantService) List(ctx context.Context, id string, query EntitlementGrantListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[EntitlementGrantListResponse], err error) {
+func (r *EntitlementGrantService) List(ctx context.Context, id string, query EntitlementGrantListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[EntitlementGrant], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
@@ -61,7 +61,7 @@ func (r *EntitlementGrantService) List(ctx context.Context, id string, query Ent
 }
 
 // GET /entitlements/{id}/grants (public API)
-func (r *EntitlementGrantService) ListAutoPaging(ctx context.Context, id string, query EntitlementGrantListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[EntitlementGrantListResponse] {
+func (r *EntitlementGrantService) ListAutoPaging(ctx context.Context, id string, query EntitlementGrantListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[EntitlementGrant] {
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, id, query, opts...))
 }
 
@@ -69,7 +69,7 @@ func (r *EntitlementGrantService) ListAutoPaging(ctx context.Context, id string,
 // integrations, also disables the backing license key. Idempotent: re-revoking an
 // already-revoked grant returns 200 with current state. The revocation reason is
 // always set to "manual" for API-initiated revocations.
-func (r *EntitlementGrantService) Revoke(ctx context.Context, id string, grantID string, opts ...option.RequestOption) (res *EntitlementGrantRevokeResponse, err error) {
+func (r *EntitlementGrantService) Revoke(ctx context.Context, id string, grantID string, opts ...option.RequestOption) (res *EntitlementGrant, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
@@ -84,36 +84,36 @@ func (r *EntitlementGrantService) Revoke(ctx context.Context, id string, grantID
 	return res, err
 }
 
-type EntitlementGrantListResponse struct {
-	ID            string                             `json:"id" api:"required"`
-	BusinessID    string                             `json:"business_id" api:"required"`
-	CreatedAt     time.Time                          `json:"created_at" api:"required" format:"date-time"`
-	CustomerID    string                             `json:"customer_id" api:"required"`
-	EntitlementID string                             `json:"entitlement_id" api:"required"`
-	ExternalID    string                             `json:"external_id" api:"required"`
-	Status        EntitlementGrantListResponseStatus `json:"status" api:"required"`
-	UpdatedAt     time.Time                          `json:"updated_at" api:"required" format:"date-time"`
-	DeliveredAt   time.Time                          `json:"delivered_at" api:"nullable" format:"date-time"`
+type EntitlementGrant struct {
+	ID            string                 `json:"id" api:"required"`
+	BusinessID    string                 `json:"business_id" api:"required"`
+	CreatedAt     time.Time              `json:"created_at" api:"required" format:"date-time"`
+	CustomerID    string                 `json:"customer_id" api:"required"`
+	EntitlementID string                 `json:"entitlement_id" api:"required"`
+	ExternalID    string                 `json:"external_id" api:"required"`
+	Status        EntitlementGrantStatus `json:"status" api:"required"`
+	UpdatedAt     time.Time              `json:"updated_at" api:"required" format:"date-time"`
+	DeliveredAt   time.Time              `json:"delivered_at" api:"nullable" format:"date-time"`
 	// Present only when the entitlement integration_type is `digital_files`. Populated
 	// eagerly on every list and single-record endpoint.
 	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
 	ErrorCode              string                 `json:"error_code" api:"nullable"`
 	ErrorMessage           string                 `json:"error_message" api:"nullable"`
 	// Present only when the entitlement integration_type is `license_key`.
-	LicenseKey       EntitlementGrantListResponseLicenseKey `json:"license_key" api:"nullable"`
-	Metadata         interface{}                            `json:"metadata"`
-	OAuthExpiresAt   time.Time                              `json:"oauth_expires_at" api:"nullable" format:"date-time"`
-	OAuthURL         string                                 `json:"oauth_url" api:"nullable"`
-	PaymentID        string                                 `json:"payment_id" api:"nullable"`
-	RevocationReason string                                 `json:"revocation_reason" api:"nullable"`
-	RevokedAt        time.Time                              `json:"revoked_at" api:"nullable" format:"date-time"`
-	SubscriptionID   string                                 `json:"subscription_id" api:"nullable"`
-	JSON             entitlementGrantListResponseJSON       `json:"-"`
+	LicenseKey       LicenseKeyGrant      `json:"license_key" api:"nullable"`
+	Metadata         interface{}          `json:"metadata"`
+	OAuthExpiresAt   time.Time            `json:"oauth_expires_at" api:"nullable" format:"date-time"`
+	OAuthURL         string               `json:"oauth_url" api:"nullable"`
+	PaymentID        string               `json:"payment_id" api:"nullable"`
+	RevocationReason string               `json:"revocation_reason" api:"nullable"`
+	RevokedAt        time.Time            `json:"revoked_at" api:"nullable" format:"date-time"`
+	SubscriptionID   string               `json:"subscription_id" api:"nullable"`
+	JSON             entitlementGrantJSON `json:"-"`
 }
 
-// entitlementGrantListResponseJSON contains the JSON metadata for the struct
-// [EntitlementGrantListResponse]
-type entitlementGrantListResponseJSON struct {
+// entitlementGrantJSON contains the JSON metadata for the struct
+// [EntitlementGrant]
+type entitlementGrantJSON struct {
 	ID                     apijson.Field
 	BusinessID             apijson.Field
 	CreatedAt              apijson.Field
@@ -138,43 +138,45 @@ type entitlementGrantListResponseJSON struct {
 	ExtraFields            map[string]apijson.Field
 }
 
-func (r *EntitlementGrantListResponse) UnmarshalJSON(data []byte) (err error) {
+func (r *EntitlementGrant) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r entitlementGrantListResponseJSON) RawJSON() string {
+func (r entitlementGrantJSON) RawJSON() string {
 	return r.raw
 }
 
-type EntitlementGrantListResponseStatus string
+type EntitlementGrantStatus string
 
 const (
-	EntitlementGrantListResponseStatusPending   EntitlementGrantListResponseStatus = "Pending"
-	EntitlementGrantListResponseStatusDelivered EntitlementGrantListResponseStatus = "Delivered"
-	EntitlementGrantListResponseStatusFailed    EntitlementGrantListResponseStatus = "Failed"
-	EntitlementGrantListResponseStatusRevoked   EntitlementGrantListResponseStatus = "Revoked"
+	EntitlementGrantStatusPending   EntitlementGrantStatus = "Pending"
+	EntitlementGrantStatusDelivered EntitlementGrantStatus = "Delivered"
+	EntitlementGrantStatusFailed    EntitlementGrantStatus = "Failed"
+	EntitlementGrantStatusRevoked   EntitlementGrantStatus = "Revoked"
 )
 
-func (r EntitlementGrantListResponseStatus) IsKnown() bool {
+func (r EntitlementGrantStatus) IsKnown() bool {
 	switch r {
-	case EntitlementGrantListResponseStatusPending, EntitlementGrantListResponseStatusDelivered, EntitlementGrantListResponseStatusFailed, EntitlementGrantListResponseStatusRevoked:
+	case EntitlementGrantStatusPending, EntitlementGrantStatusDelivered, EntitlementGrantStatusFailed, EntitlementGrantStatusRevoked:
 		return true
 	}
 	return false
 }
 
-// Present only when the entitlement integration_type is `license_key`.
-type EntitlementGrantListResponseLicenseKey struct {
-	ActivationsUsed  int64                                      `json:"activations_used" api:"required"`
-	Key              string                                     `json:"key" api:"required"`
-	ActivationsLimit int64                                      `json:"activations_limit" api:"nullable"`
-	ExpiresAt        time.Time                                  `json:"expires_at" api:"nullable" format:"date-time"`
-	JSON             entitlementGrantListResponseLicenseKeyJSON `json:"-"`
+// Nested representation of license-key grant fields. Present only when the grant's
+// entitlement has `integration_type = 'license_key'` and a row exists in
+// `license_keys`. The grant's top-level `status` is the source of truth for the
+// grant's lifecycle — no per-license-key status is exposed here.
+type LicenseKeyGrant struct {
+	ActivationsUsed  int64               `json:"activations_used" api:"required"`
+	Key              string              `json:"key" api:"required"`
+	ActivationsLimit int64               `json:"activations_limit" api:"nullable"`
+	ExpiresAt        time.Time           `json:"expires_at" api:"nullable" format:"date-time"`
+	JSON             licenseKeyGrantJSON `json:"-"`
 }
 
-// entitlementGrantListResponseLicenseKeyJSON contains the JSON metadata for the
-// struct [EntitlementGrantListResponseLicenseKey]
-type entitlementGrantListResponseLicenseKeyJSON struct {
+// licenseKeyGrantJSON contains the JSON metadata for the struct [LicenseKeyGrant]
+type licenseKeyGrantJSON struct {
 	ActivationsUsed  apijson.Field
 	Key              apijson.Field
 	ActivationsLimit apijson.Field
@@ -183,118 +185,11 @@ type entitlementGrantListResponseLicenseKeyJSON struct {
 	ExtraFields      map[string]apijson.Field
 }
 
-func (r *EntitlementGrantListResponseLicenseKey) UnmarshalJSON(data []byte) (err error) {
+func (r *LicenseKeyGrant) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r entitlementGrantListResponseLicenseKeyJSON) RawJSON() string {
-	return r.raw
-}
-
-type EntitlementGrantRevokeResponse struct {
-	ID            string                               `json:"id" api:"required"`
-	BusinessID    string                               `json:"business_id" api:"required"`
-	CreatedAt     time.Time                            `json:"created_at" api:"required" format:"date-time"`
-	CustomerID    string                               `json:"customer_id" api:"required"`
-	EntitlementID string                               `json:"entitlement_id" api:"required"`
-	ExternalID    string                               `json:"external_id" api:"required"`
-	Status        EntitlementGrantRevokeResponseStatus `json:"status" api:"required"`
-	UpdatedAt     time.Time                            `json:"updated_at" api:"required" format:"date-time"`
-	DeliveredAt   time.Time                            `json:"delivered_at" api:"nullable" format:"date-time"`
-	// Present only when the entitlement integration_type is `digital_files`. Populated
-	// eagerly on every list and single-record endpoint.
-	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
-	ErrorCode              string                 `json:"error_code" api:"nullable"`
-	ErrorMessage           string                 `json:"error_message" api:"nullable"`
-	// Present only when the entitlement integration_type is `license_key`.
-	LicenseKey       EntitlementGrantRevokeResponseLicenseKey `json:"license_key" api:"nullable"`
-	Metadata         interface{}                              `json:"metadata"`
-	OAuthExpiresAt   time.Time                                `json:"oauth_expires_at" api:"nullable" format:"date-time"`
-	OAuthURL         string                                   `json:"oauth_url" api:"nullable"`
-	PaymentID        string                                   `json:"payment_id" api:"nullable"`
-	RevocationReason string                                   `json:"revocation_reason" api:"nullable"`
-	RevokedAt        time.Time                                `json:"revoked_at" api:"nullable" format:"date-time"`
-	SubscriptionID   string                                   `json:"subscription_id" api:"nullable"`
-	JSON             entitlementGrantRevokeResponseJSON       `json:"-"`
-}
-
-// entitlementGrantRevokeResponseJSON contains the JSON metadata for the struct
-// [EntitlementGrantRevokeResponse]
-type entitlementGrantRevokeResponseJSON struct {
-	ID                     apijson.Field
-	BusinessID             apijson.Field
-	CreatedAt              apijson.Field
-	CustomerID             apijson.Field
-	EntitlementID          apijson.Field
-	ExternalID             apijson.Field
-	Status                 apijson.Field
-	UpdatedAt              apijson.Field
-	DeliveredAt            apijson.Field
-	DigitalProductDelivery apijson.Field
-	ErrorCode              apijson.Field
-	ErrorMessage           apijson.Field
-	LicenseKey             apijson.Field
-	Metadata               apijson.Field
-	OAuthExpiresAt         apijson.Field
-	OAuthURL               apijson.Field
-	PaymentID              apijson.Field
-	RevocationReason       apijson.Field
-	RevokedAt              apijson.Field
-	SubscriptionID         apijson.Field
-	raw                    string
-	ExtraFields            map[string]apijson.Field
-}
-
-func (r *EntitlementGrantRevokeResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r entitlementGrantRevokeResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type EntitlementGrantRevokeResponseStatus string
-
-const (
-	EntitlementGrantRevokeResponseStatusPending   EntitlementGrantRevokeResponseStatus = "Pending"
-	EntitlementGrantRevokeResponseStatusDelivered EntitlementGrantRevokeResponseStatus = "Delivered"
-	EntitlementGrantRevokeResponseStatusFailed    EntitlementGrantRevokeResponseStatus = "Failed"
-	EntitlementGrantRevokeResponseStatusRevoked   EntitlementGrantRevokeResponseStatus = "Revoked"
-)
-
-func (r EntitlementGrantRevokeResponseStatus) IsKnown() bool {
-	switch r {
-	case EntitlementGrantRevokeResponseStatusPending, EntitlementGrantRevokeResponseStatusDelivered, EntitlementGrantRevokeResponseStatusFailed, EntitlementGrantRevokeResponseStatusRevoked:
-		return true
-	}
-	return false
-}
-
-// Present only when the entitlement integration_type is `license_key`.
-type EntitlementGrantRevokeResponseLicenseKey struct {
-	ActivationsUsed  int64                                        `json:"activations_used" api:"required"`
-	Key              string                                       `json:"key" api:"required"`
-	ActivationsLimit int64                                        `json:"activations_limit" api:"nullable"`
-	ExpiresAt        time.Time                                    `json:"expires_at" api:"nullable" format:"date-time"`
-	JSON             entitlementGrantRevokeResponseLicenseKeyJSON `json:"-"`
-}
-
-// entitlementGrantRevokeResponseLicenseKeyJSON contains the JSON metadata for the
-// struct [EntitlementGrantRevokeResponseLicenseKey]
-type entitlementGrantRevokeResponseLicenseKeyJSON struct {
-	ActivationsUsed  apijson.Field
-	Key              apijson.Field
-	ActivationsLimit apijson.Field
-	ExpiresAt        apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *EntitlementGrantRevokeResponseLicenseKey) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r entitlementGrantRevokeResponseLicenseKeyJSON) RawJSON() string {
+func (r licenseKeyGrantJSON) RawJSON() string {
 	return r.raw
 }
 
