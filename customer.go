@@ -283,14 +283,14 @@ type CustomerListEntitlementsResponseItem struct {
 	EntitlementID   string `json:"entitlement_id" api:"required"`
 	EntitlementName string `json:"entitlement_name" api:"required"`
 	// Grant id (the per-customer row in `entitlement_grants`).
-	GrantID                string                                               `json:"grant_id" api:"required"`
-	IntegrationType        CustomerListEntitlementsResponseItemsIntegrationType `json:"integration_type" api:"required"`
-	Status                 CustomerListEntitlementsResponseItemsStatus          `json:"status" api:"required"`
-	UpdatedAt              time.Time                                            `json:"updated_at" api:"required" format:"date-time"`
-	DeliveredAt            time.Time                                            `json:"delivered_at" api:"nullable" format:"date-time"`
-	EntitlementDescription string                                               `json:"entitlement_description" api:"nullable"`
-	RevokedAt              time.Time                                            `json:"revoked_at" api:"nullable" format:"date-time"`
-	JSON                   customerListEntitlementsResponseItemJSON             `json:"-"`
+	GrantID                string                                      `json:"grant_id" api:"required"`
+	IntegrationType        EntitlementIntegrationType                  `json:"integration_type" api:"required"`
+	Status                 CustomerListEntitlementsResponseItemsStatus `json:"status" api:"required"`
+	UpdatedAt              time.Time                                   `json:"updated_at" api:"required" format:"date-time"`
+	DeliveredAt            time.Time                                   `json:"delivered_at" api:"nullable" format:"date-time"`
+	EntitlementDescription string                                      `json:"entitlement_description" api:"nullable"`
+	RevokedAt              time.Time                                   `json:"revoked_at" api:"nullable" format:"date-time"`
+	JSON                   customerListEntitlementsResponseItemJSON    `json:"-"`
 }
 
 // customerListEntitlementsResponseItemJSON contains the JSON metadata for the
@@ -316,27 +316,6 @@ func (r *CustomerListEntitlementsResponseItem) UnmarshalJSON(data []byte) (err e
 
 func (r customerListEntitlementsResponseItemJSON) RawJSON() string {
 	return r.raw
-}
-
-type CustomerListEntitlementsResponseItemsIntegrationType string
-
-const (
-	CustomerListEntitlementsResponseItemsIntegrationTypeDiscord      CustomerListEntitlementsResponseItemsIntegrationType = "discord"
-	CustomerListEntitlementsResponseItemsIntegrationTypeTelegram     CustomerListEntitlementsResponseItemsIntegrationType = "telegram"
-	CustomerListEntitlementsResponseItemsIntegrationTypeGitHub       CustomerListEntitlementsResponseItemsIntegrationType = "github"
-	CustomerListEntitlementsResponseItemsIntegrationTypeFigma        CustomerListEntitlementsResponseItemsIntegrationType = "figma"
-	CustomerListEntitlementsResponseItemsIntegrationTypeFramer       CustomerListEntitlementsResponseItemsIntegrationType = "framer"
-	CustomerListEntitlementsResponseItemsIntegrationTypeNotion       CustomerListEntitlementsResponseItemsIntegrationType = "notion"
-	CustomerListEntitlementsResponseItemsIntegrationTypeDigitalFiles CustomerListEntitlementsResponseItemsIntegrationType = "digital_files"
-	CustomerListEntitlementsResponseItemsIntegrationTypeLicenseKey   CustomerListEntitlementsResponseItemsIntegrationType = "license_key"
-)
-
-func (r CustomerListEntitlementsResponseItemsIntegrationType) IsKnown() bool {
-	switch r {
-	case CustomerListEntitlementsResponseItemsIntegrationTypeDiscord, CustomerListEntitlementsResponseItemsIntegrationTypeTelegram, CustomerListEntitlementsResponseItemsIntegrationTypeGitHub, CustomerListEntitlementsResponseItemsIntegrationTypeFigma, CustomerListEntitlementsResponseItemsIntegrationTypeFramer, CustomerListEntitlementsResponseItemsIntegrationTypeNotion, CustomerListEntitlementsResponseItemsIntegrationTypeDigitalFiles, CustomerListEntitlementsResponseItemsIntegrationTypeLicenseKey:
-		return true
-	}
-	return false
 }
 
 type CustomerListEntitlementsResponseItemsStatus string
