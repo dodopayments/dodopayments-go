@@ -47,6 +47,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		BillingCurrency:           dodopayments.F(dodopayments.CurrencyAed),
 		DiscountCode:              dodopayments.F("discount_code"),
 		Force3DS:                  dodopayments.F(true),
+		MandateMinAmountInrPaise:  dodopayments.F(int64(0)),
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
 		}),
@@ -65,6 +66,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		PaymentLink:             dodopayments.F(true),
 		PaymentMethodID:         dodopayments.F("payment_method_id"),
 		RedirectImmediately:     dodopayments.F(true),
+		RequirePhoneNumber:      dodopayments.F(true),
 		ReturnURL:               dodopayments.F("return_url"),
 		ShortLink:               dodopayments.F(true),
 		ShowSavedPaymentMethods: dodopayments.F(true),
@@ -127,6 +129,8 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 			}),
 			CancelAtNextBillingDate: dodopayments.F(true),
 			CancelReason:            dodopayments.F(dodopayments.SubscriptionUpdateParamsCancelReasonCancelledByCustomer),
+			CancellationComment:     dodopayments.F("cancellation_comment"),
+			CancellationFeedback:    dodopayments.F(dodopayments.SubscriptionUpdateParamsCancellationFeedbackTooExpensive),
 			CreditEntitlementCart: dodopayments.F([]dodopayments.SubscriptionUpdateParamsCreditEntitlementCart{{
 				CreditEntitlementID:        dodopayments.F("credit_entitlement_id"),
 				CreditsAmount:              dodopayments.F("credits_amount"),
@@ -231,9 +235,10 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 		"subscription_id",
 		dodopayments.SubscriptionChangePlanParams{
 			UpdateSubscriptionPlanReq: dodopayments.UpdateSubscriptionPlanReqParam{
-				ProductID:            dodopayments.F("product_id"),
-				ProrationBillingMode: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately),
-				Quantity:             dodopayments.F(int64(0)),
+				ProductID:                     dodopayments.F("product_id"),
+				ProrationBillingMode:          dodopayments.F(dodopayments.UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately),
+				Quantity:                      dodopayments.F(int64(0)),
+				AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
 				Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
 					AddonID:  dodopayments.F("addon_id"),
 					Quantity: dodopayments.F(int64(0)),
@@ -311,9 +316,10 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 		"subscription_id",
 		dodopayments.SubscriptionPreviewChangePlanParams{
 			UpdateSubscriptionPlanReq: dodopayments.UpdateSubscriptionPlanReqParam{
-				ProductID:            dodopayments.F("product_id"),
-				ProrationBillingMode: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately),
-				Quantity:             dodopayments.F(int64(0)),
+				ProductID:                     dodopayments.F("product_id"),
+				ProrationBillingMode:          dodopayments.F(dodopayments.UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately),
+				Quantity:                      dodopayments.F(int64(0)),
+				AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
 				Addons: dodopayments.F([]dodopayments.AttachAddonParam{{
 					AddonID:  dodopayments.F("addon_id"),
 					Quantity: dodopayments.F(int64(0)),

@@ -804,6 +804,9 @@ type PaymentNewParams struct {
 	Customer param.Field[CustomerRequestUnionParam] `json:"customer" api:"required"`
 	// List of products in the cart. Must contain at least 1 and at most 100 items.
 	ProductCart param.Field[[]PaymentNewParamsProductCart] `json:"product_cart" api:"required"`
+	// Whether adaptive currency fees should be included in the price (true) or added
+	// on top (false). If not specified, defaults to the business-level setting.
+	AdaptiveCurrencyFeesInclusive param.Field[bool] `json:"adaptive_currency_fees_inclusive"`
 	// List of payment methods allowed during checkout.
 	//
 	// Customers will **never** see payment methods that are **not** in this list.
@@ -830,6 +833,10 @@ type PaymentNewParams struct {
 	// If true, redirects the customer immediately after payment completion False by
 	// default
 	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`
+	// If true, the customer's phone number is required to create this payment.
+	// Typically set alongside `payment_link=true` so merchants can enforce phone
+	// collection on the hosted payment page. Defaults to false.
+	RequirePhoneNumber param.Field[bool] `json:"require_phone_number"`
 	// Optional URL to redirect the customer after payment. Must be a valid URL if
 	// provided.
 	ReturnURL param.Field[string] `json:"return_url"`

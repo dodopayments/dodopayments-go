@@ -153,6 +153,11 @@ type CheckoutSessionFlagsParam struct {
 	//
 	// Default is false
 	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`
+	// If true, the customer must provide a phone number to complete checkout. Requires
+	// `allow_phone_number_collection` to also be true.
+	//
+	// Default is false
+	RequirePhoneNumber param.Field[bool] `json:"require_phone_number"`
 }
 
 func (r CheckoutSessionFlagsParam) MarshalJSON() (data []byte, err error) {
@@ -188,6 +193,13 @@ type CheckoutSessionRequestParam struct {
 	FeatureFlags  param.Field[CheckoutSessionFlagsParam]         `json:"feature_flags"`
 	// Override merchant default 3DS behaviour for this session
 	Force3DS param.Field[bool] `json:"force_3ds"`
+	// Override the merchant-level mandate floor (in INR paise) for INR e-mandates on
+	// Indian-card recurring payments. The mandate amount sent to the processor is
+	// `max(this_floor, actual_billing_amount)`, so this is effectively the
+	// customer-facing authorization ceiling whenever billing is lower. When unset, the
+	// merchant setting applies; when that's also unset, the system default of ₹15,000
+	// applies.
+	MandateMinAmountInrPaise param.Field[int64] `json:"mandate_min_amount_inr_paise"`
 	// Additional metadata associated with the payment. Defaults to empty if not
 	// provided.
 	Metadata param.Field[map[string]string] `json:"metadata"`

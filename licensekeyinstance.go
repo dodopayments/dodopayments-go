@@ -119,6 +119,8 @@ func (r LicenseKeyInstanceUpdateParams) MarshalJSON() (data []byte, err error) {
 }
 
 type LicenseKeyInstanceListParams struct {
+	// Filter instances by entitlement grant ID
+	GrantID param.Field[string] `query:"grant_id"`
 	// Filter by license key ID
 	LicenseKeyID param.Field[string] `query:"license_key_id"`
 	// Page number default is 0

@@ -13,7 +13,7 @@ import (
 	"github.com/dodopayments/dodopayments-go/option"
 )
 
-func TestLicenseKeyInstanceGet(t *testing.T) {
+func TestEntitlementFileDelete(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,34 +25,10 @@ func TestLicenseKeyInstanceGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.LicenseKeyInstances.Get(context.TODO(), "lki_123")
-	if err != nil {
-		var apierr *dodopayments.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestLicenseKeyInstanceUpdate(t *testing.T) {
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := dodopayments.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
-	)
-	_, err := client.LicenseKeyInstances.Update(
+	err := client.Entitlements.Files.Delete(
 		context.TODO(),
-		"lki_123",
-		dodopayments.LicenseKeyInstanceUpdateParams{
-			Name: dodopayments.F("name"),
-		},
+		"id",
+		"file_id",
 	)
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -63,7 +39,7 @@ func TestLicenseKeyInstanceUpdate(t *testing.T) {
 	}
 }
 
-func TestLicenseKeyInstanceListWithOptionalParams(t *testing.T) {
+func TestEntitlementFileUpload(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -75,12 +51,7 @@ func TestLicenseKeyInstanceListWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.LicenseKeyInstances.List(context.TODO(), dodopayments.LicenseKeyInstanceListParams{
-		GrantID:      dodopayments.F("grant_id"),
-		LicenseKeyID: dodopayments.F("license_key_id"),
-		PageNumber:   dodopayments.F(int64(0)),
-		PageSize:     dodopayments.F(int64(0)),
-	})
+	_, err := client.Entitlements.Files.Upload(context.TODO(), "id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
