@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.97.1 (2026-05-04)
+
+Full Changelog: [v1.97.0...v1.97.1](https://github.com/dodopayments/dodopayments-go/compare/v1.97.0...v1.97.1)
+
+### Features
+
+* **api:** update openapi spec ([8bbef8a](https://github.com/dodopayments/dodopayments-go/commit/8bbef8a1c78e1aa35144dc5ce8ccc084d911dc58))
+
+
+### Chores
+
+* avoid embedding reflect.Type for dead code elimination ([5b8ce2b](https://github.com/dodopayments/dodopayments-go/commit/5b8ce2bbbb888cdef17ca229f6801e9b8f0312be))
+
 ## 1.97.0 (2026-04-30)
 
 Full Changelog: [v1.96.0...v1.97.0](https://github.com/dodopayments/dodopayments-go/compare/v1.96.0...v1.97.0)
