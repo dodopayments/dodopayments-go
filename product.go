@@ -346,15 +346,17 @@ func (r creditEntitlementMappingResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-// Digital-product-delivery payload for a grant. Populated for grants whose
-// entitlement has `integration_type = 'digital_files'`. `files` carries presigned
-// download URLs; the source (EE service or legacy in-process S3 presigning) is
-// opaque to the caller.
+// Digital-product-delivery payload, present on grants for `digital_files`
+// entitlements. Each file carries a short-lived presigned download URL.
 type DigitalProductDelivery struct {
-	Files        []DigitalProductDeliveryFile `json:"files" api:"required"`
-	ExternalURL  string                       `json:"external_url" api:"nullable"`
-	Instructions string                       `json:"instructions" api:"nullable"`
-	JSON         digitalProductDeliveryJSON   `json:"-"`
+	// One entry per attached file.
+	Files []DigitalProductDeliveryFile `json:"files" api:"required"`
+	// Optional external URL, passed through from the entitlement configuration.
+	ExternalURL string `json:"external_url" api:"nullable"`
+	// Optional human-readable delivery instructions, passed through from the
+	// entitlement configuration.
+	Instructions string                     `json:"instructions" api:"nullable"`
+	JSON         digitalProductDeliveryJSON `json:"-"`
 }
 
 // digitalProductDeliveryJSON contains the JSON metadata for the struct
@@ -375,15 +377,21 @@ func (r digitalProductDeliveryJSON) RawJSON() string {
 	return r.raw
 }
 
+// One file in a digital-product delivery payload.
 type DigitalProductDeliveryFile struct {
+	// Short-lived presigned URL for downloading the file.
 	DownloadURL string `json:"download_url" api:"required"`
 	// Seconds until `download_url` expires.
-	ExpiresIn   int64                          `json:"expires_in" api:"required"`
-	FileID      string                         `json:"file_id" api:"required"`
-	Filename    string                         `json:"filename" api:"required"`
-	ContentType string                         `json:"content_type" api:"nullable"`
-	FileSize    int64                          `json:"file_size" api:"nullable"`
-	JSON        digitalProductDeliveryFileJSON `json:"-"`
+	ExpiresIn int64 `json:"expires_in" api:"required"`
+	// Identifier of the attached file.
+	FileID string `json:"file_id" api:"required"`
+	// Original filename of the attached file.
+	Filename string `json:"filename" api:"required"`
+	// Optional content-type declared at upload.
+	ContentType string `json:"content_type" api:"nullable"`
+	// Optional size of the file in bytes.
+	FileSize int64                          `json:"file_size" api:"nullable"`
+	JSON     digitalProductDeliveryFileJSON `json:"-"`
 }
 
 // digitalProductDeliveryFileJSON contains the JSON metadata for the struct
@@ -970,10 +978,8 @@ type Product struct {
 	Addons []string `json:"addons" api:"nullable"`
 	// Description of the product, optional.
 	Description string `json:"description" api:"nullable"`
-	// Digital-product-delivery payload for a grant. Populated for grants whose
-	// entitlement has `integration_type = 'digital_files'`. `files` carries presigned
-	// download URLs; the source (EE service or legacy in-process S3 presigning) is
-	// opaque to the caller.
+	// Digital-product-delivery payload, present on grants for `digital_files`
+	// entitlements. Each file carries a short-lived presigned download URL.
 	DigitalProductDelivery DigitalProductDelivery `json:"digital_product_delivery" api:"nullable"`
 	// URL of the product image, optional.
 	Image string `json:"image" api:"nullable"`
@@ -1037,10 +1043,10 @@ func (r productJSON) RawJSON() string {
 // other variants pass through unchanged via `#[serde(untagged)]`.
 type ProductEntitlementSummary struct {
 	ID string `json:"id" api:"required"`
-	// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
-	// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
-	// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
-	// ID-only via [`IntegrationConfig`]; this enum is response-only.
+	// Integration-specific configuration on an entitlement read response.
+	//
+	// For `digital_files` entitlements the response includes presigned download URLs
+	// for each attached file; other integrations match the shape supplied at creation.
 	IntegrationConfig IntegrationConfigResponse     `json:"integration_config" api:"required"`
 	IntegrationType   EntitlementIntegrationType    `json:"integration_type" api:"required"`
 	Name              string                        `json:"name" api:"required"`

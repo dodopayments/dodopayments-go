@@ -112,22 +112,32 @@ func (r *EntitlementService) Delete(ctx context.Context, id string, opts ...opti
 	return err
 }
 
+// Detailed view of a single entitlement: identity, integration type,
+// integration-specific configuration, and metadata.
 type Entitlement struct {
-	ID         string    `json:"id" api:"required"`
-	BusinessID string    `json:"business_id" api:"required"`
-	CreatedAt  time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
-	// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
-	// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
-	// ID-only via [`IntegrationConfig`]; this enum is response-only.
-	IntegrationConfig IntegrationConfigResponse  `json:"integration_config" api:"required"`
-	IntegrationType   EntitlementIntegrationType `json:"integration_type" api:"required"`
-	IsActive          bool                       `json:"is_active" api:"required"`
-	Name              string                     `json:"name" api:"required"`
-	UpdatedAt         time.Time                  `json:"updated_at" api:"required" format:"date-time"`
-	Description       string                     `json:"description" api:"nullable"`
-	Metadata          interface{}                `json:"metadata"`
-	JSON              entitlementJSON            `json:"-"`
+	// Unique identifier of the entitlement.
+	ID string `json:"id" api:"required"`
+	// Identifier of the business that owns this entitlement.
+	BusinessID string `json:"business_id" api:"required"`
+	// Timestamp when the entitlement was created.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// Integration-specific configuration. For `digital_files` entitlements this
+	// includes presigned download URLs for each attached file.
+	IntegrationConfig IntegrationConfigResponse `json:"integration_config" api:"required"`
+	// Platform integration this entitlement uses.
+	IntegrationType EntitlementIntegrationType `json:"integration_type" api:"required"`
+	// Always `true` for entitlements returned by the public API; soft-deleted
+	// entitlements are not returned.
+	IsActive bool `json:"is_active" api:"required"`
+	// Arbitrary key-value metadata supplied at creation or via PATCH.
+	Metadata map[string]string `json:"metadata" api:"required"`
+	// Display name supplied at creation.
+	Name string `json:"name" api:"required"`
+	// Timestamp when the entitlement was last modified.
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
+	// Optional description supplied at creation.
+	Description string          `json:"description" api:"nullable"`
+	JSON        entitlementJSON `json:"-"`
 }
 
 // entitlementJSON contains the JSON metadata for the struct [Entitlement]
@@ -138,10 +148,10 @@ type entitlementJSON struct {
 	IntegrationConfig apijson.Field
 	IntegrationType   apijson.Field
 	IsActive          apijson.Field
+	Metadata          apijson.Field
 	Name              apijson.Field
 	UpdatedAt         apijson.Field
 	Description       apijson.Field
-	Metadata          apijson.Field
 	raw               string
 	ExtraFields       map[string]apijson.Field
 }
@@ -175,26 +185,43 @@ func (r EntitlementIntegrationType) IsKnown() bool {
 	return false
 }
 
-// Platform-specific configuration for an entitlement. Each variant uses unique
-// field names so `#[serde(untagged)]` can disambiguate correctly.
+// Integration-specific configuration supplied when creating or updating an
+// entitlement. The shape required matches the entitlement's `integration_type`.
 type IntegrationConfigParam struct {
-	ActivationMessage param.Field[string]       `json:"activation_message"`
-	ActivationsLimit  param.Field[int64]        `json:"activations_limit"`
-	ChatID            param.Field[string]       `json:"chat_id"`
-	DigitalFileIDs    param.Field[interface{}]  `json:"digital_file_ids"`
-	DurationCount     param.Field[int64]        `json:"duration_count"`
-	DurationInterval  param.Field[TimeInterval] `json:"duration_interval"`
-	ExternalURL       param.Field[string]       `json:"external_url"`
-	FigmaFileID       param.Field[string]       `json:"figma_file_id"`
-	FramerTemplateID  param.Field[string]       `json:"framer_template_id"`
-	GuildID           param.Field[string]       `json:"guild_id"`
-	Instructions      param.Field[string]       `json:"instructions"`
-	LegacyFileIDs     param.Field[interface{}]  `json:"legacy_file_ids"`
-	NotionTemplateID  param.Field[string]       `json:"notion_template_id"`
-	// One of: pull, push, admin, maintain, triage
-	Permission param.Field[string] `json:"permission"`
-	RoleID     param.Field[string] `json:"role_id"`
-	TargetID   param.Field[string] `json:"target_id"`
+	// Optional message displayed when a customer activates the license key (≤ 2500
+	// characters).
+	ActivationMessage param.Field[string] `json:"activation_message"`
+	// Maximum activations allowed per issued license key. Omit for unlimited.
+	ActivationsLimit param.Field[int64] `json:"activations_limit"`
+	// Telegram chat ID. For groups this is typically a negative integer.
+	ChatID         param.Field[string]      `json:"chat_id"`
+	DigitalFileIDs param.Field[interface{}] `json:"digital_file_ids"`
+	// Validity duration of issued license keys. Provide both `duration_count` and
+	// `duration_interval` together for a fixed duration; omit both for non-expiring
+	// keys.
+	DurationCount param.Field[int64] `json:"duration_count"`
+	// Unit of `duration_count`.
+	DurationInterval param.Field[TimeInterval] `json:"duration_interval"`
+	// Optional external URL shown to the customer alongside the files.
+	ExternalURL param.Field[string] `json:"external_url"`
+	// Figma file identifier to grant access to.
+	FigmaFileID param.Field[string] `json:"figma_file_id"`
+	// Framer template identifier to grant access to.
+	FramerTemplateID param.Field[string] `json:"framer_template_id"`
+	// Discord guild (server) ID.
+	GuildID param.Field[string] `json:"guild_id"`
+	// Optional human-readable delivery instructions shown to the customer alongside
+	// the files.
+	Instructions  param.Field[string]      `json:"instructions"`
+	LegacyFileIDs param.Field[interface{}] `json:"legacy_file_ids"`
+	// Notion template identifier to grant access to.
+	NotionTemplateID param.Field[string] `json:"notion_template_id"`
+	// Permission to grant on the repository.
+	Permission param.Field[IntegrationConfigPermission] `json:"permission"`
+	// Optional Discord role to assign within the guild.
+	RoleID param.Field[string] `json:"role_id"`
+	// Repository or organisation slug to grant access to.
+	TargetID param.Field[string] `json:"target_id"`
 }
 
 func (r IntegrationConfigParam) MarshalJSON() (data []byte, err error) {
@@ -203,8 +230,8 @@ func (r IntegrationConfigParam) MarshalJSON() (data []byte, err error) {
 
 func (r IntegrationConfigParam) implementsIntegrationConfigUnionParam() {}
 
-// Platform-specific configuration for an entitlement. Each variant uses unique
-// field names so `#[serde(untagged)]` can disambiguate correctly.
+// Integration-specific configuration supplied when creating or updating an
+// entitlement. The shape required matches the entitlement's `integration_type`.
 //
 // Satisfied by [IntegrationConfigGitHubConfigParam],
 // [IntegrationConfigDiscordConfigParam], [IntegrationConfigTelegramConfigParam],
@@ -217,9 +244,10 @@ type IntegrationConfigUnionParam interface {
 }
 
 type IntegrationConfigGitHubConfigParam struct {
-	// One of: pull, push, admin, maintain, triage
-	Permission param.Field[string] `json:"permission" api:"required"`
-	TargetID   param.Field[string] `json:"target_id" api:"required"`
+	// Permission to grant on the repository.
+	Permission param.Field[IntegrationConfigGitHubConfigPermission] `json:"permission" api:"required"`
+	// Repository or organisation slug to grant access to.
+	TargetID param.Field[string] `json:"target_id" api:"required"`
 }
 
 func (r IntegrationConfigGitHubConfigParam) MarshalJSON() (data []byte, err error) {
@@ -228,9 +256,30 @@ func (r IntegrationConfigGitHubConfigParam) MarshalJSON() (data []byte, err erro
 
 func (r IntegrationConfigGitHubConfigParam) implementsIntegrationConfigUnionParam() {}
 
+// Permission to grant on the repository.
+type IntegrationConfigGitHubConfigPermission string
+
+const (
+	IntegrationConfigGitHubConfigPermissionPull     IntegrationConfigGitHubConfigPermission = "pull"
+	IntegrationConfigGitHubConfigPermissionPush     IntegrationConfigGitHubConfigPermission = "push"
+	IntegrationConfigGitHubConfigPermissionAdmin    IntegrationConfigGitHubConfigPermission = "admin"
+	IntegrationConfigGitHubConfigPermissionMaintain IntegrationConfigGitHubConfigPermission = "maintain"
+	IntegrationConfigGitHubConfigPermissionTriage   IntegrationConfigGitHubConfigPermission = "triage"
+)
+
+func (r IntegrationConfigGitHubConfigPermission) IsKnown() bool {
+	switch r {
+	case IntegrationConfigGitHubConfigPermissionPull, IntegrationConfigGitHubConfigPermissionPush, IntegrationConfigGitHubConfigPermissionAdmin, IntegrationConfigGitHubConfigPermissionMaintain, IntegrationConfigGitHubConfigPermissionTriage:
+		return true
+	}
+	return false
+}
+
 type IntegrationConfigDiscordConfigParam struct {
+	// Discord guild (server) ID.
 	GuildID param.Field[string] `json:"guild_id" api:"required"`
-	RoleID  param.Field[string] `json:"role_id"`
+	// Optional Discord role to assign within the guild.
+	RoleID param.Field[string] `json:"role_id"`
 }
 
 func (r IntegrationConfigDiscordConfigParam) MarshalJSON() (data []byte, err error) {
@@ -240,6 +289,7 @@ func (r IntegrationConfigDiscordConfigParam) MarshalJSON() (data []byte, err err
 func (r IntegrationConfigDiscordConfigParam) implementsIntegrationConfigUnionParam() {}
 
 type IntegrationConfigTelegramConfigParam struct {
+	// Telegram chat ID. For groups this is typically a negative integer.
 	ChatID param.Field[string] `json:"chat_id" api:"required"`
 }
 
@@ -250,6 +300,7 @@ func (r IntegrationConfigTelegramConfigParam) MarshalJSON() (data []byte, err er
 func (r IntegrationConfigTelegramConfigParam) implementsIntegrationConfigUnionParam() {}
 
 type IntegrationConfigFigmaConfigParam struct {
+	// Figma file identifier to grant access to.
 	FigmaFileID param.Field[string] `json:"figma_file_id" api:"required"`
 }
 
@@ -260,6 +311,7 @@ func (r IntegrationConfigFigmaConfigParam) MarshalJSON() (data []byte, err error
 func (r IntegrationConfigFigmaConfigParam) implementsIntegrationConfigUnionParam() {}
 
 type IntegrationConfigFramerConfigParam struct {
+	// Framer template identifier to grant access to.
 	FramerTemplateID param.Field[string] `json:"framer_template_id" api:"required"`
 }
 
@@ -270,6 +322,7 @@ func (r IntegrationConfigFramerConfigParam) MarshalJSON() (data []byte, err erro
 func (r IntegrationConfigFramerConfigParam) implementsIntegrationConfigUnionParam() {}
 
 type IntegrationConfigNotionConfigParam struct {
+	// Notion template identifier to grant access to.
 	NotionTemplateID param.Field[string] `json:"notion_template_id" api:"required"`
 }
 
@@ -280,17 +333,23 @@ func (r IntegrationConfigNotionConfigParam) MarshalJSON() (data []byte, err erro
 func (r IntegrationConfigNotionConfigParam) implementsIntegrationConfigUnionParam() {}
 
 type IntegrationConfigDigitalFilesConfigParam struct {
+	// Files attached to this entitlement. Add files via
+	// `POST /entitlements/{id}/files` and remove them via
+	// `DELETE /entitlements/{id}/files/{file_id}`.
 	DigitalFileIDs param.Field[[]string] `json:"digital_file_ids" api:"required"`
-	ExternalURL    param.Field[string]   `json:"external_url"`
-	Instructions   param.Field[string]   `json:"instructions"`
-	// Three-way patchable field (mirrors the credit_entitlements pattern):
+	// Optional external URL shown to the customer alongside the files.
+	ExternalURL param.Field[string] `json:"external_url"`
+	// Optional human-readable delivery instructions shown to the customer alongside
+	// the files.
+	Instructions param.Field[string] `json:"instructions"`
+	// Three-way patchable list of legacy file identifiers:
 	//
-	// - omitted → preserve persisted (`None`)
-	// - `null` → clear (`Some(None)`)
-	// - `[...]` → replace (`Some(Some(...))`)
+	// - omitted → preserve the current value
+	// - `null` → clear
+	// - `[...]` → replace
 	//
-	// On Create / storage we collapse "clear" and empty-array to `None` so the
-	// persisted JSONB never carries a `null` legacy_file_ids key.
+	// On create, an omitted field, an explicit `null`, or an empty array all result in
+	// no legacy files attached.
 	LegacyFileIDs param.Field[[]string] `json:"legacy_file_ids"`
 }
 
@@ -301,10 +360,17 @@ func (r IntegrationConfigDigitalFilesConfigParam) MarshalJSON() (data []byte, er
 func (r IntegrationConfigDigitalFilesConfigParam) implementsIntegrationConfigUnionParam() {}
 
 type IntegrationConfigLicenseKeyConfigParam struct {
-	ActivationMessage param.Field[string]       `json:"activation_message"`
-	ActivationsLimit  param.Field[int64]        `json:"activations_limit"`
-	DurationCount     param.Field[int64]        `json:"duration_count"`
-	DurationInterval  param.Field[TimeInterval] `json:"duration_interval"`
+	// Optional message displayed when a customer activates the license key (≤ 2500
+	// characters).
+	ActivationMessage param.Field[string] `json:"activation_message"`
+	// Maximum activations allowed per issued license key. Omit for unlimited.
+	ActivationsLimit param.Field[int64] `json:"activations_limit"`
+	// Validity duration of issued license keys. Provide both `duration_count` and
+	// `duration_interval` together for a fixed duration; omit both for non-expiring
+	// keys.
+	DurationCount param.Field[int64] `json:"duration_count"`
+	// Unit of `duration_count`.
+	DurationInterval param.Field[TimeInterval] `json:"duration_interval"`
 }
 
 func (r IntegrationConfigLicenseKeyConfigParam) MarshalJSON() (data []byte, err error) {
@@ -313,28 +379,62 @@ func (r IntegrationConfigLicenseKeyConfigParam) MarshalJSON() (data []byte, err 
 
 func (r IntegrationConfigLicenseKeyConfigParam) implementsIntegrationConfigUnionParam() {}
 
-// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
-// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
-// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
-// ID-only via [`IntegrationConfig`]; this enum is response-only.
+// Permission to grant on the repository.
+type IntegrationConfigPermission string
+
+const (
+	IntegrationConfigPermissionPull     IntegrationConfigPermission = "pull"
+	IntegrationConfigPermissionPush     IntegrationConfigPermission = "push"
+	IntegrationConfigPermissionAdmin    IntegrationConfigPermission = "admin"
+	IntegrationConfigPermissionMaintain IntegrationConfigPermission = "maintain"
+	IntegrationConfigPermissionTriage   IntegrationConfigPermission = "triage"
+)
+
+func (r IntegrationConfigPermission) IsKnown() bool {
+	switch r {
+	case IntegrationConfigPermissionPull, IntegrationConfigPermissionPush, IntegrationConfigPermissionAdmin, IntegrationConfigPermissionMaintain, IntegrationConfigPermissionTriage:
+		return true
+	}
+	return false
+}
+
+// Integration-specific configuration on an entitlement read response.
+//
+// For `digital_files` entitlements the response includes presigned download URLs
+// for each attached file; other integrations match the shape supplied at creation.
 type IntegrationConfigResponse struct {
+	// Optional message displayed when a customer activates the license key (≤ 2500
+	// characters).
 	ActivationMessage string `json:"activation_message" api:"nullable"`
-	ActivationsLimit  int64  `json:"activations_limit" api:"nullable"`
-	ChatID            string `json:"chat_id"`
+	// Maximum activations allowed per issued license key. Omit for unlimited.
+	ActivationsLimit int64 `json:"activations_limit" api:"nullable"`
+	// Telegram chat ID. For groups this is typically a negative integer.
+	ChatID string `json:"chat_id"`
 	// This field can have the runtime type of
 	// [IntegrationConfigResponseDigitalFilesConfigDigitalFiles].
-	DigitalFiles     interface{}                   `json:"digital_files"`
-	DurationCount    int64                         `json:"duration_count" api:"nullable"`
-	DurationInterval TimeInterval                  `json:"duration_interval" api:"nullable"`
-	FigmaFileID      string                        `json:"figma_file_id"`
-	FramerTemplateID string                        `json:"framer_template_id"`
-	GuildID          string                        `json:"guild_id"`
-	NotionTemplateID string                        `json:"notion_template_id"`
-	Permission       string                        `json:"permission"`
-	RoleID           string                        `json:"role_id" api:"nullable"`
-	TargetID         string                        `json:"target_id"`
-	JSON             integrationConfigResponseJSON `json:"-"`
-	union            IntegrationConfigResponseUnion
+	DigitalFiles interface{} `json:"digital_files"`
+	// Validity duration of issued license keys. Provide both `duration_count` and
+	// `duration_interval` together for a fixed duration; omit both for non-expiring
+	// keys.
+	DurationCount int64 `json:"duration_count" api:"nullable"`
+	// Unit of `duration_count`.
+	DurationInterval TimeInterval `json:"duration_interval" api:"nullable"`
+	// Figma file identifier to grant access to.
+	FigmaFileID string `json:"figma_file_id"`
+	// Framer template identifier to grant access to.
+	FramerTemplateID string `json:"framer_template_id"`
+	// Discord guild (server) ID.
+	GuildID string `json:"guild_id"`
+	// Notion template identifier to grant access to.
+	NotionTemplateID string `json:"notion_template_id"`
+	// Permission to grant on the repository.
+	Permission IntegrationConfigResponsePermission `json:"permission"`
+	// Optional Discord role to assign within the guild.
+	RoleID string `json:"role_id" api:"nullable"`
+	// Repository or organisation slug to grant access to.
+	TargetID string                        `json:"target_id"`
+	JSON     integrationConfigResponseJSON `json:"-"`
+	union    IntegrationConfigResponseUnion
 }
 
 // integrationConfigResponseJSON contains the JSON metadata for the struct
@@ -384,10 +484,10 @@ func (r IntegrationConfigResponse) AsUnion() IntegrationConfigResponseUnion {
 	return r.union
 }
 
-// Public-facing variant of [`IntegrationConfig`]. Mirrors every variant shape on
-// the wire EXCEPT `DigitalFiles`, which is replaced with a hydrated
-// `digital_files` object (resolved download URLs etc.). The persisted JSONB stays
-// ID-only via [`IntegrationConfig`]; this enum is response-only.
+// Integration-specific configuration on an entitlement read response.
+//
+// For `digital_files` entitlements the response includes presigned download URLs
+// for each attached file; other integrations match the shape supplied at creation.
 //
 // Union satisfied by [IntegrationConfigResponseGitHubConfig],
 // [IntegrationConfigResponseDiscordConfig],
@@ -440,9 +540,11 @@ func init() {
 }
 
 type IntegrationConfigResponseGitHubConfig struct {
-	Permission string                                    `json:"permission" api:"required"`
-	TargetID   string                                    `json:"target_id" api:"required"`
-	JSON       integrationConfigResponseGitHubConfigJSON `json:"-"`
+	// Permission to grant on the repository.
+	Permission IntegrationConfigResponseGitHubConfigPermission `json:"permission" api:"required"`
+	// Repository or organisation slug to grant access to.
+	TargetID string                                    `json:"target_id" api:"required"`
+	JSON     integrationConfigResponseGitHubConfigJSON `json:"-"`
 }
 
 // integrationConfigResponseGitHubConfigJSON contains the JSON metadata for the
@@ -464,10 +566,31 @@ func (r integrationConfigResponseGitHubConfigJSON) RawJSON() string {
 
 func (r IntegrationConfigResponseGitHubConfig) implementsIntegrationConfigResponse() {}
 
+// Permission to grant on the repository.
+type IntegrationConfigResponseGitHubConfigPermission string
+
+const (
+	IntegrationConfigResponseGitHubConfigPermissionPull     IntegrationConfigResponseGitHubConfigPermission = "pull"
+	IntegrationConfigResponseGitHubConfigPermissionPush     IntegrationConfigResponseGitHubConfigPermission = "push"
+	IntegrationConfigResponseGitHubConfigPermissionAdmin    IntegrationConfigResponseGitHubConfigPermission = "admin"
+	IntegrationConfigResponseGitHubConfigPermissionMaintain IntegrationConfigResponseGitHubConfigPermission = "maintain"
+	IntegrationConfigResponseGitHubConfigPermissionTriage   IntegrationConfigResponseGitHubConfigPermission = "triage"
+)
+
+func (r IntegrationConfigResponseGitHubConfigPermission) IsKnown() bool {
+	switch r {
+	case IntegrationConfigResponseGitHubConfigPermissionPull, IntegrationConfigResponseGitHubConfigPermissionPush, IntegrationConfigResponseGitHubConfigPermissionAdmin, IntegrationConfigResponseGitHubConfigPermissionMaintain, IntegrationConfigResponseGitHubConfigPermissionTriage:
+		return true
+	}
+	return false
+}
+
 type IntegrationConfigResponseDiscordConfig struct {
-	GuildID string                                     `json:"guild_id" api:"required"`
-	RoleID  string                                     `json:"role_id" api:"nullable"`
-	JSON    integrationConfigResponseDiscordConfigJSON `json:"-"`
+	// Discord guild (server) ID.
+	GuildID string `json:"guild_id" api:"required"`
+	// Optional Discord role to assign within the guild.
+	RoleID string                                     `json:"role_id" api:"nullable"`
+	JSON   integrationConfigResponseDiscordConfigJSON `json:"-"`
 }
 
 // integrationConfigResponseDiscordConfigJSON contains the JSON metadata for the
@@ -490,6 +613,7 @@ func (r integrationConfigResponseDiscordConfigJSON) RawJSON() string {
 func (r IntegrationConfigResponseDiscordConfig) implementsIntegrationConfigResponse() {}
 
 type IntegrationConfigResponseTelegramConfig struct {
+	// Telegram chat ID. For groups this is typically a negative integer.
 	ChatID string                                      `json:"chat_id" api:"required"`
 	JSON   integrationConfigResponseTelegramConfigJSON `json:"-"`
 }
@@ -513,6 +637,7 @@ func (r integrationConfigResponseTelegramConfigJSON) RawJSON() string {
 func (r IntegrationConfigResponseTelegramConfig) implementsIntegrationConfigResponse() {}
 
 type IntegrationConfigResponseFigmaConfig struct {
+	// Figma file identifier to grant access to.
 	FigmaFileID string                                   `json:"figma_file_id" api:"required"`
 	JSON        integrationConfigResponseFigmaConfigJSON `json:"-"`
 }
@@ -536,6 +661,7 @@ func (r integrationConfigResponseFigmaConfigJSON) RawJSON() string {
 func (r IntegrationConfigResponseFigmaConfig) implementsIntegrationConfigResponse() {}
 
 type IntegrationConfigResponseFramerConfig struct {
+	// Framer template identifier to grant access to.
 	FramerTemplateID string                                    `json:"framer_template_id" api:"required"`
 	JSON             integrationConfigResponseFramerConfigJSON `json:"-"`
 }
@@ -559,6 +685,7 @@ func (r integrationConfigResponseFramerConfigJSON) RawJSON() string {
 func (r IntegrationConfigResponseFramerConfig) implementsIntegrationConfigResponse() {}
 
 type IntegrationConfigResponseNotionConfig struct {
+	// Notion template identifier to grant access to.
 	NotionTemplateID string                                    `json:"notion_template_id" api:"required"`
 	JSON             integrationConfigResponseNotionConfigJSON `json:"-"`
 }
@@ -582,10 +709,8 @@ func (r integrationConfigResponseNotionConfigJSON) RawJSON() string {
 func (r IntegrationConfigResponseNotionConfig) implementsIntegrationConfigResponse() {}
 
 type IntegrationConfigResponseDigitalFilesConfig struct {
-	// Populated digital-files payload for entitlement read surfaces. Mirrors
-	// `DigitalProductDelivery` but is sourced from an entitlement's
-	// `integration_config` (not a grant) and tags each file with its origin (`legacy`
-	// vs `ee`).
+	// Populated digital-files payload with each file's metadata and a short-lived
+	// presigned download URL.
 	DigitalFiles IntegrationConfigResponseDigitalFilesConfigDigitalFiles `json:"digital_files" api:"required"`
 	JSON         integrationConfigResponseDigitalFilesConfigJSON         `json:"-"`
 }
@@ -608,15 +733,17 @@ func (r integrationConfigResponseDigitalFilesConfigJSON) RawJSON() string {
 
 func (r IntegrationConfigResponseDigitalFilesConfig) implementsIntegrationConfigResponse() {}
 
-// Populated digital-files payload for entitlement read surfaces. Mirrors
-// `DigitalProductDelivery` but is sourced from an entitlement's
-// `integration_config` (not a grant) and tags each file with its origin (`legacy`
-// vs `ee`).
+// Populated digital-files payload with each file's metadata and a short-lived
+// presigned download URL.
 type IntegrationConfigResponseDigitalFilesConfigDigitalFiles struct {
-	Files        []IntegrationConfigResponseDigitalFilesConfigDigitalFilesFile `json:"files" api:"required"`
-	ExternalURL  string                                                        `json:"external_url" api:"nullable"`
-	Instructions string                                                        `json:"instructions" api:"nullable"`
-	JSON         integrationConfigResponseDigitalFilesConfigDigitalFilesJSON   `json:"-"`
+	// One entry per attached file.
+	Files []IntegrationConfigResponseDigitalFilesConfigDigitalFilesFile `json:"files" api:"required"`
+	// Optional external URL, passed through from the entitlement configuration.
+	ExternalURL string `json:"external_url" api:"nullable"`
+	// Optional human-readable delivery instructions, passed through from the
+	// entitlement configuration.
+	Instructions string                                                      `json:"instructions" api:"nullable"`
+	JSON         integrationConfigResponseDigitalFilesConfigDigitalFilesJSON `json:"-"`
 }
 
 // integrationConfigResponseDigitalFilesConfigDigitalFilesJSON contains the JSON
@@ -638,18 +765,21 @@ func (r integrationConfigResponseDigitalFilesConfigDigitalFilesJSON) RawJSON() s
 	return r.raw
 }
 
+// One file in a resolved digital-files payload.
 type IntegrationConfigResponseDigitalFilesConfigDigitalFilesFile struct {
+	// Short-lived presigned URL for downloading the file.
 	DownloadURL string `json:"download_url" api:"required"`
 	// Seconds until `download_url` expires.
-	ExpiresIn int64  `json:"expires_in" api:"required"`
-	FileID    string `json:"file_id" api:"required"`
-	Filename  string `json:"filename" api:"required"`
-	// `"legacy"` for files in `product_files`, `"ee"` for files managed by the
-	// Entitlements Engine.
-	Source      string                                                          `json:"source" api:"required"`
-	ContentType string                                                          `json:"content_type" api:"nullable"`
-	FileSize    int64                                                           `json:"file_size" api:"nullable"`
-	JSON        integrationConfigResponseDigitalFilesConfigDigitalFilesFileJSON `json:"-"`
+	ExpiresIn int64 `json:"expires_in" api:"required"`
+	// Identifier of the attached file.
+	FileID string `json:"file_id" api:"required"`
+	// Original filename of the attached file.
+	Filename string `json:"filename" api:"required"`
+	// Optional content-type declared at upload.
+	ContentType string `json:"content_type" api:"nullable"`
+	// Optional size of the file in bytes.
+	FileSize int64                                                           `json:"file_size" api:"nullable"`
+	JSON     integrationConfigResponseDigitalFilesConfigDigitalFilesFileJSON `json:"-"`
 }
 
 // integrationConfigResponseDigitalFilesConfigDigitalFilesFileJSON contains the
@@ -660,7 +790,6 @@ type integrationConfigResponseDigitalFilesConfigDigitalFilesFileJSON struct {
 	ExpiresIn   apijson.Field
 	FileID      apijson.Field
 	Filename    apijson.Field
-	Source      apijson.Field
 	ContentType apijson.Field
 	FileSize    apijson.Field
 	raw         string
@@ -676,11 +805,18 @@ func (r integrationConfigResponseDigitalFilesConfigDigitalFilesFileJSON) RawJSON
 }
 
 type IntegrationConfigResponseLicenseKeyConfig struct {
-	ActivationMessage string                                        `json:"activation_message" api:"nullable"`
-	ActivationsLimit  int64                                         `json:"activations_limit" api:"nullable"`
-	DurationCount     int64                                         `json:"duration_count" api:"nullable"`
-	DurationInterval  TimeInterval                                  `json:"duration_interval" api:"nullable"`
-	JSON              integrationConfigResponseLicenseKeyConfigJSON `json:"-"`
+	// Optional message displayed when a customer activates the license key (≤ 2500
+	// characters).
+	ActivationMessage string `json:"activation_message" api:"nullable"`
+	// Maximum activations allowed per issued license key. Omit for unlimited.
+	ActivationsLimit int64 `json:"activations_limit" api:"nullable"`
+	// Validity duration of issued license keys. Provide both `duration_count` and
+	// `duration_interval` together for a fixed duration; omit both for non-expiring
+	// keys.
+	DurationCount int64 `json:"duration_count" api:"nullable"`
+	// Unit of `duration_count`.
+	DurationInterval TimeInterval                                  `json:"duration_interval" api:"nullable"`
+	JSON             integrationConfigResponseLicenseKeyConfigJSON `json:"-"`
 }
 
 // integrationConfigResponseLicenseKeyConfigJSON contains the JSON metadata for the
@@ -704,6 +840,25 @@ func (r integrationConfigResponseLicenseKeyConfigJSON) RawJSON() string {
 
 func (r IntegrationConfigResponseLicenseKeyConfig) implementsIntegrationConfigResponse() {}
 
+// Permission to grant on the repository.
+type IntegrationConfigResponsePermission string
+
+const (
+	IntegrationConfigResponsePermissionPull     IntegrationConfigResponsePermission = "pull"
+	IntegrationConfigResponsePermissionPush     IntegrationConfigResponsePermission = "push"
+	IntegrationConfigResponsePermissionAdmin    IntegrationConfigResponsePermission = "admin"
+	IntegrationConfigResponsePermissionMaintain IntegrationConfigResponsePermission = "maintain"
+	IntegrationConfigResponsePermissionTriage   IntegrationConfigResponsePermission = "triage"
+)
+
+func (r IntegrationConfigResponsePermission) IsKnown() bool {
+	switch r {
+	case IntegrationConfigResponsePermissionPull, IntegrationConfigResponsePermissionPush, IntegrationConfigResponsePermissionAdmin, IntegrationConfigResponsePermissionMaintain, IntegrationConfigResponsePermissionTriage:
+		return true
+	}
+	return false
+}
+
 type EntitlementNewParams struct {
 	// Platform-specific configuration (validated per integration_type)
 	IntegrationConfig param.Field[IntegrationConfigUnionParam] `json:"integration_config" api:"required"`
@@ -713,7 +868,7 @@ type EntitlementNewParams struct {
 	Name param.Field[string] `json:"name" api:"required"`
 	// Optional description
 	Description param.Field[string] `json:"description"`
-	// Optional user-facing metadata
+	// Additional metadata for the entitlement
 	Metadata param.Field[map[string]string] `json:"metadata"`
 }
 
@@ -723,8 +878,8 @@ func (r EntitlementNewParams) MarshalJSON() (data []byte, err error) {
 
 type EntitlementUpdateParams struct {
 	Description param.Field[string] `json:"description"`
-	// Platform-specific configuration for an entitlement. Each variant uses unique
-	// field names so `#[serde(untagged)]` can disambiguate correctly.
+	// Integration-specific configuration supplied when creating or updating an
+	// entitlement. The shape required matches the entitlement's `integration_type`.
 	IntegrationConfig param.Field[IntegrationConfigUnionParam] `json:"integration_config"`
 	Metadata          param.Field[map[string]string]           `json:"metadata"`
 	Name              param.Field[string]                      `json:"name"`
