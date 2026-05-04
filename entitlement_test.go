@@ -27,7 +27,7 @@ func TestEntitlementNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Entitlements.New(context.TODO(), dodopayments.EntitlementNewParams{
 		IntegrationConfig: dodopayments.F[dodopayments.IntegrationConfigUnionParam](dodopayments.IntegrationConfigGitHubConfigParam{
-			Permission: dodopayments.F("permission"),
+			Permission: dodopayments.F(dodopayments.IntegrationConfigGitHubConfigPermissionPull),
 			TargetID:   dodopayments.F("target_id"),
 		}),
 		IntegrationType: dodopayments.F(dodopayments.EntitlementIntegrationTypeDiscord),
@@ -86,7 +86,7 @@ func TestEntitlementUpdateWithOptionalParams(t *testing.T) {
 		dodopayments.EntitlementUpdateParams{
 			Description: dodopayments.F("description"),
 			IntegrationConfig: dodopayments.F[dodopayments.IntegrationConfigUnionParam](dodopayments.IntegrationConfigGitHubConfigParam{
-				Permission: dodopayments.F("permission"),
+				Permission: dodopayments.F(dodopayments.IntegrationConfigGitHubConfigPermissionPull),
 				TargetID:   dodopayments.F("target_id"),
 			}),
 			Metadata: dodopayments.F(map[string]string{
