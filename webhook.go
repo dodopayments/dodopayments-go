@@ -1519,8 +1519,10 @@ func (r DunningStartedWebhookEventType) IsKnown() bool {
 
 type EntitlementGrantCreatedWebhookEvent struct {
 	// The business identifier
-	BusinessID string           `json:"business_id" api:"required"`
-	Data       EntitlementGrant `json:"data" api:"required"`
+	BusinessID string `json:"business_id" api:"required"`
+	// Detailed view of a single entitlement grant: who it's for, its lifecycle state,
+	// and any integration-specific delivery payload.
+	Data EntitlementGrant `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -1568,8 +1570,10 @@ func (r EntitlementGrantCreatedWebhookEventType) IsKnown() bool {
 
 type EntitlementGrantDeliveredWebhookEvent struct {
 	// The business identifier
-	BusinessID string           `json:"business_id" api:"required"`
-	Data       EntitlementGrant `json:"data" api:"required"`
+	BusinessID string `json:"business_id" api:"required"`
+	// Detailed view of a single entitlement grant: who it's for, its lifecycle state,
+	// and any integration-specific delivery payload.
+	Data EntitlementGrant `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -1617,8 +1621,10 @@ func (r EntitlementGrantDeliveredWebhookEventType) IsKnown() bool {
 
 type EntitlementGrantFailedWebhookEvent struct {
 	// The business identifier
-	BusinessID string           `json:"business_id" api:"required"`
-	Data       EntitlementGrant `json:"data" api:"required"`
+	BusinessID string `json:"business_id" api:"required"`
+	// Detailed view of a single entitlement grant: who it's for, its lifecycle state,
+	// and any integration-specific delivery payload.
+	Data EntitlementGrant `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -1666,8 +1672,10 @@ func (r EntitlementGrantFailedWebhookEventType) IsKnown() bool {
 
 type EntitlementGrantRevokedWebhookEvent struct {
 	// The business identifier
-	BusinessID string           `json:"business_id" api:"required"`
-	Data       EntitlementGrant `json:"data" api:"required"`
+	BusinessID string `json:"business_id" api:"required"`
+	// Detailed view of a single entitlement grant: who it's for, its lifecycle state,
+	// and any integration-specific delivery payload.
+	Data EntitlementGrant `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
