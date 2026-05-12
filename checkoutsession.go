@@ -189,8 +189,15 @@ type CheckoutSessionRequestParam struct {
 	Customer param.Field[CustomerRequestUnionParam] `json:"customer"`
 	// Customization for the checkout session page
 	Customization param.Field[CheckoutSessionCustomizationParam] `json:"customization"`
-	DiscountCode  param.Field[string]                            `json:"discount_code"`
-	FeatureFlags  param.Field[CheckoutSessionFlagsParam]         `json:"feature_flags"`
+	// DEPRECATED: Use discount_codes instead. Cannot be used together with
+	// discount_codes.
+	//
+	// Deprecated: deprecated
+	DiscountCode param.Field[string] `json:"discount_code"`
+	// Stacked discount codes to apply, in order. Max 20. Cannot be used together with
+	// discount_code.
+	DiscountCodes param.Field[[]string]                  `json:"discount_codes"`
+	FeatureFlags  param.Field[CheckoutSessionFlagsParam] `json:"feature_flags"`
 	// Override merchant default 3DS behaviour for this session
 	Force3DS param.Field[bool] `json:"force_3ds"`
 	// Override the merchant-level mandate floor (in INR paise) for INR e-mandates on
@@ -348,9 +355,30 @@ type ProductItemReqParam struct {
 	// If amount is not set for pay_what_you_want product, customer is allowed to
 	// select the amount.
 	Amount param.Field[int64] `json:"amount"`
+	// Per-checkout-session overrides for credit entitlements already attached to this
+	// product. Each entry overrides the `credits_amount` granted by the referenced
+	// credit entitlement when this checkout session is fulfilled. The
+	// credit_entitlement_id must already be attached to the product.
+	CreditEntitlements param.Field[[]ProductItemReqCreditEntitlementParam] `json:"credit_entitlements"`
 }
 
 func (r ProductItemReqParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// Per-checkout-session override for a single credit entitlement attached to a
+// product.
+type ProductItemReqCreditEntitlementParam struct {
+	// ID of the credit entitlement to override. Must already be attached to the
+	// product.
+	CreditEntitlementID param.Field[string] `json:"credit_entitlement_id" api:"required"`
+	// Number of credits to grant for this checkout session, overriding the
+	// product-level `credits_amount` set on the credit entitlement mapping. Must be
+	// greater than zero.
+	CreditsAmount param.Field[string] `json:"credits_amount" api:"required"`
+}
+
+func (r ProductItemReqCreditEntitlementParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 

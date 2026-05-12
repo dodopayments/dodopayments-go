@@ -607,10 +607,12 @@ type Subscription struct {
 	CancelledAt time.Time `json:"cancelled_at" api:"nullable" format:"date-time"`
 	// Customer's responses to custom fields collected during checkout
 	CustomFieldResponses []CustomFieldResponse `json:"custom_field_responses" api:"nullable"`
-	// Number of remaining discount cycles if discount is applied
+	// DEPRECATED: Use discounts[].cycles_remaining instead.
 	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining" api:"nullable"`
-	// The discount id if discount is applied
+	// DEPRECATED: Use discounts instead. Returns the first discount's ID if present.
 	DiscountID string `json:"discount_id" api:"nullable"`
+	// All stacked discounts applied, ordered by position
+	Discounts []SubscriptionDiscount `json:"discounts" api:"nullable"`
 	// Timestamp when the subscription will expire
 	ExpiresAt time.Time `json:"expires_at" api:"nullable" format:"date-time"`
 	// Saved payment method id used for recurring charges
@@ -654,6 +656,7 @@ type subscriptionJSON struct {
 	CustomFieldResponses       apijson.Field
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
+	Discounts                  apijson.Field
 	ExpiresAt                  apijson.Field
 	PaymentMethodID            apijson.Field
 	ScheduledChange            apijson.Field
@@ -667,6 +670,76 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionJSON) RawJSON() string {
+	return r.raw
+}
+
+// Response struct for a discount with its position in a stack and optional
+// cycle-tracking information (for subscriptions).
+type SubscriptionDiscount struct {
+	// The discount amount (basis points for percentage, USD cents for flat)
+	Amount int64 `json:"amount" api:"required"`
+	// The business this discount belongs to
+	BusinessID string `json:"business_id" api:"required"`
+	// The discount code
+	Code string `json:"code" api:"required"`
+	// Timestamp when the discount was created
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// The unique discount ID
+	DiscountID string `json:"discount_id" api:"required"`
+	// Additional metadata
+	Metadata map[string]string `json:"metadata" api:"required"`
+	// Position of this discount in the stack (0-based)
+	Position int64 `json:"position" api:"required"`
+	// Whether this discount should be preserved when a subscription changes plans
+	PreserveOnPlanChange bool `json:"preserve_on_plan_change" api:"required"`
+	// List of product IDs to which this discount is restricted
+	RestrictedTo []string `json:"restricted_to" api:"required"`
+	// How many times this discount has been used
+	TimesUsed int64 `json:"times_used" api:"required"`
+	// The type of discount
+	Type DiscountType `json:"type" api:"required"`
+	// Remaining billing cycles for this discount on this subscription (None for
+	// one-time payments)
+	CyclesRemaining int64 `json:"cycles_remaining" api:"nullable"`
+	// Optional date/time after which discount is expired
+	ExpiresAt time.Time `json:"expires_at" api:"nullable" format:"date-time"`
+	// Name for the Discount
+	Name string `json:"name" api:"nullable"`
+	// Number of subscription billing cycles this discount is valid for
+	SubscriptionCycles int64 `json:"subscription_cycles" api:"nullable"`
+	// Usage limit for this discount, if any
+	UsageLimit int64                    `json:"usage_limit" api:"nullable"`
+	JSON       subscriptionDiscountJSON `json:"-"`
+}
+
+// subscriptionDiscountJSON contains the JSON metadata for the struct
+// [SubscriptionDiscount]
+type subscriptionDiscountJSON struct {
+	Amount               apijson.Field
+	BusinessID           apijson.Field
+	Code                 apijson.Field
+	CreatedAt            apijson.Field
+	DiscountID           apijson.Field
+	Metadata             apijson.Field
+	Position             apijson.Field
+	PreserveOnPlanChange apijson.Field
+	RestrictedTo         apijson.Field
+	TimesUsed            apijson.Field
+	Type                 apijson.Field
+	CyclesRemaining      apijson.Field
+	ExpiresAt            apijson.Field
+	Name                 apijson.Field
+	SubscriptionCycles   apijson.Field
+	UsageLimit           apijson.Field
+	raw                  string
+	ExtraFields          map[string]apijson.Field
+}
+
+func (r *SubscriptionDiscount) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionDiscountJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -719,11 +792,16 @@ type UpdateSubscriptionPlanReqParam struct {
 	// Addons for the new plan. Note : Leaving this empty would remove any existing
 	// addons
 	Addons param.Field[[]AttachAddonParam] `json:"addons"`
-	// Optional discount code to apply to the new plan. If provided, validates and
-	// applies the discount to the plan change. If not provided and the subscription
-	// has an existing discount with `preserve_on_plan_change=true`, the existing
-	// discount will be preserved (if applicable to the new product).
+	// DEPRECATED: Use discount_codes instead. Cannot be used together with
+	// discount_codes.
+	//
+	// Deprecated: deprecated
 	DiscountCode param.Field[string] `json:"discount_code"`
+	// Stacked discount codes to apply to the new plan. Max 20. Cannot be used together
+	// with discount_code. If provided, replaces any existing discount codes. Empty
+	// array removes all discounts. If not provided (None), existing discounts with
+	// preserve_on_plan_change=true are preserved.
+	DiscountCodes param.Field[[]string] `json:"discount_codes"`
 	// When to apply the plan change.
 	//
 	// - `immediately` (default): Apply the plan change right away
@@ -822,8 +900,13 @@ type SubscriptionNewResponse struct {
 	// Client secret used to load Dodo checkout SDK NOTE : Dodo checkout SDK will be
 	// coming soon
 	ClientSecret string `json:"client_secret" api:"nullable"`
-	// The discount id if discount is applied
+	// DEPRECATED: Use discount_ids instead. Returns the first discount's ID if
+	// present.
+	//
+	// Deprecated: deprecated
 	DiscountID string `json:"discount_id" api:"nullable"`
+	// All stacked discount IDs applied, in order of application
+	DiscountIDs []string `json:"discount_ids" api:"nullable"`
 	// Expiry timestamp of the payment link
 	ExpiresOn time.Time `json:"expires_on" api:"nullable" format:"date-time"`
 	// One time products associated with the purchase of subscription
@@ -844,6 +927,7 @@ type subscriptionNewResponseJSON struct {
 	SubscriptionID        apijson.Field
 	ClientSecret          apijson.Field
 	DiscountID            apijson.Field
+	DiscountIDs           apijson.Field
 	ExpiresOn             apijson.Field
 	OneTimeProductCart    apijson.Field
 	PaymentLink           apijson.Field
@@ -894,6 +978,8 @@ type SubscriptionListResponse struct {
 	Currency Currency `json:"currency" api:"required"`
 	// Customer details associated with the subscription
 	Customer CustomerLimitedDetails `json:"customer" api:"required"`
+	// All stacked discounts applied, in order of application
+	Discounts []SubscriptionListResponseDiscount `json:"discounts" api:"required"`
 	// Additional custom data associated with the subscription
 	Metadata map[string]string `json:"metadata" api:"required"`
 	// Timestamp of the next scheduled billing. Indicates the end of current billing
@@ -928,9 +1014,9 @@ type SubscriptionListResponse struct {
 	TrialPeriodDays int64 `json:"trial_period_days" api:"required"`
 	// Cancelled timestamp if the subscription is cancelled
 	CancelledAt time.Time `json:"cancelled_at" api:"nullable" format:"date-time"`
-	// Number of remaining discount cycles if discount is applied
+	// DEPRECATED: Use discounts[].cycles_remaining instead.
 	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining" api:"nullable"`
-	// The discount id if discount is applied
+	// DEPRECATED: Use discounts instead.
 	DiscountID string `json:"discount_id" api:"nullable"`
 	// Saved payment method id used for recurring charges
 	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
@@ -951,6 +1037,7 @@ type subscriptionListResponseJSON struct {
 	CreatedAt                  apijson.Field
 	Currency                   apijson.Field
 	Customer                   apijson.Field
+	Discounts                  apijson.Field
 	Metadata                   apijson.Field
 	NextBillingDate            apijson.Field
 	OnDemand                   apijson.Field
@@ -982,6 +1069,33 @@ func (r *SubscriptionListResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionListResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+// Lightweight discount info for list endpoints. Array order represents position
+// (no explicit position field).
+type SubscriptionListResponseDiscount struct {
+	// The unique discount ID
+	DiscountID string `json:"discount_id" api:"required"`
+	// Remaining billing cycles for this discount on this subscription
+	DiscountCyclesRemaining int64                                `json:"discount_cycles_remaining" api:"nullable"`
+	JSON                    subscriptionListResponseDiscountJSON `json:"-"`
+}
+
+// subscriptionListResponseDiscountJSON contains the JSON metadata for the struct
+// [SubscriptionListResponseDiscount]
+type subscriptionListResponseDiscountJSON struct {
+	DiscountID              apijson.Field
+	DiscountCyclesRemaining apijson.Field
+	raw                     string
+	ExtraFields             map[string]apijson.Field
+}
+
+func (r *SubscriptionListResponseDiscount) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionListResponseDiscountJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -1588,8 +1702,12 @@ type SubscriptionNewParams struct {
 	// Fix the currency in which the end customer is billed. If Dodo Payments cannot
 	// support that currency for this transaction, it will not proceed
 	BillingCurrency param.Field[Currency] `json:"billing_currency"`
-	// Discount Code to apply to the subscription
+	// DEPRECATED: Use discount_codes instead. Cannot be used together with
+	// discount_codes.
 	DiscountCode param.Field[string] `json:"discount_code"`
+	// Stacked discount codes to apply, in order of application. Max 20. Cannot be used
+	// together with discount_code.
+	DiscountCodes param.Field[[]string] `json:"discount_codes"`
 	// Override merchant default 3DS behaviour for this subscription
 	Force3DS param.Field[bool] `json:"force_3ds"`
 	// Override the merchant-level mandate floor (in INR paise) for INR e-mandates on

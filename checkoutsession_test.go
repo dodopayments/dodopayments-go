@@ -35,6 +35,10 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 					Quantity: dodopayments.F(int64(0)),
 				}}),
 				Amount: dodopayments.F(int64(0)),
+				CreditEntitlements: dodopayments.F([]dodopayments.ProductItemReqCreditEntitlementParam{{
+					CreditEntitlementID: dodopayments.F("credit_entitlement_id"),
+					CreditsAmount:       dodopayments.F("credits_amount"),
+				}}),
 			}}),
 			AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
 			BillingAddress: dodopayments.F(dodopayments.CheckoutSessionBillingAddressParam{
@@ -108,7 +112,8 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 					Radius:        dodopayments.F("radius"),
 				}),
 			}),
-			DiscountCode: dodopayments.F("discount_code"),
+			DiscountCode:  dodopayments.F("discount_code"),
+			DiscountCodes: dodopayments.F([]string{"string"}),
 			FeatureFlags: dodopayments.F(dodopayments.CheckoutSessionFlagsParam{
 				AllowCurrencySelection:      dodopayments.F(true),
 				AllowCustomerEditingCity:    dodopayments.F(true),
@@ -203,6 +208,10 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 					Quantity: dodopayments.F(int64(0)),
 				}}),
 				Amount: dodopayments.F(int64(0)),
+				CreditEntitlements: dodopayments.F([]dodopayments.ProductItemReqCreditEntitlementParam{{
+					CreditEntitlementID: dodopayments.F("credit_entitlement_id"),
+					CreditsAmount:       dodopayments.F("credits_amount"),
+				}}),
 			}}),
 			AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
 			BillingAddress: dodopayments.F(dodopayments.CheckoutSessionBillingAddressParam{
@@ -276,7 +285,8 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 					Radius:        dodopayments.F("radius"),
 				}),
 			}),
-			DiscountCode: dodopayments.F("discount_code"),
+			DiscountCode:  dodopayments.F("discount_code"),
+			DiscountCodes: dodopayments.F([]string{"string"}),
 			FeatureFlags: dodopayments.F(dodopayments.CheckoutSessionFlagsParam{
 				AllowCurrencySelection:      dodopayments.F(true),
 				AllowCustomerEditingCity:    dodopayments.F(true),
