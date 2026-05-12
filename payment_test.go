@@ -46,6 +46,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 		AllowedPaymentMethodTypes:     dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
 		BillingCurrency:               dodopayments.F(dodopayments.CurrencyAed),
 		DiscountCode:                  dodopayments.F("discount_code"),
+		DiscountCodes:                 dodopayments.F([]string{"string"}),
 		Force3DS:                      dodopayments.F(true),
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",

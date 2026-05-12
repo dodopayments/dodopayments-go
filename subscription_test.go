@@ -46,6 +46,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
 		BillingCurrency:           dodopayments.F(dodopayments.CurrencyAed),
 		DiscountCode:              dodopayments.F("discount_code"),
+		DiscountCodes:             dodopayments.F([]string{"string"}),
 		Force3DS:                  dodopayments.F(true),
 		MandateMinAmountInrPaise:  dodopayments.F(int64(0)),
 		Metadata: dodopayments.F(map[string]string{
@@ -243,8 +244,9 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 					AddonID:  dodopayments.F("addon_id"),
 					Quantity: dodopayments.F(int64(0)),
 				}}),
-				DiscountCode: dodopayments.F("discount_code"),
-				EffectiveAt:  dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
+				DiscountCode:  dodopayments.F("discount_code"),
+				DiscountCodes: dodopayments.F([]string{"string"}),
+				EffectiveAt:   dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
 				Metadata: dodopayments.F(map[string]string{
 					"foo": "string",
 				}),
@@ -324,8 +326,9 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 					AddonID:  dodopayments.F("addon_id"),
 					Quantity: dodopayments.F(int64(0)),
 				}}),
-				DiscountCode: dodopayments.F("discount_code"),
-				EffectiveAt:  dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
+				DiscountCode:  dodopayments.F("discount_code"),
+				DiscountCodes: dodopayments.F([]string{"string"}),
+				EffectiveAt:   dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
 				Metadata: dodopayments.F(map[string]string{
 					"foo": "string",
 				}),
