@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.97.3 (2026-05-12)
+
+Full Changelog: [v1.97.2...v1.97.3](https://github.com/dodopayments/dodopayments-go/compare/v1.97.2...v1.97.3)
+
+### Features
+
+* **api:** updated openapi spec to v1.97.10 ([be4ad18](https://github.com/dodopayments/dodopayments-go/commit/be4ad18d647e8fc68f7b9c564893915945a5c587))
+
+
+### Bug Fixes
+
+* **go:** avoid panic when http.DefaultTransport is wrapped ([d66a52c](https://github.com/dodopayments/dodopayments-go/commit/d66a52c89806989fa12e9aaeadce9e2dd3122497))
+
+
+### Chores
+
+* **internal:** codegen related update ([aa87526](https://github.com/dodopayments/dodopayments-go/commit/aa87526f4478dfa90fe108da90623551e2fdfa20))
+* **internal:** codegen related update ([7735a8f](https://github.com/dodopayments/dodopayments-go/commit/7735a8ffb70324fa9d355a3e26c9591673beafc6))
+* redact api-key headers in debug logs ([8a7fa01](https://github.com/dodopayments/dodopayments-go/commit/8a7fa01799b58f0fbbc46581ddcc4cf04e437c4b))
+
 ## 1.97.2 (2026-05-07)
 
 Full Changelog: [v1.97.1...v1.97.2](https://github.com/dodopayments/dodopayments-go/compare/v1.97.1...v1.97.2)
