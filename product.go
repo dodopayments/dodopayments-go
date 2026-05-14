@@ -547,18 +547,21 @@ type PriceUnion interface {
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*PriceUnion)(nil)).Elem(),
-		"",
+		"type",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(PriceOneTimePrice{}),
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PriceOneTimePrice{}),
+			DiscriminatorValue: "one_time_price",
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(PriceRecurringPrice{}),
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PriceRecurringPrice{}),
+			DiscriminatorValue: "recurring_price",
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(PriceUsageBasedPrice{}),
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PriceUsageBasedPrice{}),
+			DiscriminatorValue: "usage_based_price",
 		},
 	)
 }
@@ -962,7 +965,8 @@ type Product struct {
 	IsRecurring bool `json:"is_recurring" api:"required"`
 	// Indicates whether the product requires a license key.
 	//
-	// Deprecated: deprecated
+	// Deprecated: Use the dedicated entitlements API to configure license-key
+	// delivery.
 	LicenseKeyEnabled bool `json:"license_key_enabled" api:"required"`
 	// Additional custom data associated with the product
 	Metadata map[string]string `json:"metadata" api:"required"`
@@ -985,11 +989,13 @@ type Product struct {
 	Image string `json:"image" api:"nullable"`
 	// Message sent upon license key activation, if applicable.
 	//
-	// Deprecated: deprecated
+	// Deprecated: Use the dedicated entitlements API to configure license-key
+	// delivery.
 	LicenseKeyActivationMessage string `json:"license_key_activation_message" api:"nullable"`
 	// Limit on the number of activations for the license key, if enabled.
 	//
-	// Deprecated: deprecated
+	// Deprecated: Use the dedicated entitlements API to configure license-key
+	// delivery.
 	LicenseKeyActivationsLimit int64 `json:"license_key_activations_limit" api:"nullable"`
 	// Duration of the license key validity, if enabled.
 	LicenseKeyDuration LicenseKeyDuration `json:"license_key_duration" api:"nullable"`

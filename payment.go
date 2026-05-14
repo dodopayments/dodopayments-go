@@ -364,7 +364,7 @@ type Payment struct {
 	CustomFieldResponses []CustomFieldResponse `json:"custom_field_responses" api:"nullable"`
 	// DEPRECATED: Use discounts instead. Returns the first discount's ID if present.
 	//
-	// Deprecated: deprecated
+	// Deprecated: Use `discounts` instead.
 	DiscountID string `json:"discount_id" api:"nullable"`
 	// All stacked discounts applied, ordered by position
 	Discounts []PaymentDiscount `json:"discounts" api:"nullable"`
@@ -740,7 +740,7 @@ type PaymentNewResponse struct {
 	// DEPRECATED: Use discount_ids instead. Returns the first discount's ID if
 	// present.
 	//
-	// Deprecated: deprecated
+	// Deprecated: Use `discounts` instead.
 	DiscountID string `json:"discount_id" api:"nullable"`
 	// All stacked discount IDs applied, in order of application
 	DiscountIDs []string `json:"discount_ids" api:"nullable"`

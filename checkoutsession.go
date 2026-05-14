@@ -192,7 +192,7 @@ type CheckoutSessionRequestParam struct {
 	// DEPRECATED: Use discount_codes instead. Cannot be used together with
 	// discount_codes.
 	//
-	// Deprecated: deprecated
+	// Deprecated: Use `discount_id` instead.
 	DiscountCode param.Field[string] `json:"discount_code"`
 	// Stacked discount codes to apply, in order. Max 20. Cannot be used together with
 	// discount_code.
