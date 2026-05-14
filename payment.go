@@ -367,7 +367,7 @@ type Payment struct {
 	// Deprecated: Use `discounts` instead.
 	DiscountID string `json:"discount_id" api:"nullable"`
 	// All stacked discounts applied, ordered by position
-	Discounts []PaymentDiscount `json:"discounts" api:"nullable"`
+	Discounts []DiscountDetail `json:"discounts" api:"nullable"`
 	// An error code if the payment failed
 	ErrorCode string `json:"error_code" api:"nullable"`
 	// An error message if the payment failed
@@ -450,75 +450,6 @@ func (r *Payment) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r paymentJSON) RawJSON() string {
-	return r.raw
-}
-
-// Response struct for a discount with its position in a stack and optional
-// cycle-tracking information (for subscriptions).
-type PaymentDiscount struct {
-	// The discount amount (basis points for percentage, USD cents for flat)
-	Amount int64 `json:"amount" api:"required"`
-	// The business this discount belongs to
-	BusinessID string `json:"business_id" api:"required"`
-	// The discount code
-	Code string `json:"code" api:"required"`
-	// Timestamp when the discount was created
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// The unique discount ID
-	DiscountID string `json:"discount_id" api:"required"`
-	// Additional metadata
-	Metadata map[string]string `json:"metadata" api:"required"`
-	// Position of this discount in the stack (0-based)
-	Position int64 `json:"position" api:"required"`
-	// Whether this discount should be preserved when a subscription changes plans
-	PreserveOnPlanChange bool `json:"preserve_on_plan_change" api:"required"`
-	// List of product IDs to which this discount is restricted
-	RestrictedTo []string `json:"restricted_to" api:"required"`
-	// How many times this discount has been used
-	TimesUsed int64 `json:"times_used" api:"required"`
-	// The type of discount
-	Type DiscountType `json:"type" api:"required"`
-	// Remaining billing cycles for this discount on this subscription (None for
-	// one-time payments)
-	CyclesRemaining int64 `json:"cycles_remaining" api:"nullable"`
-	// Optional date/time after which discount is expired
-	ExpiresAt time.Time `json:"expires_at" api:"nullable" format:"date-time"`
-	// Name for the Discount
-	Name string `json:"name" api:"nullable"`
-	// Number of subscription billing cycles this discount is valid for
-	SubscriptionCycles int64 `json:"subscription_cycles" api:"nullable"`
-	// Usage limit for this discount, if any
-	UsageLimit int64               `json:"usage_limit" api:"nullable"`
-	JSON       paymentDiscountJSON `json:"-"`
-}
-
-// paymentDiscountJSON contains the JSON metadata for the struct [PaymentDiscount]
-type paymentDiscountJSON struct {
-	Amount               apijson.Field
-	BusinessID           apijson.Field
-	Code                 apijson.Field
-	CreatedAt            apijson.Field
-	DiscountID           apijson.Field
-	Metadata             apijson.Field
-	Position             apijson.Field
-	PreserveOnPlanChange apijson.Field
-	RestrictedTo         apijson.Field
-	TimesUsed            apijson.Field
-	Type                 apijson.Field
-	CyclesRemaining      apijson.Field
-	ExpiresAt            apijson.Field
-	Name                 apijson.Field
-	SubscriptionCycles   apijson.Field
-	UsageLimit           apijson.Field
-	raw                  string
-	ExtraFields          map[string]apijson.Field
-}
-
-func (r *PaymentDiscount) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentDiscountJSON) RawJSON() string {
 	return r.raw
 }
 
