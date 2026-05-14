@@ -612,7 +612,7 @@ type Subscription struct {
 	// DEPRECATED: Use discounts instead. Returns the first discount's ID if present.
 	DiscountID string `json:"discount_id" api:"nullable"`
 	// All stacked discounts applied, ordered by position
-	Discounts []SubscriptionDiscount `json:"discounts" api:"nullable"`
+	Discounts []DiscountDetail `json:"discounts" api:"nullable"`
 	// Timestamp when the subscription will expire
 	ExpiresAt time.Time `json:"expires_at" api:"nullable" format:"date-time"`
 	// Saved payment method id used for recurring charges
@@ -670,76 +670,6 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionJSON) RawJSON() string {
-	return r.raw
-}
-
-// Response struct for a discount with its position in a stack and optional
-// cycle-tracking information (for subscriptions).
-type SubscriptionDiscount struct {
-	// The discount amount (basis points for percentage, USD cents for flat)
-	Amount int64 `json:"amount" api:"required"`
-	// The business this discount belongs to
-	BusinessID string `json:"business_id" api:"required"`
-	// The discount code
-	Code string `json:"code" api:"required"`
-	// Timestamp when the discount was created
-	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// The unique discount ID
-	DiscountID string `json:"discount_id" api:"required"`
-	// Additional metadata
-	Metadata map[string]string `json:"metadata" api:"required"`
-	// Position of this discount in the stack (0-based)
-	Position int64 `json:"position" api:"required"`
-	// Whether this discount should be preserved when a subscription changes plans
-	PreserveOnPlanChange bool `json:"preserve_on_plan_change" api:"required"`
-	// List of product IDs to which this discount is restricted
-	RestrictedTo []string `json:"restricted_to" api:"required"`
-	// How many times this discount has been used
-	TimesUsed int64 `json:"times_used" api:"required"`
-	// The type of discount
-	Type DiscountType `json:"type" api:"required"`
-	// Remaining billing cycles for this discount on this subscription (None for
-	// one-time payments)
-	CyclesRemaining int64 `json:"cycles_remaining" api:"nullable"`
-	// Optional date/time after which discount is expired
-	ExpiresAt time.Time `json:"expires_at" api:"nullable" format:"date-time"`
-	// Name for the Discount
-	Name string `json:"name" api:"nullable"`
-	// Number of subscription billing cycles this discount is valid for
-	SubscriptionCycles int64 `json:"subscription_cycles" api:"nullable"`
-	// Usage limit for this discount, if any
-	UsageLimit int64                    `json:"usage_limit" api:"nullable"`
-	JSON       subscriptionDiscountJSON `json:"-"`
-}
-
-// subscriptionDiscountJSON contains the JSON metadata for the struct
-// [SubscriptionDiscount]
-type subscriptionDiscountJSON struct {
-	Amount               apijson.Field
-	BusinessID           apijson.Field
-	Code                 apijson.Field
-	CreatedAt            apijson.Field
-	DiscountID           apijson.Field
-	Metadata             apijson.Field
-	Position             apijson.Field
-	PreserveOnPlanChange apijson.Field
-	RestrictedTo         apijson.Field
-	TimesUsed            apijson.Field
-	Type                 apijson.Field
-	CyclesRemaining      apijson.Field
-	ExpiresAt            apijson.Field
-	Name                 apijson.Field
-	SubscriptionCycles   apijson.Field
-	UsageLimit           apijson.Field
-	raw                  string
-	ExtraFields          map[string]apijson.Field
-}
-
-func (r *SubscriptionDiscount) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionDiscountJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -1948,95 +1878,95 @@ func (r SubscriptionGetUsageHistoryParams) URLQuery() (v url.Values) {
 }
 
 type SubscriptionUpdatePaymentMethodParams struct {
-	Body SubscriptionUpdatePaymentMethodParamsBodyUnion `json:"body" api:"required"`
+	PaymentMethod SubscriptionUpdatePaymentMethodParamsPaymentMethodUnion `json:"payment_method" api:"required"`
 }
 
 func (r SubscriptionUpdatePaymentMethodParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r.Body)
+	return apijson.MarshalRoot(r.PaymentMethod)
 }
 
-type SubscriptionUpdatePaymentMethodParamsBody struct {
-	Type            param.Field[SubscriptionUpdatePaymentMethodParamsBodyType] `json:"type" api:"required"`
-	PaymentMethodID param.Field[string]                                        `json:"payment_method_id"`
-	ReturnURL       param.Field[string]                                        `json:"return_url"`
+type SubscriptionUpdatePaymentMethodParamsPaymentMethod struct {
+	Type            param.Field[SubscriptionUpdatePaymentMethodParamsPaymentMethodType] `json:"type" api:"required"`
+	PaymentMethodID param.Field[string]                                                 `json:"payment_method_id"`
+	ReturnURL       param.Field[string]                                                 `json:"return_url"`
 }
 
-func (r SubscriptionUpdatePaymentMethodParamsBody) MarshalJSON() (data []byte, err error) {
+func (r SubscriptionUpdatePaymentMethodParamsPaymentMethod) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r SubscriptionUpdatePaymentMethodParamsBody) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
+func (r SubscriptionUpdatePaymentMethodParamsPaymentMethod) implementsSubscriptionUpdatePaymentMethodParamsPaymentMethodUnion() {
 }
 
-// Satisfied by [SubscriptionUpdatePaymentMethodParamsBodyNew],
-// [SubscriptionUpdatePaymentMethodParamsBodyExisting],
-// [SubscriptionUpdatePaymentMethodParamsBody].
-type SubscriptionUpdatePaymentMethodParamsBodyUnion interface {
-	implementsSubscriptionUpdatePaymentMethodParamsBodyUnion()
+// Satisfied by [SubscriptionUpdatePaymentMethodParamsPaymentMethodNew],
+// [SubscriptionUpdatePaymentMethodParamsPaymentMethodExisting],
+// [SubscriptionUpdatePaymentMethodParamsPaymentMethod].
+type SubscriptionUpdatePaymentMethodParamsPaymentMethodUnion interface {
+	implementsSubscriptionUpdatePaymentMethodParamsPaymentMethodUnion()
 }
 
-type SubscriptionUpdatePaymentMethodParamsBodyNew struct {
-	Type      param.Field[SubscriptionUpdatePaymentMethodParamsBodyNewType] `json:"type" api:"required"`
-	ReturnURL param.Field[string]                                           `json:"return_url"`
+type SubscriptionUpdatePaymentMethodParamsPaymentMethodNew struct {
+	Type      param.Field[SubscriptionUpdatePaymentMethodParamsPaymentMethodNewType] `json:"type" api:"required"`
+	ReturnURL param.Field[string]                                                    `json:"return_url"`
 }
 
-func (r SubscriptionUpdatePaymentMethodParamsBodyNew) MarshalJSON() (data []byte, err error) {
+func (r SubscriptionUpdatePaymentMethodParamsPaymentMethodNew) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r SubscriptionUpdatePaymentMethodParamsBodyNew) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
+func (r SubscriptionUpdatePaymentMethodParamsPaymentMethodNew) implementsSubscriptionUpdatePaymentMethodParamsPaymentMethodUnion() {
 }
 
-type SubscriptionUpdatePaymentMethodParamsBodyNewType string
+type SubscriptionUpdatePaymentMethodParamsPaymentMethodNewType string
 
 const (
-	SubscriptionUpdatePaymentMethodParamsBodyNewTypeNew SubscriptionUpdatePaymentMethodParamsBodyNewType = "new"
+	SubscriptionUpdatePaymentMethodParamsPaymentMethodNewTypeNew SubscriptionUpdatePaymentMethodParamsPaymentMethodNewType = "new"
 )
 
-func (r SubscriptionUpdatePaymentMethodParamsBodyNewType) IsKnown() bool {
+func (r SubscriptionUpdatePaymentMethodParamsPaymentMethodNewType) IsKnown() bool {
 	switch r {
-	case SubscriptionUpdatePaymentMethodParamsBodyNewTypeNew:
+	case SubscriptionUpdatePaymentMethodParamsPaymentMethodNewTypeNew:
 		return true
 	}
 	return false
 }
 
-type SubscriptionUpdatePaymentMethodParamsBodyExisting struct {
-	PaymentMethodID param.Field[string]                                                `json:"payment_method_id" api:"required"`
-	Type            param.Field[SubscriptionUpdatePaymentMethodParamsBodyExistingType] `json:"type" api:"required"`
+type SubscriptionUpdatePaymentMethodParamsPaymentMethodExisting struct {
+	PaymentMethodID param.Field[string]                                                         `json:"payment_method_id" api:"required"`
+	Type            param.Field[SubscriptionUpdatePaymentMethodParamsPaymentMethodExistingType] `json:"type" api:"required"`
 }
 
-func (r SubscriptionUpdatePaymentMethodParamsBodyExisting) MarshalJSON() (data []byte, err error) {
+func (r SubscriptionUpdatePaymentMethodParamsPaymentMethodExisting) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r SubscriptionUpdatePaymentMethodParamsBodyExisting) implementsSubscriptionUpdatePaymentMethodParamsBodyUnion() {
+func (r SubscriptionUpdatePaymentMethodParamsPaymentMethodExisting) implementsSubscriptionUpdatePaymentMethodParamsPaymentMethodUnion() {
 }
 
-type SubscriptionUpdatePaymentMethodParamsBodyExistingType string
+type SubscriptionUpdatePaymentMethodParamsPaymentMethodExistingType string
 
 const (
-	SubscriptionUpdatePaymentMethodParamsBodyExistingTypeExisting SubscriptionUpdatePaymentMethodParamsBodyExistingType = "existing"
+	SubscriptionUpdatePaymentMethodParamsPaymentMethodExistingTypeExisting SubscriptionUpdatePaymentMethodParamsPaymentMethodExistingType = "existing"
 )
 
-func (r SubscriptionUpdatePaymentMethodParamsBodyExistingType) IsKnown() bool {
+func (r SubscriptionUpdatePaymentMethodParamsPaymentMethodExistingType) IsKnown() bool {
 	switch r {
-	case SubscriptionUpdatePaymentMethodParamsBodyExistingTypeExisting:
+	case SubscriptionUpdatePaymentMethodParamsPaymentMethodExistingTypeExisting:
 		return true
 	}
 	return false
 }
 
-type SubscriptionUpdatePaymentMethodParamsBodyType string
+type SubscriptionUpdatePaymentMethodParamsPaymentMethodType string
 
 const (
-	SubscriptionUpdatePaymentMethodParamsBodyTypeNew      SubscriptionUpdatePaymentMethodParamsBodyType = "new"
-	SubscriptionUpdatePaymentMethodParamsBodyTypeExisting SubscriptionUpdatePaymentMethodParamsBodyType = "existing"
+	SubscriptionUpdatePaymentMethodParamsPaymentMethodTypeNew      SubscriptionUpdatePaymentMethodParamsPaymentMethodType = "new"
+	SubscriptionUpdatePaymentMethodParamsPaymentMethodTypeExisting SubscriptionUpdatePaymentMethodParamsPaymentMethodType = "existing"
 )
 
-func (r SubscriptionUpdatePaymentMethodParamsBodyType) IsKnown() bool {
+func (r SubscriptionUpdatePaymentMethodParamsPaymentMethodType) IsKnown() bool {
 	switch r {
-	case SubscriptionUpdatePaymentMethodParamsBodyTypeNew, SubscriptionUpdatePaymentMethodParamsBodyTypeExisting:
+	case SubscriptionUpdatePaymentMethodParamsPaymentMethodTypeNew, SubscriptionUpdatePaymentMethodParamsPaymentMethodTypeExisting:
 		return true
 	}
 	return false
