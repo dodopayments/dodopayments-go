@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.99.0 (2026-05-14)
+
+Full Changelog: [v1.98.0...v1.99.0](https://github.com/dodopayments/dodopayments-go/compare/v1.98.0...v1.99.0)
+
+### Features
+
+* **api:** stainless fixes ([44d5102](https://github.com/dodopayments/dodopayments-go/commit/44d51020be98ff93e5e2fd477d3da4f9ae8dbb04))
+
 ## 1.98.0 (2026-05-14)
 
 Full Changelog: [v1.97.3...v1.98.0](https://github.com/dodopayments/dodopayments-go/compare/v1.97.3...v1.98.0)
