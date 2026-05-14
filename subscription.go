@@ -795,7 +795,7 @@ type UpdateSubscriptionPlanReqParam struct {
 	// DEPRECATED: Use discount_codes instead. Cannot be used together with
 	// discount_codes.
 	//
-	// Deprecated: deprecated
+	// Deprecated: Use `discount_id` instead.
 	DiscountCode param.Field[string] `json:"discount_code"`
 	// Stacked discount codes to apply to the new plan. Max 20. Cannot be used together
 	// with discount_code. If provided, replaces any existing discount codes. Empty
@@ -903,7 +903,7 @@ type SubscriptionNewResponse struct {
 	// DEPRECATED: Use discount_ids instead. Returns the first discount's ID if
 	// present.
 	//
-	// Deprecated: deprecated
+	// Deprecated: Use `discounts` instead.
 	DiscountID string `json:"discount_id" api:"nullable"`
 	// All stacked discount IDs applied, in order of application
 	DiscountIDs []string `json:"discount_ids" api:"nullable"`
@@ -1257,18 +1257,21 @@ type SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion interfac
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsUnion)(nil)).Elem(),
-		"",
+		"type",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscription{}),
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsSubscription{}),
+			DiscriminatorValue: "subscription",
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddon{}),
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsAddon{}),
+			DiscriminatorValue: "addon",
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeter{}),
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsMeter{}),
+			DiscriminatorValue: "meter",
 		},
 	)
 }

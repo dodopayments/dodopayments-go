@@ -66,7 +66,8 @@ type PayoutListResponse struct {
 	BusinessID string `json:"business_id" api:"required"`
 	// The total value of chargebacks associated with the payout.
 	//
-	// Deprecated: deprecated
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
 	Chargebacks int64 `json:"chargebacks" api:"required"`
 	// The timestamp when the payout was created, in UTC.
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
@@ -80,13 +81,15 @@ type PayoutListResponse struct {
 	PayoutID string `json:"payout_id" api:"required"`
 	// The total value of refunds associated with the payout.
 	//
-	// Deprecated: deprecated
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
 	Refunds int64 `json:"refunds" api:"required"`
 	// The current status of the payout.
 	Status PayoutListResponseStatus `json:"status" api:"required"`
 	// The tax applied to the payout.
 	//
-	// Deprecated: deprecated
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
 	Tax int64 `json:"tax" api:"required"`
 	// The timestamp when the payout was last updated, in UTC.
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
