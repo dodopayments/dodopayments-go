@@ -844,7 +844,7 @@ type SubscriptionNewResponse struct {
 	// Expiry timestamp of the payment link
 	ExpiresOn time.Time `json:"expires_on" api:"nullable" format:"date-time"`
 	// One time products associated with the purchase of subscription
-	OneTimeProductCart []OneTimeProductCartItem `json:"one_time_product_cart" api:"nullable"`
+	OneTimeProductCart []SubscriptionNewResponseOneTimeProductCart `json:"one_time_product_cart" api:"nullable"`
 	// URL to checkout page
 	PaymentLink string                      `json:"payment_link" api:"nullable"`
 	JSON        subscriptionNewResponseJSON `json:"-"`
@@ -874,6 +874,29 @@ func (r *SubscriptionNewResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionNewResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type SubscriptionNewResponseOneTimeProductCart struct {
+	ProductID string                                        `json:"product_id" api:"required"`
+	Quantity  int64                                         `json:"quantity" api:"required"`
+	JSON      subscriptionNewResponseOneTimeProductCartJSON `json:"-"`
+}
+
+// subscriptionNewResponseOneTimeProductCartJSON contains the JSON metadata for the
+// struct [SubscriptionNewResponseOneTimeProductCart]
+type subscriptionNewResponseOneTimeProductCartJSON struct {
+	ProductID   apijson.Field
+	Quantity    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionNewResponseOneTimeProductCart) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionNewResponseOneTimeProductCartJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -1644,7 +1667,7 @@ type SubscriptionNewParams struct {
 	OnDemand param.Field[OnDemandSubscriptionParam] `json:"on_demand"`
 	// List of one time products that will be bundled with the first payment for this
 	// subscription
-	OneTimeProductCart param.Field[[]SubscriptionNewParamsOneTimeProductCart] `json:"one_time_product_cart"`
+	OneTimeProductCart param.Field[[]OneTimeProductCartItemParam] `json:"one_time_product_cart"`
 	// If true, generates a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional payment method ID to use for this subscription. If provided,
@@ -1673,19 +1696,6 @@ type SubscriptionNewParams struct {
 }
 
 func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type SubscriptionNewParamsOneTimeProductCart struct {
-	ProductID param.Field[string] `json:"product_id" api:"required"`
-	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
-	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
-	// amount will be ignored Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Amount param.Field[int64] `json:"amount"`
-}
-
-func (r SubscriptionNewParamsOneTimeProductCart) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
