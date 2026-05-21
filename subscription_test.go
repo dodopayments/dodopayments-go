@@ -60,7 +60,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 			ProductDescription:            dodopayments.F("product_description"),
 			ProductPrice:                  dodopayments.F(int64(0)),
 		}),
-		OneTimeProductCart: dodopayments.F([]dodopayments.SubscriptionNewParamsOneTimeProductCart{{
+		OneTimeProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
 			ProductID: dodopayments.F("product_id"),
 			Quantity:  dodopayments.F(int64(0)),
 			Amount:    dodopayments.F(int64(0)),
