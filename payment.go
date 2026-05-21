@@ -273,13 +273,9 @@ func (r NewCustomerParam) MarshalJSON() (data []byte, err error) {
 func (r NewCustomerParam) implementsCustomerRequestUnionParam() {}
 
 type OneTimeProductCartItem struct {
-	ProductID string `json:"product_id" api:"required"`
-	Quantity  int64  `json:"quantity" api:"required"`
-	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
-	// amount will be ignored Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Amount int64                      `json:"amount" api:"nullable"`
-	JSON   oneTimeProductCartItemJSON `json:"-"`
+	ProductID string                     `json:"product_id" api:"required"`
+	Quantity  int64                      `json:"quantity" api:"required"`
+	JSON      oneTimeProductCartItemJSON `json:"-"`
 }
 
 // oneTimeProductCartItemJSON contains the JSON metadata for the struct
@@ -287,7 +283,6 @@ type OneTimeProductCartItem struct {
 type oneTimeProductCartItemJSON struct {
 	ProductID   apijson.Field
 	Quantity    apijson.Field
-	Amount      apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -298,19 +293,6 @@ func (r *OneTimeProductCartItem) UnmarshalJSON(data []byte) (err error) {
 
 func (r oneTimeProductCartItemJSON) RawJSON() string {
 	return r.raw
-}
-
-type OneTimeProductCartItemParam struct {
-	ProductID param.Field[string] `json:"product_id" api:"required"`
-	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
-	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
-	// amount will be ignored Represented in the lowest denomination of the currency
-	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
-	Amount param.Field[int64] `json:"amount"`
-}
-
-func (r OneTimeProductCartItemParam) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 type Payment struct {
@@ -383,7 +365,7 @@ type Payment struct {
 	// Specific type of payment method (e.g. "visa", "mastercard")
 	PaymentMethodType string `json:"payment_method_type" api:"nullable"`
 	// List of products purchased in a one-time payment
-	ProductCart []PaymentProductCart `json:"product_cart" api:"nullable"`
+	ProductCart []OneTimeProductCartItem `json:"product_cart" api:"nullable"`
 	// Summary of the refund status for this payment. None if no succeeded refunds
 	// exist.
 	RefundStatus PaymentRefundStatus `json:"refund_status" api:"nullable"`
@@ -450,29 +432,6 @@ func (r *Payment) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r paymentJSON) RawJSON() string {
-	return r.raw
-}
-
-type PaymentProductCart struct {
-	ProductID string                 `json:"product_id" api:"required"`
-	Quantity  int64                  `json:"quantity" api:"required"`
-	JSON      paymentProductCartJSON `json:"-"`
-}
-
-// paymentProductCartJSON contains the JSON metadata for the struct
-// [PaymentProductCart]
-type paymentProductCartJSON struct {
-	ProductID   apijson.Field
-	Quantity    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PaymentProductCart) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentProductCartJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -559,6 +518,7 @@ const (
 	PaymentMethodTypesSepa                       PaymentMethodTypes = "sepa"
 	PaymentMethodTypesSepaBankTransfer           PaymentMethodTypes = "sepa_bank_transfer"
 	PaymentMethodTypesSofort                     PaymentMethodTypes = "sofort"
+	PaymentMethodTypesSunbit                     PaymentMethodTypes = "sunbit"
 	PaymentMethodTypesSwish                      PaymentMethodTypes = "swish"
 	PaymentMethodTypesTouchNGo                   PaymentMethodTypes = "touch_n_go"
 	PaymentMethodTypesTrustly                    PaymentMethodTypes = "trustly"
@@ -590,7 +550,7 @@ const (
 
 func (r PaymentMethodTypes) IsKnown() bool {
 	switch r {
-	case PaymentMethodTypesACH, PaymentMethodTypesAffirm, PaymentMethodTypesAfterpayClearpay, PaymentMethodTypesAlfamart, PaymentMethodTypesAliPay, PaymentMethodTypesAliPayHk, PaymentMethodTypesAlma, PaymentMethodTypesAmazonPay, PaymentMethodTypesApplePay, PaymentMethodTypesAtome, PaymentMethodTypesBacs, PaymentMethodTypesBancontactCard, PaymentMethodTypesBecs, PaymentMethodTypesBenefit, PaymentMethodTypesBizum, PaymentMethodTypesBlik, PaymentMethodTypesBoleto, PaymentMethodTypesBcaBankTransfer, PaymentMethodTypesBniVa, PaymentMethodTypesBriVa, PaymentMethodTypesCardRedirect, PaymentMethodTypesCimbVa, PaymentMethodTypesClassic, PaymentMethodTypesCredit, PaymentMethodTypesCryptoCurrency, PaymentMethodTypesCashapp, PaymentMethodTypesDana, PaymentMethodTypesDanamonVa, PaymentMethodTypesDebit, PaymentMethodTypesDuitNow, PaymentMethodTypesEfecty, PaymentMethodTypesEft, PaymentMethodTypesEps, PaymentMethodTypesFps, PaymentMethodTypesEvoucher, PaymentMethodTypesGiropay, PaymentMethodTypesGivex, PaymentMethodTypesGooglePay, PaymentMethodTypesGoPay, PaymentMethodTypesGcash, PaymentMethodTypesIdeal, PaymentMethodTypesInterac, PaymentMethodTypesIndomaret, PaymentMethodTypesKlarna, PaymentMethodTypesKakaoPay, PaymentMethodTypesLocalBankRedirect, PaymentMethodTypesMandiriVa, PaymentMethodTypesKnet, PaymentMethodTypesMBWay, PaymentMethodTypesMobilePay, PaymentMethodTypesMomo, PaymentMethodTypesMomoAtm, PaymentMethodTypesMultibanco, PaymentMethodTypesOnlineBankingThailand, PaymentMethodTypesOnlineBankingCzechRepublic, PaymentMethodTypesOnlineBankingFinland, PaymentMethodTypesOnlineBankingFpx, PaymentMethodTypesOnlineBankingPoland, PaymentMethodTypesOnlineBankingSlovakia, PaymentMethodTypesOxxo, PaymentMethodTypesPagoEfectivo, PaymentMethodTypesPermataBankTransfer, PaymentMethodTypesOpenBankingUk, PaymentMethodTypesPayBright, PaymentMethodTypesPaypal, PaymentMethodTypesPaze, PaymentMethodTypesPix, PaymentMethodTypesPaySafeCard, PaymentMethodTypesPrzelewy24, PaymentMethodTypesPromptPay, PaymentMethodTypesPse, PaymentMethodTypesRedCompra, PaymentMethodTypesRedPagos, PaymentMethodTypesSamsungPay, PaymentMethodTypesSepa, PaymentMethodTypesSepaBankTransfer, PaymentMethodTypesSofort, PaymentMethodTypesSwish, PaymentMethodTypesTouchNGo, PaymentMethodTypesTrustly, PaymentMethodTypesTwint, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesVipps, PaymentMethodTypesVietQr, PaymentMethodTypesVenmo, PaymentMethodTypesWalley, PaymentMethodTypesWeChatPay, PaymentMethodTypesSevenEleven, PaymentMethodTypesLawson, PaymentMethodTypesMiniStop, PaymentMethodTypesFamilyMart, PaymentMethodTypesSeicomart, PaymentMethodTypesPayEasy, PaymentMethodTypesLocalBankTransfer, PaymentMethodTypesMifinity, PaymentMethodTypesOpenBankingPis, PaymentMethodTypesDirectCarrierBilling, PaymentMethodTypesInstantBankTransfer, PaymentMethodTypesBillie, PaymentMethodTypesZip, PaymentMethodTypesRevolutPay, PaymentMethodTypesNaverPay, PaymentMethodTypesPayco:
+	case PaymentMethodTypesACH, PaymentMethodTypesAffirm, PaymentMethodTypesAfterpayClearpay, PaymentMethodTypesAlfamart, PaymentMethodTypesAliPay, PaymentMethodTypesAliPayHk, PaymentMethodTypesAlma, PaymentMethodTypesAmazonPay, PaymentMethodTypesApplePay, PaymentMethodTypesAtome, PaymentMethodTypesBacs, PaymentMethodTypesBancontactCard, PaymentMethodTypesBecs, PaymentMethodTypesBenefit, PaymentMethodTypesBizum, PaymentMethodTypesBlik, PaymentMethodTypesBoleto, PaymentMethodTypesBcaBankTransfer, PaymentMethodTypesBniVa, PaymentMethodTypesBriVa, PaymentMethodTypesCardRedirect, PaymentMethodTypesCimbVa, PaymentMethodTypesClassic, PaymentMethodTypesCredit, PaymentMethodTypesCryptoCurrency, PaymentMethodTypesCashapp, PaymentMethodTypesDana, PaymentMethodTypesDanamonVa, PaymentMethodTypesDebit, PaymentMethodTypesDuitNow, PaymentMethodTypesEfecty, PaymentMethodTypesEft, PaymentMethodTypesEps, PaymentMethodTypesFps, PaymentMethodTypesEvoucher, PaymentMethodTypesGiropay, PaymentMethodTypesGivex, PaymentMethodTypesGooglePay, PaymentMethodTypesGoPay, PaymentMethodTypesGcash, PaymentMethodTypesIdeal, PaymentMethodTypesInterac, PaymentMethodTypesIndomaret, PaymentMethodTypesKlarna, PaymentMethodTypesKakaoPay, PaymentMethodTypesLocalBankRedirect, PaymentMethodTypesMandiriVa, PaymentMethodTypesKnet, PaymentMethodTypesMBWay, PaymentMethodTypesMobilePay, PaymentMethodTypesMomo, PaymentMethodTypesMomoAtm, PaymentMethodTypesMultibanco, PaymentMethodTypesOnlineBankingThailand, PaymentMethodTypesOnlineBankingCzechRepublic, PaymentMethodTypesOnlineBankingFinland, PaymentMethodTypesOnlineBankingFpx, PaymentMethodTypesOnlineBankingPoland, PaymentMethodTypesOnlineBankingSlovakia, PaymentMethodTypesOxxo, PaymentMethodTypesPagoEfectivo, PaymentMethodTypesPermataBankTransfer, PaymentMethodTypesOpenBankingUk, PaymentMethodTypesPayBright, PaymentMethodTypesPaypal, PaymentMethodTypesPaze, PaymentMethodTypesPix, PaymentMethodTypesPaySafeCard, PaymentMethodTypesPrzelewy24, PaymentMethodTypesPromptPay, PaymentMethodTypesPse, PaymentMethodTypesRedCompra, PaymentMethodTypesRedPagos, PaymentMethodTypesSamsungPay, PaymentMethodTypesSepa, PaymentMethodTypesSepaBankTransfer, PaymentMethodTypesSofort, PaymentMethodTypesSunbit, PaymentMethodTypesSwish, PaymentMethodTypesTouchNGo, PaymentMethodTypesTrustly, PaymentMethodTypesTwint, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesVipps, PaymentMethodTypesVietQr, PaymentMethodTypesVenmo, PaymentMethodTypesWalley, PaymentMethodTypesWeChatPay, PaymentMethodTypesSevenEleven, PaymentMethodTypesLawson, PaymentMethodTypesMiniStop, PaymentMethodTypesFamilyMart, PaymentMethodTypesSeicomart, PaymentMethodTypesPayEasy, PaymentMethodTypesLocalBankTransfer, PaymentMethodTypesMifinity, PaymentMethodTypesOpenBankingPis, PaymentMethodTypesDirectCarrierBilling, PaymentMethodTypesInstantBankTransfer, PaymentMethodTypesBillie, PaymentMethodTypesZip, PaymentMethodTypesRevolutPay, PaymentMethodTypesNaverPay, PaymentMethodTypesPayco:
 		return true
 	}
 	return false
@@ -680,8 +640,8 @@ type PaymentNewResponse struct {
 	// Optional URL to a hosted payment page
 	PaymentLink string `json:"payment_link" api:"nullable"`
 	// Optional list of products included in the payment
-	ProductCart []OneTimeProductCartItem `json:"product_cart" api:"nullable"`
-	JSON        paymentNewResponseJSON   `json:"-"`
+	ProductCart []PaymentNewResponseProductCart `json:"product_cart" api:"nullable"`
+	JSON        paymentNewResponseJSON          `json:"-"`
 }
 
 // paymentNewResponseJSON contains the JSON metadata for the struct
@@ -706,6 +666,34 @@ func (r *PaymentNewResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r paymentNewResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type PaymentNewResponseProductCart struct {
+	ProductID string `json:"product_id" api:"required"`
+	Quantity  int64  `json:"quantity" api:"required"`
+	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
+	// amount will be ignored Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Amount int64                             `json:"amount" api:"nullable"`
+	JSON   paymentNewResponseProductCartJSON `json:"-"`
+}
+
+// paymentNewResponseProductCartJSON contains the JSON metadata for the struct
+// [PaymentNewResponseProductCart]
+type paymentNewResponseProductCartJSON struct {
+	ProductID   apijson.Field
+	Quantity    apijson.Field
+	Amount      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PaymentNewResponseProductCart) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentNewResponseProductCartJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -827,7 +815,7 @@ type PaymentNewParams struct {
 	// Customer information for the payment
 	Customer param.Field[CustomerRequestUnionParam] `json:"customer" api:"required"`
 	// List of products in the cart. Must contain at least 1 and at most 100 items.
-	ProductCart param.Field[[]OneTimeProductCartItemParam] `json:"product_cart" api:"required"`
+	ProductCart param.Field[[]PaymentNewParamsProductCart] `json:"product_cart" api:"required"`
 	// Whether adaptive currency fees should be included in the price (true) or added
 	// on top (false). If not specified, defaults to the business-level setting.
 	AdaptiveCurrencyFeesInclusive param.Field[bool] `json:"adaptive_currency_fees_inclusive"`
@@ -841,6 +829,10 @@ type PaymentNewParams struct {
 	// Fix the currency in which the end customer is billed. If Dodo Payments cannot
 	// support that currency for this transaction, it will not proceed
 	BillingCurrency param.Field[Currency] `json:"billing_currency"`
+	// Optional business / legal name associated with the tax id. When provided
+	// together with a valid tax id for a B2B purchase, this name is rendered on the
+	// invoice instead of the customer's personal name.
+	CustomerBusinessName param.Field[string] `json:"customer_business_name"`
 	// DEPRECATED: Use discount_codes instead. Cannot be used together with
 	// discount_codes.
 	DiscountCode param.Field[string] `json:"discount_code"`
@@ -878,6 +870,19 @@ type PaymentNewParams struct {
 }
 
 func (r PaymentNewParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type PaymentNewParamsProductCart struct {
+	ProductID param.Field[string] `json:"product_id" api:"required"`
+	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
+	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
+	// amount will be ignored Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Amount param.Field[int64] `json:"amount"`
+}
+
+func (r PaymentNewParamsProductCart) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 

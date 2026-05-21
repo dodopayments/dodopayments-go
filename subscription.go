@@ -607,6 +607,9 @@ type Subscription struct {
 	CancelledAt time.Time `json:"cancelled_at" api:"nullable" format:"date-time"`
 	// Customer's responses to custom fields collected during checkout
 	CustomFieldResponses []CustomFieldResponse `json:"custom_field_responses" api:"nullable"`
+	// Business / legal name associated with the tax id (B2B). When set this is used on
+	// the invoice in place of the customer's personal name.
+	CustomerBusinessName string `json:"customer_business_name" api:"nullable"`
 	// DEPRECATED: Use discounts[].cycles_remaining instead.
 	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining" api:"nullable"`
 	// DEPRECATED: Use discounts instead. Returns the first discount's ID if present.
@@ -654,6 +657,7 @@ type subscriptionJSON struct {
 	CancellationFeedback       apijson.Field
 	CancelledAt                apijson.Field
 	CustomFieldResponses       apijson.Field
+	CustomerBusinessName       apijson.Field
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
 	Discounts                  apijson.Field
@@ -840,7 +844,7 @@ type SubscriptionNewResponse struct {
 	// Expiry timestamp of the payment link
 	ExpiresOn time.Time `json:"expires_on" api:"nullable" format:"date-time"`
 	// One time products associated with the purchase of subscription
-	OneTimeProductCart []SubscriptionNewResponseOneTimeProductCart `json:"one_time_product_cart" api:"nullable"`
+	OneTimeProductCart []OneTimeProductCartItem `json:"one_time_product_cart" api:"nullable"`
 	// URL to checkout page
 	PaymentLink string                      `json:"payment_link" api:"nullable"`
 	JSON        subscriptionNewResponseJSON `json:"-"`
@@ -870,29 +874,6 @@ func (r *SubscriptionNewResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r subscriptionNewResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type SubscriptionNewResponseOneTimeProductCart struct {
-	ProductID string                                        `json:"product_id" api:"required"`
-	Quantity  int64                                         `json:"quantity" api:"required"`
-	JSON      subscriptionNewResponseOneTimeProductCartJSON `json:"-"`
-}
-
-// subscriptionNewResponseOneTimeProductCartJSON contains the JSON metadata for the
-// struct [SubscriptionNewResponseOneTimeProductCart]
-type subscriptionNewResponseOneTimeProductCartJSON struct {
-	ProductID   apijson.Field
-	Quantity    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SubscriptionNewResponseOneTimeProductCart) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r subscriptionNewResponseOneTimeProductCartJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -944,6 +925,9 @@ type SubscriptionListResponse struct {
 	TrialPeriodDays int64 `json:"trial_period_days" api:"required"`
 	// Cancelled timestamp if the subscription is cancelled
 	CancelledAt time.Time `json:"cancelled_at" api:"nullable" format:"date-time"`
+	// Business / legal name associated with the tax id (B2B). When set this is used on
+	// the invoice in place of the customer's personal name.
+	CustomerBusinessName string `json:"customer_business_name" api:"nullable"`
 	// DEPRECATED: Use discounts[].cycles_remaining instead.
 	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining" api:"nullable"`
 	// DEPRECATED: Use discounts instead.
@@ -984,6 +968,7 @@ type subscriptionListResponseJSON struct {
 	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
 	CancelledAt                apijson.Field
+	CustomerBusinessName       apijson.Field
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
 	PaymentMethodID            apijson.Field
@@ -1635,6 +1620,10 @@ type SubscriptionNewParams struct {
 	// Fix the currency in which the end customer is billed. If Dodo Payments cannot
 	// support that currency for this transaction, it will not proceed
 	BillingCurrency param.Field[Currency] `json:"billing_currency"`
+	// Optional business / legal name associated with the tax id. When provided
+	// together with a valid tax id for a B2B purchase, this name is rendered on the
+	// invoice instead of the customer's personal name.
+	CustomerBusinessName param.Field[string] `json:"customer_business_name"`
 	// DEPRECATED: Use discount_codes instead. Cannot be used together with
 	// discount_codes.
 	DiscountCode param.Field[string] `json:"discount_code"`
@@ -1655,7 +1644,7 @@ type SubscriptionNewParams struct {
 	OnDemand param.Field[OnDemandSubscriptionParam] `json:"on_demand"`
 	// List of one time products that will be bundled with the first payment for this
 	// subscription
-	OneTimeProductCart param.Field[[]OneTimeProductCartItemParam] `json:"one_time_product_cart"`
+	OneTimeProductCart param.Field[[]SubscriptionNewParamsOneTimeProductCart] `json:"one_time_product_cart"`
 	// If true, generates a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional payment method ID to use for this subscription. If provided,
@@ -1687,6 +1676,19 @@ func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type SubscriptionNewParamsOneTimeProductCart struct {
+	ProductID param.Field[string] `json:"product_id" api:"required"`
+	Quantity  param.Field[int64]  `json:"quantity" api:"required"`
+	// Amount the customer pays if pay_what_you_want is enabled. If disabled then
+	// amount will be ignored Represented in the lowest denomination of the currency
+	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
+	Amount param.Field[int64] `json:"amount"`
+}
+
+func (r SubscriptionNewParamsOneTimeProductCart) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type SubscriptionUpdateParams struct {
 	Billing param.Field[BillingAddressParam] `json:"billing"`
 	// When set, the subscription will remain active until the end of billing period
@@ -1700,12 +1702,17 @@ type SubscriptionUpdateParams struct {
 	CancellationFeedback param.Field[CancellationFeedback] `json:"cancellation_feedback"`
 	// Update credit entitlement cart settings
 	CreditEntitlementCart param.Field[[]SubscriptionUpdateParamsCreditEntitlementCart] `json:"credit_entitlement_cart"`
-	CustomerName          param.Field[string]                                          `json:"customer_name"`
-	DisableOnDemand       param.Field[SubscriptionUpdateParamsDisableOnDemand]         `json:"disable_on_demand"`
-	Metadata              param.Field[map[string]string]                               `json:"metadata"`
-	NextBillingDate       param.Field[time.Time]                                       `json:"next_billing_date" format:"date-time"`
-	Status                param.Field[SubscriptionStatus]                              `json:"status"`
-	TaxID                 param.Field[string]                                          `json:"tax_id"`
+	// Optional business / legal name associated with the tax id. When provided
+	// together with a valid tax id for a B2B subscription, this name is rendered on
+	// the invoice instead of the customer's personal name. Send `null` to explicitly
+	// clear the business name.
+	CustomerBusinessName param.Field[string]                                  `json:"customer_business_name"`
+	CustomerName         param.Field[string]                                  `json:"customer_name"`
+	DisableOnDemand      param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
+	Metadata             param.Field[map[string]string]                       `json:"metadata"`
+	NextBillingDate      param.Field[time.Time]                               `json:"next_billing_date" format:"date-time"`
+	Status               param.Field[SubscriptionStatus]                      `json:"status"`
+	TaxID                param.Field[string]                                  `json:"tax_id"`
 }
 
 func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {

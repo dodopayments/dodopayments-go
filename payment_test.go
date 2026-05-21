@@ -37,7 +37,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 			CustomerID: dodopayments.F("customer_id"),
 		}),
-		ProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
+		ProductCart: dodopayments.F([]dodopayments.PaymentNewParamsProductCart{{
 			ProductID: dodopayments.F("product_id"),
 			Quantity:  dodopayments.F(int64(0)),
 			Amount:    dodopayments.F(int64(0)),
@@ -45,6 +45,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 		AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
 		AllowedPaymentMethodTypes:     dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
 		BillingCurrency:               dodopayments.F(dodopayments.CurrencyAed),
+		CustomerBusinessName:          dodopayments.F("customer_business_name"),
 		DiscountCode:                  dodopayments.F("discount_code"),
 		DiscountCodes:                 dodopayments.F([]string{"string"}),
 		Force3DS:                      dodopayments.F(true),
