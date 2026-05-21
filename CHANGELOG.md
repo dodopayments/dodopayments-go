@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.99.0 (2026-05-21)
+
+Full Changelog: [v1.98.0...v1.99.0](https://github.com/dodopayments/dodopayments-go/compare/v1.98.0...v1.99.0)
+
+### Features
+
+* **api:** fixed a breaking modal change ([578de0e](https://github.com/dodopayments/dodopayments-go/commit/578de0e66e51e5695124578d71d3c88fbe7d8cf6))
+* **api:** stainless fixes ([44d5102](https://github.com/dodopayments/dodopayments-go/commit/44d51020be98ff93e5e2fd477d3da4f9ae8dbb04))
+* **api:** updated openapi spec to v1.99.0 and added missing endpoints as well ([c6dd63c](https://github.com/dodopayments/dodopayments-go/commit/c6dd63cbf0a471c8950b44805bcfc0fa142f9612))
+
 ## 1.98.0 (2026-05-14)
 
 Full Changelog: [v1.97.3...v1.98.0](https://github.com/dodopayments/dodopayments-go/compare/v1.97.3...v1.98.0)
