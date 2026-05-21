@@ -123,15 +123,23 @@ type CheckoutSessionFlagsParam struct {
 	// if customer is allowed to change currency, set it to true
 	//
 	// Default is true
-	AllowCurrencySelection      param.Field[bool] `json:"allow_currency_selection"`
-	AllowCustomerEditingCity    param.Field[bool] `json:"allow_customer_editing_city"`
-	AllowCustomerEditingCountry param.Field[bool] `json:"allow_customer_editing_country"`
-	AllowCustomerEditingEmail   param.Field[bool] `json:"allow_customer_editing_email"`
-	AllowCustomerEditingName    param.Field[bool] `json:"allow_customer_editing_name"`
-	AllowCustomerEditingState   param.Field[bool] `json:"allow_customer_editing_state"`
-	AllowCustomerEditingStreet  param.Field[bool] `json:"allow_customer_editing_street"`
-	AllowCustomerEditingTaxID   param.Field[bool] `json:"allow_customer_editing_tax_id"`
-	AllowCustomerEditingZipcode param.Field[bool] `json:"allow_customer_editing_zipcode"`
+	AllowCurrencySelection param.Field[bool] `json:"allow_currency_selection"`
+	// If true, the customer can supply or edit the business name associated with the
+	// tax id during checkout. Works independently of `allow_customer_editing_tax_id` —
+	// either flag (or `allow_tax_id`) is sufficient to let the customer override the
+	// session's business name. Typically set together with
+	// `allow_customer_editing_tax_id`.
+	//
+	// Default is false
+	AllowCustomerEditingBusinessName param.Field[bool] `json:"allow_customer_editing_business_name"`
+	AllowCustomerEditingCity         param.Field[bool] `json:"allow_customer_editing_city"`
+	AllowCustomerEditingCountry      param.Field[bool] `json:"allow_customer_editing_country"`
+	AllowCustomerEditingEmail        param.Field[bool] `json:"allow_customer_editing_email"`
+	AllowCustomerEditingName         param.Field[bool] `json:"allow_customer_editing_name"`
+	AllowCustomerEditingState        param.Field[bool] `json:"allow_customer_editing_state"`
+	AllowCustomerEditingStreet       param.Field[bool] `json:"allow_customer_editing_street"`
+	AllowCustomerEditingTaxID        param.Field[bool] `json:"allow_customer_editing_tax_id"`
+	AllowCustomerEditingZipcode      param.Field[bool] `json:"allow_customer_editing_zipcode"`
 	// If the customer is allowed to apply discount code, set it to true.
 	//
 	// Default is true
@@ -187,6 +195,10 @@ type CheckoutSessionRequestParam struct {
 	CustomFields param.Field[[]CustomFieldParam] `json:"custom_fields"`
 	// Customer details for the session
 	Customer param.Field[CustomerRequestUnionParam] `json:"customer"`
+	// Optional business / legal name associated with the tax id. When provided
+	// together with a valid tax id for a B2B purchase, this name is rendered on the
+	// invoice instead of the customer's personal name.
+	CustomerBusinessName param.Field[string] `json:"customer_business_name"`
 	// Customization for the checkout session page
 	Customization param.Field[CheckoutSessionCustomizationParam] `json:"customization"`
 	// DEPRECATED: Use discount_codes instead. Cannot be used together with
@@ -238,17 +250,31 @@ type CheckoutSessionResponse struct {
 	// The ID of the created checkout session
 	SessionID string `json:"session_id" api:"required"`
 	// Checkout url (None when payment_method_id is provided)
-	CheckoutURL string                      `json:"checkout_url" api:"nullable"`
-	JSON        checkoutSessionResponseJSON `json:"-"`
+	CheckoutURL string `json:"checkout_url" api:"nullable"`
+	// Client secret used to load the Dodo Payments checkout SDK. Returned when
+	// `confirm: true` was passed and a PaymentIntent was created at session-creation
+	// time. `None` otherwise.
+	ClientSecret string `json:"client_secret" api:"nullable"`
+	// Underlying payment id when `confirm: true` was passed and a PaymentIntent was
+	// created at session-creation time. `None` otherwise.
+	PaymentID string `json:"payment_id" api:"nullable"`
+	// Publishable key for the Dodo Payments checkout SDK. Returned when
+	// `confirm: true` was passed and a PaymentIntent was created at session-creation
+	// time. `None` otherwise.
+	PublishableKey string                      `json:"publishable_key" api:"nullable"`
+	JSON           checkoutSessionResponseJSON `json:"-"`
 }
 
 // checkoutSessionResponseJSON contains the JSON metadata for the struct
 // [CheckoutSessionResponse]
 type checkoutSessionResponseJSON struct {
-	SessionID   apijson.Field
-	CheckoutURL apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	SessionID      apijson.Field
+	CheckoutURL    apijson.Field
+	ClientSecret   apijson.Field
+	PaymentID      apijson.Field
+	PublishableKey apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
 }
 
 func (r *CheckoutSessionResponse) UnmarshalJSON(data []byte) (err error) {
