@@ -36,14 +36,14 @@ func TestMeterNewWithOptionalParams(t *testing.T) {
 		Name:            dodopayments.F("name"),
 		Description:     dodopayments.F("description"),
 		Filter: dodopayments.F(dodopayments.MeterFilterParam{
-			Clauses: dodopayments.F[dodopayments.MeterFilterClausesUnionParam](dodopayments.MeterFilterClausesDirectFilterConditionsParam([]dodopayments.MeterFilterClausesDirectFilterConditionParam{{
+			Clauses: dodopayments.F[dodopayments.FilterTypeUnionParam](dodopayments.FilterTypeMeterFilterConditionListParam([]dodopayments.FilterTypeMeterFilterConditionListItemParam{{
 				Key:      dodopayments.F("user_id"),
 				Operator: dodopayments.F(dodopayments.FilterOperatorEquals),
-				Value:    dodopayments.F[dodopayments.MeterFilterClausesDirectFilterConditionsValueUnionParam](shared.UnionString("user123")),
+				Value:    dodopayments.F[dodopayments.FilterTypeMeterFilterConditionListValueUnionParam](shared.UnionString("user123")),
 			}, {
 				Key:      dodopayments.F("amount"),
 				Operator: dodopayments.F(dodopayments.FilterOperatorGreaterThan),
-				Value:    dodopayments.F[dodopayments.MeterFilterClausesDirectFilterConditionsValueUnionParam](shared.UnionFloat(100.000000)),
+				Value:    dodopayments.F[dodopayments.FilterTypeMeterFilterConditionListValueUnionParam](shared.UnionFloat(100.000000)),
 			}})),
 			Conjunction: dodopayments.F(dodopayments.ConjunctionAnd),
 		}),

@@ -185,6 +185,25 @@ func (r EntitlementIntegrationType) IsKnown() bool {
 	return false
 }
 
+// Repository permission to grant on a `github` entitlement.
+type GitHubPermission string
+
+const (
+	GitHubPermissionPull     GitHubPermission = "pull"
+	GitHubPermissionPush     GitHubPermission = "push"
+	GitHubPermissionAdmin    GitHubPermission = "admin"
+	GitHubPermissionMaintain GitHubPermission = "maintain"
+	GitHubPermissionTriage   GitHubPermission = "triage"
+)
+
+func (r GitHubPermission) IsKnown() bool {
+	switch r {
+	case GitHubPermissionPull, GitHubPermissionPush, GitHubPermissionAdmin, GitHubPermissionMaintain, GitHubPermissionTriage:
+		return true
+	}
+	return false
+}
+
 // Integration-specific configuration supplied when creating or updating an
 // entitlement. The shape required matches the entitlement's `integration_type`.
 type IntegrationConfigParam struct {
@@ -217,7 +236,7 @@ type IntegrationConfigParam struct {
 	// Notion template identifier to grant access to.
 	NotionTemplateID param.Field[string] `json:"notion_template_id"`
 	// Permission to grant on the repository.
-	Permission param.Field[IntegrationConfigPermission] `json:"permission"`
+	Permission param.Field[GitHubPermission] `json:"permission"`
 	// Optional Discord role to assign within the guild.
 	RoleID param.Field[string] `json:"role_id"`
 	// Repository or organisation slug to grant access to.
@@ -245,7 +264,7 @@ type IntegrationConfigUnionParam interface {
 
 type IntegrationConfigGitHubConfigParam struct {
 	// Permission to grant on the repository.
-	Permission param.Field[IntegrationConfigGitHubConfigPermission] `json:"permission" api:"required"`
+	Permission param.Field[GitHubPermission] `json:"permission" api:"required"`
 	// Repository or organisation slug to grant access to.
 	TargetID param.Field[string] `json:"target_id" api:"required"`
 }
@@ -255,25 +274,6 @@ func (r IntegrationConfigGitHubConfigParam) MarshalJSON() (data []byte, err erro
 }
 
 func (r IntegrationConfigGitHubConfigParam) implementsIntegrationConfigUnionParam() {}
-
-// Permission to grant on the repository.
-type IntegrationConfigGitHubConfigPermission string
-
-const (
-	IntegrationConfigGitHubConfigPermissionPull     IntegrationConfigGitHubConfigPermission = "pull"
-	IntegrationConfigGitHubConfigPermissionPush     IntegrationConfigGitHubConfigPermission = "push"
-	IntegrationConfigGitHubConfigPermissionAdmin    IntegrationConfigGitHubConfigPermission = "admin"
-	IntegrationConfigGitHubConfigPermissionMaintain IntegrationConfigGitHubConfigPermission = "maintain"
-	IntegrationConfigGitHubConfigPermissionTriage   IntegrationConfigGitHubConfigPermission = "triage"
-)
-
-func (r IntegrationConfigGitHubConfigPermission) IsKnown() bool {
-	switch r {
-	case IntegrationConfigGitHubConfigPermissionPull, IntegrationConfigGitHubConfigPermissionPush, IntegrationConfigGitHubConfigPermissionAdmin, IntegrationConfigGitHubConfigPermissionMaintain, IntegrationConfigGitHubConfigPermissionTriage:
-		return true
-	}
-	return false
-}
 
 type IntegrationConfigDiscordConfigParam struct {
 	// Discord guild (server) ID.
@@ -379,25 +379,6 @@ func (r IntegrationConfigLicenseKeyConfigParam) MarshalJSON() (data []byte, err 
 
 func (r IntegrationConfigLicenseKeyConfigParam) implementsIntegrationConfigUnionParam() {}
 
-// Permission to grant on the repository.
-type IntegrationConfigPermission string
-
-const (
-	IntegrationConfigPermissionPull     IntegrationConfigPermission = "pull"
-	IntegrationConfigPermissionPush     IntegrationConfigPermission = "push"
-	IntegrationConfigPermissionAdmin    IntegrationConfigPermission = "admin"
-	IntegrationConfigPermissionMaintain IntegrationConfigPermission = "maintain"
-	IntegrationConfigPermissionTriage   IntegrationConfigPermission = "triage"
-)
-
-func (r IntegrationConfigPermission) IsKnown() bool {
-	switch r {
-	case IntegrationConfigPermissionPull, IntegrationConfigPermissionPush, IntegrationConfigPermissionAdmin, IntegrationConfigPermissionMaintain, IntegrationConfigPermissionTriage:
-		return true
-	}
-	return false
-}
-
 // Integration-specific configuration on an entitlement read response.
 //
 // For `digital_files` entitlements the response includes presigned download URLs
@@ -428,7 +409,7 @@ type IntegrationConfigResponse struct {
 	// Notion template identifier to grant access to.
 	NotionTemplateID string `json:"notion_template_id"`
 	// Permission to grant on the repository.
-	Permission IntegrationConfigResponsePermission `json:"permission"`
+	Permission GitHubPermission `json:"permission"`
 	// Optional Discord role to assign within the guild.
 	RoleID string `json:"role_id" api:"nullable"`
 	// Repository or organisation slug to grant access to.
@@ -541,7 +522,7 @@ func init() {
 
 type IntegrationConfigResponseGitHubConfig struct {
 	// Permission to grant on the repository.
-	Permission IntegrationConfigResponseGitHubConfigPermission `json:"permission" api:"required"`
+	Permission GitHubPermission `json:"permission" api:"required"`
 	// Repository or organisation slug to grant access to.
 	TargetID string                                    `json:"target_id" api:"required"`
 	JSON     integrationConfigResponseGitHubConfigJSON `json:"-"`
@@ -565,25 +546,6 @@ func (r integrationConfigResponseGitHubConfigJSON) RawJSON() string {
 }
 
 func (r IntegrationConfigResponseGitHubConfig) implementsIntegrationConfigResponse() {}
-
-// Permission to grant on the repository.
-type IntegrationConfigResponseGitHubConfigPermission string
-
-const (
-	IntegrationConfigResponseGitHubConfigPermissionPull     IntegrationConfigResponseGitHubConfigPermission = "pull"
-	IntegrationConfigResponseGitHubConfigPermissionPush     IntegrationConfigResponseGitHubConfigPermission = "push"
-	IntegrationConfigResponseGitHubConfigPermissionAdmin    IntegrationConfigResponseGitHubConfigPermission = "admin"
-	IntegrationConfigResponseGitHubConfigPermissionMaintain IntegrationConfigResponseGitHubConfigPermission = "maintain"
-	IntegrationConfigResponseGitHubConfigPermissionTriage   IntegrationConfigResponseGitHubConfigPermission = "triage"
-)
-
-func (r IntegrationConfigResponseGitHubConfigPermission) IsKnown() bool {
-	switch r {
-	case IntegrationConfigResponseGitHubConfigPermissionPull, IntegrationConfigResponseGitHubConfigPermissionPush, IntegrationConfigResponseGitHubConfigPermissionAdmin, IntegrationConfigResponseGitHubConfigPermissionMaintain, IntegrationConfigResponseGitHubConfigPermissionTriage:
-		return true
-	}
-	return false
-}
 
 type IntegrationConfigResponseDiscordConfig struct {
 	// Discord guild (server) ID.
@@ -839,25 +801,6 @@ func (r integrationConfigResponseLicenseKeyConfigJSON) RawJSON() string {
 }
 
 func (r IntegrationConfigResponseLicenseKeyConfig) implementsIntegrationConfigResponse() {}
-
-// Permission to grant on the repository.
-type IntegrationConfigResponsePermission string
-
-const (
-	IntegrationConfigResponsePermissionPull     IntegrationConfigResponsePermission = "pull"
-	IntegrationConfigResponsePermissionPush     IntegrationConfigResponsePermission = "push"
-	IntegrationConfigResponsePermissionAdmin    IntegrationConfigResponsePermission = "admin"
-	IntegrationConfigResponsePermissionMaintain IntegrationConfigResponsePermission = "maintain"
-	IntegrationConfigResponsePermissionTriage   IntegrationConfigResponsePermission = "triage"
-)
-
-func (r IntegrationConfigResponsePermission) IsKnown() bool {
-	switch r {
-	case IntegrationConfigResponsePermissionPull, IntegrationConfigResponsePermissionPush, IntegrationConfigResponsePermissionAdmin, IntegrationConfigResponsePermissionMaintain, IntegrationConfigResponsePermissionTriage:
-		return true
-	}
-	return false
-}
 
 type EntitlementNewParams struct {
 	// Platform-specific configuration (validated per integration_type)

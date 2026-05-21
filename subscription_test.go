@@ -45,6 +45,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		}}),
 		AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
 		BillingCurrency:           dodopayments.F(dodopayments.CurrencyAed),
+		CustomerBusinessName:      dodopayments.F("customer_business_name"),
 		DiscountCode:              dodopayments.F("discount_code"),
 		DiscountCodes:             dodopayments.F([]string{"string"}),
 		Force3DS:                  dodopayments.F(true),
@@ -59,7 +60,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 			ProductDescription:            dodopayments.F("product_description"),
 			ProductPrice:                  dodopayments.F(int64(0)),
 		}),
-		OneTimeProductCart: dodopayments.F([]dodopayments.OneTimeProductCartItemParam{{
+		OneTimeProductCart: dodopayments.F([]dodopayments.SubscriptionNewParamsOneTimeProductCart{{
 			ProductID: dodopayments.F("product_id"),
 			Quantity:  dodopayments.F(int64(0)),
 			Amount:    dodopayments.F(int64(0)),
@@ -145,7 +146,8 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 				RolloverTimeframeCount:     dodopayments.F(int64(0)),
 				RolloverTimeframeInterval:  dodopayments.F(dodopayments.TimeIntervalDay),
 			}}),
-			CustomerName: dodopayments.F("customer_name"),
+			CustomerBusinessName: dodopayments.F("customer_business_name"),
+			CustomerName:         dodopayments.F("customer_name"),
 			DisableOnDemand: dodopayments.F(dodopayments.SubscriptionUpdateParamsDisableOnDemand{
 				NextBillingDate: dodopayments.F(time.Now()),
 			}),
