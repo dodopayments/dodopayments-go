@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Go modules publish via git tags resolved by the module proxy; there is no
+# package-registry secret to validate. release-please creates the tag +
+# GitHub Release, after which `go get` / proxy.golang.org resolve the new
+# version automatically. This check is a structural no-op kept for parity
+# with the other SDK repos' release-doctor flow.
+
+echo "The environment is ready to push releases (Go: tag-based, no publish secret required)!"
