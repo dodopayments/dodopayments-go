@@ -449,17 +449,17 @@ func (r ThemeConfigParam) MarshalJSON() (data []byte, err error) {
 type ThemeConfigFontSize string
 
 const (
-	ThemeConfigFontSizeXs  ThemeConfigFontSize = "xs"
-	ThemeConfigFontSizeSm  ThemeConfigFontSize = "sm"
-	ThemeConfigFontSizeMd  ThemeConfigFontSize = "md"
-	ThemeConfigFontSizeLg  ThemeConfigFontSize = "lg"
-	ThemeConfigFontSizeXl  ThemeConfigFontSize = "xl"
-	ThemeConfigFontSize2xl ThemeConfigFontSize = "2xl"
+	ThemeConfigFontSizeXs      ThemeConfigFontSize = "xs"
+	ThemeConfigFontSizeSm      ThemeConfigFontSize = "sm"
+	ThemeConfigFontSizeMd      ThemeConfigFontSize = "md"
+	ThemeConfigFontSizeLg      ThemeConfigFontSize = "lg"
+	ThemeConfigFontSizeXl      ThemeConfigFontSize = "xl"
+	ThemeConfigFontSizeSize2Xl ThemeConfigFontSize = "2xl"
 )
 
 func (r ThemeConfigFontSize) IsKnown() bool {
 	switch r {
-	case ThemeConfigFontSizeXs, ThemeConfigFontSizeSm, ThemeConfigFontSizeMd, ThemeConfigFontSizeLg, ThemeConfigFontSizeXl, ThemeConfigFontSize2xl:
+	case ThemeConfigFontSizeXs, ThemeConfigFontSizeSm, ThemeConfigFontSizeMd, ThemeConfigFontSizeLg, ThemeConfigFontSizeXl, ThemeConfigFontSizeSize2Xl:
 		return true
 	}
 	return false
