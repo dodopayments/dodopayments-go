@@ -122,11 +122,7 @@ func (r *DiscountService) GetByCode(ctx context.Context, code string, opts ...op
 }
 
 type Discount struct {
-	// The discount amount.
-	//
-	//   - If `discount_type` is `percentage`, this is in **basis points** (e.g., 540 =>
-	//     5.4%).
-	//   - Otherwise, this is **USD cents** (e.g., 100 => `$1.00`).
+	// The discount amount in **basis points** (e.g., 540 => 5.4%).
 	Amount int64 `json:"amount" api:"required"`
 	// The business this discount belongs to.
 	BusinessID string `json:"business_id" api:"required"`
@@ -144,7 +140,7 @@ type Discount struct {
 	RestrictedTo []string `json:"restricted_to" api:"required"`
 	// How many times this discount has been used.
 	TimesUsed int64 `json:"times_used" api:"required"`
-	// The type of discount, e.g. `percentage`, `flat`, or `flat_per_unit`.
+	// The type of discount. Currently only `percentage` is supported.
 	Type DiscountType `json:"type" api:"required"`
 	// Optional date/time after which discount is expired.
 	ExpiresAt time.Time `json:"expires_at" api:"nullable" format:"date-time"`
@@ -190,7 +186,7 @@ func (r discountJSON) RawJSON() string {
 // Response struct for a discount with its position in a stack and optional
 // cycle-tracking information (for subscriptions).
 type DiscountDetail struct {
-	// The discount amount (basis points for percentage, USD cents for flat)
+	// The discount amount in **basis points** (e.g., 540 => 5.4%).
 	Amount int64 `json:"amount" api:"required"`
 	// The business this discount belongs to
 	BusinessID string `json:"business_id" api:"required"`
@@ -271,16 +267,12 @@ func (r DiscountType) IsKnown() bool {
 }
 
 type DiscountNewParams struct {
-	// The discount amount.
-	//
-	//   - If `discount_type` is **not** `percentage`, `amount` is in **USD cents**. For
-	//     example, `100` means `$1.00`. Only USD is allowed.
-	//   - If `discount_type` **is** `percentage`, `amount` is in **basis points**. For
-	//     example, `540` means `5.4%`.
+	// The discount amount in **basis points** (e.g. `540` means `5.4%`, `10000` means
+	// `100%`).
 	//
 	// Must be at least 1.
 	Amount param.Field[int64] `json:"amount" api:"required"`
-	// The discount type (e.g. `percentage`, `flat`, or `flat_per_unit`).
+	// The discount type. Currently only `percentage` is supported.
 	Type param.Field[DiscountType] `json:"type" api:"required"`
 	// Optionally supply a code (will be uppercased).
 	//
@@ -310,11 +302,8 @@ func (r DiscountNewParams) MarshalJSON() (data []byte, err error) {
 }
 
 type DiscountUpdateParams struct {
-	// If present, update the discount amount:
-	//
-	//   - If `discount_type` is `percentage`, this represents **basis points** (e.g.,
-	//     `540` = `5.4%`).
-	//   - Otherwise, this represents **USD cents** (e.g., `100` = `$1.00`).
+	// If present, update the discount amount in **basis points** (e.g., `540` =
+	// `5.4%`, `10000` = `100%`).
 	//
 	// Must be at least 1 if provided.
 	Amount param.Field[int64] `json:"amount"`
@@ -334,7 +323,7 @@ type DiscountUpdateParams struct {
 	// provided, the discount will be applied indefinitely to all recurring payments
 	// related to the subscription.
 	SubscriptionCycles param.Field[int64] `json:"subscription_cycles"`
-	// If present, update the discount type.
+	// If present, update the discount type. Currently only `percentage` is supported.
 	Type       param.Field[DiscountType] `json:"type"`
 	UsageLimit param.Field[int64]        `json:"usage_limit"`
 }
@@ -348,7 +337,7 @@ type DiscountListParams struct {
 	Active param.Field[bool] `query:"active"`
 	// Filter by discount code (partial match, case-insensitive)
 	Code param.Field[string] `query:"code"`
-	// Filter by discount type (percentage)
+	// Filter by discount type
 	DiscountType param.Field[DiscountType] `query:"discount_type"`
 	// Page number (default = 0).
 	PageNumber param.Field[int64] `query:"page_number"`
