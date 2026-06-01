@@ -140,24 +140,44 @@ type ProductCollection struct {
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Description of the collection
 	Description string `json:"description" api:"nullable"`
+	// Default effective_at setting for subscription plan downgrades (null = inherit
+	// from business)
+	EffectiveAtOnDowngrade ProductCollectionEffectiveAtOnDowngrade `json:"effective_at_on_downgrade" api:"nullable"`
+	// Default effective_at setting for subscription plan upgrades (null = inherit from
+	// business)
+	EffectiveAtOnUpgrade ProductCollectionEffectiveAtOnUpgrade `json:"effective_at_on_upgrade" api:"nullable"`
 	// URL of the collection image
-	Image string                `json:"image" api:"nullable"`
-	JSON  productCollectionJSON `json:"-"`
+	Image string `json:"image" api:"nullable"`
+	// Default behavior for subscription plan changes on payment failure (null =
+	// inherit from business)
+	OnPaymentFailure ProductCollectionOnPaymentFailure `json:"on_payment_failure" api:"nullable"`
+	// Default proration billing mode for subscription plan downgrades (null = inherit
+	// from business)
+	ProrationBillingModeOnDowngrade ProductCollectionProrationBillingModeOnDowngrade `json:"proration_billing_mode_on_downgrade" api:"nullable"`
+	// Default proration billing mode for subscription plan upgrades (null = inherit
+	// from business)
+	ProrationBillingModeOnUpgrade ProductCollectionProrationBillingModeOnUpgrade `json:"proration_billing_mode_on_upgrade" api:"nullable"`
+	JSON                          productCollectionJSON                          `json:"-"`
 }
 
 // productCollectionJSON contains the JSON metadata for the struct
 // [ProductCollection]
 type productCollectionJSON struct {
-	ID          apijson.Field
-	BrandID     apijson.Field
-	CreatedAt   apijson.Field
-	Groups      apijson.Field
-	Name        apijson.Field
-	UpdatedAt   apijson.Field
-	Description apijson.Field
-	Image       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	ID                              apijson.Field
+	BrandID                         apijson.Field
+	CreatedAt                       apijson.Field
+	Groups                          apijson.Field
+	Name                            apijson.Field
+	UpdatedAt                       apijson.Field
+	Description                     apijson.Field
+	EffectiveAtOnDowngrade          apijson.Field
+	EffectiveAtOnUpgrade            apijson.Field
+	Image                           apijson.Field
+	OnPaymentFailure                apijson.Field
+	ProrationBillingModeOnDowngrade apijson.Field
+	ProrationBillingModeOnUpgrade   apijson.Field
+	raw                             string
+	ExtraFields                     map[string]apijson.Field
 }
 
 func (r *ProductCollection) UnmarshalJSON(data []byte) (err error) {
@@ -166,6 +186,95 @@ func (r *ProductCollection) UnmarshalJSON(data []byte) (err error) {
 
 func (r productCollectionJSON) RawJSON() string {
 	return r.raw
+}
+
+// Default effective_at setting for subscription plan downgrades (null = inherit
+// from business)
+type ProductCollectionEffectiveAtOnDowngrade string
+
+const (
+	ProductCollectionEffectiveAtOnDowngradeImmediately     ProductCollectionEffectiveAtOnDowngrade = "immediately"
+	ProductCollectionEffectiveAtOnDowngradeNextBillingDate ProductCollectionEffectiveAtOnDowngrade = "next_billing_date"
+)
+
+func (r ProductCollectionEffectiveAtOnDowngrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionEffectiveAtOnDowngradeImmediately, ProductCollectionEffectiveAtOnDowngradeNextBillingDate:
+		return true
+	}
+	return false
+}
+
+// Default effective_at setting for subscription plan upgrades (null = inherit from
+// business)
+type ProductCollectionEffectiveAtOnUpgrade string
+
+const (
+	ProductCollectionEffectiveAtOnUpgradeImmediately     ProductCollectionEffectiveAtOnUpgrade = "immediately"
+	ProductCollectionEffectiveAtOnUpgradeNextBillingDate ProductCollectionEffectiveAtOnUpgrade = "next_billing_date"
+)
+
+func (r ProductCollectionEffectiveAtOnUpgrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionEffectiveAtOnUpgradeImmediately, ProductCollectionEffectiveAtOnUpgradeNextBillingDate:
+		return true
+	}
+	return false
+}
+
+// Default behavior for subscription plan changes on payment failure (null =
+// inherit from business)
+type ProductCollectionOnPaymentFailure string
+
+const (
+	ProductCollectionOnPaymentFailurePreventChange ProductCollectionOnPaymentFailure = "prevent_change"
+	ProductCollectionOnPaymentFailureApplyChange   ProductCollectionOnPaymentFailure = "apply_change"
+)
+
+func (r ProductCollectionOnPaymentFailure) IsKnown() bool {
+	switch r {
+	case ProductCollectionOnPaymentFailurePreventChange, ProductCollectionOnPaymentFailureApplyChange:
+		return true
+	}
+	return false
+}
+
+// Default proration billing mode for subscription plan downgrades (null = inherit
+// from business)
+type ProductCollectionProrationBillingModeOnDowngrade string
+
+const (
+	ProductCollectionProrationBillingModeOnDowngradeProratedImmediately   ProductCollectionProrationBillingModeOnDowngrade = "prorated_immediately"
+	ProductCollectionProrationBillingModeOnDowngradeFullImmediately       ProductCollectionProrationBillingModeOnDowngrade = "full_immediately"
+	ProductCollectionProrationBillingModeOnDowngradeDifferenceImmediately ProductCollectionProrationBillingModeOnDowngrade = "difference_immediately"
+	ProductCollectionProrationBillingModeOnDowngradeDoNotBill             ProductCollectionProrationBillingModeOnDowngrade = "do_not_bill"
+)
+
+func (r ProductCollectionProrationBillingModeOnDowngrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionProrationBillingModeOnDowngradeProratedImmediately, ProductCollectionProrationBillingModeOnDowngradeFullImmediately, ProductCollectionProrationBillingModeOnDowngradeDifferenceImmediately, ProductCollectionProrationBillingModeOnDowngradeDoNotBill:
+		return true
+	}
+	return false
+}
+
+// Default proration billing mode for subscription plan upgrades (null = inherit
+// from business)
+type ProductCollectionProrationBillingModeOnUpgrade string
+
+const (
+	ProductCollectionProrationBillingModeOnUpgradeProratedImmediately   ProductCollectionProrationBillingModeOnUpgrade = "prorated_immediately"
+	ProductCollectionProrationBillingModeOnUpgradeFullImmediately       ProductCollectionProrationBillingModeOnUpgrade = "full_immediately"
+	ProductCollectionProrationBillingModeOnUpgradeDifferenceImmediately ProductCollectionProrationBillingModeOnUpgrade = "difference_immediately"
+	ProductCollectionProrationBillingModeOnUpgradeDoNotBill             ProductCollectionProrationBillingModeOnUpgrade = "do_not_bill"
+)
+
+func (r ProductCollectionProrationBillingModeOnUpgrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionProrationBillingModeOnUpgradeProratedImmediately, ProductCollectionProrationBillingModeOnUpgradeFullImmediately, ProductCollectionProrationBillingModeOnUpgradeDifferenceImmediately, ProductCollectionProrationBillingModeOnUpgradeDoNotBill:
+		return true
+	}
+	return false
 }
 
 type ProductCollectionListResponse struct {
@@ -270,10 +379,114 @@ type ProductCollectionNewParams struct {
 	BrandID param.Field[string] `json:"brand_id"`
 	// Optional description of the product collection
 	Description param.Field[string] `json:"description"`
+	// Default effective_at setting for subscription plan downgrades (NULL = inherit
+	// from business)
+	EffectiveAtOnDowngrade param.Field[ProductCollectionNewParamsEffectiveAtOnDowngrade] `json:"effective_at_on_downgrade"`
+	// Default effective_at setting for subscription plan upgrades (NULL = inherit from
+	// business)
+	EffectiveAtOnUpgrade param.Field[ProductCollectionNewParamsEffectiveAtOnUpgrade] `json:"effective_at_on_upgrade"`
+	// Default behavior for subscription plan changes on payment failure (NULL =
+	// inherit from business)
+	OnPaymentFailure param.Field[ProductCollectionNewParamsOnPaymentFailure] `json:"on_payment_failure"`
+	// Default proration billing mode for subscription plan downgrades (NULL = inherit
+	// from business)
+	ProrationBillingModeOnDowngrade param.Field[ProductCollectionNewParamsProrationBillingModeOnDowngrade] `json:"proration_billing_mode_on_downgrade"`
+	// Default proration billing mode for subscription plan upgrades (NULL = inherit
+	// from business)
+	ProrationBillingModeOnUpgrade param.Field[ProductCollectionNewParamsProrationBillingModeOnUpgrade] `json:"proration_billing_mode_on_upgrade"`
 }
 
 func (r ProductCollectionNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+// Default effective_at setting for subscription plan downgrades (NULL = inherit
+// from business)
+type ProductCollectionNewParamsEffectiveAtOnDowngrade string
+
+const (
+	ProductCollectionNewParamsEffectiveAtOnDowngradeImmediately     ProductCollectionNewParamsEffectiveAtOnDowngrade = "immediately"
+	ProductCollectionNewParamsEffectiveAtOnDowngradeNextBillingDate ProductCollectionNewParamsEffectiveAtOnDowngrade = "next_billing_date"
+)
+
+func (r ProductCollectionNewParamsEffectiveAtOnDowngrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionNewParamsEffectiveAtOnDowngradeImmediately, ProductCollectionNewParamsEffectiveAtOnDowngradeNextBillingDate:
+		return true
+	}
+	return false
+}
+
+// Default effective_at setting for subscription plan upgrades (NULL = inherit from
+// business)
+type ProductCollectionNewParamsEffectiveAtOnUpgrade string
+
+const (
+	ProductCollectionNewParamsEffectiveAtOnUpgradeImmediately     ProductCollectionNewParamsEffectiveAtOnUpgrade = "immediately"
+	ProductCollectionNewParamsEffectiveAtOnUpgradeNextBillingDate ProductCollectionNewParamsEffectiveAtOnUpgrade = "next_billing_date"
+)
+
+func (r ProductCollectionNewParamsEffectiveAtOnUpgrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionNewParamsEffectiveAtOnUpgradeImmediately, ProductCollectionNewParamsEffectiveAtOnUpgradeNextBillingDate:
+		return true
+	}
+	return false
+}
+
+// Default behavior for subscription plan changes on payment failure (NULL =
+// inherit from business)
+type ProductCollectionNewParamsOnPaymentFailure string
+
+const (
+	ProductCollectionNewParamsOnPaymentFailurePreventChange ProductCollectionNewParamsOnPaymentFailure = "prevent_change"
+	ProductCollectionNewParamsOnPaymentFailureApplyChange   ProductCollectionNewParamsOnPaymentFailure = "apply_change"
+)
+
+func (r ProductCollectionNewParamsOnPaymentFailure) IsKnown() bool {
+	switch r {
+	case ProductCollectionNewParamsOnPaymentFailurePreventChange, ProductCollectionNewParamsOnPaymentFailureApplyChange:
+		return true
+	}
+	return false
+}
+
+// Default proration billing mode for subscription plan downgrades (NULL = inherit
+// from business)
+type ProductCollectionNewParamsProrationBillingModeOnDowngrade string
+
+const (
+	ProductCollectionNewParamsProrationBillingModeOnDowngradeProratedImmediately   ProductCollectionNewParamsProrationBillingModeOnDowngrade = "prorated_immediately"
+	ProductCollectionNewParamsProrationBillingModeOnDowngradeFullImmediately       ProductCollectionNewParamsProrationBillingModeOnDowngrade = "full_immediately"
+	ProductCollectionNewParamsProrationBillingModeOnDowngradeDifferenceImmediately ProductCollectionNewParamsProrationBillingModeOnDowngrade = "difference_immediately"
+	ProductCollectionNewParamsProrationBillingModeOnDowngradeDoNotBill             ProductCollectionNewParamsProrationBillingModeOnDowngrade = "do_not_bill"
+)
+
+func (r ProductCollectionNewParamsProrationBillingModeOnDowngrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionNewParamsProrationBillingModeOnDowngradeProratedImmediately, ProductCollectionNewParamsProrationBillingModeOnDowngradeFullImmediately, ProductCollectionNewParamsProrationBillingModeOnDowngradeDifferenceImmediately, ProductCollectionNewParamsProrationBillingModeOnDowngradeDoNotBill:
+		return true
+	}
+	return false
+}
+
+// Default proration billing mode for subscription plan upgrades (NULL = inherit
+// from business)
+type ProductCollectionNewParamsProrationBillingModeOnUpgrade string
+
+const (
+	ProductCollectionNewParamsProrationBillingModeOnUpgradeProratedImmediately   ProductCollectionNewParamsProrationBillingModeOnUpgrade = "prorated_immediately"
+	ProductCollectionNewParamsProrationBillingModeOnUpgradeFullImmediately       ProductCollectionNewParamsProrationBillingModeOnUpgrade = "full_immediately"
+	ProductCollectionNewParamsProrationBillingModeOnUpgradeDifferenceImmediately ProductCollectionNewParamsProrationBillingModeOnUpgrade = "difference_immediately"
+	ProductCollectionNewParamsProrationBillingModeOnUpgradeDoNotBill             ProductCollectionNewParamsProrationBillingModeOnUpgrade = "do_not_bill"
+)
+
+func (r ProductCollectionNewParamsProrationBillingModeOnUpgrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionNewParamsProrationBillingModeOnUpgradeProratedImmediately, ProductCollectionNewParamsProrationBillingModeOnUpgradeFullImmediately, ProductCollectionNewParamsProrationBillingModeOnUpgradeDifferenceImmediately, ProductCollectionNewParamsProrationBillingModeOnUpgradeDoNotBill:
+		return true
+	}
+	return false
 }
 
 type ProductCollectionUpdateParams struct {
@@ -281,16 +494,120 @@ type ProductCollectionUpdateParams struct {
 	BrandID param.Field[string] `json:"brand_id"`
 	// Optional description update - pass null to remove, omit to keep unchanged
 	Description param.Field[string] `json:"description"`
+	// Effective_at setting for downgrades: Some(Some(val)) = set, Some(None) = clear
+	// (inherit), None = no change
+	EffectiveAtOnDowngrade param.Field[ProductCollectionUpdateParamsEffectiveAtOnDowngrade] `json:"effective_at_on_downgrade"`
+	// Effective_at setting for upgrades: Some(Some(val)) = set, Some(None) = clear
+	// (inherit), None = no change
+	EffectiveAtOnUpgrade param.Field[ProductCollectionUpdateParamsEffectiveAtOnUpgrade] `json:"effective_at_on_upgrade"`
 	// Optional new order for groups (array of group UUIDs in desired order)
 	GroupOrder param.Field[[]string] `json:"group_order" format:"uuid"`
 	// Optional image update - pass null to remove, omit to keep unchanged
 	ImageID param.Field[string] `json:"image_id" format:"uuid"`
 	// Optional new name for the collection
 	Name param.Field[string] `json:"name"`
+	// On payment failure behavior: Some(Some(val)) = set, Some(None) = clear
+	// (inherit), None = no change
+	OnPaymentFailure param.Field[ProductCollectionUpdateParamsOnPaymentFailure] `json:"on_payment_failure"`
+	// Proration billing mode for downgrades: Some(Some(val)) = set, Some(None) = clear
+	// (inherit), None = no change
+	ProrationBillingModeOnDowngrade param.Field[ProductCollectionUpdateParamsProrationBillingModeOnDowngrade] `json:"proration_billing_mode_on_downgrade"`
+	// Proration billing mode for upgrades: Some(Some(val)) = set, Some(None) = clear
+	// (inherit), None = no change
+	ProrationBillingModeOnUpgrade param.Field[ProductCollectionUpdateParamsProrationBillingModeOnUpgrade] `json:"proration_billing_mode_on_upgrade"`
 }
 
 func (r ProductCollectionUpdateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+// Effective_at setting for downgrades: Some(Some(val)) = set, Some(None) = clear
+// (inherit), None = no change
+type ProductCollectionUpdateParamsEffectiveAtOnDowngrade string
+
+const (
+	ProductCollectionUpdateParamsEffectiveAtOnDowngradeImmediately     ProductCollectionUpdateParamsEffectiveAtOnDowngrade = "immediately"
+	ProductCollectionUpdateParamsEffectiveAtOnDowngradeNextBillingDate ProductCollectionUpdateParamsEffectiveAtOnDowngrade = "next_billing_date"
+)
+
+func (r ProductCollectionUpdateParamsEffectiveAtOnDowngrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionUpdateParamsEffectiveAtOnDowngradeImmediately, ProductCollectionUpdateParamsEffectiveAtOnDowngradeNextBillingDate:
+		return true
+	}
+	return false
+}
+
+// Effective_at setting for upgrades: Some(Some(val)) = set, Some(None) = clear
+// (inherit), None = no change
+type ProductCollectionUpdateParamsEffectiveAtOnUpgrade string
+
+const (
+	ProductCollectionUpdateParamsEffectiveAtOnUpgradeImmediately     ProductCollectionUpdateParamsEffectiveAtOnUpgrade = "immediately"
+	ProductCollectionUpdateParamsEffectiveAtOnUpgradeNextBillingDate ProductCollectionUpdateParamsEffectiveAtOnUpgrade = "next_billing_date"
+)
+
+func (r ProductCollectionUpdateParamsEffectiveAtOnUpgrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionUpdateParamsEffectiveAtOnUpgradeImmediately, ProductCollectionUpdateParamsEffectiveAtOnUpgradeNextBillingDate:
+		return true
+	}
+	return false
+}
+
+// On payment failure behavior: Some(Some(val)) = set, Some(None) = clear
+// (inherit), None = no change
+type ProductCollectionUpdateParamsOnPaymentFailure string
+
+const (
+	ProductCollectionUpdateParamsOnPaymentFailurePreventChange ProductCollectionUpdateParamsOnPaymentFailure = "prevent_change"
+	ProductCollectionUpdateParamsOnPaymentFailureApplyChange   ProductCollectionUpdateParamsOnPaymentFailure = "apply_change"
+)
+
+func (r ProductCollectionUpdateParamsOnPaymentFailure) IsKnown() bool {
+	switch r {
+	case ProductCollectionUpdateParamsOnPaymentFailurePreventChange, ProductCollectionUpdateParamsOnPaymentFailureApplyChange:
+		return true
+	}
+	return false
+}
+
+// Proration billing mode for downgrades: Some(Some(val)) = set, Some(None) = clear
+// (inherit), None = no change
+type ProductCollectionUpdateParamsProrationBillingModeOnDowngrade string
+
+const (
+	ProductCollectionUpdateParamsProrationBillingModeOnDowngradeProratedImmediately   ProductCollectionUpdateParamsProrationBillingModeOnDowngrade = "prorated_immediately"
+	ProductCollectionUpdateParamsProrationBillingModeOnDowngradeFullImmediately       ProductCollectionUpdateParamsProrationBillingModeOnDowngrade = "full_immediately"
+	ProductCollectionUpdateParamsProrationBillingModeOnDowngradeDifferenceImmediately ProductCollectionUpdateParamsProrationBillingModeOnDowngrade = "difference_immediately"
+	ProductCollectionUpdateParamsProrationBillingModeOnDowngradeDoNotBill             ProductCollectionUpdateParamsProrationBillingModeOnDowngrade = "do_not_bill"
+)
+
+func (r ProductCollectionUpdateParamsProrationBillingModeOnDowngrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionUpdateParamsProrationBillingModeOnDowngradeProratedImmediately, ProductCollectionUpdateParamsProrationBillingModeOnDowngradeFullImmediately, ProductCollectionUpdateParamsProrationBillingModeOnDowngradeDifferenceImmediately, ProductCollectionUpdateParamsProrationBillingModeOnDowngradeDoNotBill:
+		return true
+	}
+	return false
+}
+
+// Proration billing mode for upgrades: Some(Some(val)) = set, Some(None) = clear
+// (inherit), None = no change
+type ProductCollectionUpdateParamsProrationBillingModeOnUpgrade string
+
+const (
+	ProductCollectionUpdateParamsProrationBillingModeOnUpgradeProratedImmediately   ProductCollectionUpdateParamsProrationBillingModeOnUpgrade = "prorated_immediately"
+	ProductCollectionUpdateParamsProrationBillingModeOnUpgradeFullImmediately       ProductCollectionUpdateParamsProrationBillingModeOnUpgrade = "full_immediately"
+	ProductCollectionUpdateParamsProrationBillingModeOnUpgradeDifferenceImmediately ProductCollectionUpdateParamsProrationBillingModeOnUpgrade = "difference_immediately"
+	ProductCollectionUpdateParamsProrationBillingModeOnUpgradeDoNotBill             ProductCollectionUpdateParamsProrationBillingModeOnUpgrade = "do_not_bill"
+)
+
+func (r ProductCollectionUpdateParamsProrationBillingModeOnUpgrade) IsKnown() bool {
+	switch r {
+	case ProductCollectionUpdateParamsProrationBillingModeOnUpgradeProratedImmediately, ProductCollectionUpdateParamsProrationBillingModeOnUpgradeFullImmediately, ProductCollectionUpdateParamsProrationBillingModeOnUpgradeDifferenceImmediately, ProductCollectionUpdateParamsProrationBillingModeOnUpgradeDoNotBill:
+		return true
+	}
+	return false
 }
 
 type ProductCollectionListParams struct {
