@@ -336,6 +336,10 @@ type Payment struct {
 	PaymentID string `json:"payment_id" api:"required"`
 	// List of refunds issued for this payment
 	Refunds []RefundListItem `json:"refunds" api:"required"`
+	// Retry attempt number for subscription renewal payments. `0` for the original
+	// payment, `1`+ for each scheduled off-session retry after a failed renewal.
+	// Always `0` for non-subscription payments.
+	RetryAttempt int64 `json:"retry_attempt" api:"required"`
 	// The amount that will be credited to your Dodo balance after currency conversion
 	// and processing. Especially relevant for adaptive pricing where the customer's
 	// payment currency differs from your settlement currency.
@@ -415,6 +419,7 @@ type paymentJSON struct {
 	Metadata                 apijson.Field
 	PaymentID                apijson.Field
 	Refunds                  apijson.Field
+	RetryAttempt             apijson.Field
 	SettlementAmount         apijson.Field
 	SettlementCurrency       apijson.Field
 	TotalAmount              apijson.Field

@@ -34,9 +34,14 @@ func TestProductCollectionNewWithOptionalParams(t *testing.T) {
 			GroupName: dodopayments.F("group_name"),
 			Status:    dodopayments.F(true),
 		}}),
-		Name:        dodopayments.F("name"),
-		BrandID:     dodopayments.F("brand_id"),
-		Description: dodopayments.F("description"),
+		Name:                            dodopayments.F("name"),
+		BrandID:                         dodopayments.F("brand_id"),
+		Description:                     dodopayments.F("description"),
+		EffectiveAtOnDowngrade:          dodopayments.F(dodopayments.ProductCollectionNewParamsEffectiveAtOnDowngradeImmediately),
+		EffectiveAtOnUpgrade:            dodopayments.F(dodopayments.ProductCollectionNewParamsEffectiveAtOnUpgradeImmediately),
+		OnPaymentFailure:                dodopayments.F(dodopayments.ProductCollectionNewParamsOnPaymentFailurePreventChange),
+		ProrationBillingModeOnDowngrade: dodopayments.F(dodopayments.ProductCollectionNewParamsProrationBillingModeOnDowngradeProratedImmediately),
+		ProrationBillingModeOnUpgrade:   dodopayments.F(dodopayments.ProductCollectionNewParamsProrationBillingModeOnUpgradeProratedImmediately),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -85,11 +90,16 @@ func TestProductCollectionUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.ProductCollectionUpdateParams{
-			BrandID:     dodopayments.F("brand_id"),
-			Description: dodopayments.F("description"),
-			GroupOrder:  dodopayments.F([]string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"}),
-			ImageID:     dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
-			Name:        dodopayments.F("name"),
+			BrandID:                         dodopayments.F("brand_id"),
+			Description:                     dodopayments.F("description"),
+			EffectiveAtOnDowngrade:          dodopayments.F(dodopayments.ProductCollectionUpdateParamsEffectiveAtOnDowngradeImmediately),
+			EffectiveAtOnUpgrade:            dodopayments.F(dodopayments.ProductCollectionUpdateParamsEffectiveAtOnUpgradeImmediately),
+			GroupOrder:                      dodopayments.F([]string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"}),
+			ImageID:                         dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
+			Name:                            dodopayments.F("name"),
+			OnPaymentFailure:                dodopayments.F(dodopayments.ProductCollectionUpdateParamsOnPaymentFailurePreventChange),
+			ProrationBillingModeOnDowngrade: dodopayments.F(dodopayments.ProductCollectionUpdateParamsProrationBillingModeOnDowngradeProratedImmediately),
+			ProrationBillingModeOnUpgrade:   dodopayments.F(dodopayments.ProductCollectionUpdateParamsProrationBillingModeOnUpgradeProratedImmediately),
 		},
 	)
 	if err != nil {
