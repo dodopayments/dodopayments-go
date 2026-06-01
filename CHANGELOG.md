@@ -1,18 +1,5 @@
 # Changelog
 
-## [1.101.0](https://github.com/dodopayments/dodopayments-go/compare/v1.99.1...v1.101.0) (2026-06-01)
-
-
-### Features
-
-* **api:** regenerate SDK from latest OpenAPI spec (1.101.0) ([7d4d528](https://github.com/dodopayments/dodopayments-go/commit/7d4d5280fea9f3520463fd4f0bed3b1dc49b6027))
-
-
-### Chores
-
-* re-seal custom code for 1.101.0 spec (python/go/typescript/kotlin/ruby/php) ([ed61245](https://github.com/dodopayments/dodopayments-go/commit/ed612450de9e80e622025afe6786c085108f10fc))
-* release 1.101.0 ([eade791](https://github.com/dodopayments/dodopayments-go/commit/eade791b7a059d0a03e3214dc56e5be4d83787df))
-
 ## [1.99.1](https://github.com/dodopayments/dodopayments-go/compare/v1.99.0...v1.99.1) (2026-06-01)
 
 
