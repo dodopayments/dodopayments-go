@@ -1903,9 +1903,10 @@ func (r SubscriptionUpdatePaymentMethodParams) MarshalJSON() (data []byte, err e
 }
 
 type SubscriptionUpdatePaymentMethodParamsPaymentMethod struct {
-	Type            param.Field[SubscriptionUpdatePaymentMethodParamsPaymentMethodType] `json:"type" api:"required"`
-	PaymentMethodID param.Field[string]                                                 `json:"payment_method_id"`
-	ReturnURL       param.Field[string]                                                 `json:"return_url"`
+	Type                      param.Field[SubscriptionUpdatePaymentMethodParamsPaymentMethodType] `json:"type" api:"required"`
+	AllowedPaymentMethodTypes param.Field[interface{}]                                            `json:"allowed_payment_method_types"`
+	PaymentMethodID           param.Field[string]                                                 `json:"payment_method_id"`
+	ReturnURL                 param.Field[string]                                                 `json:"return_url"`
 }
 
 func (r SubscriptionUpdatePaymentMethodParamsPaymentMethod) MarshalJSON() (data []byte, err error) {
@@ -1923,8 +1924,15 @@ type SubscriptionUpdatePaymentMethodParamsPaymentMethodUnion interface {
 }
 
 type SubscriptionUpdatePaymentMethodParamsPaymentMethodNew struct {
-	Type      param.Field[SubscriptionUpdatePaymentMethodParamsPaymentMethodNewType] `json:"type" api:"required"`
-	ReturnURL param.Field[string]                                                    `json:"return_url"`
+	Type param.Field[SubscriptionUpdatePaymentMethodParamsPaymentMethodNewType] `json:"type" api:"required"`
+	// List of payment methods allowed during checkout.
+	//
+	// Customers will **never** see payment methods that are **not** in this list.
+	// However, adding a method here **does not guarantee** customers will see it.
+	// Availability still depends on other factors (e.g., customer location, merchant
+	// settings).
+	AllowedPaymentMethodTypes param.Field[[]PaymentMethodTypes] `json:"allowed_payment_method_types"`
+	ReturnURL                 param.Field[string]               `json:"return_url"`
 }
 
 func (r SubscriptionUpdatePaymentMethodParamsPaymentMethodNew) MarshalJSON() (data []byte, err error) {
