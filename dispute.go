@@ -228,6 +228,10 @@ type DisputeListResponse struct {
 	DisputeStatus DisputeStatus `json:"dispute_status" api:"required"`
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string `json:"payment_id" api:"required"`
+	// Which processor handled the underlying payment. `stripe` / `adyen` for BYOP
+	// routes (the merchant's own Hyperswitch connector); `dodo` for everything Dodo
+	// processed itself.
+	PaymentProvider DisputeListResponsePaymentProvider `json:"payment_provider" api:"required"`
 	// Whether the dispute was resolved by Rapid Dispute Resolution
 	IsResolvedByRdr bool                    `json:"is_resolved_by_rdr" api:"nullable"`
 	JSON            disputeListResponseJSON `json:"-"`
@@ -244,6 +248,7 @@ type disputeListResponseJSON struct {
 	DisputeStage    apijson.Field
 	DisputeStatus   apijson.Field
 	PaymentID       apijson.Field
+	PaymentProvider apijson.Field
 	IsResolvedByRdr apijson.Field
 	raw             string
 	ExtraFields     map[string]apijson.Field
@@ -255,6 +260,25 @@ func (r *DisputeListResponse) UnmarshalJSON(data []byte) (err error) {
 
 func (r disputeListResponseJSON) RawJSON() string {
 	return r.raw
+}
+
+// Which processor handled the underlying payment. `stripe` / `adyen` for BYOP
+// routes (the merchant's own Hyperswitch connector); `dodo` for everything Dodo
+// processed itself.
+type DisputeListResponsePaymentProvider string
+
+const (
+	DisputeListResponsePaymentProviderStripe DisputeListResponsePaymentProvider = "stripe"
+	DisputeListResponsePaymentProviderAdyen  DisputeListResponsePaymentProvider = "adyen"
+	DisputeListResponsePaymentProviderDodo   DisputeListResponsePaymentProvider = "dodo"
+)
+
+func (r DisputeListResponsePaymentProvider) IsKnown() bool {
+	switch r {
+	case DisputeListResponsePaymentProviderStripe, DisputeListResponsePaymentProviderAdyen, DisputeListResponsePaymentProviderDodo:
+		return true
+	}
+	return false
 }
 
 type DisputeListParams struct {

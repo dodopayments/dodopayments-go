@@ -227,6 +227,10 @@ type IntegrationConfigParam struct {
 	FigmaFileID param.Field[string] `json:"figma_file_id"`
 	// Framer template identifier to grant access to.
 	FramerTemplateID param.Field[string] `json:"framer_template_id"`
+	// Fulfillment mode: `auto` (default) generates keys automatically; `manual`
+	// creates pending grants the merchant fulfills via the
+	// `POST /grants/{id}/license-key` endpoint.
+	FulfillmentMode param.Field[IntegrationConfigFulfillmentMode] `json:"fulfillment_mode"`
 	// Discord guild (server) ID.
 	GuildID param.Field[string] `json:"guild_id"`
 	// Optional human-readable delivery instructions shown to the customer alongside
@@ -371,6 +375,10 @@ type IntegrationConfigLicenseKeyConfigParam struct {
 	DurationCount param.Field[int64] `json:"duration_count"`
 	// Unit of `duration_count`.
 	DurationInterval param.Field[TimeInterval] `json:"duration_interval"`
+	// Fulfillment mode: `auto` (default) generates keys automatically; `manual`
+	// creates pending grants the merchant fulfills via the
+	// `POST /grants/{id}/license-key` endpoint.
+	FulfillmentMode param.Field[IntegrationConfigLicenseKeyConfigFulfillmentMode] `json:"fulfillment_mode"`
 }
 
 func (r IntegrationConfigLicenseKeyConfigParam) MarshalJSON() (data []byte, err error) {
@@ -378,6 +386,42 @@ func (r IntegrationConfigLicenseKeyConfigParam) MarshalJSON() (data []byte, err 
 }
 
 func (r IntegrationConfigLicenseKeyConfigParam) implementsIntegrationConfigUnionParam() {}
+
+// Fulfillment mode: `auto` (default) generates keys automatically; `manual`
+// creates pending grants the merchant fulfills via the
+// `POST /grants/{id}/license-key` endpoint.
+type IntegrationConfigLicenseKeyConfigFulfillmentMode string
+
+const (
+	IntegrationConfigLicenseKeyConfigFulfillmentModeAuto   IntegrationConfigLicenseKeyConfigFulfillmentMode = "auto"
+	IntegrationConfigLicenseKeyConfigFulfillmentModeManual IntegrationConfigLicenseKeyConfigFulfillmentMode = "manual"
+)
+
+func (r IntegrationConfigLicenseKeyConfigFulfillmentMode) IsKnown() bool {
+	switch r {
+	case IntegrationConfigLicenseKeyConfigFulfillmentModeAuto, IntegrationConfigLicenseKeyConfigFulfillmentModeManual:
+		return true
+	}
+	return false
+}
+
+// Fulfillment mode: `auto` (default) generates keys automatically; `manual`
+// creates pending grants the merchant fulfills via the
+// `POST /grants/{id}/license-key` endpoint.
+type IntegrationConfigFulfillmentMode string
+
+const (
+	IntegrationConfigFulfillmentModeAuto   IntegrationConfigFulfillmentMode = "auto"
+	IntegrationConfigFulfillmentModeManual IntegrationConfigFulfillmentMode = "manual"
+)
+
+func (r IntegrationConfigFulfillmentMode) IsKnown() bool {
+	switch r {
+	case IntegrationConfigFulfillmentModeAuto, IntegrationConfigFulfillmentModeManual:
+		return true
+	}
+	return false
+}
 
 // Integration-specific configuration on an entitlement read response.
 //
@@ -404,6 +448,12 @@ type IntegrationConfigResponse struct {
 	FigmaFileID string `json:"figma_file_id"`
 	// Framer template identifier to grant access to.
 	FramerTemplateID string `json:"framer_template_id"`
+	// Fulfillment mode:
+	//
+	// `auto` (default) generate and delivery license keys to customers automatically.
+	// `manual` creates pending grants, actual key is provided via the fulfillment API
+	// and delivered to the customer when fulfilled.
+	FulfillmentMode IntegrationConfigResponseFulfillmentMode `json:"fulfillment_mode" api:"nullable"`
 	// Discord guild (server) ID.
 	GuildID string `json:"guild_id"`
 	// Notion template identifier to grant access to.
@@ -429,6 +479,7 @@ type integrationConfigResponseJSON struct {
 	DurationInterval  apijson.Field
 	FigmaFileID       apijson.Field
 	FramerTemplateID  apijson.Field
+	FulfillmentMode   apijson.Field
 	GuildID           apijson.Field
 	NotionTemplateID  apijson.Field
 	Permission        apijson.Field
@@ -777,8 +828,14 @@ type IntegrationConfigResponseLicenseKeyConfig struct {
 	// keys.
 	DurationCount int64 `json:"duration_count" api:"nullable"`
 	// Unit of `duration_count`.
-	DurationInterval TimeInterval                                  `json:"duration_interval" api:"nullable"`
-	JSON             integrationConfigResponseLicenseKeyConfigJSON `json:"-"`
+	DurationInterval TimeInterval `json:"duration_interval" api:"nullable"`
+	// Fulfillment mode:
+	//
+	// `auto` (default) generate and delivery license keys to customers automatically.
+	// `manual` creates pending grants, actual key is provided via the fulfillment API
+	// and delivered to the customer when fulfilled.
+	FulfillmentMode IntegrationConfigResponseLicenseKeyConfigFulfillmentMode `json:"fulfillment_mode" api:"nullable"`
+	JSON            integrationConfigResponseLicenseKeyConfigJSON            `json:"-"`
 }
 
 // integrationConfigResponseLicenseKeyConfigJSON contains the JSON metadata for the
@@ -788,6 +845,7 @@ type integrationConfigResponseLicenseKeyConfigJSON struct {
 	ActivationsLimit  apijson.Field
 	DurationCount     apijson.Field
 	DurationInterval  apijson.Field
+	FulfillmentMode   apijson.Field
 	raw               string
 	ExtraFields       map[string]apijson.Field
 }
@@ -801,6 +859,46 @@ func (r integrationConfigResponseLicenseKeyConfigJSON) RawJSON() string {
 }
 
 func (r IntegrationConfigResponseLicenseKeyConfig) implementsIntegrationConfigResponse() {}
+
+// Fulfillment mode:
+//
+// `auto` (default) generate and delivery license keys to customers automatically.
+// `manual` creates pending grants, actual key is provided via the fulfillment API
+// and delivered to the customer when fulfilled.
+type IntegrationConfigResponseLicenseKeyConfigFulfillmentMode string
+
+const (
+	IntegrationConfigResponseLicenseKeyConfigFulfillmentModeAuto   IntegrationConfigResponseLicenseKeyConfigFulfillmentMode = "auto"
+	IntegrationConfigResponseLicenseKeyConfigFulfillmentModeManual IntegrationConfigResponseLicenseKeyConfigFulfillmentMode = "manual"
+)
+
+func (r IntegrationConfigResponseLicenseKeyConfigFulfillmentMode) IsKnown() bool {
+	switch r {
+	case IntegrationConfigResponseLicenseKeyConfigFulfillmentModeAuto, IntegrationConfigResponseLicenseKeyConfigFulfillmentModeManual:
+		return true
+	}
+	return false
+}
+
+// Fulfillment mode:
+//
+// `auto` (default) generate and delivery license keys to customers automatically.
+// `manual` creates pending grants, actual key is provided via the fulfillment API
+// and delivered to the customer when fulfilled.
+type IntegrationConfigResponseFulfillmentMode string
+
+const (
+	IntegrationConfigResponseFulfillmentModeAuto   IntegrationConfigResponseFulfillmentMode = "auto"
+	IntegrationConfigResponseFulfillmentModeManual IntegrationConfigResponseFulfillmentMode = "manual"
+)
+
+func (r IntegrationConfigResponseFulfillmentMode) IsKnown() bool {
+	switch r {
+	case IntegrationConfigResponseFulfillmentModeAuto, IntegrationConfigResponseFulfillmentModeManual:
+		return true
+	}
+	return false
+}
 
 type EntitlementNewParams struct {
 	// Platform-specific configuration (validated per integration_type)
