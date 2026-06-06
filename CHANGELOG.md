@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.102.1](https://github.com/dodopayments/dodopayments-go/compare/v1.102.0...v1.102.1) (2026-06-06)
+
+
+### Features
+
+* **api:** regenerate SDK from latest OpenAPI spec ([97835b2](https://github.com/dodopayments/dodopayments-go/commit/97835b290e85b7342199b8ac3cd03baeeb2c132b))
+* **api:** regenerate SDK from latest OpenAPI spec ([2f3cae4](https://github.com/dodopayments/dodopayments-go/commit/2f3cae49cd602a5bfa90a952c1cf40ab37993a62))
+
+
+### Chores
+
+* pin release to spec version ([7271bde](https://github.com/dodopayments/dodopayments-go/commit/7271bdedf9062ec0ced1bc400629568d420bf9b5))
+
 ## [1.99.1](https://github.com/dodopayments/dodopayments-go/compare/v1.99.0...v1.99.1) (2026-06-01)
 
 
