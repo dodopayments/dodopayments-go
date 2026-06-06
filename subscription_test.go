@@ -418,8 +418,9 @@ func TestSubscriptionUpdatePaymentMethodWithOptionalParams(t *testing.T) {
 		"subscription_id",
 		dodopayments.SubscriptionUpdatePaymentMethodParams{
 			PaymentMethod: dodopayments.SubscriptionUpdatePaymentMethodParamsPaymentMethodNew{
-				Type:      dodopayments.F(dodopayments.SubscriptionUpdatePaymentMethodParamsPaymentMethodNewTypeNew),
-				ReturnURL: dodopayments.F("return_url"),
+				Type:                      dodopayments.F(dodopayments.SubscriptionUpdatePaymentMethodParamsPaymentMethodNewTypeNew),
+				AllowedPaymentMethodTypes: dodopayments.F([]dodopayments.PaymentMethodTypes{dodopayments.PaymentMethodTypesACH}),
+				ReturnURL:                 dodopayments.F("return_url"),
 			},
 		},
 	)
