@@ -95,6 +95,8 @@ type EntitlementGrant struct {
 	CustomerID string `json:"customer_id" api:"required"`
 	// Identifier of the entitlement this grant was issued from.
 	EntitlementID string `json:"entitlement_id" api:"required"`
+	// The integration type of the grant's entitlement (e.g. `license_key`).
+	IntegrationType EntitlementIntegrationType `json:"integration_type" api:"required"`
 	// Arbitrary key-value metadata recorded on the grant.
 	Metadata map[string]string `json:"metadata" api:"required"`
 	// Lifecycle status of the grant.
@@ -138,6 +140,7 @@ type entitlementGrantJSON struct {
 	CreatedAt              apijson.Field
 	CustomerID             apijson.Field
 	EntitlementID          apijson.Field
+	IntegrationType        apijson.Field
 	Metadata               apijson.Field
 	Status                 apijson.Field
 	UpdatedAt              apijson.Field
@@ -217,6 +220,8 @@ func (r licenseKeyGrantJSON) RawJSON() string {
 type EntitlementGrantListParams struct {
 	// Filter by customer ID
 	CustomerID param.Field[string] `query:"customer_id"`
+	// Filter by integration type
+	IntegrationType param.Field[EntitlementGrantListParamsIntegrationType] `query:"integration_type"`
 	// Page number (default 0)
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size (default 10, max 100)
@@ -232,6 +237,28 @@ func (r EntitlementGrantListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Filter by integration type
+type EntitlementGrantListParamsIntegrationType string
+
+const (
+	EntitlementGrantListParamsIntegrationTypeDiscord      EntitlementGrantListParamsIntegrationType = "discord"
+	EntitlementGrantListParamsIntegrationTypeTelegram     EntitlementGrantListParamsIntegrationType = "telegram"
+	EntitlementGrantListParamsIntegrationTypeGitHub       EntitlementGrantListParamsIntegrationType = "github"
+	EntitlementGrantListParamsIntegrationTypeFigma        EntitlementGrantListParamsIntegrationType = "figma"
+	EntitlementGrantListParamsIntegrationTypeFramer       EntitlementGrantListParamsIntegrationType = "framer"
+	EntitlementGrantListParamsIntegrationTypeNotion       EntitlementGrantListParamsIntegrationType = "notion"
+	EntitlementGrantListParamsIntegrationTypeDigitalFiles EntitlementGrantListParamsIntegrationType = "digital_files"
+	EntitlementGrantListParamsIntegrationTypeLicenseKey   EntitlementGrantListParamsIntegrationType = "license_key"
+)
+
+func (r EntitlementGrantListParamsIntegrationType) IsKnown() bool {
+	switch r {
+	case EntitlementGrantListParamsIntegrationTypeDiscord, EntitlementGrantListParamsIntegrationTypeTelegram, EntitlementGrantListParamsIntegrationTypeGitHub, EntitlementGrantListParamsIntegrationTypeFigma, EntitlementGrantListParamsIntegrationTypeFramer, EntitlementGrantListParamsIntegrationTypeNotion, EntitlementGrantListParamsIntegrationTypeDigitalFiles, EntitlementGrantListParamsIntegrationTypeLicenseKey:
+		return true
+	}
+	return false
 }
 
 // Filter by grant status
