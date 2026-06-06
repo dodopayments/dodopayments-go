@@ -158,11 +158,12 @@ type LicenseKeySource string
 const (
 	LicenseKeySourceAuto   LicenseKeySource = "auto"
 	LicenseKeySourceImport LicenseKeySource = "import"
+	LicenseKeySourceManual LicenseKeySource = "manual"
 )
 
 func (r LicenseKeySource) IsKnown() bool {
 	switch r {
-	case LicenseKeySourceAuto, LicenseKeySourceImport:
+	case LicenseKeySourceAuto, LicenseKeySourceImport, LicenseKeySourceManual:
 		return true
 	}
 	return false
@@ -250,11 +251,12 @@ type LicenseKeyListParamsSource string
 const (
 	LicenseKeyListParamsSourceAuto   LicenseKeyListParamsSource = "auto"
 	LicenseKeyListParamsSourceImport LicenseKeyListParamsSource = "import"
+	LicenseKeyListParamsSourceManual LicenseKeyListParamsSource = "manual"
 )
 
 func (r LicenseKeyListParamsSource) IsKnown() bool {
 	switch r {
-	case LicenseKeyListParamsSourceAuto, LicenseKeyListParamsSourceImport:
+	case LicenseKeyListParamsSourceAuto, LicenseKeyListParamsSourceImport, LicenseKeyListParamsSourceManual:
 		return true
 	}
 	return false
