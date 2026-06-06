@@ -1,13 +1,5 @@
 # Changelog
 
-## [1.102.0](https://github.com/dodopayments/dodopayments-go/compare/v1.101.0...v1.102.0) (2026-06-01)
-
-
-### Features
-
-* **readme:** drop 'generated with Stainless' attribution from SDK READMEs ([838835f](https://github.com/dodopayments/dodopayments-go/commit/838835f5e10cf6e647ea184b015c4a0d18ecc2d0))
-* **readme:** drop 'generated with Stainless' attribution from SDK READMEs ([3200e32](https://github.com/dodopayments/dodopayments-go/commit/3200e3234832137163c4b1c8e90abd2f0a152b65))
-
 ## [1.99.1](https://github.com/dodopayments/dodopayments-go/compare/v1.99.0...v1.99.1) (2026-06-01)
 
 
