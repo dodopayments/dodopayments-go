@@ -334,6 +334,10 @@ type Payment struct {
 	Metadata map[string]string `json:"metadata" api:"required"`
 	// Unique identifier for the payment
 	PaymentID string `json:"payment_id" api:"required"`
+	// Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
+	// merchant's own Hyperswitch connector); `dodo` for everything Dodo processed
+	// itself.
+	PaymentProvider PaymentPaymentProvider `json:"payment_provider" api:"required"`
 	// List of refunds issued for this payment
 	Refunds []RefundListItem `json:"refunds" api:"required"`
 	// Retry attempt number for subscription renewal payments. `0` for the original
@@ -348,8 +352,9 @@ type Payment struct {
 	// balance. This may differ from the customer's payment currency in adaptive
 	// pricing scenarios.
 	SettlementCurrency Currency `json:"settlement_currency" api:"required"`
-	// Total amount charged to the customer including tax, in smallest currency unit
-	// (e.g. cents)
+	// Total amount charged to the customer including tax, in the currency's smallest
+	// unit (e.g. cents for USD, yen for JPY, fils for KWD — see the currency's decimal
+	// places)
 	TotalAmount int64 `json:"total_amount" api:"required"`
 	// Cardholder name
 	CardHolderName string `json:"card_holder_name" api:"nullable"`
@@ -399,7 +404,8 @@ type Payment struct {
 	Status IntentStatus `json:"status" api:"nullable"`
 	// Identifier of the subscription if payment is part of a subscription
 	SubscriptionID string `json:"subscription_id" api:"nullable"`
-	// Amount of tax collected in smallest currency unit (e.g. cents)
+	// Amount of tax collected in the currency's smallest unit (e.g. cents for USD, yen
+	// for JPY, fils for KWD)
 	Tax int64 `json:"tax" api:"nullable"`
 	// Timestamp when the payment was last updated
 	UpdatedAt time.Time   `json:"updated_at" api:"nullable" format:"date-time"`
@@ -418,6 +424,7 @@ type paymentJSON struct {
 	Disputes                 apijson.Field
 	Metadata                 apijson.Field
 	PaymentID                apijson.Field
+	PaymentProvider          apijson.Field
 	Refunds                  apijson.Field
 	RetryAttempt             apijson.Field
 	SettlementAmount         apijson.Field
@@ -456,6 +463,25 @@ func (r *Payment) UnmarshalJSON(data []byte) (err error) {
 
 func (r paymentJSON) RawJSON() string {
 	return r.raw
+}
+
+// Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
+// merchant's own Hyperswitch connector); `dodo` for everything Dodo processed
+// itself.
+type PaymentPaymentProvider string
+
+const (
+	PaymentPaymentProviderStripe PaymentPaymentProvider = "stripe"
+	PaymentPaymentProviderAdyen  PaymentPaymentProvider = "adyen"
+	PaymentPaymentProviderDodo   PaymentPaymentProvider = "dodo"
+)
+
+func (r PaymentPaymentProvider) IsKnown() bool {
+	switch r {
+	case PaymentPaymentProviderStripe, PaymentPaymentProviderAdyen, PaymentPaymentProviderDodo:
+		return true
+	}
+	return false
 }
 
 type PaymentProductCart struct {
@@ -672,7 +698,8 @@ type PaymentNewResponse struct {
 	Metadata map[string]string `json:"metadata" api:"required"`
 	// Unique identifier for the payment
 	PaymentID string `json:"payment_id" api:"required"`
-	// Total amount of the payment in smallest currency unit (e.g. cents)
+	// Total amount of the payment in the currency's smallest unit (cents for USD, yen
+	// for JPY, fils for KWD)
 	TotalAmount int64 `json:"total_amount" api:"required"`
 	// DEPRECATED: Use discount_ids instead. Returns the first discount's ID if
 	// present.
@@ -724,7 +751,15 @@ type PaymentListResponse struct {
 	HasLicenseKey            bool                   `json:"has_license_key" api:"required"`
 	Metadata                 map[string]string      `json:"metadata" api:"required"`
 	PaymentID                string                 `json:"payment_id" api:"required"`
-	TotalAmount              int64                  `json:"total_amount" api:"required"`
+	// Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
+	// merchant's own Hyperswitch connector); `dodo` for everything Dodo processed
+	// itself.
+	PaymentProvider PaymentListResponsePaymentProvider `json:"payment_provider" api:"required"`
+	TotalAmount     int64                              `json:"total_amount" api:"required"`
+	// The last four digits of the card
+	CardLastFour string `json:"card_last_four" api:"nullable"`
+	// Card network like VISA, MASTERCARD etc.
+	CardNetwork string `json:"card_network" api:"nullable"`
 	// The most recent dispute status for this payment. None if no disputes exist.
 	DisputeStatus DisputeStatus `json:"dispute_status" api:"nullable"`
 	// Invoice ID for this payment. Uses India-specific invoice ID if available.
@@ -752,7 +787,10 @@ type paymentListResponseJSON struct {
 	HasLicenseKey            apijson.Field
 	Metadata                 apijson.Field
 	PaymentID                apijson.Field
+	PaymentProvider          apijson.Field
 	TotalAmount              apijson.Field
+	CardLastFour             apijson.Field
+	CardNetwork              apijson.Field
 	DisputeStatus            apijson.Field
 	InvoiceID                apijson.Field
 	InvoiceURL               apijson.Field
@@ -771,6 +809,25 @@ func (r *PaymentListResponse) UnmarshalJSON(data []byte) (err error) {
 
 func (r paymentListResponseJSON) RawJSON() string {
 	return r.raw
+}
+
+// Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
+// merchant's own Hyperswitch connector); `dodo` for everything Dodo processed
+// itself.
+type PaymentListResponsePaymentProvider string
+
+const (
+	PaymentListResponsePaymentProviderStripe PaymentListResponsePaymentProvider = "stripe"
+	PaymentListResponsePaymentProviderAdyen  PaymentListResponsePaymentProvider = "adyen"
+	PaymentListResponsePaymentProviderDodo   PaymentListResponsePaymentProvider = "dodo"
+)
+
+func (r PaymentListResponsePaymentProvider) IsKnown() bool {
+	switch r {
+	case PaymentListResponsePaymentProviderStripe, PaymentListResponsePaymentProviderAdyen, PaymentListResponsePaymentProviderDodo:
+		return true
+	}
+	return false
 }
 
 type PaymentGetLineItemsResponse struct {

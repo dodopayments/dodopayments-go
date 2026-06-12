@@ -97,13 +97,14 @@ type PayoutBreakupDetailListResponse struct {
 	// The type of balance ledger event (e.g., "payment", "refund", "dispute",
 	// "payment_fees").
 	EventType string `json:"event_type" api:"required"`
-	// Original amount in the original currency (in smallest currency unit, e.g.,
-	// cents).
+	// Original amount in the original currency, in that currency's smallest unit
+	// (cents for USD, yen for JPY, fils for KWD).
 	OriginalAmount int64 `json:"original_amount" api:"required"`
 	// Original currency as ISO 4217 code (e.g., "USD", "EUR").
 	OriginalCurrency string `json:"original_currency" api:"required"`
-	// Amount in the payout's currency (in smallest currency unit). Uses cumulative
-	// rounding to ensure sum matches payout total exactly.
+	// Amount in the payout's currency, in that currency's smallest unit (cents for
+	// USD, yen for JPY, fils for KWD). Uses cumulative rounding to ensure sum matches
+	// payout total exactly.
 	PayoutCurrencyAmount int64 `json:"payout_currency_amount" api:"required"`
 	// USD equivalent of the original amount (in cents).
 	UsdEquivalentAmount int64 `json:"usd_equivalent_amount" api:"required"`

@@ -95,6 +95,8 @@ func (r *LicenseKeyService) ListAutoPaging(ctx context.Context, query LicenseKey
 type LicenseKey struct {
 	// The unique identifier of the license key.
 	ID string `json:"id" api:"required"`
+	// Brand id this license key belongs to
+	BrandID string `json:"brand_id" api:"required"`
 	// The unique identifier of the business associated with the license key.
 	BusinessID string `json:"business_id" api:"required"`
 	// The timestamp indicating when the license key was created, in UTC.
@@ -127,6 +129,7 @@ type LicenseKey struct {
 // licenseKeyJSON contains the JSON metadata for the struct [LicenseKey]
 type licenseKeyJSON struct {
 	ID               apijson.Field
+	BrandID          apijson.Field
 	BusinessID       apijson.Field
 	CreatedAt        apijson.Field
 	CustomerID       apijson.Field
@@ -158,11 +161,12 @@ type LicenseKeySource string
 const (
 	LicenseKeySourceAuto   LicenseKeySource = "auto"
 	LicenseKeySourceImport LicenseKeySource = "import"
+	LicenseKeySourceManual LicenseKeySource = "manual"
 )
 
 func (r LicenseKeySource) IsKnown() bool {
 	switch r {
-	case LicenseKeySourceAuto, LicenseKeySourceImport:
+	case LicenseKeySourceAuto, LicenseKeySourceImport, LicenseKeySourceManual:
 		return true
 	}
 	return false
@@ -250,11 +254,12 @@ type LicenseKeyListParamsSource string
 const (
 	LicenseKeyListParamsSourceAuto   LicenseKeyListParamsSource = "auto"
 	LicenseKeyListParamsSourceImport LicenseKeyListParamsSource = "import"
+	LicenseKeyListParamsSourceManual LicenseKeyListParamsSource = "manual"
 )
 
 func (r LicenseKeyListParamsSource) IsKnown() bool {
 	switch r {
-	case LicenseKeyListParamsSourceAuto, LicenseKeyListParamsSourceImport:
+	case LicenseKeyListParamsSourceAuto, LicenseKeyListParamsSourceImport, LicenseKeyListParamsSourceManual:
 		return true
 	}
 	return false
