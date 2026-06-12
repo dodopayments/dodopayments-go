@@ -95,6 +95,8 @@ func (r *LicenseKeyService) ListAutoPaging(ctx context.Context, query LicenseKey
 type LicenseKey struct {
 	// The unique identifier of the license key.
 	ID string `json:"id" api:"required"`
+	// Brand id this license key belongs to
+	BrandID string `json:"brand_id" api:"required"`
 	// The unique identifier of the business associated with the license key.
 	BusinessID string `json:"business_id" api:"required"`
 	// The timestamp indicating when the license key was created, in UTC.
@@ -127,6 +129,7 @@ type LicenseKey struct {
 // licenseKeyJSON contains the JSON metadata for the struct [LicenseKey]
 type licenseKeyJSON struct {
 	ID               apijson.Field
+	BrandID          apijson.Field
 	BusinessID       apijson.Field
 	CreatedAt        apijson.Field
 	CustomerID       apijson.Field

@@ -29,11 +29,10 @@ func TestEntitlementGrantListWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"id",
 		dodopayments.EntitlementGrantListParams{
-			CustomerID:      dodopayments.F("customer_id"),
-			IntegrationType: dodopayments.F(dodopayments.EntitlementGrantListParamsIntegrationTypeDiscord),
-			PageNumber:      dodopayments.F(int64(0)),
-			PageSize:        dodopayments.F(int64(0)),
-			Status:          dodopayments.F(dodopayments.EntitlementGrantListParamsStatusPending),
+			CustomerID: dodopayments.F("customer_id"),
+			PageNumber: dodopayments.F(int64(0)),
+			PageSize:   dodopayments.F(int64(0)),
+			Status:     dodopayments.F(dodopayments.EntitlementGrantListParamsStatusPending),
 		},
 	)
 	if err != nil {

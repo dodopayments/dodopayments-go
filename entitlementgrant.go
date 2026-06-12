@@ -87,6 +87,8 @@ func (r *EntitlementGrantService) Revoke(ctx context.Context, id string, grantID
 type EntitlementGrant struct {
 	// Unique identifier of the grant.
 	ID string `json:"id" api:"required"`
+	// Brand id this grant belongs to.
+	BrandID string `json:"brand_id" api:"required"`
 	// Identifier of the business that owns the grant.
 	BusinessID string `json:"business_id" api:"required"`
 	// Timestamp when the grant was created.
@@ -136,6 +138,7 @@ type EntitlementGrant struct {
 // [EntitlementGrant]
 type entitlementGrantJSON struct {
 	ID                     apijson.Field
+	BrandID                apijson.Field
 	BusinessID             apijson.Field
 	CreatedAt              apijson.Field
 	CustomerID             apijson.Field
@@ -220,8 +223,6 @@ func (r licenseKeyGrantJSON) RawJSON() string {
 type EntitlementGrantListParams struct {
 	// Filter by customer ID
 	CustomerID param.Field[string] `query:"customer_id"`
-	// Filter by integration type
-	IntegrationType param.Field[EntitlementGrantListParamsIntegrationType] `query:"integration_type"`
 	// Page number (default 0)
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size (default 10, max 100)
@@ -237,28 +238,6 @@ func (r EntitlementGrantListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
-}
-
-// Filter by integration type
-type EntitlementGrantListParamsIntegrationType string
-
-const (
-	EntitlementGrantListParamsIntegrationTypeDiscord      EntitlementGrantListParamsIntegrationType = "discord"
-	EntitlementGrantListParamsIntegrationTypeTelegram     EntitlementGrantListParamsIntegrationType = "telegram"
-	EntitlementGrantListParamsIntegrationTypeGitHub       EntitlementGrantListParamsIntegrationType = "github"
-	EntitlementGrantListParamsIntegrationTypeFigma        EntitlementGrantListParamsIntegrationType = "figma"
-	EntitlementGrantListParamsIntegrationTypeFramer       EntitlementGrantListParamsIntegrationType = "framer"
-	EntitlementGrantListParamsIntegrationTypeNotion       EntitlementGrantListParamsIntegrationType = "notion"
-	EntitlementGrantListParamsIntegrationTypeDigitalFiles EntitlementGrantListParamsIntegrationType = "digital_files"
-	EntitlementGrantListParamsIntegrationTypeLicenseKey   EntitlementGrantListParamsIntegrationType = "license_key"
-)
-
-func (r EntitlementGrantListParamsIntegrationType) IsKnown() bool {
-	switch r {
-	case EntitlementGrantListParamsIntegrationTypeDiscord, EntitlementGrantListParamsIntegrationTypeTelegram, EntitlementGrantListParamsIntegrationTypeGitHub, EntitlementGrantListParamsIntegrationTypeFigma, EntitlementGrantListParamsIntegrationTypeFramer, EntitlementGrantListParamsIntegrationTypeNotion, EntitlementGrantListParamsIntegrationTypeDigitalFiles, EntitlementGrantListParamsIntegrationTypeLicenseKey:
-		return true
-	}
-	return false
 }
 
 // Filter by grant status

@@ -159,6 +159,8 @@ type GetDispute struct {
 	// The amount involved in the dispute, represented as a string to accommodate
 	// precision.
 	Amount string `json:"amount" api:"required"`
+	// Brand id this dispute belongs to
+	BrandID string `json:"brand_id" api:"required"`
 	// The unique identifier of the business involved in the dispute.
 	BusinessID string `json:"business_id" api:"required"`
 	// The timestamp of when the dispute was created, in UTC.
@@ -175,6 +177,10 @@ type GetDispute struct {
 	DisputeStatus DisputeStatus `json:"dispute_status" api:"required"`
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string `json:"payment_id" api:"required"`
+	// Which processor handled the underlying payment. `stripe` / `adyen` for BYOP
+	// routes (the merchant's own Hyperswitch connector); `dodo` for everything Dodo
+	// processed itself.
+	PaymentProvider GetDisputePaymentProvider `json:"payment_provider" api:"required"`
 	// Whether the dispute was resolved by Rapid Dispute Resolution
 	IsResolvedByRdr bool `json:"is_resolved_by_rdr" api:"nullable"`
 	// Reason for the dispute
@@ -187,6 +193,7 @@ type GetDispute struct {
 // getDisputeJSON contains the JSON metadata for the struct [GetDispute]
 type getDisputeJSON struct {
 	Amount          apijson.Field
+	BrandID         apijson.Field
 	BusinessID      apijson.Field
 	CreatedAt       apijson.Field
 	Currency        apijson.Field
@@ -195,6 +202,7 @@ type getDisputeJSON struct {
 	DisputeStage    apijson.Field
 	DisputeStatus   apijson.Field
 	PaymentID       apijson.Field
+	PaymentProvider apijson.Field
 	IsResolvedByRdr apijson.Field
 	Reason          apijson.Field
 	Remarks         apijson.Field
@@ -208,6 +216,25 @@ func (r *GetDispute) UnmarshalJSON(data []byte) (err error) {
 
 func (r getDisputeJSON) RawJSON() string {
 	return r.raw
+}
+
+// Which processor handled the underlying payment. `stripe` / `adyen` for BYOP
+// routes (the merchant's own Hyperswitch connector); `dodo` for everything Dodo
+// processed itself.
+type GetDisputePaymentProvider string
+
+const (
+	GetDisputePaymentProviderStripe GetDisputePaymentProvider = "stripe"
+	GetDisputePaymentProviderAdyen  GetDisputePaymentProvider = "adyen"
+	GetDisputePaymentProviderDodo   GetDisputePaymentProvider = "dodo"
+)
+
+func (r GetDisputePaymentProvider) IsKnown() bool {
+	switch r {
+	case GetDisputePaymentProviderStripe, GetDisputePaymentProviderAdyen, GetDisputePaymentProviderDodo:
+		return true
+	}
+	return false
 }
 
 type DisputeListResponse struct {
