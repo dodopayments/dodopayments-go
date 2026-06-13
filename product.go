@@ -1139,6 +1139,9 @@ type ProductListResponse struct {
 	Price int64 `json:"price" api:"nullable"`
 	// Details of the price
 	PriceDetail Price `json:"price_detail" api:"nullable"`
+	// Pricing mode for localized pricing. NULL means base-only (no localized rules
+	// apply).
+	PricingMode ProductListResponsePricingMode `json:"pricing_mode" api:"nullable"`
 	// Indicates if the price is tax inclusive
 	TaxInclusive bool                    `json:"tax_inclusive" api:"nullable"`
 	JSON         productListResponseJSON `json:"-"`
@@ -1161,6 +1164,7 @@ type productListResponseJSON struct {
 	Name         apijson.Field
 	Price        apijson.Field
 	PriceDetail  apijson.Field
+	PricingMode  apijson.Field
 	TaxInclusive apijson.Field
 	raw          string
 	ExtraFields  map[string]apijson.Field
@@ -1172,6 +1176,23 @@ func (r *ProductListResponse) UnmarshalJSON(data []byte) (err error) {
 
 func (r productListResponseJSON) RawJSON() string {
 	return r.raw
+}
+
+// Pricing mode for localized pricing. NULL means base-only (no localized rules
+// apply).
+type ProductListResponsePricingMode string
+
+const (
+	ProductListResponsePricingModeByCurrency ProductListResponsePricingMode = "by_currency"
+	ProductListResponsePricingModeByCountry  ProductListResponsePricingMode = "by_country"
+)
+
+func (r ProductListResponsePricingMode) IsKnown() bool {
+	switch r {
+	case ProductListResponsePricingModeByCurrency, ProductListResponsePricingModeByCountry:
+		return true
+	}
+	return false
 }
 
 type ProductUpdateFilesResponse struct {

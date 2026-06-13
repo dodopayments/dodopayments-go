@@ -335,8 +335,7 @@ type Payment struct {
 	// Unique identifier for the payment
 	PaymentID string `json:"payment_id" api:"required"`
 	// Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
-	// merchant's own Hyperswitch connector); `dodo` for everything Dodo processed
-	// itself.
+	// merchant's own payment connector); `dodo` for everything Dodo processed itself.
 	PaymentProvider PaymentPaymentProvider `json:"payment_provider" api:"required"`
 	// List of refunds issued for this payment
 	Refunds []RefundListItem `json:"refunds" api:"required"`
@@ -466,8 +465,7 @@ func (r paymentJSON) RawJSON() string {
 }
 
 // Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
-// merchant's own Hyperswitch connector); `dodo` for everything Dodo processed
-// itself.
+// merchant's own payment connector); `dodo` for everything Dodo processed itself.
 type PaymentPaymentProvider string
 
 const (
@@ -507,7 +505,7 @@ func (r paymentProductCartJSON) RawJSON() string {
 	return r.raw
 }
 
-// All supported payment method types (from Hyperswitch).
+// All supported payment method types.
 //
 // Used for disabled-payment-methods filtering and validation.
 type PaymentMethodTypes string
@@ -752,8 +750,7 @@ type PaymentListResponse struct {
 	Metadata                 map[string]string      `json:"metadata" api:"required"`
 	PaymentID                string                 `json:"payment_id" api:"required"`
 	// Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
-	// merchant's own Hyperswitch connector); `dodo` for everything Dodo processed
-	// itself.
+	// merchant's own payment connector); `dodo` for everything Dodo processed itself.
 	PaymentProvider PaymentListResponsePaymentProvider `json:"payment_provider" api:"required"`
 	TotalAmount     int64                              `json:"total_amount" api:"required"`
 	// The last four digits of the card
@@ -812,8 +809,7 @@ func (r paymentListResponseJSON) RawJSON() string {
 }
 
 // Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
-// merchant's own Hyperswitch connector); `dodo` for everything Dodo processed
-// itself.
+// merchant's own payment connector); `dodo` for everything Dodo processed itself.
 type PaymentListResponsePaymentProvider string
 
 const (
