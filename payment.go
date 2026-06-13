@@ -352,8 +352,9 @@ type Payment struct {
 	// balance. This may differ from the customer's payment currency in adaptive
 	// pricing scenarios.
 	SettlementCurrency Currency `json:"settlement_currency" api:"required"`
-	// Total amount charged to the customer including tax, in smallest currency unit
-	// (e.g. cents)
+	// Total amount charged to the customer including tax, in the currency's smallest
+	// unit (e.g. cents for USD, yen for JPY, fils for KWD — see the currency's decimal
+	// places)
 	TotalAmount int64 `json:"total_amount" api:"required"`
 	// Cardholder name
 	CardHolderName string `json:"card_holder_name" api:"nullable"`
@@ -403,7 +404,8 @@ type Payment struct {
 	Status IntentStatus `json:"status" api:"nullable"`
 	// Identifier of the subscription if payment is part of a subscription
 	SubscriptionID string `json:"subscription_id" api:"nullable"`
-	// Amount of tax collected in smallest currency unit (e.g. cents)
+	// Amount of tax collected in the currency's smallest unit (e.g. cents for USD, yen
+	// for JPY, fils for KWD)
 	Tax int64 `json:"tax" api:"nullable"`
 	// Timestamp when the payment was last updated
 	UpdatedAt time.Time   `json:"updated_at" api:"nullable" format:"date-time"`
@@ -696,7 +698,8 @@ type PaymentNewResponse struct {
 	Metadata map[string]string `json:"metadata" api:"required"`
 	// Unique identifier for the payment
 	PaymentID string `json:"payment_id" api:"required"`
-	// Total amount of the payment in smallest currency unit (e.g. cents)
+	// Total amount of the payment in the currency's smallest unit (cents for USD, yen
+	// for JPY, fils for KWD)
 	TotalAmount int64 `json:"total_amount" api:"required"`
 	// DEPRECATED: Use discount_ids instead. Returns the first discount's ID if
 	// present.

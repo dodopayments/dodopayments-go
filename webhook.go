@@ -267,13 +267,15 @@ func (r AbandonedCheckoutDetectedWebhookEvent) implementsUnwrapWebhookEvent() {}
 // Webhook payload for abandoned_checkout.detected and abandoned_checkout.recovered
 // events
 type AbandonedCheckoutDetectedWebhookEventData struct {
-	AbandonedAt        time.Time                                                  `json:"abandoned_at" api:"required" format:"date-time"`
-	AbandonmentReason  AbandonedCheckoutDetectedWebhookEventDataAbandonmentReason `json:"abandonment_reason" api:"required"`
-	CustomerID         string                                                     `json:"customer_id" api:"required"`
-	PaymentID          string                                                     `json:"payment_id" api:"required"`
-	Status             AbandonedCheckoutDetectedWebhookEventDataStatus            `json:"status" api:"required"`
-	RecoveredPaymentID string                                                     `json:"recovered_payment_id" api:"nullable"`
-	JSON               abandonedCheckoutDetectedWebhookEventDataJSON              `json:"-"`
+	AbandonedAt       time.Time                                                  `json:"abandoned_at" api:"required" format:"date-time"`
+	AbandonmentReason AbandonedCheckoutDetectedWebhookEventDataAbandonmentReason `json:"abandonment_reason" api:"required"`
+	// Brand id this abandoned checkout belongs to
+	BrandID            string                                          `json:"brand_id" api:"required"`
+	CustomerID         string                                          `json:"customer_id" api:"required"`
+	PaymentID          string                                          `json:"payment_id" api:"required"`
+	Status             AbandonedCheckoutDetectedWebhookEventDataStatus `json:"status" api:"required"`
+	RecoveredPaymentID string                                          `json:"recovered_payment_id" api:"nullable"`
+	JSON               abandonedCheckoutDetectedWebhookEventDataJSON   `json:"-"`
 }
 
 // abandonedCheckoutDetectedWebhookEventDataJSON contains the JSON metadata for the
@@ -281,6 +283,7 @@ type AbandonedCheckoutDetectedWebhookEventData struct {
 type abandonedCheckoutDetectedWebhookEventDataJSON struct {
 	AbandonedAt        apijson.Field
 	AbandonmentReason  apijson.Field
+	BrandID            apijson.Field
 	CustomerID         apijson.Field
 	PaymentID          apijson.Field
 	Status             apijson.Field
@@ -384,13 +387,15 @@ func (r AbandonedCheckoutRecoveredWebhookEvent) implementsUnwrapWebhookEvent() {
 // Webhook payload for abandoned_checkout.detected and abandoned_checkout.recovered
 // events
 type AbandonedCheckoutRecoveredWebhookEventData struct {
-	AbandonedAt        time.Time                                                   `json:"abandoned_at" api:"required" format:"date-time"`
-	AbandonmentReason  AbandonedCheckoutRecoveredWebhookEventDataAbandonmentReason `json:"abandonment_reason" api:"required"`
-	CustomerID         string                                                      `json:"customer_id" api:"required"`
-	PaymentID          string                                                      `json:"payment_id" api:"required"`
-	Status             AbandonedCheckoutRecoveredWebhookEventDataStatus            `json:"status" api:"required"`
-	RecoveredPaymentID string                                                      `json:"recovered_payment_id" api:"nullable"`
-	JSON               abandonedCheckoutRecoveredWebhookEventDataJSON              `json:"-"`
+	AbandonedAt       time.Time                                                   `json:"abandoned_at" api:"required" format:"date-time"`
+	AbandonmentReason AbandonedCheckoutRecoveredWebhookEventDataAbandonmentReason `json:"abandonment_reason" api:"required"`
+	// Brand id this abandoned checkout belongs to
+	BrandID            string                                           `json:"brand_id" api:"required"`
+	CustomerID         string                                           `json:"customer_id" api:"required"`
+	PaymentID          string                                           `json:"payment_id" api:"required"`
+	Status             AbandonedCheckoutRecoveredWebhookEventDataStatus `json:"status" api:"required"`
+	RecoveredPaymentID string                                           `json:"recovered_payment_id" api:"nullable"`
+	JSON               abandonedCheckoutRecoveredWebhookEventDataJSON   `json:"-"`
 }
 
 // abandonedCheckoutRecoveredWebhookEventDataJSON contains the JSON metadata for
@@ -398,6 +403,7 @@ type AbandonedCheckoutRecoveredWebhookEventData struct {
 type abandonedCheckoutRecoveredWebhookEventDataJSON struct {
 	AbandonedAt        apijson.Field
 	AbandonmentReason  apijson.Field
+	BrandID            apijson.Field
 	CustomerID         apijson.Field
 	PaymentID          apijson.Field
 	Status             apijson.Field
@@ -549,7 +555,9 @@ func (r CreditBalanceLowWebhookEvent) implementsUnwrapWebhookEvent() {}
 
 // Webhook payload for credit.balance_low event
 type CreditBalanceLowWebhookEventData struct {
-	AvailableBalance          string                               `json:"available_balance" api:"required"`
+	AvailableBalance string `json:"available_balance" api:"required"`
+	// Brand id this credit entitlement belongs to
+	BrandID                   string                               `json:"brand_id" api:"required"`
 	CreditEntitlementID       string                               `json:"credit_entitlement_id" api:"required"`
 	CreditEntitlementName     string                               `json:"credit_entitlement_name" api:"required"`
 	CustomerID                string                               `json:"customer_id" api:"required"`
@@ -564,6 +572,7 @@ type CreditBalanceLowWebhookEventData struct {
 // [CreditBalanceLowWebhookEventData]
 type creditBalanceLowWebhookEventDataJSON struct {
 	AvailableBalance          apijson.Field
+	BrandID                   apijson.Field
 	CreditEntitlementID       apijson.Field
 	CreditEntitlementName     apijson.Field
 	CustomerID                apijson.Field
@@ -1328,6 +1337,8 @@ func (r DunningRecoveredWebhookEvent) implementsUnwrapWebhookEvent() {}
 
 // Webhook payload for dunning.started and dunning.recovered events
 type DunningRecoveredWebhookEventData struct {
+	// Brand id this dunning attempt belongs to
+	BrandID        string                                       `json:"brand_id" api:"required"`
 	CreatedAt      time.Time                                    `json:"created_at" api:"required" format:"date-time"`
 	CustomerID     string                                       `json:"customer_id" api:"required"`
 	Status         DunningRecoveredWebhookEventDataStatus       `json:"status" api:"required"`
@@ -1340,6 +1351,7 @@ type DunningRecoveredWebhookEventData struct {
 // dunningRecoveredWebhookEventDataJSON contains the JSON metadata for the struct
 // [DunningRecoveredWebhookEventData]
 type dunningRecoveredWebhookEventDataJSON struct {
+	BrandID        apijson.Field
 	CreatedAt      apijson.Field
 	CustomerID     apijson.Field
 	Status         apijson.Field
@@ -1441,6 +1453,8 @@ func (r DunningStartedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
 // Webhook payload for dunning.started and dunning.recovered events
 type DunningStartedWebhookEventData struct {
+	// Brand id this dunning attempt belongs to
+	BrandID        string                                     `json:"brand_id" api:"required"`
 	CreatedAt      time.Time                                  `json:"created_at" api:"required" format:"date-time"`
 	CustomerID     string                                     `json:"customer_id" api:"required"`
 	Status         DunningStartedWebhookEventDataStatus       `json:"status" api:"required"`
@@ -1453,6 +1467,7 @@ type DunningStartedWebhookEventData struct {
 // dunningStartedWebhookEventDataJSON contains the JSON metadata for the struct
 // [DunningStartedWebhookEventData]
 type dunningStartedWebhookEventDataJSON struct {
+	BrandID        apijson.Field
 	CreatedAt      apijson.Field
 	CustomerID     apijson.Field
 	Status         apijson.Field

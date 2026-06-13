@@ -78,6 +78,8 @@ func (r *RefundService) ListAutoPaging(ctx context.Context, query RefundListPara
 }
 
 type Refund struct {
+	// Brand id this refund belongs to
+	BrandID string `json:"brand_id" api:"required"`
 	// The unique identifier of the business issuing the refund.
 	BusinessID string `json:"business_id" api:"required"`
 	// The timestamp of when the refund was created in UTC.
@@ -105,6 +107,7 @@ type Refund struct {
 
 // refundJSON contains the JSON metadata for the struct [Refund]
 type refundJSON struct {
+	BrandID     apijson.Field
 	BusinessID  apijson.Field
 	CreatedAt   apijson.Field
 	Customer    apijson.Field

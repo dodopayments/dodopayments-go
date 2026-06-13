@@ -333,10 +333,12 @@ func (r *CreditEntitlementBalanceService) ListLedgerAutoPaging(ctx context.Conte
 
 // Response for a ledger entry
 type CreditLedgerEntry struct {
-	ID                  string                           `json:"id" api:"required"`
-	Amount              string                           `json:"amount" api:"required"`
-	BalanceAfter        string                           `json:"balance_after" api:"required"`
-	BalanceBefore       string                           `json:"balance_before" api:"required"`
+	ID            string `json:"id" api:"required"`
+	Amount        string `json:"amount" api:"required"`
+	BalanceAfter  string `json:"balance_after" api:"required"`
+	BalanceBefore string `json:"balance_before" api:"required"`
+	// Brand id this credit ledger entry belongs to
+	BrandID             string                           `json:"brand_id" api:"required"`
 	BusinessID          string                           `json:"business_id" api:"required"`
 	CreatedAt           time.Time                        `json:"created_at" api:"required" format:"date-time"`
 	CreditEntitlementID string                           `json:"credit_entitlement_id" api:"required"`
@@ -359,6 +361,7 @@ type creditLedgerEntryJSON struct {
 	Amount              apijson.Field
 	BalanceAfter        apijson.Field
 	BalanceBefore       apijson.Field
+	BrandID             apijson.Field
 	BusinessID          apijson.Field
 	CreatedAt           apijson.Field
 	CreditEntitlementID apijson.Field

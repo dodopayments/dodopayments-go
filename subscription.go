@@ -553,6 +553,8 @@ type Subscription struct {
 	Addons []AddonCartResponseItem `json:"addons" api:"required"`
 	// Billing address details for payments
 	Billing BillingAddress `json:"billing" api:"required"`
+	// Brand id this subscription belongs to
+	BrandID string `json:"brand_id" api:"required"`
 	// Indicates if the subscription will cancel at the next billing date
 	CancelAtNextBillingDate bool `json:"cancel_at_next_billing_date" api:"required"`
 	// Timestamp when the subscription was created
@@ -584,8 +586,8 @@ type Subscription struct {
 	ProductID string `json:"product_id" api:"required"`
 	// Number of units/items included in the subscription
 	Quantity int64 `json:"quantity" api:"required"`
-	// Amount charged before tax for each recurring payment in smallest currency unit
-	// (e.g. cents)
+	// Amount charged before tax for each recurring payment in the currency's smallest
+	// unit (cents for USD, yen for JPY, fils for KWD)
 	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount" api:"required"`
 	// Current status of the subscription
 	Status SubscriptionStatus `json:"status" api:"required"`
@@ -631,6 +633,7 @@ type Subscription struct {
 type subscriptionJSON struct {
 	Addons                     apijson.Field
 	Billing                    apijson.Field
+	BrandID                    apijson.Field
 	CancelAtNextBillingDate    apijson.Field
 	CreatedAt                  apijson.Field
 	CreditEntitlementCart      apijson.Field
@@ -931,8 +934,8 @@ type SubscriptionListResponse struct {
 	ProductID string `json:"product_id" api:"required"`
 	// Number of units/items included in the subscription
 	Quantity int64 `json:"quantity" api:"required"`
-	// Amount charged before tax for each recurring payment in smallest currency unit
-	// (e.g. cents)
+	// Amount charged before tax for each recurring payment in the currency's smallest
+	// unit (cents for USD, yen for JPY, fils for KWD)
 	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount" api:"required"`
 	// Current status of the subscription
 	Status SubscriptionStatus `json:"status" api:"required"`
@@ -1418,7 +1421,12 @@ func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType) IsKno
 }
 
 type SubscriptionPreviewChangePlanResponseImmediateChargeSummary struct {
-	Currency           Currency                                                        `json:"currency" api:"required"`
+	Currency Currency `json:"currency" api:"required"`
+	// Net credit movement in the smallest currency unit (e.g. cents). **Negative** –
+	// credits were deducted from the customer's balance to offset the charge (typical
+	// on upgrades). **Positive** – credits were added to the customer's balance,
+	// either from a downgrade proration refund or from topping-up the wallet to meet a
+	// gateway minimum-charge threshold. **Zero** – no credit movement occurred.
 	CustomerCredits    int64                                                           `json:"customer_credits" api:"required"`
 	SettlementAmount   int64                                                           `json:"settlement_amount" api:"required"`
 	SettlementCurrency Currency                                                        `json:"settlement_currency" api:"required"`
@@ -1567,7 +1575,8 @@ type SubscriptionGetUsageHistoryResponseMeter struct {
 	Name string `json:"name" api:"required"`
 	// Price per unit in string format for precision
 	PricePerUnit string `json:"price_per_unit" api:"required"`
-	// Total price charged for this meter in smallest currency unit (cents)
+	// Total price charged for this meter in the currency's smallest unit (cents for
+	// USD, yen for JPY, fils for KWD)
 	TotalPrice int64                                        `json:"total_price" api:"required"`
 	JSON       subscriptionGetUsageHistoryResponseMeterJSON `json:"-"`
 }

@@ -183,7 +183,7 @@ func TestWebhookUnwrap(t *testing.T) {
 		option.WithWebhookKey("whsec_c2VjcmV0Cg=="),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	payload := []byte(`{"business_id":"business_id","data":{"abandoned_at":"2019-12-27T18:11:19.117Z","abandonment_reason":"payment_failed","customer_id":"customer_id","payment_id":"payment_id","status":"abandoned","recovered_payment_id":"recovered_payment_id"},"timestamp":"2019-12-27T18:11:19.117Z","type":"abandoned_checkout.detected"}`)
+	payload := []byte(`{"business_id":"business_id","data":{"abandoned_at":"2019-12-27T18:11:19.117Z","abandonment_reason":"payment_failed","brand_id":"brand_id","customer_id":"customer_id","payment_id":"payment_id","status":"abandoned","recovered_payment_id":"recovered_payment_id"},"timestamp":"2019-12-27T18:11:19.117Z","type":"abandoned_checkout.detected"}`)
 	wh, err := standardwebhooks.NewWebhook("whsec_c2VjcmV0Cg==")
 	if err != nil {
 		t.Fatal("Failed to sign test webhook message", err)
