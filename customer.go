@@ -361,7 +361,7 @@ type CustomerGetPaymentMethodsResponseItem struct {
 	PaymentMethodID string                                              `json:"payment_method_id" api:"required"`
 	Card            CustomerGetPaymentMethodsResponseItemsCard          `json:"card" api:"nullable"`
 	LastUsedAt      time.Time                                           `json:"last_used_at" api:"nullable" format:"date-time"`
-	// All supported payment method types (from Hyperswitch).
+	// All supported payment method types.
 	//
 	// Used for disabled-payment-methods filtering and validation.
 	PaymentMethodType PaymentMethodTypes                        `json:"payment_method_type" api:"nullable"`
