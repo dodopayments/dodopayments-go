@@ -178,7 +178,7 @@ type GetDispute struct {
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string `json:"payment_id" api:"required"`
 	// Which processor handled the underlying payment. `stripe` / `adyen` for BYOP
-	// routes (the merchant's own Hyperswitch connector); `dodo` for everything Dodo
+	// routes (the merchant's own payment connector); `dodo` for everything Dodo
 	// processed itself.
 	PaymentProvider GetDisputePaymentProvider `json:"payment_provider" api:"required"`
 	// Whether the dispute was resolved by Rapid Dispute Resolution
@@ -219,7 +219,7 @@ func (r getDisputeJSON) RawJSON() string {
 }
 
 // Which processor handled the underlying payment. `stripe` / `adyen` for BYOP
-// routes (the merchant's own Hyperswitch connector); `dodo` for everything Dodo
+// routes (the merchant's own payment connector); `dodo` for everything Dodo
 // processed itself.
 type GetDisputePaymentProvider string
 
@@ -256,7 +256,7 @@ type DisputeListResponse struct {
 	// The unique identifier of the payment associated with the dispute.
 	PaymentID string `json:"payment_id" api:"required"`
 	// Which processor handled the underlying payment. `stripe` / `adyen` for BYOP
-	// routes (the merchant's own Hyperswitch connector); `dodo` for everything Dodo
+	// routes (the merchant's own payment connector); `dodo` for everything Dodo
 	// processed itself.
 	PaymentProvider DisputeListResponsePaymentProvider `json:"payment_provider" api:"required"`
 	// Whether the dispute was resolved by Rapid Dispute Resolution
@@ -290,7 +290,7 @@ func (r disputeListResponseJSON) RawJSON() string {
 }
 
 // Which processor handled the underlying payment. `stripe` / `adyen` for BYOP
-// routes (the merchant's own Hyperswitch connector); `dodo` for everything Dodo
+// routes (the merchant's own payment connector); `dodo` for everything Dodo
 // processed itself.
 type DisputeListResponsePaymentProvider string
 
