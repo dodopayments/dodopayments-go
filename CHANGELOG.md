@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.104.0](https://github.com/dodopayments/dodopayments-go/compare/v1.103.0...v1.104.0) (2026-06-13)
+
+
+### Features
+
+* **spec:** update OpenAPI to 1.105.0 — localized prices ([b2cd51e](https://github.com/dodopayments/dodopayments-go/commit/b2cd51e8bf653be79e9a12e743d8627de1e5cadc))
+* **spec:** update OpenAPI to 1.105.0 — localized prices ([c83c353](https://github.com/dodopayments/dodopayments-go/commit/c83c3537c9726f9681b0066007f57047d0117235))
+
 ## [1.103.0](https://github.com/dodopayments/dodopayments-go/compare/v1.102.1...v1.103.0) (2026-06-13)
 
 
