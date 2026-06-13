@@ -541,6 +541,11 @@ type CheckoutSessionPreviewResponse struct {
 	Currency Currency `json:"currency" api:"required"`
 	// Breakup of the current payment
 	CurrentBreakup CheckoutSessionPreviewResponseCurrentBreakup `json:"current_breakup" api:"required"`
+	// Whether the payment will be routed through the merchant's own processor (BYOP).
+	// True when the session's business has a BYOP route configured for the billing
+	// country; in that case the quoted amounts exclude Dodo-computed tax because the
+	// merchant is MoR and owns tax.
+	IsByop bool `json:"is_byop" api:"required"`
 	// The total product cart
 	ProductCart []CheckoutSessionPreviewResponseProductCart `json:"product_cart" api:"required"`
 	// Total calculate price of the product cart
@@ -560,6 +565,7 @@ type checkoutSessionPreviewResponseJSON struct {
 	BillingCountry   apijson.Field
 	Currency         apijson.Field
 	CurrentBreakup   apijson.Field
+	IsByop           apijson.Field
 	ProductCart      apijson.Field
 	TotalPrice       apijson.Field
 	RecurringBreakup apijson.Field

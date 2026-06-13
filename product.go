@@ -1001,6 +1001,9 @@ type Product struct {
 	LicenseKeyDuration LicenseKeyDuration `json:"license_key_duration" api:"nullable"`
 	// Name of the product, optional.
 	Name string `json:"name" api:"nullable"`
+	// Pricing mode for localized pricing. NULL means base-only (no localized rules
+	// apply).
+	PricingMode ProductPricingMode `json:"pricing_mode" api:"nullable"`
 	// The product collection ID this product belongs to, if any
 	ProductCollectionID string      `json:"product_collection_id" api:"nullable"`
 	JSON                productJSON `json:"-"`
@@ -1028,6 +1031,7 @@ type productJSON struct {
 	LicenseKeyActivationsLimit  apijson.Field
 	LicenseKeyDuration          apijson.Field
 	Name                        apijson.Field
+	PricingMode                 apijson.Field
 	ProductCollectionID         apijson.Field
 	raw                         string
 	ExtraFields                 map[string]apijson.Field
@@ -1039,6 +1043,23 @@ func (r *Product) UnmarshalJSON(data []byte) (err error) {
 
 func (r productJSON) RawJSON() string {
 	return r.raw
+}
+
+// Pricing mode for localized pricing. NULL means base-only (no localized rules
+// apply).
+type ProductPricingMode string
+
+const (
+	ProductPricingModeByCurrency ProductPricingMode = "by_currency"
+	ProductPricingModeByCountry  ProductPricingMode = "by_country"
+)
+
+func (r ProductPricingMode) IsKnown() bool {
+	switch r {
+	case ProductPricingModeByCurrency, ProductPricingModeByCountry:
+		return true
+	}
+	return false
 }
 
 // Summary of an entitlement attached to a product.
@@ -1187,7 +1208,7 @@ type ProductNewParams struct {
 	Addons param.Field[[]string] `json:"addons"`
 	// Brand id for the product, if not provided will default to primary brand
 	BrandID param.Field[string] `json:"brand_id"`
-	// Optional credit entitlements to attach (max 3)
+	// Optional credit entitlements to attach (max 5)
 	CreditEntitlements param.Field[[]AttachCreditEntitlementParam] `json:"credit_entitlements"`
 	// Optional description of the product
 	Description param.Field[string] `json:"description"`
@@ -1195,7 +1216,7 @@ type ProductNewParams struct {
 	//
 	// deprecated: use entitlements instead
 	DigitalProductDelivery param.Field[ProductNewParamsDigitalProductDelivery] `json:"digital_product_delivery"`
-	// Optional entitlements to attach to this product (max 20)
+	// Optional entitlements to attach to this product (max 50)
 	Entitlements param.Field[[]AttachProductEntitlementParam] `json:"entitlements"`
 	// Optional message displayed during license key activation
 	//
@@ -1222,6 +1243,10 @@ type ProductNewParams struct {
 	LicenseKeyEnabled param.Field[bool] `json:"license_key_enabled"`
 	// Additional metadata for the product
 	Metadata param.Field[map[string]string] `json:"metadata"`
+	// Pricing mode for localized pricing. When set, rules from
+	// /products/{id}/localized-prices apply at checkout. NULL means base-only
+	// (existing behavior).
+	PricingMode param.Field[ProductNewParamsPricingMode] `json:"pricing_mode"`
 }
 
 func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
@@ -1240,6 +1265,24 @@ type ProductNewParamsDigitalProductDelivery struct {
 
 func (r ProductNewParamsDigitalProductDelivery) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+// Pricing mode for localized pricing. When set, rules from
+// /products/{id}/localized-prices apply at checkout. NULL means base-only
+// (existing behavior).
+type ProductNewParamsPricingMode string
+
+const (
+	ProductNewParamsPricingModeByCurrency ProductNewParamsPricingMode = "by_currency"
+	ProductNewParamsPricingModeByCountry  ProductNewParamsPricingMode = "by_country"
+)
+
+func (r ProductNewParamsPricingMode) IsKnown() bool {
+	switch r {
+	case ProductNewParamsPricingModeByCurrency, ProductNewParamsPricingModeByCountry:
+		return true
+	}
+	return false
 }
 
 type ProductUpdateParams struct {
@@ -1294,6 +1337,10 @@ type ProductUpdateParams struct {
 	Name param.Field[string] `json:"name"`
 	// Price details of the product.
 	Price param.Field[PriceUnionParam] `json:"price"`
+	// Update the pricing mode. Omit to leave unchanged; set to null to clear (which
+	// archives all active localized rules for this product). Changing to a different
+	// non-null mode also archives any rules whose mode doesn't match the new mode.
+	PricingMode param.Field[ProductUpdateParamsPricingMode] `json:"pricing_mode"`
 	// Tax category of the product.
 	TaxCategory param.Field[TaxCategory] `json:"tax_category"`
 }
@@ -1316,6 +1363,24 @@ type ProductUpdateParamsDigitalProductDelivery struct {
 
 func (r ProductUpdateParamsDigitalProductDelivery) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+// Update the pricing mode. Omit to leave unchanged; set to null to clear (which
+// archives all active localized rules for this product). Changing to a different
+// non-null mode also archives any rules whose mode doesn't match the new mode.
+type ProductUpdateParamsPricingMode string
+
+const (
+	ProductUpdateParamsPricingModeByCurrency ProductUpdateParamsPricingMode = "by_currency"
+	ProductUpdateParamsPricingModeByCountry  ProductUpdateParamsPricingMode = "by_country"
+)
+
+func (r ProductUpdateParamsPricingMode) IsKnown() bool {
+	switch r {
+	case ProductUpdateParamsPricingModeByCurrency, ProductUpdateParamsPricingModeByCountry:
+		return true
+	}
+	return false
 }
 
 type ProductListParams struct {

@@ -87,6 +87,8 @@ func (r *EntitlementGrantService) Revoke(ctx context.Context, id string, grantID
 type EntitlementGrant struct {
 	// Unique identifier of the grant.
 	ID string `json:"id" api:"required"`
+	// Brand id this grant belongs to.
+	BrandID string `json:"brand_id" api:"required"`
 	// Identifier of the business that owns the grant.
 	BusinessID string `json:"business_id" api:"required"`
 	// Timestamp when the grant was created.
@@ -95,6 +97,8 @@ type EntitlementGrant struct {
 	CustomerID string `json:"customer_id" api:"required"`
 	// Identifier of the entitlement this grant was issued from.
 	EntitlementID string `json:"entitlement_id" api:"required"`
+	// The integration type of the grant's entitlement (e.g. `license_key`).
+	IntegrationType EntitlementIntegrationType `json:"integration_type" api:"required"`
 	// Arbitrary key-value metadata recorded on the grant.
 	Metadata map[string]string `json:"metadata" api:"required"`
 	// Lifecycle status of the grant.
@@ -134,10 +138,12 @@ type EntitlementGrant struct {
 // [EntitlementGrant]
 type entitlementGrantJSON struct {
 	ID                     apijson.Field
+	BrandID                apijson.Field
 	BusinessID             apijson.Field
 	CreatedAt              apijson.Field
 	CustomerID             apijson.Field
 	EntitlementID          apijson.Field
+	IntegrationType        apijson.Field
 	Metadata               apijson.Field
 	Status                 apijson.Field
 	UpdatedAt              apijson.Field
