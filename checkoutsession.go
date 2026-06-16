@@ -552,8 +552,12 @@ type CheckoutSessionPreviewResponse struct {
 	TotalPrice int64 `json:"total_price" api:"required"`
 	// Breakup of recurring payments (None for one-time only)
 	RecurringBreakup CheckoutSessionPreviewResponseRecurringBreakup `json:"recurring_breakup" api:"nullable"`
+	// Registered business name from the official registry (EU/GB/AU) when found
+	TaxIDBusinessName string `json:"tax_id_business_name" api:"nullable"`
 	// Error message if tax ID validation failed
 	TaxIDErrMsg string `json:"tax_id_err_msg" api:"nullable"`
+	// The matched tax ID notation (e.g. "VAT Number", "GSTIN") when valid
+	TaxIDFormatName string `json:"tax_id_format_name" api:"nullable"`
 	// Total tax
 	TotalTax int64                              `json:"total_tax" api:"nullable"`
 	JSON     checkoutSessionPreviewResponseJSON `json:"-"`
@@ -562,17 +566,19 @@ type CheckoutSessionPreviewResponse struct {
 // checkoutSessionPreviewResponseJSON contains the JSON metadata for the struct
 // [CheckoutSessionPreviewResponse]
 type checkoutSessionPreviewResponseJSON struct {
-	BillingCountry   apijson.Field
-	Currency         apijson.Field
-	CurrentBreakup   apijson.Field
-	IsByop           apijson.Field
-	ProductCart      apijson.Field
-	TotalPrice       apijson.Field
-	RecurringBreakup apijson.Field
-	TaxIDErrMsg      apijson.Field
-	TotalTax         apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
+	BillingCountry    apijson.Field
+	Currency          apijson.Field
+	CurrentBreakup    apijson.Field
+	IsByop            apijson.Field
+	ProductCart       apijson.Field
+	TotalPrice        apijson.Field
+	RecurringBreakup  apijson.Field
+	TaxIDBusinessName apijson.Field
+	TaxIDErrMsg       apijson.Field
+	TaxIDFormatName   apijson.Field
+	TotalTax          apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
 }
 
 func (r *CheckoutSessionPreviewResponse) UnmarshalJSON(data []byte) (err error) {
