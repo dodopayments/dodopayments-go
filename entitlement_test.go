@@ -58,7 +58,7 @@ func TestEntitlementGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Entitlements.Get(context.TODO(), "id")
+	_, err := client.Entitlements.Get(context.TODO(), "ent_jt7jcvI79Xh8eehqgWdcm")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -82,7 +82,7 @@ func TestEntitlementUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Entitlements.Update(
 		context.TODO(),
-		"id",
+		"ent_jt7jcvI79Xh8eehqgWdcm",
 		dodopayments.EntitlementUpdateParams{
 			Description: dodopayments.F("description"),
 			IntegrationConfig: dodopayments.F[dodopayments.IntegrationConfigUnionParam](dodopayments.IntegrationConfigGitHubConfigParam{
@@ -142,7 +142,7 @@ func TestEntitlementDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Entitlements.Delete(context.TODO(), "id")
+	err := client.Entitlements.Delete(context.TODO(), "ent_jt7jcvI79Xh8eehqgWdcm")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

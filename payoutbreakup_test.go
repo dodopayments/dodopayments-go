@@ -25,7 +25,7 @@ func TestPayoutBreakupGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Payouts.Breakup.Get(context.TODO(), "payout_id")
+	_, err := client.Payouts.Breakup.Get(context.TODO(), "pyt_zFTrrn4sk3x3y2vjDBW3T")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

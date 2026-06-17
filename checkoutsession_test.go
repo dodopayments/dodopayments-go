@@ -178,7 +178,7 @@ func TestCheckoutSessionGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.CheckoutSessions.Get(context.TODO(), "id")
+	_, err := client.CheckoutSessions.Get(context.TODO(), "cks_n010SZaY4NXc7F1ck3Tq1")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
