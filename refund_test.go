@@ -59,7 +59,7 @@ func TestRefundGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Refunds.Get(context.TODO(), "refund_id")
+	_, err := client.Refunds.Get(context.TODO(), "ref_F0gZetLvTxxBrMU2CZcmy")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

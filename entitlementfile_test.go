@@ -27,7 +27,7 @@ func TestEntitlementFileDelete(t *testing.T) {
 	)
 	err := client.Entitlements.Files.Delete(
 		context.TODO(),
-		"id",
+		"ent_jt7jcvI79Xh8eehqgWdcm",
 		"file_id",
 	)
 	if err != nil {
@@ -51,7 +51,7 @@ func TestEntitlementFileUpload(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Entitlements.Files.Upload(context.TODO(), "id")
+	_, err := client.Entitlements.Files.Upload(context.TODO(), "ent_jt7jcvI79Xh8eehqgWdcm")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
