@@ -53,7 +53,7 @@ func TestAddonGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Addons.Get(context.TODO(), "id")
+	_, err := client.Addons.Get(context.TODO(), "adn_NX1zdqW4Hbivsqz8vI9dc")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -77,7 +77,7 @@ func TestAddonUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Addons.Update(
 		context.TODO(),
-		"id",
+		"adn_NX1zdqW4Hbivsqz8vI9dc",
 		dodopayments.AddonUpdateParams{
 			Currency:    dodopayments.F(dodopayments.CurrencyAed),
 			Description: dodopayments.F("description"),
@@ -133,7 +133,7 @@ func TestAddonUpdateImages(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Addons.UpdateImages(context.TODO(), "id")
+	_, err := client.Addons.UpdateImages(context.TODO(), "adn_NX1zdqW4Hbivsqz8vI9dc")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

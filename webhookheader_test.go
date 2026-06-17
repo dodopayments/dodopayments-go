@@ -25,7 +25,7 @@ func TestWebhookHeaderGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Webhooks.Headers.Get(context.TODO(), "webhook_id")
+	_, err := client.Webhooks.Headers.Get(context.TODO(), "whk_YdWqVEGKmSYKbsIyDxEab")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -49,7 +49,7 @@ func TestWebhookHeaderUpdate(t *testing.T) {
 	)
 	err := client.Webhooks.Headers.Update(
 		context.TODO(),
-		"webhook_id",
+		"whk_YdWqVEGKmSYKbsIyDxEab",
 		dodopayments.WebhookHeaderUpdateParams{
 			Headers: dodopayments.F(map[string]string{
 				"foo": "string",

@@ -27,7 +27,7 @@ func TestCustomerCustomerPortalNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Customers.CustomerPortal.New(
 		context.TODO(),
-		"customer_id",
+		"cus_TV52uJWWXt2yIoBBxpjaa",
 		dodopayments.CustomerCustomerPortalNewParams{
 			ReturnURL: dodopayments.F("return_url"),
 			SendEmail: dodopayments.F(true),

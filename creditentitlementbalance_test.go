@@ -28,8 +28,8 @@ func TestCreditEntitlementBalanceGet(t *testing.T) {
 	)
 	_, err := client.CreditEntitlements.Balances.Get(
 		context.TODO(),
-		"credit_entitlement_id",
-		"customer_id",
+		"cde_ztxm5XJsKxWucRWA3rjdM",
+		"cus_TV52uJWWXt2yIoBBxpjaa",
 	)
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -54,7 +54,7 @@ func TestCreditEntitlementBalanceListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.CreditEntitlements.Balances.List(
 		context.TODO(),
-		"credit_entitlement_id",
+		"cde_ztxm5XJsKxWucRWA3rjdM",
 		dodopayments.CreditEntitlementBalanceListParams{
 			CustomerID: dodopayments.F("customer_id"),
 			PageNumber: dodopayments.F(int64(0)),
@@ -84,8 +84,8 @@ func TestCreditEntitlementBalanceNewLedgerEntryWithOptionalParams(t *testing.T) 
 	)
 	_, err := client.CreditEntitlements.Balances.NewLedgerEntry(
 		context.TODO(),
-		"credit_entitlement_id",
-		"customer_id",
+		"cde_ztxm5XJsKxWucRWA3rjdM",
+		"cus_TV52uJWWXt2yIoBBxpjaa",
 		dodopayments.CreditEntitlementBalanceNewLedgerEntryParams{
 			Amount:         dodopayments.F("amount"),
 			EntryType:      dodopayments.F(dodopayments.LedgerEntryTypeCredit),
@@ -120,8 +120,8 @@ func TestCreditEntitlementBalanceListGrantsWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.CreditEntitlements.Balances.ListGrants(
 		context.TODO(),
-		"credit_entitlement_id",
-		"customer_id",
+		"cde_ztxm5XJsKxWucRWA3rjdM",
+		"cus_TV52uJWWXt2yIoBBxpjaa",
 		dodopayments.CreditEntitlementBalanceListGrantsParams{
 			PageNumber: dodopayments.F(int64(0)),
 			PageSize:   dodopayments.F(int64(0)),
@@ -151,8 +151,8 @@ func TestCreditEntitlementBalanceListLedgerWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.CreditEntitlements.Balances.ListLedger(
 		context.TODO(),
-		"credit_entitlement_id",
-		"customer_id",
+		"cde_ztxm5XJsKxWucRWA3rjdM",
+		"cus_TV52uJWWXt2yIoBBxpjaa",
 		dodopayments.CreditEntitlementBalanceListLedgerParams{
 			EndDate:         dodopayments.F(time.Now()),
 			PageNumber:      dodopayments.F(int64(0)),

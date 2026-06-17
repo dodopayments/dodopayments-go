@@ -27,7 +27,7 @@ func TestCustomerWalletLedgerEntryNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Customers.Wallets.LedgerEntries.New(
 		context.TODO(),
-		"customer_id",
+		"cus_TV52uJWWXt2yIoBBxpjaa",
 		dodopayments.CustomerWalletLedgerEntryNewParams{
 			Amount:         dodopayments.F(int64(0)),
 			Currency:       dodopayments.F(dodopayments.CurrencyAed),
@@ -59,7 +59,7 @@ func TestCustomerWalletLedgerEntryListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Customers.Wallets.LedgerEntries.List(
 		context.TODO(),
-		"customer_id",
+		"cus_TV52uJWWXt2yIoBBxpjaa",
 		dodopayments.CustomerWalletLedgerEntryListParams{
 			Currency:   dodopayments.F(dodopayments.CurrencyAed),
 			PageNumber: dodopayments.F(int64(0)),

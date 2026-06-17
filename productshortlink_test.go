@@ -27,7 +27,7 @@ func TestProductShortLinkNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Products.ShortLinks.New(
 		context.TODO(),
-		"id",
+		"pdt_R8AWMPiV8RyJElcCKvAID",
 		dodopayments.ProductShortLinkNewParams{
 			Slug: dodopayments.F("slug"),
 			StaticCheckoutParams: dodopayments.F(map[string]string{
