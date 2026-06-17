@@ -25,7 +25,7 @@ func TestCustomerWalletList(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.Wallets.List(context.TODO(), "customer_id")
+	_, err := client.Customers.Wallets.List(context.TODO(), "cus_TV52uJWWXt2yIoBBxpjaa")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

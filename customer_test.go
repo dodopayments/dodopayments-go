@@ -55,7 +55,7 @@ func TestCustomerGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.Get(context.TODO(), "customer_id")
+	_, err := client.Customers.Get(context.TODO(), "cus_TV52uJWWXt2yIoBBxpjaa")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -79,7 +79,7 @@ func TestCustomerUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Customers.Update(
 		context.TODO(),
-		"customer_id",
+		"cus_TV52uJWWXt2yIoBBxpjaa",
 		dodopayments.CustomerUpdateParams{
 			Email: dodopayments.F("email"),
 			Metadata: dodopayments.F(map[string]string{
@@ -141,7 +141,7 @@ func TestCustomerDeletePaymentMethod(t *testing.T) {
 	)
 	err := client.Customers.DeletePaymentMethod(
 		context.TODO(),
-		"customer_id",
+		"cus_TV52uJWWXt2yIoBBxpjaa",
 		"payment_method_id",
 	)
 	if err != nil {
@@ -165,7 +165,7 @@ func TestCustomerListCreditEntitlements(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.ListCreditEntitlements(context.TODO(), "customer_id")
+	_, err := client.Customers.ListCreditEntitlements(context.TODO(), "cus_TV52uJWWXt2yIoBBxpjaa")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -187,7 +187,7 @@ func TestCustomerListEntitlements(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.ListEntitlements(context.TODO(), "customer_id")
+	_, err := client.Customers.ListEntitlements(context.TODO(), "cus_TV52uJWWXt2yIoBBxpjaa")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -209,7 +209,7 @@ func TestCustomerGetPaymentMethods(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.GetPaymentMethods(context.TODO(), "customer_id")
+	_, err := client.Customers.GetPaymentMethods(context.TODO(), "cus_TV52uJWWXt2yIoBBxpjaa")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

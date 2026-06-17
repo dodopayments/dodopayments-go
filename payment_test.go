@@ -82,7 +82,7 @@ func TestPaymentGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Payments.Get(context.TODO(), "payment_id")
+	_, err := client.Payments.Get(context.TODO(), "pay_gr4RizvMOXFJ6xca3y2tU")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -136,7 +136,7 @@ func TestPaymentGetLineItems(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Payments.GetLineItems(context.TODO(), "payment_id")
+	_, err := client.Payments.GetLineItems(context.TODO(), "pay_gr4RizvMOXFJ6xca3y2tU")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
