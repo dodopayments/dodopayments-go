@@ -1,12 +1,5 @@
 # Changelog
 
-## [1.105.0](https://github.com/dodopayments/dodopayments-go/compare/v1.104.0...v1.105.0) (2026-06-16)
-
-
-### Features
-
-* **api:** add tax_id_business_name and tax_id_format_name to CalculateSessionResponse ([fe43695](https://github.com/dodopayments/dodopayments-go/commit/fe4369588eecc5cd42c24f28b080d6f7a9fe27a8))
-
 ## [1.103.0](https://github.com/dodopayments/dodopayments-go/compare/v1.102.1...v1.103.0) (2026-06-13)
 
 
