@@ -25,7 +25,7 @@ func TestLicenseKeyInstanceGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.LicenseKeyInstances.Get(context.TODO(), "lki_123")
+	_, err := client.LicenseKeyInstances.Get(context.TODO(), "lki_EeWORStkMc7z0KycI31VS")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -49,7 +49,7 @@ func TestLicenseKeyInstanceUpdate(t *testing.T) {
 	)
 	_, err := client.LicenseKeyInstances.Update(
 		context.TODO(),
-		"lki_123",
+		"lki_EeWORStkMc7z0KycI31VS",
 		dodopayments.LicenseKeyInstanceUpdateParams{
 			Name: dodopayments.F("name"),
 		},

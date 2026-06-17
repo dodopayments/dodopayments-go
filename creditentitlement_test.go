@@ -63,7 +63,7 @@ func TestCreditEntitlementGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.CreditEntitlements.Get(context.TODO(), "id")
+	_, err := client.CreditEntitlements.Get(context.TODO(), "cde_ztxm5XJsKxWucRWA3rjdM")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -87,7 +87,7 @@ func TestCreditEntitlementUpdateWithOptionalParams(t *testing.T) {
 	)
 	err := client.CreditEntitlements.Update(
 		context.TODO(),
-		"id",
+		"cde_ztxm5XJsKxWucRWA3rjdM",
 		dodopayments.CreditEntitlementUpdateParams{
 			Currency:                  dodopayments.F(dodopayments.CurrencyAed),
 			Description:               dodopayments.F("description"),
@@ -152,7 +152,7 @@ func TestCreditEntitlementDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.CreditEntitlements.Delete(context.TODO(), "id")
+	err := client.CreditEntitlements.Delete(context.TODO(), "cde_ztxm5XJsKxWucRWA3rjdM")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -174,7 +174,7 @@ func TestCreditEntitlementUndelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.CreditEntitlements.Undelete(context.TODO(), "id")
+	err := client.CreditEntitlements.Undelete(context.TODO(), "cde_ztxm5XJsKxWucRWA3rjdM")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
