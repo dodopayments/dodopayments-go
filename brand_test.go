@@ -53,7 +53,7 @@ func TestBrandGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Brands.Get(context.TODO(), "id")
+	_, err := client.Brands.Get(context.TODO(), "brnd_8dFiAW42v28JzhlVSocjq")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -77,7 +77,7 @@ func TestBrandUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Brands.Update(
 		context.TODO(),
-		"id",
+		"brnd_8dFiAW42v28JzhlVSocjq",
 		dodopayments.BrandUpdateParams{
 			Description:         dodopayments.F("description"),
 			ImageID:             dodopayments.F("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"),
@@ -130,7 +130,7 @@ func TestBrandUpdateImages(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Brands.UpdateImages(context.TODO(), "id")
+	_, err := client.Brands.UpdateImages(context.TODO(), "brnd_8dFiAW42v28JzhlVSocjq")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

@@ -100,7 +100,7 @@ func TestProductGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Products.Get(context.TODO(), "id")
+	_, err := client.Products.Get(context.TODO(), "pdt_R8AWMPiV8RyJElcCKvAID")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -124,7 +124,7 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 	)
 	err := client.Products.Update(
 		context.TODO(),
-		"id",
+		"pdt_R8AWMPiV8RyJElcCKvAID",
 		dodopayments.ProductUpdateParams{
 			Addons:  dodopayments.F([]string{"string"}),
 			BrandID: dodopayments.F("brand_id"),
@@ -231,7 +231,7 @@ func TestProductArchive(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Products.Archive(context.TODO(), "id")
+	err := client.Products.Archive(context.TODO(), "pdt_R8AWMPiV8RyJElcCKvAID")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -253,7 +253,7 @@ func TestProductUnarchive(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Products.Unarchive(context.TODO(), "id")
+	err := client.Products.Unarchive(context.TODO(), "pdt_R8AWMPiV8RyJElcCKvAID")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -277,7 +277,7 @@ func TestProductUpdateFiles(t *testing.T) {
 	)
 	_, err := client.Products.UpdateFiles(
 		context.TODO(),
-		"id",
+		"pdt_R8AWMPiV8RyJElcCKvAID",
 		dodopayments.ProductUpdateFilesParams{
 			FileName: dodopayments.F("file_name"),
 		},
