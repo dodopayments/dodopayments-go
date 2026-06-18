@@ -64,7 +64,7 @@ func TestProductCollectionGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.ProductCollections.Get(context.TODO(), "id")
+	_, err := client.ProductCollections.Get(context.TODO(), "pdc_8BWv0hojwUH7iCDabr0NI")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -88,7 +88,7 @@ func TestProductCollectionUpdateWithOptionalParams(t *testing.T) {
 	)
 	err := client.ProductCollections.Update(
 		context.TODO(),
-		"id",
+		"pdc_8BWv0hojwUH7iCDabr0NI",
 		dodopayments.ProductCollectionUpdateParams{
 			BrandID:                         dodopayments.F("brand_id"),
 			Description:                     dodopayments.F("description"),
@@ -150,7 +150,7 @@ func TestProductCollectionDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.ProductCollections.Delete(context.TODO(), "id")
+	err := client.ProductCollections.Delete(context.TODO(), "pdc_8BWv0hojwUH7iCDabr0NI")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -172,7 +172,7 @@ func TestProductCollectionUnarchive(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.ProductCollections.Unarchive(context.TODO(), "id")
+	_, err := client.ProductCollections.Unarchive(context.TODO(), "pdc_8BWv0hojwUH7iCDabr0NI")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -196,7 +196,7 @@ func TestProductCollectionUpdateImagesWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.ProductCollections.UpdateImages(
 		context.TODO(),
-		"id",
+		"pdc_8BWv0hojwUH7iCDabr0NI",
 		dodopayments.ProductCollectionUpdateImagesParams{
 			ForceUpdate: dodopayments.F(true),
 		},

@@ -64,7 +64,7 @@ func TestWebhookGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Webhooks.Get(context.TODO(), "webhook_id")
+	_, err := client.Webhooks.Get(context.TODO(), "whk_YdWqVEGKmSYKbsIyDxEab")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -88,7 +88,7 @@ func TestWebhookUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Webhooks.Update(
 		context.TODO(),
-		"webhook_id",
+		"whk_YdWqVEGKmSYKbsIyDxEab",
 		dodopayments.WebhookUpdateParams{
 			Description: dodopayments.F("description"),
 			Disabled:    dodopayments.F(true),
@@ -146,7 +146,7 @@ func TestWebhookDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Webhooks.Delete(context.TODO(), "webhook_id")
+	err := client.Webhooks.Delete(context.TODO(), "whk_YdWqVEGKmSYKbsIyDxEab")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -168,7 +168,7 @@ func TestWebhookGetSecret(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Webhooks.GetSecret(context.TODO(), "webhook_id")
+	_, err := client.Webhooks.GetSecret(context.TODO(), "whk_YdWqVEGKmSYKbsIyDxEab")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

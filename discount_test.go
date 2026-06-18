@@ -61,7 +61,7 @@ func TestDiscountGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Discounts.Get(context.TODO(), "discount_id")
+	_, err := client.Discounts.Get(context.TODO(), "dsc_qxxEmg5PuM1uNTE0LgkP9")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -85,7 +85,7 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Discounts.Update(
 		context.TODO(),
-		"discount_id",
+		"dsc_qxxEmg5PuM1uNTE0LgkP9",
 		dodopayments.DiscountUpdateParams{
 			Amount:    dodopayments.F(int64(0)),
 			Code:      dodopayments.F("code"),
@@ -151,7 +151,7 @@ func TestDiscountDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Discounts.Delete(context.TODO(), "discount_id")
+	err := client.Discounts.Delete(context.TODO(), "dsc_qxxEmg5PuM1uNTE0LgkP9")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
