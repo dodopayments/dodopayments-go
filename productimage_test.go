@@ -27,7 +27,7 @@ func TestProductImageUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Products.Images.Update(
 		context.TODO(),
-		"id",
+		"pdt_R8AWMPiV8RyJElcCKvAID",
 		dodopayments.ProductImageUpdateParams{
 			ForceUpdate: dodopayments.F(true),
 		},

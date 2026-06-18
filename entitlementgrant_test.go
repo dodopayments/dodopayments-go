@@ -27,7 +27,7 @@ func TestEntitlementGrantListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Entitlements.Grants.List(
 		context.TODO(),
-		"id",
+		"ent_jt7jcvI79Xh8eehqgWdcm",
 		dodopayments.EntitlementGrantListParams{
 			CustomerID: dodopayments.F("customer_id"),
 			PageNumber: dodopayments.F(int64(0)),
@@ -58,8 +58,8 @@ func TestEntitlementGrantRevoke(t *testing.T) {
 	)
 	_, err := client.Entitlements.Grants.Revoke(
 		context.TODO(),
-		"id",
-		"grant_id",
+		"ent_jt7jcvI79Xh8eehqgWdcm",
+		"entg_w0ZCJZgNXuNDdMVzvja6p",
 	)
 	if err != nil {
 		var apierr *dodopayments.Error

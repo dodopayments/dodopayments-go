@@ -27,7 +27,7 @@ func TestProductCollectionGroupNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.ProductCollections.Groups.New(
 		context.TODO(),
-		"id",
+		"pdc_8BWv0hojwUH7iCDabr0NI",
 		dodopayments.ProductCollectionGroupNewParams{
 			ProductCollectionGroupDetails: dodopayments.ProductCollectionGroupDetailsParam{
 				Products: dodopayments.F([]dodopayments.GroupProductParam{{
@@ -62,7 +62,7 @@ func TestProductCollectionGroupUpdateWithOptionalParams(t *testing.T) {
 	)
 	err := client.ProductCollections.Groups.Update(
 		context.TODO(),
-		"id",
+		"pdc_8BWv0hojwUH7iCDabr0NI",
 		"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
 		dodopayments.ProductCollectionGroupUpdateParams{
 			GroupName:    dodopayments.F("group_name"),
@@ -93,7 +93,7 @@ func TestProductCollectionGroupDelete(t *testing.T) {
 	)
 	err := client.ProductCollections.Groups.Delete(
 		context.TODO(),
-		"id",
+		"pdc_8BWv0hojwUH7iCDabr0NI",
 		"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
 	)
 	if err != nil {
