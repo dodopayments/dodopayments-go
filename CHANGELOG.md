@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.105.1](https://github.com/dodopayments/dodopayments-go/compare/v1.105.0...v1.105.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* **pagination:** stop cursor auto-pagination dropping pages ([093e12d](https://github.com/dodopayments/dodopayments-go/commit/093e12d6e58f697ed0bc1bcd3f24db8ba5b396a0))
+* **pagination:** stop cursor auto-pagination dropping pages ([7dc531c](https://github.com/dodopayments/dodopayments-go/commit/7dc531cc6bec8f149077fb8431db3410719960a4))
+
+
+### Chores
+
+* restore release-please-owned files from main ([6c67288](https://github.com/dodopayments/dodopayments-go/commit/6c6728835e6d82439ecc3c417e8c70db0514d9be))
+
 ## [1.105.0](https://github.com/dodopayments/dodopayments-go/compare/v1.104.0...v1.105.0) (2026-06-16)
 
 
