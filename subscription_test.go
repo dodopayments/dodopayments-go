@@ -96,7 +96,7 @@ func TestSubscriptionGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Subscriptions.Get(context.TODO(), "subscription_id")
+	_, err := client.Subscriptions.Get(context.TODO(), "sub_Iuaq622bbmmfOGrVTqdXv")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -120,7 +120,7 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Subscriptions.Update(
 		context.TODO(),
-		"subscription_id",
+		"sub_Iuaq622bbmmfOGrVTqdXv",
 		dodopayments.SubscriptionUpdateParams{
 			Billing: dodopayments.F(dodopayments.BillingAddressParam{
 				Country: dodopayments.F(dodopayments.CountryCodeAf),
@@ -211,7 +211,7 @@ func TestSubscriptionCancelChangePlan(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Subscriptions.CancelChangePlan(context.TODO(), "subscription_id")
+	err := client.Subscriptions.CancelChangePlan(context.TODO(), "sub_Iuaq622bbmmfOGrVTqdXv")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -235,7 +235,7 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 	)
 	err := client.Subscriptions.ChangePlan(
 		context.TODO(),
-		"subscription_id",
+		"sub_Iuaq622bbmmfOGrVTqdXv",
 		dodopayments.SubscriptionChangePlanParams{
 			UpdateSubscriptionPlanReq: dodopayments.UpdateSubscriptionPlanReqParam{
 				ProductID:                     dodopayments.F("product_id"),
@@ -279,7 +279,7 @@ func TestSubscriptionChargeWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Subscriptions.Charge(
 		context.TODO(),
-		"subscription_id",
+		"sub_Iuaq622bbmmfOGrVTqdXv",
 		dodopayments.SubscriptionChargeParams{
 			ProductPrice:                  dodopayments.F(int64(0)),
 			AdaptiveCurrencyFeesInclusive: dodopayments.F(true),
@@ -317,7 +317,7 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Subscriptions.PreviewChangePlan(
 		context.TODO(),
-		"subscription_id",
+		"sub_Iuaq622bbmmfOGrVTqdXv",
 		dodopayments.SubscriptionPreviewChangePlanParams{
 			UpdateSubscriptionPlanReq: dodopayments.UpdateSubscriptionPlanReqParam{
 				ProductID:                     dodopayments.F("product_id"),
@@ -359,7 +359,7 @@ func TestSubscriptionGetCreditUsage(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Subscriptions.GetCreditUsage(context.TODO(), "subscription_id")
+	_, err := client.Subscriptions.GetCreditUsage(context.TODO(), "sub_Iuaq622bbmmfOGrVTqdXv")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -383,7 +383,7 @@ func TestSubscriptionGetUsageHistoryWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Subscriptions.GetUsageHistory(
 		context.TODO(),
-		"subscription_id",
+		"sub_Iuaq622bbmmfOGrVTqdXv",
 		dodopayments.SubscriptionGetUsageHistoryParams{
 			EndDate:    dodopayments.F(time.Now()),
 			MeterID:    dodopayments.F("meter_id"),
@@ -415,7 +415,7 @@ func TestSubscriptionUpdatePaymentMethodWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Subscriptions.UpdatePaymentMethod(
 		context.TODO(),
-		"subscription_id",
+		"sub_Iuaq622bbmmfOGrVTqdXv",
 		dodopayments.SubscriptionUpdatePaymentMethodParams{
 			PaymentMethod: dodopayments.SubscriptionUpdatePaymentMethodParamsPaymentMethodNew{
 				Type:                      dodopayments.F(dodopayments.SubscriptionUpdatePaymentMethodParamsPaymentMethodNewTypeNew),
