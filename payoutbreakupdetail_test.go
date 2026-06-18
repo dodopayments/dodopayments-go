@@ -27,7 +27,7 @@ func TestPayoutBreakupDetailListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Payouts.Breakup.Details.List(
 		context.TODO(),
-		"payout_id",
+		"pyt_zFTrrn4sk3x3y2vjDBW3T",
 		dodopayments.PayoutBreakupDetailListParams{
 			PageNumber: dodopayments.F(int64(0)),
 			PageSize:   dodopayments.F(int64(0)),
@@ -54,7 +54,7 @@ func TestPayoutBreakupDetailDownloadCsv(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Payouts.Breakup.Details.DownloadCsv(context.TODO(), "payout_id")
+	err := client.Payouts.Breakup.Details.DownloadCsv(context.TODO(), "pyt_zFTrrn4sk3x3y2vjDBW3T")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

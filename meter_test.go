@@ -69,7 +69,7 @@ func TestMeterGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Meters.Get(context.TODO(), "id")
+	_, err := client.Meters.Get(context.TODO(), "mtr_h5tgTWL55OyMO0L2Q9w9v")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -117,7 +117,7 @@ func TestMeterArchive(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Meters.Archive(context.TODO(), "id")
+	err := client.Meters.Archive(context.TODO(), "mtr_h5tgTWL55OyMO0L2Q9w9v")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -139,7 +139,7 @@ func TestMeterUnarchive(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Meters.Unarchive(context.TODO(), "id")
+	err := client.Meters.Unarchive(context.TODO(), "mtr_h5tgTWL55OyMO0L2Q9w9v")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
