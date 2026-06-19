@@ -149,10 +149,6 @@ func (r *CursorPagePagination[T]) GetNextPage() (res *CursorPagePagination[T], e
 	if len(r.Data) == 0 {
 		return nil, nil
 	}
-
-	if !r.JSON.Done.IsMissing() && r.Done == false {
-		return nil, nil
-	}
 	next := r.Iterator
 	if len(next) == 0 {
 		return nil, nil
