@@ -7,14 +7,13 @@ import (
 	"errors"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
 )
 
-func TestCreditEntitlementBalanceGet(t *testing.T) {
+func TestProductLocalizedPriceNewWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -26,39 +25,13 @@ func TestCreditEntitlementBalanceGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.CreditEntitlements.Balances.Get(
+	_, err := client.Products.LocalizedPrices.New(
 		context.TODO(),
-		"cde_ztxm5XJsKxWucRWA3rjdM",
-		"cus_TV52uJWWXt2yIoBBxpjaa",
-	)
-	if err != nil {
-		var apierr *dodopayments.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestCreditEntitlementBalanceListWithOptionalParams(t *testing.T) {
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := dodopayments.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithBearerToken("My Bearer Token"),
-	)
-	_, err := client.CreditEntitlements.Balances.List(
-		context.TODO(),
-		"cde_ztxm5XJsKxWucRWA3rjdM",
-		dodopayments.CreditEntitlementBalanceListParams{
-			CustomerID: dodopayments.F("customer_id"),
-			PageNumber: dodopayments.F(int64(0)),
-			PageSize:   dodopayments.F(int64(0)),
+		"pdt_R8AWMPiV8RyJElcCKvAID",
+		dodopayments.ProductLocalizedPriceNewParams{
+			Amount:      dodopayments.F(int64(0)),
+			Currency:    dodopayments.F(dodopayments.CurrencyAed),
+			CountryCode: dodopayments.F(dodopayments.CountryCodeAf),
 		},
 	)
 	if err != nil {
@@ -70,7 +43,7 @@ func TestCreditEntitlementBalanceListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCreditEntitlementBalanceNewLedgerEntryWithOptionalParams(t *testing.T) {
+func TestProductLocalizedPriceGet(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -82,19 +55,38 @@ func TestCreditEntitlementBalanceNewLedgerEntryWithOptionalParams(t *testing.T) 
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.CreditEntitlements.Balances.NewLedgerEntry(
+	_, err := client.Products.LocalizedPrices.Get(
 		context.TODO(),
-		"cde_ztxm5XJsKxWucRWA3rjdM",
-		"cus_TV52uJWWXt2yIoBBxpjaa",
-		dodopayments.CreditEntitlementBalanceNewLedgerEntryParams{
-			Amount:         dodopayments.F("amount"),
-			EntryType:      dodopayments.F(dodopayments.LedgerEntryTypeCredit),
-			ExpiresAt:      dodopayments.F(time.Now()),
-			IdempotencyKey: dodopayments.F("idempotency_key"),
-			Metadata: dodopayments.F(dodopayments.MetadataParam{
-				"foo": "string",
-			}),
-			Reason: dodopayments.F("reason"),
+		"pdt_R8AWMPiV8RyJElcCKvAID",
+		"lcp_3aOOT7ebrzBOV41yL2V6s",
+	)
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestProductLocalizedPriceUpdateWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Products.LocalizedPrices.Update(
+		context.TODO(),
+		"pdt_R8AWMPiV8RyJElcCKvAID",
+		"lcp_3aOOT7ebrzBOV41yL2V6s",
+		dodopayments.ProductLocalizedPriceUpdateParams{
+			Amount: dodopayments.F(int64(0)),
 		},
 	)
 	if err != nil {
@@ -106,7 +98,7 @@ func TestCreditEntitlementBalanceNewLedgerEntryWithOptionalParams(t *testing.T) 
 	}
 }
 
-func TestCreditEntitlementBalanceListGrantsWithOptionalParams(t *testing.T) {
+func TestProductLocalizedPriceList(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -118,16 +110,7 @@ func TestCreditEntitlementBalanceListGrantsWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.CreditEntitlements.Balances.ListGrants(
-		context.TODO(),
-		"cde_ztxm5XJsKxWucRWA3rjdM",
-		"cus_TV52uJWWXt2yIoBBxpjaa",
-		dodopayments.CreditEntitlementBalanceListGrantsParams{
-			PageNumber: dodopayments.F(int64(0)),
-			PageSize:   dodopayments.F(int64(0)),
-			Status:     dodopayments.F(dodopayments.CreditEntitlementBalanceListGrantsParamsStatusActive),
-		},
-	)
+	_, err := client.Products.LocalizedPrices.List(context.TODO(), "pdt_R8AWMPiV8RyJElcCKvAID")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -137,7 +120,7 @@ func TestCreditEntitlementBalanceListGrantsWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCreditEntitlementBalanceListLedgerWithOptionalParams(t *testing.T) {
+func TestProductLocalizedPriceArchive(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -149,17 +132,10 @@ func TestCreditEntitlementBalanceListLedgerWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.CreditEntitlements.Balances.ListLedger(
+	err := client.Products.LocalizedPrices.Archive(
 		context.TODO(),
-		"cde_ztxm5XJsKxWucRWA3rjdM",
-		"cus_TV52uJWWXt2yIoBBxpjaa",
-		dodopayments.CreditEntitlementBalanceListLedgerParams{
-			EndDate:         dodopayments.F(time.Now()),
-			PageNumber:      dodopayments.F(int64(0)),
-			PageSize:        dodopayments.F(int64(0)),
-			StartDate:       dodopayments.F(time.Now()),
-			TransactionType: dodopayments.F("transaction_type"),
-		},
+		"pdt_R8AWMPiV8RyJElcCKvAID",
+		"lcp_3aOOT7ebrzBOV41yL2V6s",
 	)
 	if err != nil {
 		var apierr *dodopayments.Error
