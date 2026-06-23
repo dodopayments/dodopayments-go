@@ -28,9 +28,10 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewProductService] method instead.
 type ProductService struct {
-	Options    []option.RequestOption
-	Images     *ProductImageService
-	ShortLinks *ProductShortLinkService
+	Options         []option.RequestOption
+	Images          *ProductImageService
+	ShortLinks      *ProductShortLinkService
+	LocalizedPrices *ProductLocalizedPriceService
 }
 
 // NewProductService generates a new service that applies the given options to each
@@ -41,6 +42,7 @@ func NewProductService(opts ...option.RequestOption) (r *ProductService) {
 	r.Options = opts
 	r.Images = NewProductImageService(opts...)
 	r.ShortLinks = NewProductShortLinkService(opts...)
+	r.LocalizedPrices = NewProductLocalizedPriceService(opts...)
 	return
 }
 
@@ -1003,7 +1005,7 @@ type Product struct {
 	Name string `json:"name" api:"nullable"`
 	// Pricing mode for localized pricing. NULL means base-only (no localized rules
 	// apply).
-	PricingMode ProductPricingMode `json:"pricing_mode" api:"nullable"`
+	PricingMode PricingMode `json:"pricing_mode" api:"nullable"`
 	// The product collection ID this product belongs to, if any
 	ProductCollectionID string      `json:"product_collection_id" api:"nullable"`
 	JSON                productJSON `json:"-"`
@@ -1043,23 +1045,6 @@ func (r *Product) UnmarshalJSON(data []byte) (err error) {
 
 func (r productJSON) RawJSON() string {
 	return r.raw
-}
-
-// Pricing mode for localized pricing. NULL means base-only (no localized rules
-// apply).
-type ProductPricingMode string
-
-const (
-	ProductPricingModeByCurrency ProductPricingMode = "by_currency"
-	ProductPricingModeByCountry  ProductPricingMode = "by_country"
-)
-
-func (r ProductPricingMode) IsKnown() bool {
-	switch r {
-	case ProductPricingModeByCurrency, ProductPricingModeByCountry:
-		return true
-	}
-	return false
 }
 
 // Summary of an entitlement attached to a product.
@@ -1141,7 +1126,7 @@ type ProductListResponse struct {
 	PriceDetail Price `json:"price_detail" api:"nullable"`
 	// Pricing mode for localized pricing. NULL means base-only (no localized rules
 	// apply).
-	PricingMode ProductListResponsePricingMode `json:"pricing_mode" api:"nullable"`
+	PricingMode PricingMode `json:"pricing_mode" api:"nullable"`
 	// Indicates if the price is tax inclusive
 	TaxInclusive bool                    `json:"tax_inclusive" api:"nullable"`
 	JSON         productListResponseJSON `json:"-"`
@@ -1176,23 +1161,6 @@ func (r *ProductListResponse) UnmarshalJSON(data []byte) (err error) {
 
 func (r productListResponseJSON) RawJSON() string {
 	return r.raw
-}
-
-// Pricing mode for localized pricing. NULL means base-only (no localized rules
-// apply).
-type ProductListResponsePricingMode string
-
-const (
-	ProductListResponsePricingModeByCurrency ProductListResponsePricingMode = "by_currency"
-	ProductListResponsePricingModeByCountry  ProductListResponsePricingMode = "by_country"
-)
-
-func (r ProductListResponsePricingMode) IsKnown() bool {
-	switch r {
-	case ProductListResponsePricingModeByCurrency, ProductListResponsePricingModeByCountry:
-		return true
-	}
-	return false
 }
 
 type ProductUpdateFilesResponse struct {
@@ -1267,7 +1235,7 @@ type ProductNewParams struct {
 	// Pricing mode for localized pricing. When set, rules from
 	// /products/{id}/localized-prices apply at checkout. NULL means base-only
 	// (existing behavior).
-	PricingMode param.Field[ProductNewParamsPricingMode] `json:"pricing_mode"`
+	PricingMode param.Field[PricingMode] `json:"pricing_mode"`
 }
 
 func (r ProductNewParams) MarshalJSON() (data []byte, err error) {
@@ -1286,24 +1254,6 @@ type ProductNewParamsDigitalProductDelivery struct {
 
 func (r ProductNewParamsDigitalProductDelivery) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
-}
-
-// Pricing mode for localized pricing. When set, rules from
-// /products/{id}/localized-prices apply at checkout. NULL means base-only
-// (existing behavior).
-type ProductNewParamsPricingMode string
-
-const (
-	ProductNewParamsPricingModeByCurrency ProductNewParamsPricingMode = "by_currency"
-	ProductNewParamsPricingModeByCountry  ProductNewParamsPricingMode = "by_country"
-)
-
-func (r ProductNewParamsPricingMode) IsKnown() bool {
-	switch r {
-	case ProductNewParamsPricingModeByCurrency, ProductNewParamsPricingModeByCountry:
-		return true
-	}
-	return false
 }
 
 type ProductUpdateParams struct {
@@ -1361,7 +1311,7 @@ type ProductUpdateParams struct {
 	// Update the pricing mode. Omit to leave unchanged; set to null to clear (which
 	// archives all active localized rules for this product). Changing to a different
 	// non-null mode also archives any rules whose mode doesn't match the new mode.
-	PricingMode param.Field[ProductUpdateParamsPricingMode] `json:"pricing_mode"`
+	PricingMode param.Field[PricingMode] `json:"pricing_mode"`
 	// Tax category of the product.
 	TaxCategory param.Field[TaxCategory] `json:"tax_category"`
 }
@@ -1384,24 +1334,6 @@ type ProductUpdateParamsDigitalProductDelivery struct {
 
 func (r ProductUpdateParamsDigitalProductDelivery) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
-}
-
-// Update the pricing mode. Omit to leave unchanged; set to null to clear (which
-// archives all active localized rules for this product). Changing to a different
-// non-null mode also archives any rules whose mode doesn't match the new mode.
-type ProductUpdateParamsPricingMode string
-
-const (
-	ProductUpdateParamsPricingModeByCurrency ProductUpdateParamsPricingMode = "by_currency"
-	ProductUpdateParamsPricingModeByCountry  ProductUpdateParamsPricingMode = "by_country"
-)
-
-func (r ProductUpdateParamsPricingMode) IsKnown() bool {
-	switch r {
-	case ProductUpdateParamsPricingModeByCurrency, ProductUpdateParamsPricingModeByCountry:
-		return true
-	}
-	return false
 }
 
 type ProductListParams struct {
