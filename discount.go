@@ -131,8 +131,8 @@ type Discount struct {
 	// Timestamp when the discount is created
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The unique discount ID
-	DiscountID string            `json:"discount_id" api:"required"`
-	Metadata   map[string]string `json:"metadata" api:"required"`
+	DiscountID string   `json:"discount_id" api:"required"`
+	Metadata   Metadata `json:"metadata" api:"required"`
 	// Whether this discount should be preserved when a subscription changes plans.
 	// Default: false (discount is removed on plan change)
 	PreserveOnPlanChange bool `json:"preserve_on_plan_change" api:"required"`
@@ -197,7 +197,7 @@ type DiscountDetail struct {
 	// The unique discount ID
 	DiscountID string `json:"discount_id" api:"required"`
 	// Additional metadata
-	Metadata map[string]string `json:"metadata" api:"required"`
+	Metadata Metadata `json:"metadata" api:"required"`
 	// Position of this discount in the stack (0-based)
 	Position int64 `json:"position" api:"required"`
 	// Whether this discount should be preserved when a subscription changes plans
@@ -282,8 +282,8 @@ type DiscountNewParams struct {
 	// When the discount expires, if ever.
 	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
 	// Additional metadata for the discount
-	Metadata param.Field[map[string]string] `json:"metadata"`
-	Name     param.Field[string]            `json:"name"`
+	Metadata param.Field[MetadataParam] `json:"metadata"`
+	Name     param.Field[string]        `json:"name"`
 	// Whether this discount should be preserved when a subscription changes plans.
 	// Default: false (discount is removed on plan change)
 	PreserveOnPlanChange param.Field[bool] `json:"preserve_on_plan_change"`
@@ -311,8 +311,8 @@ type DiscountUpdateParams struct {
 	Code      param.Field[string]    `json:"code"`
 	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
 	// Additional metadata for the discount
-	Metadata param.Field[map[string]string] `json:"metadata"`
-	Name     param.Field[string]            `json:"name"`
+	Metadata param.Field[MetadataParam] `json:"metadata"`
+	Name     param.Field[string]        `json:"name"`
 	// Whether this discount should be preserved when a subscription changes plans. If
 	// not provided, the existing value is kept.
 	PreserveOnPlanChange param.Field[bool] `json:"preserve_on_plan_change"`

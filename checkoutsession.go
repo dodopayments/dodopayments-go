@@ -221,7 +221,7 @@ type CheckoutSessionRequestParam struct {
 	MandateMinAmountInrPaise param.Field[int64] `json:"mandate_min_amount_inr_paise"`
 	// Additional metadata associated with the payment. Defaults to empty if not
 	// provided.
-	Metadata param.Field[map[string]string] `json:"metadata"`
+	Metadata param.Field[MetadataParam] `json:"metadata"`
 	// If true, only zipcode is required when confirm is true; other address fields
 	// remain optional
 	MinimalAddress param.Field[bool] `json:"minimal_address"`

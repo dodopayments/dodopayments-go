@@ -150,9 +150,9 @@ type Customer struct {
 	Email      string    `json:"email" api:"required"`
 	Name       string    `json:"name" api:"required"`
 	// Additional metadata for the customer
-	Metadata    map[string]string `json:"metadata"`
-	PhoneNumber string            `json:"phone_number" api:"nullable"`
-	JSON        customerJSON      `json:"-"`
+	Metadata    Metadata     `json:"metadata"`
+	PhoneNumber string       `json:"phone_number" api:"nullable"`
+	JSON        customerJSON `json:"-"`
 }
 
 // customerJSON contains the JSON metadata for the struct [Customer]
@@ -456,8 +456,8 @@ type CustomerNewParams struct {
 	Email param.Field[string] `json:"email" api:"required"`
 	Name  param.Field[string] `json:"name" api:"required"`
 	// Additional metadata for the customer
-	Metadata    param.Field[map[string]string] `json:"metadata"`
-	PhoneNumber param.Field[string]            `json:"phone_number"`
+	Metadata    param.Field[MetadataParam] `json:"metadata"`
+	PhoneNumber param.Field[string]        `json:"phone_number"`
 }
 
 func (r CustomerNewParams) MarshalJSON() (data []byte, err error) {
@@ -467,9 +467,9 @@ func (r CustomerNewParams) MarshalJSON() (data []byte, err error) {
 type CustomerUpdateParams struct {
 	Email param.Field[string] `json:"email"`
 	// Additional metadata for the customer
-	Metadata    param.Field[map[string]string] `json:"metadata"`
-	Name        param.Field[string]            `json:"name"`
-	PhoneNumber param.Field[string]            `json:"phone_number"`
+	Metadata    param.Field[MetadataParam] `json:"metadata"`
+	Name        param.Field[string]        `json:"name"`
+	PhoneNumber param.Field[string]        `json:"phone_number"`
 }
 
 func (r CustomerUpdateParams) MarshalJSON() (data []byte, err error) {

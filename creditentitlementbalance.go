@@ -338,20 +338,24 @@ type CreditLedgerEntry struct {
 	BalanceAfter  string `json:"balance_after" api:"required"`
 	BalanceBefore string `json:"balance_before" api:"required"`
 	// Brand id this credit ledger entry belongs to
-	BrandID             string                           `json:"brand_id" api:"required"`
-	BusinessID          string                           `json:"business_id" api:"required"`
-	CreatedAt           time.Time                        `json:"created_at" api:"required" format:"date-time"`
-	CreditEntitlementID string                           `json:"credit_entitlement_id" api:"required"`
-	CustomerID          string                           `json:"customer_id" api:"required"`
-	IsCredit            bool                             `json:"is_credit" api:"required"`
-	OverageAfter        string                           `json:"overage_after" api:"required"`
-	OverageBefore       string                           `json:"overage_before" api:"required"`
-	TransactionType     CreditLedgerEntryTransactionType `json:"transaction_type" api:"required"`
-	Description         string                           `json:"description" api:"nullable"`
-	GrantID             string                           `json:"grant_id" api:"nullable"`
-	ReferenceID         string                           `json:"reference_id" api:"nullable"`
-	ReferenceType       string                           `json:"reference_type" api:"nullable"`
-	JSON                creditLedgerEntryJSON            `json:"-"`
+	BrandID             string    `json:"brand_id" api:"required"`
+	BusinessID          string    `json:"business_id" api:"required"`
+	CreatedAt           time.Time `json:"created_at" api:"required" format:"date-time"`
+	CreditEntitlementID string    `json:"credit_entitlement_id" api:"required"`
+	CustomerID          string    `json:"customer_id" api:"required"`
+	IsCredit            bool      `json:"is_credit" api:"required"`
+	// Metadata associated with the credit grant's source (the subscription or payment
+	// created at checkout). Empty when the grant has no resolvable source (e.g.
+	// credits granted directly via the API).
+	Metadata        Metadata                         `json:"metadata" api:"required"`
+	OverageAfter    string                           `json:"overage_after" api:"required"`
+	OverageBefore   string                           `json:"overage_before" api:"required"`
+	TransactionType CreditLedgerEntryTransactionType `json:"transaction_type" api:"required"`
+	Description     string                           `json:"description" api:"nullable"`
+	GrantID         string                           `json:"grant_id" api:"nullable"`
+	ReferenceID     string                           `json:"reference_id" api:"nullable"`
+	ReferenceType   string                           `json:"reference_type" api:"nullable"`
+	JSON            creditLedgerEntryJSON            `json:"-"`
 }
 
 // creditLedgerEntryJSON contains the JSON metadata for the struct
@@ -367,6 +371,7 @@ type creditLedgerEntryJSON struct {
 	CreditEntitlementID apijson.Field
 	CustomerID          apijson.Field
 	IsCredit            apijson.Field
+	Metadata            apijson.Field
 	OverageAfter        apijson.Field
 	OverageBefore       apijson.Field
 	TransactionType     apijson.Field
@@ -520,7 +525,7 @@ type CreditEntitlementBalanceListGrantsResponse struct {
 	SourceType          CreditEntitlementBalanceListGrantsResponseSourceType `json:"source_type" api:"required"`
 	UpdatedAt           time.Time                                            `json:"updated_at" api:"required" format:"date-time"`
 	ExpiresAt           time.Time                                            `json:"expires_at" api:"nullable" format:"date-time"`
-	Metadata            map[string]string                                    `json:"metadata" api:"nullable"`
+	Metadata            Metadata                                             `json:"metadata" api:"nullable"`
 	ParentGrantID       string                                               `json:"parent_grant_id" api:"nullable"`
 	SourceID            string                                               `json:"source_id" api:"nullable"`
 	JSON                creditEntitlementBalanceListGrantsResponseJSON       `json:"-"`
@@ -603,7 +608,7 @@ type CreditEntitlementBalanceNewLedgerEntryParams struct {
 	IdempotencyKey param.Field[string] `json:"idempotency_key"`
 	// Optional metadata (max 50 key-value pairs, key max 40 chars, value max 500
 	// chars)
-	Metadata param.Field[map[string]string] `json:"metadata"`
+	Metadata param.Field[MetadataParam] `json:"metadata"`
 	// Human-readable reason for the entry
 	Reason param.Field[string] `json:"reason"`
 }
