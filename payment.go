@@ -183,7 +183,7 @@ type CustomerLimitedDetails struct {
 	// Full name of the customer
 	Name string `json:"name" api:"required"`
 	// Additional metadata associated with the customer
-	Metadata map[string]string `json:"metadata"`
+	Metadata Metadata `json:"metadata"`
 	// Phone number of the customer
 	PhoneNumber string                     `json:"phone_number" api:"nullable"`
 	JSON        customerLimitedDetailsJSON `json:"-"`
@@ -331,7 +331,7 @@ type Payment struct {
 	// List of disputes associated with this payment
 	Disputes []Dispute `json:"disputes" api:"required"`
 	// Additional custom data associated with the payment
-	Metadata map[string]string `json:"metadata" api:"required"`
+	Metadata Metadata `json:"metadata" api:"required"`
 	// Unique identifier for the payment
 	PaymentID string `json:"payment_id" api:"required"`
 	// Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
@@ -616,11 +616,12 @@ const (
 	PaymentMethodTypesRevolutPay                 PaymentMethodTypes = "revolut_pay"
 	PaymentMethodTypesNaverPay                   PaymentMethodTypes = "naver_pay"
 	PaymentMethodTypesPayco                      PaymentMethodTypes = "payco"
+	PaymentMethodTypesSatispay                   PaymentMethodTypes = "satispay"
 )
 
 func (r PaymentMethodTypes) IsKnown() bool {
 	switch r {
-	case PaymentMethodTypesACH, PaymentMethodTypesAffirm, PaymentMethodTypesAfterpayClearpay, PaymentMethodTypesAlfamart, PaymentMethodTypesAliPay, PaymentMethodTypesAliPayHk, PaymentMethodTypesAlma, PaymentMethodTypesAmazonPay, PaymentMethodTypesApplePay, PaymentMethodTypesAtome, PaymentMethodTypesBacs, PaymentMethodTypesBancontactCard, PaymentMethodTypesBecs, PaymentMethodTypesBenefit, PaymentMethodTypesBizum, PaymentMethodTypesBlik, PaymentMethodTypesBoleto, PaymentMethodTypesBcaBankTransfer, PaymentMethodTypesBniVa, PaymentMethodTypesBriVa, PaymentMethodTypesCardRedirect, PaymentMethodTypesCimbVa, PaymentMethodTypesClassic, PaymentMethodTypesCredit, PaymentMethodTypesCryptoCurrency, PaymentMethodTypesCashapp, PaymentMethodTypesDana, PaymentMethodTypesDanamonVa, PaymentMethodTypesDebit, PaymentMethodTypesDuitNow, PaymentMethodTypesEfecty, PaymentMethodTypesEft, PaymentMethodTypesEps, PaymentMethodTypesFps, PaymentMethodTypesEvoucher, PaymentMethodTypesGiropay, PaymentMethodTypesGivex, PaymentMethodTypesGooglePay, PaymentMethodTypesGoPay, PaymentMethodTypesGcash, PaymentMethodTypesIdeal, PaymentMethodTypesInterac, PaymentMethodTypesIndomaret, PaymentMethodTypesKlarna, PaymentMethodTypesKakaoPay, PaymentMethodTypesLocalBankRedirect, PaymentMethodTypesMandiriVa, PaymentMethodTypesKnet, PaymentMethodTypesMBWay, PaymentMethodTypesMobilePay, PaymentMethodTypesMomo, PaymentMethodTypesMomoAtm, PaymentMethodTypesMultibanco, PaymentMethodTypesOnlineBankingThailand, PaymentMethodTypesOnlineBankingCzechRepublic, PaymentMethodTypesOnlineBankingFinland, PaymentMethodTypesOnlineBankingFpx, PaymentMethodTypesOnlineBankingPoland, PaymentMethodTypesOnlineBankingSlovakia, PaymentMethodTypesOxxo, PaymentMethodTypesPagoEfectivo, PaymentMethodTypesPermataBankTransfer, PaymentMethodTypesOpenBankingUk, PaymentMethodTypesPayBright, PaymentMethodTypesPaypal, PaymentMethodTypesPaze, PaymentMethodTypesPix, PaymentMethodTypesPaySafeCard, PaymentMethodTypesPrzelewy24, PaymentMethodTypesPromptPay, PaymentMethodTypesPse, PaymentMethodTypesRedCompra, PaymentMethodTypesRedPagos, PaymentMethodTypesSamsungPay, PaymentMethodTypesSepa, PaymentMethodTypesSepaBankTransfer, PaymentMethodTypesSofort, PaymentMethodTypesSunbit, PaymentMethodTypesSwish, PaymentMethodTypesTouchNGo, PaymentMethodTypesTrustly, PaymentMethodTypesTwint, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesVipps, PaymentMethodTypesVietQr, PaymentMethodTypesVenmo, PaymentMethodTypesWalley, PaymentMethodTypesWeChatPay, PaymentMethodTypesSevenEleven, PaymentMethodTypesLawson, PaymentMethodTypesMiniStop, PaymentMethodTypesFamilyMart, PaymentMethodTypesSeicomart, PaymentMethodTypesPayEasy, PaymentMethodTypesLocalBankTransfer, PaymentMethodTypesMifinity, PaymentMethodTypesOpenBankingPis, PaymentMethodTypesDirectCarrierBilling, PaymentMethodTypesInstantBankTransfer, PaymentMethodTypesBillie, PaymentMethodTypesZip, PaymentMethodTypesRevolutPay, PaymentMethodTypesNaverPay, PaymentMethodTypesPayco:
+	case PaymentMethodTypesACH, PaymentMethodTypesAffirm, PaymentMethodTypesAfterpayClearpay, PaymentMethodTypesAlfamart, PaymentMethodTypesAliPay, PaymentMethodTypesAliPayHk, PaymentMethodTypesAlma, PaymentMethodTypesAmazonPay, PaymentMethodTypesApplePay, PaymentMethodTypesAtome, PaymentMethodTypesBacs, PaymentMethodTypesBancontactCard, PaymentMethodTypesBecs, PaymentMethodTypesBenefit, PaymentMethodTypesBizum, PaymentMethodTypesBlik, PaymentMethodTypesBoleto, PaymentMethodTypesBcaBankTransfer, PaymentMethodTypesBniVa, PaymentMethodTypesBriVa, PaymentMethodTypesCardRedirect, PaymentMethodTypesCimbVa, PaymentMethodTypesClassic, PaymentMethodTypesCredit, PaymentMethodTypesCryptoCurrency, PaymentMethodTypesCashapp, PaymentMethodTypesDana, PaymentMethodTypesDanamonVa, PaymentMethodTypesDebit, PaymentMethodTypesDuitNow, PaymentMethodTypesEfecty, PaymentMethodTypesEft, PaymentMethodTypesEps, PaymentMethodTypesFps, PaymentMethodTypesEvoucher, PaymentMethodTypesGiropay, PaymentMethodTypesGivex, PaymentMethodTypesGooglePay, PaymentMethodTypesGoPay, PaymentMethodTypesGcash, PaymentMethodTypesIdeal, PaymentMethodTypesInterac, PaymentMethodTypesIndomaret, PaymentMethodTypesKlarna, PaymentMethodTypesKakaoPay, PaymentMethodTypesLocalBankRedirect, PaymentMethodTypesMandiriVa, PaymentMethodTypesKnet, PaymentMethodTypesMBWay, PaymentMethodTypesMobilePay, PaymentMethodTypesMomo, PaymentMethodTypesMomoAtm, PaymentMethodTypesMultibanco, PaymentMethodTypesOnlineBankingThailand, PaymentMethodTypesOnlineBankingCzechRepublic, PaymentMethodTypesOnlineBankingFinland, PaymentMethodTypesOnlineBankingFpx, PaymentMethodTypesOnlineBankingPoland, PaymentMethodTypesOnlineBankingSlovakia, PaymentMethodTypesOxxo, PaymentMethodTypesPagoEfectivo, PaymentMethodTypesPermataBankTransfer, PaymentMethodTypesOpenBankingUk, PaymentMethodTypesPayBright, PaymentMethodTypesPaypal, PaymentMethodTypesPaze, PaymentMethodTypesPix, PaymentMethodTypesPaySafeCard, PaymentMethodTypesPrzelewy24, PaymentMethodTypesPromptPay, PaymentMethodTypesPse, PaymentMethodTypesRedCompra, PaymentMethodTypesRedPagos, PaymentMethodTypesSamsungPay, PaymentMethodTypesSepa, PaymentMethodTypesSepaBankTransfer, PaymentMethodTypesSofort, PaymentMethodTypesSunbit, PaymentMethodTypesSwish, PaymentMethodTypesTouchNGo, PaymentMethodTypesTrustly, PaymentMethodTypesTwint, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesVipps, PaymentMethodTypesVietQr, PaymentMethodTypesVenmo, PaymentMethodTypesWalley, PaymentMethodTypesWeChatPay, PaymentMethodTypesSevenEleven, PaymentMethodTypesLawson, PaymentMethodTypesMiniStop, PaymentMethodTypesFamilyMart, PaymentMethodTypesSeicomart, PaymentMethodTypesPayEasy, PaymentMethodTypesLocalBankTransfer, PaymentMethodTypesMifinity, PaymentMethodTypesOpenBankingPis, PaymentMethodTypesDirectCarrierBilling, PaymentMethodTypesInstantBankTransfer, PaymentMethodTypesBillie, PaymentMethodTypesZip, PaymentMethodTypesRevolutPay, PaymentMethodTypesNaverPay, PaymentMethodTypesPayco, PaymentMethodTypesSatispay:
 		return true
 	}
 	return false
@@ -693,7 +694,7 @@ type PaymentNewResponse struct {
 	// Limited details about the customer making the payment
 	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// Additional metadata associated with the payment
-	Metadata map[string]string `json:"metadata" api:"required"`
+	Metadata Metadata `json:"metadata" api:"required"`
 	// Unique identifier for the payment
 	PaymentID string `json:"payment_id" api:"required"`
 	// Total amount of the payment in the currency's smallest unit (cents for USD, yen
@@ -747,7 +748,7 @@ type PaymentListResponse struct {
 	Customer                 CustomerLimitedDetails `json:"customer" api:"required"`
 	DigitalProductsDelivered bool                   `json:"digital_products_delivered" api:"required"`
 	HasLicenseKey            bool                   `json:"has_license_key" api:"required"`
-	Metadata                 map[string]string      `json:"metadata" api:"required"`
+	Metadata                 Metadata               `json:"metadata" api:"required"`
 	PaymentID                string                 `json:"payment_id" api:"required"`
 	// Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
 	// merchant's own payment connector); `dodo` for everything Dodo processed itself.
@@ -914,7 +915,7 @@ type PaymentNewParams struct {
 	Force3DS param.Field[bool] `json:"force_3ds"`
 	// Additional metadata associated with the payment. Defaults to empty if not
 	// provided.
-	Metadata param.Field[map[string]string] `json:"metadata"`
+	Metadata param.Field[MetadataParam] `json:"metadata"`
 	// Whether to generate a payment link. Defaults to false if not specified.
 	PaymentLink param.Field[bool] `json:"payment_link"`
 	// Optional payment method ID to use for this payment. If provided, customer_id

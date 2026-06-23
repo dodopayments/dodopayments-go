@@ -458,6 +458,10 @@ func (r Currency) IsKnown() bool {
 	return false
 }
 
+type Metadata map[string]string
+
+type MetadataParam map[string]string
+
 // Represents the different categories of taxation applicable to various products
 // and services.
 type TaxCategory string

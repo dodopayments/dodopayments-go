@@ -33,7 +33,7 @@ func TestEntitlementNewWithOptionalParams(t *testing.T) {
 		IntegrationType: dodopayments.F(dodopayments.EntitlementIntegrationTypeDiscord),
 		Name:            dodopayments.F("name"),
 		Description:     dodopayments.F("description"),
-		Metadata: dodopayments.F(map[string]string{
+		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": "string",
 		}),
 	})
@@ -89,7 +89,7 @@ func TestEntitlementUpdateWithOptionalParams(t *testing.T) {
 				Permission: dodopayments.F(dodopayments.GitHubPermissionPull),
 				TargetID:   dodopayments.F("target_id"),
 			}),
-			Metadata: dodopayments.F(map[string]string{
+			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": "string",
 			}),
 			Name: dodopayments.F("name"),

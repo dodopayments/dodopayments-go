@@ -50,7 +50,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		DiscountCodes:             dodopayments.F([]string{"string"}),
 		Force3DS:                  dodopayments.F(true),
 		MandateMinAmountInrPaise:  dodopayments.F(int64(0)),
-		Metadata: dodopayments.F(map[string]string{
+		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": "string",
 		}),
 		OnDemand: dodopayments.F(dodopayments.OnDemandSubscriptionParam{
@@ -151,7 +151,7 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 			DisableOnDemand: dodopayments.F(dodopayments.SubscriptionUpdateParamsDisableOnDemand{
 				NextBillingDate: dodopayments.F(time.Now()),
 			}),
-			Metadata: dodopayments.F(map[string]string{
+			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": "string",
 			}),
 			NextBillingDate: dodopayments.F(time.Now()),
@@ -249,7 +249,7 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 				DiscountCode:  dodopayments.F("discount_code"),
 				DiscountCodes: dodopayments.F([]string{"string"}),
 				EffectiveAt:   dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
-				Metadata: dodopayments.F(map[string]string{
+				Metadata: dodopayments.F(dodopayments.MetadataParam{
 					"foo": "string",
 				}),
 				OnPaymentFailure: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqOnPaymentFailurePreventChange),
@@ -287,7 +287,7 @@ func TestSubscriptionChargeWithOptionalParams(t *testing.T) {
 				AllowCustomerCreditsPurchase: dodopayments.F(true),
 				AllowCustomerCreditsUsage:    dodopayments.F(true),
 			}),
-			Metadata: dodopayments.F(map[string]string{
+			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": "string",
 			}),
 			ProductCurrency:    dodopayments.F(dodopayments.CurrencyAed),
@@ -331,7 +331,7 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 				DiscountCode:  dodopayments.F("discount_code"),
 				DiscountCodes: dodopayments.F([]string{"string"}),
 				EffectiveAt:   dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
-				Metadata: dodopayments.F(map[string]string{
+				Metadata: dodopayments.F(dodopayments.MetadataParam{
 					"foo": "string",
 				}),
 				OnPaymentFailure: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqOnPaymentFailurePreventChange),

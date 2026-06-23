@@ -29,7 +29,7 @@ func TestCustomerNewWithOptionalParams(t *testing.T) {
 	_, err := client.Customers.New(context.TODO(), dodopayments.CustomerNewParams{
 		Email: dodopayments.F("email"),
 		Name:  dodopayments.F("name"),
-		Metadata: dodopayments.F(map[string]string{
+		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": "string",
 		}),
 		PhoneNumber: dodopayments.F("phone_number"),
@@ -82,7 +82,7 @@ func TestCustomerUpdateWithOptionalParams(t *testing.T) {
 		"cus_TV52uJWWXt2yIoBBxpjaa",
 		dodopayments.CustomerUpdateParams{
 			Email: dodopayments.F("email"),
-			Metadata: dodopayments.F(map[string]string{
+			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": "string",
 			}),
 			Name:        dodopayments.F("name"),
