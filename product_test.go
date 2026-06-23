@@ -77,7 +77,7 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 		Metadata: dodopayments.F(map[string]string{
 			"foo": "string",
 		}),
-		PricingMode: dodopayments.F(dodopayments.ProductNewParamsPricingModeByCurrency),
+		PricingMode: dodopayments.F(dodopayments.PricingModeByCurrency),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -178,7 +178,7 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 				SuggestedPrice:        dodopayments.F(int64(0)),
 				TaxInclusive:          dodopayments.F(true),
 			}),
-			PricingMode: dodopayments.F(dodopayments.ProductUpdateParamsPricingModeByCurrency),
+			PricingMode: dodopayments.F(dodopayments.PricingModeByCurrency),
 			TaxCategory: dodopayments.F(dodopayments.TaxCategoryDigitalProducts),
 		},
 	)
