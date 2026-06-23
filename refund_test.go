@@ -33,7 +33,7 @@ func TestRefundNewWithOptionalParams(t *testing.T) {
 			Amount:       dodopayments.F(int64(0)),
 			TaxInclusive: dodopayments.F(true),
 		}}),
-		Metadata: dodopayments.F(map[string]string{
+		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": "string",
 		}),
 		Reason: dodopayments.F("reason"),

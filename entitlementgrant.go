@@ -65,6 +65,21 @@ func (r *EntitlementGrantService) ListAutoPaging(ctx context.Context, id string,
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, id, query, opts...))
 }
 
+// For entitlements whose license-key config uses `manual` fulfillment, grants are
+// created in the `pending` state without a key. Call this endpoint to deliver the
+// key: the grant moves to `delivered`, the customer is emailed the key, and the
+// `license_key.created` and `entitlement_grant.delivered` webhook events are sent.
+func (r *EntitlementGrantService) FulfillLicenseKey(ctx context.Context, grantID string, body EntitlementGrantFulfillLicenseKeyParams, opts ...option.RequestOption) (res *EntitlementGrant, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if grantID == "" {
+		err = errors.New("missing required grant_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("grants/%s/license-key", grantID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 // Revoke a single grant. Idempotent: re-revoking an already-revoked grant returns
 // the grant in its current state.
 func (r *EntitlementGrantService) Revoke(ctx context.Context, id string, grantID string, opts ...option.RequestOption) (res *EntitlementGrant, err error) {
@@ -100,7 +115,7 @@ type EntitlementGrant struct {
 	// The integration type of the grant's entitlement (e.g. `license_key`).
 	IntegrationType EntitlementIntegrationType `json:"integration_type" api:"required"`
 	// Arbitrary key-value metadata recorded on the grant.
-	Metadata map[string]string `json:"metadata" api:"required"`
+	Metadata Metadata `json:"metadata" api:"required"`
 	// Lifecycle status of the grant.
 	Status EntitlementGrantStatus `json:"status" api:"required"`
 	// Timestamp when the grant was last modified.
@@ -256,4 +271,19 @@ func (r EntitlementGrantListParamsStatus) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+type EntitlementGrantFulfillLicenseKeyParams struct {
+	// The license key value to deliver to the customer.
+	Key param.Field[string] `json:"key" api:"required"`
+	// Per-key activation limit. Defaults to the entitlement's license-key
+	// configuration.
+	ActivationsLimit param.Field[int64] `json:"activations_limit"`
+	// When the key expires. Defaults to the duration in the entitlement's license-key
+	// configuration.
+	ExpiresAt param.Field[time.Time] `json:"expires_at" format:"date-time"`
+}
+
+func (r EntitlementGrantFulfillLicenseKeyParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
