@@ -566,7 +566,7 @@ type Subscription struct {
 	// Customer details associated with the subscription
 	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// Additional custom data associated with the subscription
-	Metadata map[string]string `json:"metadata" api:"required"`
+	Metadata Metadata `json:"metadata" api:"required"`
 	// Meter credit entitlement cart settings for this subscription
 	MeterCreditEntitlementCart []MeterCreditEntitlementCartResponse `json:"meter_credit_entitlement_cart" api:"required"`
 	// Meters associated with this subscription (for usage-based billing)
@@ -746,7 +746,7 @@ type UpdateSubscriptionPlanReqParam struct {
 	EffectiveAt param.Field[UpdateSubscriptionPlanReqEffectiveAt] `json:"effective_at"`
 	// Metadata for the payment. If not passed, the metadata of the subscription will
 	// be taken
-	Metadata param.Field[map[string]string] `json:"metadata"`
+	Metadata param.Field[MetadataParam] `json:"metadata"`
 	// Controls behavior when the plan change payment fails.
 	//
 	//   - `prevent_change`: Keep subscription on current plan until payment succeeds
@@ -826,7 +826,7 @@ type SubscriptionNewResponse struct {
 	// Customer details associated with this subscription
 	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// Additional metadata associated with the subscription
-	Metadata map[string]string `json:"metadata" api:"required"`
+	Metadata Metadata `json:"metadata" api:"required"`
 	// First payment id for the subscription
 	PaymentID string `json:"payment_id" api:"required"`
 	// Tax will be added to the amount and charged to the customer on each billing
@@ -918,7 +918,7 @@ type SubscriptionListResponse struct {
 	// All stacked discounts applied, in order of application
 	Discounts []SubscriptionListResponseDiscount `json:"discounts" api:"required"`
 	// Additional custom data associated with the subscription
-	Metadata map[string]string `json:"metadata" api:"required"`
+	Metadata Metadata `json:"metadata" api:"required"`
 	// Timestamp of the next scheduled billing. Indicates the end of current billing
 	// period
 	NextBillingDate time.Time `json:"next_billing_date" api:"required" format:"date-time"`
@@ -1672,7 +1672,7 @@ type SubscriptionNewParams struct {
 	// applies.
 	MandateMinAmountInrPaise param.Field[int64] `json:"mandate_min_amount_inr_paise"`
 	// Additional metadata for the subscription Defaults to empty if not specified
-	Metadata param.Field[map[string]string]         `json:"metadata"`
+	Metadata param.Field[MetadataParam]             `json:"metadata"`
 	OnDemand param.Field[OnDemandSubscriptionParam] `json:"on_demand"`
 	// List of one time products that will be bundled with the first payment for this
 	// subscription
@@ -1728,7 +1728,7 @@ type SubscriptionUpdateParams struct {
 	CustomerBusinessName param.Field[string]                                  `json:"customer_business_name"`
 	CustomerName         param.Field[string]                                  `json:"customer_name"`
 	DisableOnDemand      param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
-	Metadata             param.Field[map[string]string]                       `json:"metadata"`
+	Metadata             param.Field[MetadataParam]                           `json:"metadata"`
 	NextBillingDate      param.Field[time.Time]                               `json:"next_billing_date" format:"date-time"`
 	Status               param.Field[SubscriptionStatus]                      `json:"status"`
 	TaxID                param.Field[string]                                  `json:"tax_id"`
@@ -1848,7 +1848,7 @@ type SubscriptionChargeParams struct {
 	CustomerBalanceConfig param.Field[SubscriptionChargeParamsCustomerBalanceConfig] `json:"customer_balance_config"`
 	// Metadata for the payment. If not passed, the metadata of the subscription will
 	// be taken
-	Metadata param.Field[map[string]string] `json:"metadata"`
+	Metadata param.Field[MetadataParam] `json:"metadata"`
 	// Optional currency of the product price. If not specified, defaults to the
 	// currency of the product.
 	ProductCurrency param.Field[Currency] `json:"product_currency"`

@@ -135,7 +135,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 			}),
 			Force3DS:                 dodopayments.F(true),
 			MandateMinAmountInrPaise: dodopayments.F(int64(0)),
-			Metadata: dodopayments.F(map[string]string{
+			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": "string",
 			}),
 			MinimalAddress:          dodopayments.F(true),
@@ -310,7 +310,7 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 			}),
 			Force3DS:                 dodopayments.F(true),
 			MandateMinAmountInrPaise: dodopayments.F(int64(0)),
-			Metadata: dodopayments.F(map[string]string{
+			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": "string",
 			}),
 			MinimalAddress:          dodopayments.F(true),

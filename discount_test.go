@@ -31,7 +31,7 @@ func TestDiscountNewWithOptionalParams(t *testing.T) {
 		Type:      dodopayments.F(dodopayments.DiscountTypePercentage),
 		Code:      dodopayments.F("code"),
 		ExpiresAt: dodopayments.F(time.Now()),
-		Metadata: dodopayments.F(map[string]string{
+		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": "string",
 		}),
 		Name:                 dodopayments.F("name"),
@@ -90,7 +90,7 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 			Amount:    dodopayments.F(int64(0)),
 			Code:      dodopayments.F("code"),
 			ExpiresAt: dodopayments.F(time.Now()),
-			Metadata: dodopayments.F(map[string]string{
+			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": "string",
 			}),
 			Name:                 dodopayments.F("name"),
