@@ -130,7 +130,7 @@ type Entitlement struct {
 	// entitlements are not returned.
 	IsActive bool `json:"is_active" api:"required"`
 	// Arbitrary key-value metadata supplied at creation or via PATCH.
-	Metadata map[string]string `json:"metadata" api:"required"`
+	Metadata Metadata `json:"metadata" api:"required"`
 	// Display name supplied at creation.
 	Name string `json:"name" api:"required"`
 	// Timestamp when the entitlement was last modified.
@@ -902,7 +902,7 @@ type EntitlementNewParams struct {
 	// Optional description
 	Description param.Field[string] `json:"description"`
 	// Additional metadata for the entitlement
-	Metadata param.Field[map[string]string] `json:"metadata"`
+	Metadata param.Field[MetadataParam] `json:"metadata"`
 }
 
 func (r EntitlementNewParams) MarshalJSON() (data []byte, err error) {
@@ -914,7 +914,7 @@ type EntitlementUpdateParams struct {
 	// Integration-specific configuration supplied when creating or updating an
 	// entitlement. The shape required matches the entitlement's `integration_type`.
 	IntegrationConfig param.Field[IntegrationConfigUnionParam] `json:"integration_config"`
-	Metadata          param.Field[map[string]string]           `json:"metadata"`
+	Metadata          param.Field[MetadataParam]               `json:"metadata"`
 	Name              param.Field[string]                      `json:"name"`
 }
 

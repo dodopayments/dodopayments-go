@@ -49,7 +49,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 		DiscountCode:                  dodopayments.F("discount_code"),
 		DiscountCodes:                 dodopayments.F([]string{"string"}),
 		Force3DS:                      dodopayments.F(true),
-		Metadata: dodopayments.F(map[string]string{
+		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": "string",
 		}),
 		PaymentLink:             dodopayments.F(true),
