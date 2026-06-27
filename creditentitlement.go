@@ -373,9 +373,10 @@ type CreditEntitlement struct {
 	MaxRolloverCount int64              `json:"max_rollover_count" api:"nullable"`
 	OverageLimit     int64              `json:"overage_limit" api:"nullable"`
 	// Price per credit unit
-	PricePerUnit              string                `json:"price_per_unit" api:"nullable"`
-	RolloverPercentage        int64                 `json:"rollover_percentage" api:"nullable"`
-	RolloverTimeframeCount    int64                 `json:"rollover_timeframe_count" api:"nullable"`
+	PricePerUnit           string `json:"price_per_unit" api:"nullable"`
+	RolloverPercentage     int64  `json:"rollover_percentage" api:"nullable"`
+	RolloverTimeframeCount int64  `json:"rollover_timeframe_count" api:"nullable"`
+	// Unit of a duration count (e.g. license-key validity period).
 	RolloverTimeframeInterval TimeInterval          `json:"rollover_timeframe_interval" api:"nullable"`
 	JSON                      creditEntitlementJSON `json:"-"`
 }
