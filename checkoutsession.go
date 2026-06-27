@@ -144,6 +144,11 @@ type CheckoutSessionFlagsParam struct {
 	//
 	// Default is true
 	AllowDiscountCode param.Field[bool] `json:"allow_discount_code"`
+	// If true, the customer can add or remove addons on a subscription product during
+	// checkout.
+	//
+	// Default is false
+	AllowEditingAddons param.Field[bool] `json:"allow_editing_addons"`
 	// If phone number is collected from customer, set it to rue
 	//
 	// Default is true

@@ -293,8 +293,9 @@ func (r addonCartResponseItemJSON) RawJSON() string {
 }
 
 type AttachAddonParam struct {
-	AddonID  param.Field[string] `json:"addon_id" api:"required"`
-	Quantity param.Field[int64]  `json:"quantity" api:"required"`
+	AddonID param.Field[string] `json:"addon_id" api:"required"`
+	// Number of units of this addon.
+	Quantity param.Field[int64] `json:"quantity" api:"required"`
 }
 
 func (r AttachAddonParam) MarshalJSON() (data []byte, err error) {
@@ -344,15 +345,16 @@ type CreditEntitlementCartResponse struct {
 	RemainingBalance string `json:"remaining_balance" api:"required"`
 	RolloverEnabled  bool   `json:"rollover_enabled" api:"required"`
 	// Unit label for the credit entitlement (e.g., "API Calls", "Tokens")
-	Unit                       string                            `json:"unit" api:"required"`
-	ExpiresAfterDays           int64                             `json:"expires_after_days" api:"nullable"`
-	LowBalanceThresholdPercent int64                             `json:"low_balance_threshold_percent" api:"nullable"`
-	MaxRolloverCount           int64                             `json:"max_rollover_count" api:"nullable"`
-	OverageLimit               string                            `json:"overage_limit" api:"nullable"`
-	RolloverPercentage         int64                             `json:"rollover_percentage" api:"nullable"`
-	RolloverTimeframeCount     int64                             `json:"rollover_timeframe_count" api:"nullable"`
-	RolloverTimeframeInterval  TimeInterval                      `json:"rollover_timeframe_interval" api:"nullable"`
-	JSON                       creditEntitlementCartResponseJSON `json:"-"`
+	Unit                       string `json:"unit" api:"required"`
+	ExpiresAfterDays           int64  `json:"expires_after_days" api:"nullable"`
+	LowBalanceThresholdPercent int64  `json:"low_balance_threshold_percent" api:"nullable"`
+	MaxRolloverCount           int64  `json:"max_rollover_count" api:"nullable"`
+	OverageLimit               string `json:"overage_limit" api:"nullable"`
+	RolloverPercentage         int64  `json:"rollover_percentage" api:"nullable"`
+	RolloverTimeframeCount     int64  `json:"rollover_timeframe_count" api:"nullable"`
+	// Unit of a duration count (e.g. license-key validity period).
+	RolloverTimeframeInterval TimeInterval                      `json:"rollover_timeframe_interval" api:"nullable"`
+	JSON                      creditEntitlementCartResponseJSON `json:"-"`
 }
 
 // creditEntitlementCartResponseJSON contains the JSON metadata for the struct
@@ -699,6 +701,7 @@ func (r SubscriptionStatus) IsKnown() bool {
 	return false
 }
 
+// Unit of a duration count (e.g. license-key validity period).
 type TimeInterval string
 
 const (
@@ -1756,17 +1759,18 @@ func (r SubscriptionUpdateParamsCancelReason) IsKnown() bool {
 }
 
 type SubscriptionUpdateParamsCreditEntitlementCart struct {
-	CreditEntitlementID        param.Field[string]       `json:"credit_entitlement_id" api:"required"`
-	CreditsAmount              param.Field[string]       `json:"credits_amount"`
-	ExpiresAfterDays           param.Field[int64]        `json:"expires_after_days"`
-	LowBalanceThresholdPercent param.Field[int64]        `json:"low_balance_threshold_percent"`
-	MaxRolloverCount           param.Field[int64]        `json:"max_rollover_count"`
-	OverageEnabled             param.Field[bool]         `json:"overage_enabled"`
-	OverageLimit               param.Field[string]       `json:"overage_limit"`
-	RolloverEnabled            param.Field[bool]         `json:"rollover_enabled"`
-	RolloverPercentage         param.Field[int64]        `json:"rollover_percentage"`
-	RolloverTimeframeCount     param.Field[int64]        `json:"rollover_timeframe_count"`
-	RolloverTimeframeInterval  param.Field[TimeInterval] `json:"rollover_timeframe_interval"`
+	CreditEntitlementID        param.Field[string] `json:"credit_entitlement_id" api:"required"`
+	CreditsAmount              param.Field[string] `json:"credits_amount"`
+	ExpiresAfterDays           param.Field[int64]  `json:"expires_after_days"`
+	LowBalanceThresholdPercent param.Field[int64]  `json:"low_balance_threshold_percent"`
+	MaxRolloverCount           param.Field[int64]  `json:"max_rollover_count"`
+	OverageEnabled             param.Field[bool]   `json:"overage_enabled"`
+	OverageLimit               param.Field[string] `json:"overage_limit"`
+	RolloverEnabled            param.Field[bool]   `json:"rollover_enabled"`
+	RolloverPercentage         param.Field[int64]  `json:"rollover_percentage"`
+	RolloverTimeframeCount     param.Field[int64]  `json:"rollover_timeframe_count"`
+	// Unit of a duration count (e.g. license-key validity period).
+	RolloverTimeframeInterval param.Field[TimeInterval] `json:"rollover_timeframe_interval"`
 }
 
 func (r SubscriptionUpdateParamsCreditEntitlementCart) MarshalJSON() (data []byte, err error) {
