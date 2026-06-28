@@ -418,7 +418,8 @@ func (r digitalProductDeliveryFileJSON) RawJSON() string {
 }
 
 type LicenseKeyDuration struct {
-	Count    int64                  `json:"count" api:"required"`
+	Count int64 `json:"count" api:"required"`
+	// Unit of a duration count (e.g. license-key validity period).
 	Interval TimeInterval           `json:"interval" api:"required"`
 	JSON     licenseKeyDurationJSON `json:"-"`
 }
@@ -441,7 +442,8 @@ func (r licenseKeyDurationJSON) RawJSON() string {
 }
 
 type LicenseKeyDurationParam struct {
-	Count    param.Field[int64]        `json:"count" api:"required"`
+	Count param.Field[int64] `json:"count" api:"required"`
+	// Unit of a duration count (e.g. license-key validity period).
 	Interval param.Field[TimeInterval] `json:"interval" api:"required"`
 }
 

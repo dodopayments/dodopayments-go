@@ -326,7 +326,7 @@ type Payment struct {
 	Currency Currency `json:"currency" api:"required"`
 	// Details about the customer who made the payment
 	Customer CustomerLimitedDetails `json:"customer" api:"required"`
-	// brand id this payment belongs to
+	// Whether the digital products purchased in this payment have been delivered.
 	DigitalProductsDelivered bool `json:"digital_products_delivered" api:"required"`
 	// List of disputes associated with this payment
 	Disputes []Dispute `json:"disputes" api:"required"`
