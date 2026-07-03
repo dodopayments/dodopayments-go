@@ -1,13 +1,5 @@
 # Changelog
 
-## [1.106.1](https://github.com/dodopayments/dodopayments-go/compare/v1.106.0...v1.106.1) (2026-06-27)
-
-
-### Bug Fixes
-
-* **api:** add allow_editing_addons checkout flag and refine schema descriptions ([f80cf38](https://github.com/dodopayments/dodopayments-go/commit/f80cf3804d3df890a9f0a56a21d849f7dae9971b))
-* **api:** add allow_editing_addons checkout flag and refine schema descriptions ([807c567](https://github.com/dodopayments/dodopayments-go/commit/807c56735c45e1f33cd536b6ef372af3487a45f4))
-
 ## [1.106.0](https://github.com/dodopayments/dodopayments-go/compare/v1.105.1...v1.106.0) (2026-06-23)
 
 
