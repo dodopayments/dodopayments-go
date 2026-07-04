@@ -525,10 +525,11 @@ type CreditEntitlementBalanceListGrantsResponse struct {
 	SourceType          CreditEntitlementBalanceListGrantsResponseSourceType `json:"source_type" api:"required"`
 	UpdatedAt           time.Time                                            `json:"updated_at" api:"required" format:"date-time"`
 	ExpiresAt           time.Time                                            `json:"expires_at" api:"nullable" format:"date-time"`
-	Metadata            Metadata                                             `json:"metadata" api:"nullable"`
-	ParentGrantID       string                                               `json:"parent_grant_id" api:"nullable"`
-	SourceID            string                                               `json:"source_id" api:"nullable"`
-	JSON                creditEntitlementBalanceListGrantsResponseJSON       `json:"-"`
+	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
+	Metadata      Metadata                                       `json:"metadata" api:"nullable"`
+	ParentGrantID string                                         `json:"parent_grant_id" api:"nullable"`
+	SourceID      string                                         `json:"source_id" api:"nullable"`
+	JSON          creditEntitlementBalanceListGrantsResponseJSON `json:"-"`
 }
 
 // creditEntitlementBalanceListGrantsResponseJSON contains the JSON metadata for

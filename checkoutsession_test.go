@@ -11,6 +11,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
@@ -137,7 +138,7 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 			Force3DS:                 dodopayments.F(true),
 			MandateMinAmountInrPaise: dodopayments.F(int64(0)),
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
-				"foo": "string",
+				"foo": shared.UnionString("string"),
 			}),
 			MinimalAddress:          dodopayments.F(true),
 			PaymentMethodID:         dodopayments.F("payment_method_id"),
@@ -313,7 +314,7 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 			Force3DS:                 dodopayments.F(true),
 			MandateMinAmountInrPaise: dodopayments.F(int64(0)),
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
-				"foo": "string",
+				"foo": shared.UnionString("string"),
 			}),
 			MinimalAddress:          dodopayments.F(true),
 			PaymentMethodID:         dodopayments.F("payment_method_id"),

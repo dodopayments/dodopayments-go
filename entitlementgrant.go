@@ -129,6 +129,9 @@ type EntitlementGrant struct {
 	ErrorCode string `json:"error_code" api:"nullable"`
 	// Human-readable message reported when delivery failed, when applicable.
 	ErrorMessage string `json:"error_message" api:"nullable"`
+	// Typed feature payload, present only when the entitlement integration is
+	// `feature_flag`; `null` for every other integration type.
+	Feature Feature `json:"feature" api:"nullable"`
 	// License-key delivery payload, present when the entitlement integration is
 	// `license_key`.
 	LicenseKey LicenseKeyGrant `json:"license_key" api:"nullable"`
@@ -166,6 +169,7 @@ type entitlementGrantJSON struct {
 	DigitalProductDelivery apijson.Field
 	ErrorCode              apijson.Field
 	ErrorMessage           apijson.Field
+	Feature                apijson.Field
 	LicenseKey             apijson.Field
 	OAuthExpiresAt         apijson.Field
 	OAuthURL               apijson.Field

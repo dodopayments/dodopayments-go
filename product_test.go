@@ -11,6 +11,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestProductNewWithOptionalParams(t *testing.T) {
@@ -75,7 +76,7 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 		}),
 		LicenseKeyEnabled: dodopayments.F(true),
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
-			"foo": "string",
+			"foo": shared.UnionString("string"),
 		}),
 		PricingMode: dodopayments.F(dodopayments.PricingModeByCurrency),
 	})
@@ -165,7 +166,7 @@ func TestProductUpdateWithOptionalParams(t *testing.T) {
 			}),
 			LicenseKeyEnabled: dodopayments.F(true),
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
-				"foo": "string",
+				"foo": shared.UnionString("string"),
 			}),
 			Name: dodopayments.F("name"),
 			Price: dodopayments.F[dodopayments.PriceUnionParam](dodopayments.PriceOneTimePriceParam{
