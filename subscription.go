@@ -1731,10 +1731,11 @@ type SubscriptionUpdateParams struct {
 	CustomerBusinessName param.Field[string]                                  `json:"customer_business_name"`
 	CustomerName         param.Field[string]                                  `json:"customer_name"`
 	DisableOnDemand      param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
-	Metadata             param.Field[MetadataParam]                           `json:"metadata"`
-	NextBillingDate      param.Field[time.Time]                               `json:"next_billing_date" format:"date-time"`
-	Status               param.Field[SubscriptionStatus]                      `json:"status"`
-	TaxID                param.Field[string]                                  `json:"tax_id"`
+	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
+	Metadata        param.Field[MetadataParam]      `json:"metadata"`
+	NextBillingDate param.Field[time.Time]          `json:"next_billing_date" format:"date-time"`
+	Status          param.Field[SubscriptionStatus] `json:"status"`
+	TaxID           param.Field[string]             `json:"tax_id"`
 }
 
 func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {

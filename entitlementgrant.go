@@ -129,6 +129,9 @@ type EntitlementGrant struct {
 	ErrorCode string `json:"error_code" api:"nullable"`
 	// Human-readable message reported when delivery failed, when applicable.
 	ErrorMessage string `json:"error_message" api:"nullable"`
+	// Typed feature payload, present only when the entitlement integration is
+	// `feature_flag`; `null` for every other integration type.
+	Feature EntitlementGrantFeature `json:"feature" api:"nullable"`
 	// License-key delivery payload, present when the entitlement integration is
 	// `license_key`.
 	LicenseKey LicenseKeyGrant `json:"license_key" api:"nullable"`
@@ -166,6 +169,7 @@ type entitlementGrantJSON struct {
 	DigitalProductDelivery apijson.Field
 	ErrorCode              apijson.Field
 	ErrorMessage           apijson.Field
+	Feature                apijson.Field
 	LicenseKey             apijson.Field
 	OAuthExpiresAt         apijson.Field
 	OAuthURL               apijson.Field
@@ -198,6 +202,48 @@ const (
 func (r EntitlementGrantStatus) IsKnown() bool {
 	switch r {
 	case EntitlementGrantStatusPending, EntitlementGrantStatusDelivered, EntitlementGrantStatusFailed, EntitlementGrantStatusRevoked:
+		return true
+	}
+	return false
+}
+
+// Typed feature payload, present only when the entitlement integration is
+// `feature_flag`; `null` for every other integration type.
+type EntitlementGrantFeature struct {
+	// Identifier of the capability this grant confers.
+	FeatureID string `json:"feature_id" api:"required"`
+	// Type of capability conferred.
+	FeatureType EntitlementGrantFeatureFeatureType `json:"feature_type" api:"required"`
+	JSON        entitlementGrantFeatureJSON        `json:"-"`
+}
+
+// entitlementGrantFeatureJSON contains the JSON metadata for the struct
+// [EntitlementGrantFeature]
+type entitlementGrantFeatureJSON struct {
+	FeatureID   apijson.Field
+	FeatureType apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *EntitlementGrantFeature) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r entitlementGrantFeatureJSON) RawJSON() string {
+	return r.raw
+}
+
+// Type of capability conferred.
+type EntitlementGrantFeatureFeatureType string
+
+const (
+	EntitlementGrantFeatureFeatureTypeBoolean EntitlementGrantFeatureFeatureType = "boolean"
+)
+
+func (r EntitlementGrantFeatureFeatureType) IsKnown() bool {
+	switch r {
+	case EntitlementGrantFeatureFeatureTypeBoolean:
 		return true
 	}
 	return false

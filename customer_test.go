@@ -12,6 +12,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestCustomerNewWithOptionalParams(t *testing.T) {
@@ -30,7 +31,7 @@ func TestCustomerNewWithOptionalParams(t *testing.T) {
 		Email: dodopayments.F("email"),
 		Name:  dodopayments.F("name"),
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
-			"foo": "string",
+			"foo": shared.UnionString("string"),
 		}),
 		PhoneNumber: dodopayments.F("phone_number"),
 	})
@@ -83,7 +84,7 @@ func TestCustomerUpdateWithOptionalParams(t *testing.T) {
 		dodopayments.CustomerUpdateParams{
 			Email: dodopayments.F("email"),
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
-				"foo": "string",
+				"foo": shared.UnionString("string"),
 			}),
 			Name:        dodopayments.F("name"),
 			PhoneNumber: dodopayments.F("phone_number"),
