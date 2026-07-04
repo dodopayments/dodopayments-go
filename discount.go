@@ -131,8 +131,9 @@ type Discount struct {
 	// Timestamp when the discount is created
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// The unique discount ID
-	DiscountID string   `json:"discount_id" api:"required"`
-	Metadata   Metadata `json:"metadata" api:"required"`
+	DiscountID string `json:"discount_id" api:"required"`
+	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
+	Metadata Metadata `json:"metadata" api:"required"`
 	// Whether this discount should be preserved when a subscription changes plans.
 	// Default: false (discount is removed on plan change)
 	PreserveOnPlanChange bool `json:"preserve_on_plan_change" api:"required"`

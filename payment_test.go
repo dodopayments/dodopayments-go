@@ -12,6 +12,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestPaymentNewWithOptionalParams(t *testing.T) {
@@ -50,7 +51,7 @@ func TestPaymentNewWithOptionalParams(t *testing.T) {
 		DiscountCodes:                 dodopayments.F([]string{"string"}),
 		Force3DS:                      dodopayments.F(true),
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
-			"foo": "string",
+			"foo": shared.UnionString("string"),
 		}),
 		PaymentLink:             dodopayments.F(true),
 		PaymentMethodID:         dodopayments.F("payment_method_id"),

@@ -748,8 +748,9 @@ type PaymentListResponse struct {
 	Customer                 CustomerLimitedDetails `json:"customer" api:"required"`
 	DigitalProductsDelivered bool                   `json:"digital_products_delivered" api:"required"`
 	HasLicenseKey            bool                   `json:"has_license_key" api:"required"`
-	Metadata                 Metadata               `json:"metadata" api:"required"`
-	PaymentID                string                 `json:"payment_id" api:"required"`
+	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
+	Metadata  Metadata `json:"metadata" api:"required"`
+	PaymentID string   `json:"payment_id" api:"required"`
 	// Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
 	// merchant's own payment connector); `dodo` for everything Dodo processed itself.
 	PaymentProvider PaymentListResponsePaymentProvider `json:"payment_provider" api:"required"`

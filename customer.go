@@ -120,6 +120,35 @@ func (r *CustomerService) ListCreditEntitlements(ctx context.Context, customerID
 	return res, err
 }
 
+// List all of a customer's entitlement grants across every entitlement. One row
+// per grant.
+func (r *CustomerService) ListEntitlementGrants(ctx context.Context, customerID string, query CustomerListEntitlementGrantsParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[EntitlementGrant], err error) {
+	var raw *http.Response
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
+	if customerID == "" {
+		err = errors.New("missing required customer_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("customers/%s/entitlement-grants", customerID)
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+// List all of a customer's entitlement grants across every entitlement. One row
+// per grant.
+func (r *CustomerService) ListEntitlementGrantsAutoPaging(ctx context.Context, customerID string, query CustomerListEntitlementGrantsParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[EntitlementGrant] {
+	return pagination.NewDefaultPageNumberPaginationAutoPager(r.ListEntitlementGrants(ctx, customerID, query, opts...))
+}
+
 // List all entitlement grants delivered (or in flight) to a customer.
 func (r *CustomerService) ListEntitlements(ctx context.Context, customerID string, opts ...option.RequestOption) (res *CustomerListEntitlementsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -497,4 +526,65 @@ func (r CustomerListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type CustomerListEntitlementGrantsParams struct {
+	// Filter by integration type (e.g. `feature_flag`)
+	IntegrationType param.Field[CustomerListEntitlementGrantsParamsIntegrationType] `query:"integration_type"`
+	// Page number (default 0)
+	PageNumber param.Field[int64] `query:"page_number"`
+	// Page size (default 10, max 100)
+	PageSize param.Field[int64] `query:"page_size"`
+	// Filter by grant status
+	Status param.Field[CustomerListEntitlementGrantsParamsStatus] `query:"status"`
+}
+
+// URLQuery serializes [CustomerListEntitlementGrantsParams]'s query parameters as
+// `url.Values`.
+func (r CustomerListEntitlementGrantsParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+// Filter by integration type (e.g. `feature_flag`)
+type CustomerListEntitlementGrantsParamsIntegrationType string
+
+const (
+	CustomerListEntitlementGrantsParamsIntegrationTypeDiscord      CustomerListEntitlementGrantsParamsIntegrationType = "discord"
+	CustomerListEntitlementGrantsParamsIntegrationTypeTelegram     CustomerListEntitlementGrantsParamsIntegrationType = "telegram"
+	CustomerListEntitlementGrantsParamsIntegrationTypeGitHub       CustomerListEntitlementGrantsParamsIntegrationType = "github"
+	CustomerListEntitlementGrantsParamsIntegrationTypeFigma        CustomerListEntitlementGrantsParamsIntegrationType = "figma"
+	CustomerListEntitlementGrantsParamsIntegrationTypeFramer       CustomerListEntitlementGrantsParamsIntegrationType = "framer"
+	CustomerListEntitlementGrantsParamsIntegrationTypeNotion       CustomerListEntitlementGrantsParamsIntegrationType = "notion"
+	CustomerListEntitlementGrantsParamsIntegrationTypeDigitalFiles CustomerListEntitlementGrantsParamsIntegrationType = "digital_files"
+	CustomerListEntitlementGrantsParamsIntegrationTypeLicenseKey   CustomerListEntitlementGrantsParamsIntegrationType = "license_key"
+	CustomerListEntitlementGrantsParamsIntegrationTypeFeatureFlag  CustomerListEntitlementGrantsParamsIntegrationType = "feature_flag"
+)
+
+func (r CustomerListEntitlementGrantsParamsIntegrationType) IsKnown() bool {
+	switch r {
+	case CustomerListEntitlementGrantsParamsIntegrationTypeDiscord, CustomerListEntitlementGrantsParamsIntegrationTypeTelegram, CustomerListEntitlementGrantsParamsIntegrationTypeGitHub, CustomerListEntitlementGrantsParamsIntegrationTypeFigma, CustomerListEntitlementGrantsParamsIntegrationTypeFramer, CustomerListEntitlementGrantsParamsIntegrationTypeNotion, CustomerListEntitlementGrantsParamsIntegrationTypeDigitalFiles, CustomerListEntitlementGrantsParamsIntegrationTypeLicenseKey, CustomerListEntitlementGrantsParamsIntegrationTypeFeatureFlag:
+		return true
+	}
+	return false
+}
+
+// Filter by grant status
+type CustomerListEntitlementGrantsParamsStatus string
+
+const (
+	CustomerListEntitlementGrantsParamsStatusPending   CustomerListEntitlementGrantsParamsStatus = "Pending"
+	CustomerListEntitlementGrantsParamsStatusDelivered CustomerListEntitlementGrantsParamsStatus = "Delivered"
+	CustomerListEntitlementGrantsParamsStatusFailed    CustomerListEntitlementGrantsParamsStatus = "Failed"
+	CustomerListEntitlementGrantsParamsStatusRevoked   CustomerListEntitlementGrantsParamsStatus = "Revoked"
+)
+
+func (r CustomerListEntitlementGrantsParamsStatus) IsKnown() bool {
+	switch r {
+	case CustomerListEntitlementGrantsParamsStatusPending, CustomerListEntitlementGrantsParamsStatusDelivered, CustomerListEntitlementGrantsParamsStatusFailed, CustomerListEntitlementGrantsParamsStatusRevoked:
+		return true
+	}
+	return false
 }

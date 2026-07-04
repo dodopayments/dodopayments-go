@@ -11,6 +11,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestEntitlementNewWithOptionalParams(t *testing.T) {
@@ -26,15 +27,15 @@ func TestEntitlementNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Entitlements.New(context.TODO(), dodopayments.EntitlementNewParams{
-		IntegrationConfig: dodopayments.F[dodopayments.IntegrationConfigUnionParam](dodopayments.IntegrationConfigGitHubConfigParam{
-			Permission: dodopayments.F(dodopayments.GitHubPermissionPull),
-			TargetID:   dodopayments.F("target_id"),
+		IntegrationConfig: dodopayments.F[dodopayments.IntegrationConfigUnionParam](dodopayments.IntegrationConfigFeatureFlagConfigParam{
+			FeatureID:   dodopayments.F("feature_id"),
+			FeatureType: dodopayments.F(dodopayments.FeatureTypeBoolean),
 		}),
 		IntegrationType: dodopayments.F(dodopayments.EntitlementIntegrationTypeDiscord),
 		Name:            dodopayments.F("name"),
 		Description:     dodopayments.F("description"),
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
-			"foo": "string",
+			"foo": shared.UnionString("string"),
 		}),
 	})
 	if err != nil {
@@ -85,12 +86,12 @@ func TestEntitlementUpdateWithOptionalParams(t *testing.T) {
 		"ent_jt7jcvI79Xh8eehqgWdcm",
 		dodopayments.EntitlementUpdateParams{
 			Description: dodopayments.F("description"),
-			IntegrationConfig: dodopayments.F[dodopayments.IntegrationConfigUnionParam](dodopayments.IntegrationConfigGitHubConfigParam{
-				Permission: dodopayments.F(dodopayments.GitHubPermissionPull),
-				TargetID:   dodopayments.F("target_id"),
+			IntegrationConfig: dodopayments.F[dodopayments.IntegrationConfigUnionParam](dodopayments.IntegrationConfigFeatureFlagConfigParam{
+				FeatureID:   dodopayments.F("feature_id"),
+				FeatureType: dodopayments.F(dodopayments.FeatureTypeBoolean),
 			}),
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
-				"foo": "string",
+				"foo": shared.UnionString("string"),
 			}),
 			Name: dodopayments.F("name"),
 		},
