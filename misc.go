@@ -5,10 +5,14 @@ package dodopayments
 import (
 	"context"
 	"net/http"
+	"reflect"
 	"slices"
 
+	"github.com/dodopayments/dodopayments-go/internal/apijson"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
+	"github.com/tidwall/gjson"
 )
 
 // MiscService contains methods and other services that help with interacting with
@@ -458,9 +462,47 @@ func (r Currency) IsKnown() bool {
 	return false
 }
 
-type Metadata map[string]string
+type Metadata map[string]MetadataItemUnion
 
-type MetadataParam map[string]string
+// Metadata value can be a string, integer, number, or boolean
+//
+// Union satisfied by [shared.UnionString], [shared.UnionFloat] or
+// [shared.UnionBool].
+type MetadataItemUnion interface {
+	ImplementsMetadataItemUnion()
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*MetadataItemUnion)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.String,
+			Type:       reflect.TypeOf(shared.UnionString("")),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.Number,
+			Type:       reflect.TypeOf(shared.UnionFloat(0)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.True,
+			Type:       reflect.TypeOf(shared.UnionBool(false)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.False,
+			Type:       reflect.TypeOf(shared.UnionBool(false)),
+		},
+	)
+}
+
+type MetadataParam map[string]MetadataItemUnionParam
+
+// Metadata value can be a string, integer, number, or boolean
+//
+// Satisfied by [shared.UnionString], [shared.UnionFloat], [shared.UnionBool].
+type MetadataItemUnionParam interface {
+	ImplementsMetadataItemUnionParam()
+}
 
 // Represents the different categories of taxation applicable to various products
 // and services.

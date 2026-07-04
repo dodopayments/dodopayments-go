@@ -12,6 +12,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestRefundNewWithOptionalParams(t *testing.T) {
@@ -34,7 +35,7 @@ func TestRefundNewWithOptionalParams(t *testing.T) {
 			TaxInclusive: dodopayments.F(true),
 		}}),
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
-			"foo": "string",
+			"foo": shared.UnionString("string"),
 		}),
 		Reason: dodopayments.F("reason"),
 	})

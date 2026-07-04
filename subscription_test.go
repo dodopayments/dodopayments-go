@@ -12,6 +12,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestSubscriptionNewWithOptionalParams(t *testing.T) {
@@ -51,7 +52,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 		Force3DS:                  dodopayments.F(true),
 		MandateMinAmountInrPaise:  dodopayments.F(int64(0)),
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
-			"foo": "string",
+			"foo": shared.UnionString("string"),
 		}),
 		OnDemand: dodopayments.F(dodopayments.OnDemandSubscriptionParam{
 			MandateOnly:                   dodopayments.F(true),
@@ -152,7 +153,7 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 				NextBillingDate: dodopayments.F(time.Now()),
 			}),
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
-				"foo": "string",
+				"foo": shared.UnionString("string"),
 			}),
 			NextBillingDate: dodopayments.F(time.Now()),
 			Status:          dodopayments.F(dodopayments.SubscriptionStatusPending),
@@ -250,7 +251,7 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 				DiscountCodes: dodopayments.F([]string{"string"}),
 				EffectiveAt:   dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
 				Metadata: dodopayments.F(dodopayments.MetadataParam{
-					"foo": "string",
+					"foo": shared.UnionString("string"),
 				}),
 				OnPaymentFailure: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqOnPaymentFailurePreventChange),
 			},
@@ -288,7 +289,7 @@ func TestSubscriptionChargeWithOptionalParams(t *testing.T) {
 				AllowCustomerCreditsUsage:    dodopayments.F(true),
 			}),
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
-				"foo": "string",
+				"foo": shared.UnionString("string"),
 			}),
 			ProductCurrency:    dodopayments.F(dodopayments.CurrencyAed),
 			ProductDescription: dodopayments.F("product_description"),
@@ -332,7 +333,7 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 				DiscountCodes: dodopayments.F([]string{"string"}),
 				EffectiveAt:   dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
 				Metadata: dodopayments.F(dodopayments.MetadataParam{
-					"foo": "string",
+					"foo": shared.UnionString("string"),
 				}),
 				OnPaymentFailure: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqOnPaymentFailurePreventChange),
 			},
