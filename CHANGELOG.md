@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.107.0](https://github.com/dodopayments/dodopayments-go/compare/v1.106.1...v1.107.0) (2026-07-04)
+
+
+### Features
+
+* **api:** register Feature/FeatureType models and expose customer entitlement-grants list endpoint ([b6067e8](https://github.com/dodopayments/dodopayments-go/commit/b6067e8861c232801f89c0497b20cebb7810ffe6))
+* **api:** register Feature/FeatureType models and expose customer entitlement-grants list endpoint ([27fae04](https://github.com/dodopayments/dodopayments-go/commit/27fae04ea75f9342ca5278ab64291cd6b4f9a28f))
+
 ## [1.106.0](https://github.com/dodopayments/dodopayments-go/compare/v1.105.1...v1.106.0) (2026-06-23)
 
 
