@@ -12,6 +12,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestCustomerNewWithOptionalParams(t *testing.T) {
@@ -30,7 +31,7 @@ func TestCustomerNewWithOptionalParams(t *testing.T) {
 		Email: dodopayments.F("email"),
 		Name:  dodopayments.F("name"),
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
-			"foo": "string",
+			"foo": shared.UnionString("string"),
 		}),
 		PhoneNumber: dodopayments.F("phone_number"),
 	})
@@ -83,7 +84,7 @@ func TestCustomerUpdateWithOptionalParams(t *testing.T) {
 		dodopayments.CustomerUpdateParams{
 			Email: dodopayments.F("email"),
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
-				"foo": "string",
+				"foo": shared.UnionString("string"),
 			}),
 			Name:        dodopayments.F("name"),
 			PhoneNumber: dodopayments.F("phone_number"),
@@ -166,6 +167,37 @@ func TestCustomerListCreditEntitlements(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Customers.ListCreditEntitlements(context.TODO(), "cus_TV52uJWWXt2yIoBBxpjaa")
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestCustomerListEntitlementGrantsWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Customers.ListEntitlementGrants(
+		context.TODO(),
+		"cus_TV52uJWWXt2yIoBBxpjaa",
+		dodopayments.CustomerListEntitlementGrantsParams{
+			IntegrationType: dodopayments.F(dodopayments.CustomerListEntitlementGrantsParamsIntegrationTypeDiscord),
+			PageNumber:      dodopayments.F(int64(0)),
+			PageSize:        dodopayments.F(int64(0)),
+			Status:          dodopayments.F(dodopayments.CustomerListEntitlementGrantsParamsStatusPending),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

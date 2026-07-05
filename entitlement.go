@@ -175,11 +175,52 @@ const (
 	EntitlementIntegrationTypeNotion       EntitlementIntegrationType = "notion"
 	EntitlementIntegrationTypeDigitalFiles EntitlementIntegrationType = "digital_files"
 	EntitlementIntegrationTypeLicenseKey   EntitlementIntegrationType = "license_key"
+	EntitlementIntegrationTypeFeatureFlag  EntitlementIntegrationType = "feature_flag"
 )
 
 func (r EntitlementIntegrationType) IsKnown() bool {
 	switch r {
-	case EntitlementIntegrationTypeDiscord, EntitlementIntegrationTypeTelegram, EntitlementIntegrationTypeGitHub, EntitlementIntegrationTypeFigma, EntitlementIntegrationTypeFramer, EntitlementIntegrationTypeNotion, EntitlementIntegrationTypeDigitalFiles, EntitlementIntegrationTypeLicenseKey:
+	case EntitlementIntegrationTypeDiscord, EntitlementIntegrationTypeTelegram, EntitlementIntegrationTypeGitHub, EntitlementIntegrationTypeFigma, EntitlementIntegrationTypeFramer, EntitlementIntegrationTypeNotion, EntitlementIntegrationTypeDigitalFiles, EntitlementIntegrationTypeLicenseKey, EntitlementIntegrationTypeFeatureFlag:
+		return true
+	}
+	return false
+}
+
+// Capability conferred by a `feature_flag` grant.
+type Feature struct {
+	// Identifier of the capability this grant confers.
+	FeatureID string `json:"feature_id" api:"required"`
+	// Type of capability conferred.
+	FeatureType FeatureType `json:"feature_type" api:"required"`
+	JSON        featureJSON `json:"-"`
+}
+
+// featureJSON contains the JSON metadata for the struct [Feature]
+type featureJSON struct {
+	FeatureID   apijson.Field
+	FeatureType apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *Feature) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r featureJSON) RawJSON() string {
+	return r.raw
+}
+
+// Type of capability a `feature_flag` entitlement confers.
+type FeatureType string
+
+const (
+	FeatureTypeBoolean FeatureType = "boolean"
+)
+
+func (r FeatureType) IsKnown() bool {
+	switch r {
+	case FeatureTypeBoolean:
 		return true
 	}
 	return false
@@ -206,6 +247,10 @@ func (r GitHubPermission) IsKnown() bool {
 
 // Integration-specific configuration supplied when creating or updating an
 // entitlement. The shape required matches the entitlement's `integration_type`.
+//
+// Untagged enum: variants are matched in order. `FeatureFlag` must precede
+// `LicenseKey`, whose fields are all optional and would otherwise match a
+// `feature_flag` config.
 type IntegrationConfigParam struct {
 	// Optional message displayed when a customer activates the license key (≤ 2500
 	// characters).
@@ -223,6 +268,11 @@ type IntegrationConfigParam struct {
 	DurationInterval param.Field[TimeInterval] `json:"duration_interval"`
 	// Optional external URL shown to the customer alongside the files.
 	ExternalURL param.Field[string] `json:"external_url"`
+	// Merchant-chosen identifier for the capability this entitlement unlocks. Not
+	// unique across entitlements.
+	FeatureID param.Field[string] `json:"feature_id"`
+	// Type of capability conferred.
+	FeatureType param.Field[FeatureType] `json:"feature_type"`
 	// Figma file identifier to grant access to.
 	FigmaFileID param.Field[string] `json:"figma_file_id"`
 	// Framer template identifier to grant access to.
@@ -256,15 +306,33 @@ func (r IntegrationConfigParam) implementsIntegrationConfigUnionParam() {}
 // Integration-specific configuration supplied when creating or updating an
 // entitlement. The shape required matches the entitlement's `integration_type`.
 //
-// Satisfied by [IntegrationConfigGitHubConfigParam],
-// [IntegrationConfigDiscordConfigParam], [IntegrationConfigTelegramConfigParam],
-// [IntegrationConfigFigmaConfigParam], [IntegrationConfigFramerConfigParam],
-// [IntegrationConfigNotionConfigParam],
+// Untagged enum: variants are matched in order. `FeatureFlag` must precede
+// `LicenseKey`, whose fields are all optional and would otherwise match a
+// `feature_flag` config.
+//
+// Satisfied by [IntegrationConfigFeatureFlagConfigParam],
+// [IntegrationConfigGitHubConfigParam], [IntegrationConfigDiscordConfigParam],
+// [IntegrationConfigTelegramConfigParam], [IntegrationConfigFigmaConfigParam],
+// [IntegrationConfigFramerConfigParam], [IntegrationConfigNotionConfigParam],
 // [IntegrationConfigDigitalFilesConfigParam],
 // [IntegrationConfigLicenseKeyConfigParam], [IntegrationConfigParam].
 type IntegrationConfigUnionParam interface {
 	implementsIntegrationConfigUnionParam()
 }
+
+type IntegrationConfigFeatureFlagConfigParam struct {
+	// Merchant-chosen identifier for the capability this entitlement unlocks. Not
+	// unique across entitlements.
+	FeatureID param.Field[string] `json:"feature_id" api:"required"`
+	// Type of capability conferred.
+	FeatureType param.Field[FeatureType] `json:"feature_type" api:"required"`
+}
+
+func (r IntegrationConfigFeatureFlagConfigParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r IntegrationConfigFeatureFlagConfigParam) implementsIntegrationConfigUnionParam() {}
 
 type IntegrationConfigGitHubConfigParam struct {
 	// Permission to grant on the repository.
@@ -444,6 +512,10 @@ type IntegrationConfigResponse struct {
 	DurationCount int64 `json:"duration_count" api:"nullable"`
 	// Unit of `duration_count`.
 	DurationInterval TimeInterval `json:"duration_interval" api:"nullable"`
+	// Merchant-chosen identifier for the capability this entitlement unlocks.
+	FeatureID string `json:"feature_id"`
+	// Type of capability conferred. Only `boolean` is supported today.
+	FeatureType FeatureType `json:"feature_type"`
 	// Figma file identifier to grant access to.
 	FigmaFileID string `json:"figma_file_id"`
 	// Framer template identifier to grant access to.
@@ -475,6 +547,8 @@ type integrationConfigResponseJSON struct {
 	DigitalFiles      apijson.Field
 	DurationCount     apijson.Field
 	DurationInterval  apijson.Field
+	FeatureID         apijson.Field
+	FeatureType       apijson.Field
 	FigmaFileID       apijson.Field
 	FramerTemplateID  apijson.Field
 	FulfillmentMode   apijson.Field
@@ -503,7 +577,9 @@ func (r *IntegrationConfigResponse) UnmarshalJSON(data []byte) (err error) {
 // AsUnion returns a [IntegrationConfigResponseUnion] interface which you can cast
 // to the specific types for more type safety.
 //
-// Possible runtime types of the union are [IntegrationConfigResponseGitHubConfig],
+// Possible runtime types of the union are
+// [IntegrationConfigResponseFeatureFlagConfig],
+// [IntegrationConfigResponseGitHubConfig],
 // [IntegrationConfigResponseDiscordConfig],
 // [IntegrationConfigResponseTelegramConfig],
 // [IntegrationConfigResponseFigmaConfig], [IntegrationConfigResponseFramerConfig],
@@ -519,7 +595,8 @@ func (r IntegrationConfigResponse) AsUnion() IntegrationConfigResponseUnion {
 // For `digital_files` entitlements the response includes presigned download URLs
 // for each attached file; other integrations match the shape supplied at creation.
 //
-// Union satisfied by [IntegrationConfigResponseGitHubConfig],
+// Union satisfied by [IntegrationConfigResponseFeatureFlagConfig],
+// [IntegrationConfigResponseGitHubConfig],
 // [IntegrationConfigResponseDiscordConfig],
 // [IntegrationConfigResponseTelegramConfig],
 // [IntegrationConfigResponseFigmaConfig], [IntegrationConfigResponseFramerConfig],
@@ -534,6 +611,10 @@ func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*IntegrationConfigResponseUnion)(nil)).Elem(),
 		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(IntegrationConfigResponseFeatureFlagConfig{}),
+		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(IntegrationConfigResponseGitHubConfig{}),
@@ -568,6 +649,33 @@ func init() {
 		},
 	)
 }
+
+type IntegrationConfigResponseFeatureFlagConfig struct {
+	// Merchant-chosen identifier for the capability this entitlement unlocks.
+	FeatureID string `json:"feature_id" api:"required"`
+	// Type of capability conferred. Only `boolean` is supported today.
+	FeatureType FeatureType                                    `json:"feature_type" api:"required"`
+	JSON        integrationConfigResponseFeatureFlagConfigJSON `json:"-"`
+}
+
+// integrationConfigResponseFeatureFlagConfigJSON contains the JSON metadata for
+// the struct [IntegrationConfigResponseFeatureFlagConfig]
+type integrationConfigResponseFeatureFlagConfigJSON struct {
+	FeatureID   apijson.Field
+	FeatureType apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *IntegrationConfigResponseFeatureFlagConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r integrationConfigResponseFeatureFlagConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r IntegrationConfigResponseFeatureFlagConfig) implementsIntegrationConfigResponse() {}
 
 type IntegrationConfigResponseGitHubConfig struct {
 	// Permission to grant on the repository.
@@ -913,9 +1021,14 @@ type EntitlementUpdateParams struct {
 	Description param.Field[string] `json:"description"`
 	// Integration-specific configuration supplied when creating or updating an
 	// entitlement. The shape required matches the entitlement's `integration_type`.
+	//
+	// Untagged enum: variants are matched in order. `FeatureFlag` must precede
+	// `LicenseKey`, whose fields are all optional and would otherwise match a
+	// `feature_flag` config.
 	IntegrationConfig param.Field[IntegrationConfigUnionParam] `json:"integration_config"`
-	Metadata          param.Field[MetadataParam]               `json:"metadata"`
-	Name              param.Field[string]                      `json:"name"`
+	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
+	Metadata param.Field[MetadataParam] `json:"metadata"`
+	Name     param.Field[string]        `json:"name"`
 }
 
 func (r EntitlementUpdateParams) MarshalJSON() (data []byte, err error) {
@@ -951,11 +1064,12 @@ const (
 	EntitlementListParamsIntegrationTypeNotion       EntitlementListParamsIntegrationType = "notion"
 	EntitlementListParamsIntegrationTypeDigitalFiles EntitlementListParamsIntegrationType = "digital_files"
 	EntitlementListParamsIntegrationTypeLicenseKey   EntitlementListParamsIntegrationType = "license_key"
+	EntitlementListParamsIntegrationTypeFeatureFlag  EntitlementListParamsIntegrationType = "feature_flag"
 )
 
 func (r EntitlementListParamsIntegrationType) IsKnown() bool {
 	switch r {
-	case EntitlementListParamsIntegrationTypeDiscord, EntitlementListParamsIntegrationTypeTelegram, EntitlementListParamsIntegrationTypeGitHub, EntitlementListParamsIntegrationTypeFigma, EntitlementListParamsIntegrationTypeFramer, EntitlementListParamsIntegrationTypeNotion, EntitlementListParamsIntegrationTypeDigitalFiles, EntitlementListParamsIntegrationTypeLicenseKey:
+	case EntitlementListParamsIntegrationTypeDiscord, EntitlementListParamsIntegrationTypeTelegram, EntitlementListParamsIntegrationTypeGitHub, EntitlementListParamsIntegrationTypeFigma, EntitlementListParamsIntegrationTypeFramer, EntitlementListParamsIntegrationTypeNotion, EntitlementListParamsIntegrationTypeDigitalFiles, EntitlementListParamsIntegrationTypeLicenseKey, EntitlementListParamsIntegrationTypeFeatureFlag:
 		return true
 	}
 	return false

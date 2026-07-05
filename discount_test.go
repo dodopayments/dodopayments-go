@@ -12,6 +12,7 @@ import (
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/internal/testutil"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 )
 
 func TestDiscountNewWithOptionalParams(t *testing.T) {
@@ -32,7 +33,7 @@ func TestDiscountNewWithOptionalParams(t *testing.T) {
 		Code:      dodopayments.F("code"),
 		ExpiresAt: dodopayments.F(time.Now()),
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
-			"foo": "string",
+			"foo": shared.UnionString("string"),
 		}),
 		Name:                 dodopayments.F("name"),
 		PreserveOnPlanChange: dodopayments.F(true),
@@ -91,7 +92,7 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 			Code:      dodopayments.F("code"),
 			ExpiresAt: dodopayments.F(time.Now()),
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
-				"foo": "string",
+				"foo": shared.UnionString("string"),
 			}),
 			Name:                 dodopayments.F("name"),
 			PreserveOnPlanChange: dodopayments.F(true),
