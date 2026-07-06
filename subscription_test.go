@@ -155,9 +155,11 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": shared.UnionString("string"),
 			}),
-			NextBillingDate: dodopayments.F(time.Now()),
-			Status:          dodopayments.F(dodopayments.SubscriptionStatusPending),
-			TaxID:           dodopayments.F("tax_id"),
+			NextBillingDate:            dodopayments.F(time.Now()),
+			Status:                     dodopayments.F(dodopayments.SubscriptionStatusPending),
+			SubscriptionPeriodCount:    dodopayments.F(int64(0)),
+			SubscriptionPeriodInterval: dodopayments.F(dodopayments.TimeIntervalDay),
+			TaxID:                      dodopayments.F("tax_id"),
 		},
 	)
 	if err != nil {

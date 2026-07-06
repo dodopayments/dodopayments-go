@@ -192,7 +192,8 @@ type AddonUpdateParams struct {
 	Currency param.Field[Currency] `json:"currency"`
 	// Description of the Addon, optional and must be at most 1000 characters.
 	Description param.Field[string] `json:"description"`
-	// Addon image id after its uploaded to S3
+	// Addon image id after its uploaded to S3. Pass `null` to remove the existing
+	// image, omit to keep it unchanged.
 	ImageID param.Field[string] `json:"image_id" format:"uuid"`
 	// Name of the Addon, optional and must be at most 100 characters.
 	Name param.Field[string] `json:"name"`
