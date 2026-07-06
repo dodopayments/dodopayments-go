@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.108.0](https://github.com/dodopayments/dodopayments-go/compare/v1.107.0...v1.108.0) (2026-07-06)
+
+
+### Features
+
+* **api:** add subscription period override fields to subscription update ([866a771](https://github.com/dodopayments/dodopayments-go/commit/866a771b7378a8675d1cbdb46f0237e448378770))
+* **api:** add subscription period override fields to subscription update ([69ee4d7](https://github.com/dodopayments/dodopayments-go/commit/69ee4d7bb39eeb14a6c4e516687d58a02b99924b))
+
 ## [1.107.0](https://github.com/dodopayments/dodopayments-go/compare/v1.106.1...v1.107.0) (2026-07-04)
 
 
