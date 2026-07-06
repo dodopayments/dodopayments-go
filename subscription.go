@@ -1735,7 +1735,16 @@ type SubscriptionUpdateParams struct {
 	Metadata        param.Field[MetadataParam]      `json:"metadata"`
 	NextBillingDate param.Field[time.Time]          `json:"next_billing_date" format:"date-time"`
 	Status          param.Field[SubscriptionStatus] `json:"status"`
-	TaxID           param.Field[string]             `json:"tax_id"`
+	// New number of `subscription_period_interval` units the subscription entitlement
+	// should span. Used together with `subscription_period_interval` to extend the
+	// subscription period. The resulting period must not be shorter than the current
+	// one (this endpoint only extends).
+	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count"`
+	// New interval unit for the subscription period. When changing the period, this
+	// may be supplied alongside `subscription_period_count`; if omitted the existing
+	// interval is retained.
+	SubscriptionPeriodInterval param.Field[TimeInterval] `json:"subscription_period_interval"`
+	TaxID                      param.Field[string]       `json:"tax_id"`
 }
 
 func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {
