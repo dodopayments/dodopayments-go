@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.108.1](https://github.com/dodopayments/dodopayments-go/compare/v1.108.0...v1.108.1) (2026-07-09)
+
+
+### Bug Fixes
+
+* **api:** add subscription.update_payment_method webhook and payment-method fields ([e947381](https://github.com/dodopayments/dodopayments-go/commit/e947381e7a925987d7109c0de55829e7960bd50d))
+* **api:** add subscription.update_payment_method webhook and payment-method fields ([bf2c653](https://github.com/dodopayments/dodopayments-go/commit/bf2c653a9dabf787f2bc14e50b20bcb418707a31))
+
 ## [1.107.0](https://github.com/dodopayments/dodopayments-go/compare/v1.106.1...v1.107.0) (2026-07-04)
 
 
