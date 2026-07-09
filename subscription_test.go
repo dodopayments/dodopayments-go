@@ -184,14 +184,15 @@ func TestSubscriptionListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.List(context.TODO(), dodopayments.SubscriptionListParams{
-		BrandID:      dodopayments.F("brand_id"),
-		CreatedAtGte: dodopayments.F(time.Now()),
-		CreatedAtLte: dodopayments.F(time.Now()),
-		CustomerID:   dodopayments.F("customer_id"),
-		PageNumber:   dodopayments.F(int64(0)),
-		PageSize:     dodopayments.F(int64(0)),
-		ProductID:    dodopayments.F("product_id"),
-		Status:       dodopayments.F(dodopayments.SubscriptionListParamsStatusPending),
+		BrandID:                 dodopayments.F("brand_id"),
+		CancelAtNextBillingDate: dodopayments.F(true),
+		CreatedAtGte:            dodopayments.F(time.Now()),
+		CreatedAtLte:            dodopayments.F(time.Now()),
+		CustomerID:              dodopayments.F("customer_id"),
+		PageNumber:              dodopayments.F(int64(0)),
+		PageSize:                dodopayments.F(int64(0)),
+		ProductID:               dodopayments.F("product_id"),
+		Status:                  dodopayments.F(dodopayments.SubscriptionListParamsStatusPending),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
