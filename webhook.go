@@ -2429,6 +2429,56 @@ func (r SubscriptionRenewedWebhookEventType) IsKnown() bool {
 	return false
 }
 
+type SubscriptionUpdatePaymentMethodWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Response struct representing subscription details
+	Data Subscription `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type SubscriptionUpdatePaymentMethodWebhookEventType `json:"type" api:"required"`
+	JSON subscriptionUpdatePaymentMethodWebhookEventJSON `json:"-"`
+}
+
+// subscriptionUpdatePaymentMethodWebhookEventJSON contains the JSON metadata for
+// the struct [SubscriptionUpdatePaymentMethodWebhookEvent]
+type subscriptionUpdatePaymentMethodWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionUpdatePaymentMethodWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionUpdatePaymentMethodWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r SubscriptionUpdatePaymentMethodWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r SubscriptionUpdatePaymentMethodWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type SubscriptionUpdatePaymentMethodWebhookEventType string
+
+const (
+	SubscriptionUpdatePaymentMethodWebhookEventTypeSubscriptionUpdatePaymentMethod SubscriptionUpdatePaymentMethodWebhookEventType = "subscription.update_payment_method"
+)
+
+func (r SubscriptionUpdatePaymentMethodWebhookEventType) IsKnown() bool {
+	switch r {
+	case SubscriptionUpdatePaymentMethodWebhookEventTypeSubscriptionUpdatePaymentMethod:
+		return true
+	}
+	return false
+}
+
 type SubscriptionUpdatedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
@@ -2543,7 +2593,9 @@ func (r *UnsafeUnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
 // [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
 // [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent], [SubscriptionUpdatedWebhookEvent].
+// [SubscriptionRenewedWebhookEvent],
+// [SubscriptionUpdatePaymentMethodWebhookEvent],
+// [SubscriptionUpdatedWebhookEvent].
 func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
 	return r.union
 }
@@ -2567,7 +2619,8 @@ func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
 // [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
 // [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
 // [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent] or [SubscriptionUpdatedWebhookEvent].
+// [SubscriptionRenewedWebhookEvent], [SubscriptionUpdatePaymentMethodWebhookEvent]
+// or [SubscriptionUpdatedWebhookEvent].
 type UnsafeUnwrapWebhookEventUnion interface {
 	implementsUnsafeUnwrapWebhookEvent()
 }
@@ -2768,6 +2821,11 @@ func init() {
 		},
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(SubscriptionUpdatePaymentMethodWebhookEvent{}),
+			DiscriminatorValue: "subscription.update_payment_method",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
 			Type:               reflect.TypeOf(SubscriptionUpdatedWebhookEvent{}),
 			DiscriminatorValue: "subscription.updated",
 		},
@@ -2778,50 +2836,51 @@ func init() {
 type UnsafeUnwrapWebhookEventType string
 
 const (
-	UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected  UnsafeUnwrapWebhookEventType = "abandoned_checkout.detected"
-	UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered UnsafeUnwrapWebhookEventType = "abandoned_checkout.recovered"
-	UnsafeUnwrapWebhookEventTypeCreditAdded                UnsafeUnwrapWebhookEventType = "credit.added"
-	UnsafeUnwrapWebhookEventTypeCreditBalanceLow           UnsafeUnwrapWebhookEventType = "credit.balance_low"
-	UnsafeUnwrapWebhookEventTypeCreditDeducted             UnsafeUnwrapWebhookEventType = "credit.deducted"
-	UnsafeUnwrapWebhookEventTypeCreditExpired              UnsafeUnwrapWebhookEventType = "credit.expired"
-	UnsafeUnwrapWebhookEventTypeCreditManualAdjustment     UnsafeUnwrapWebhookEventType = "credit.manual_adjustment"
-	UnsafeUnwrapWebhookEventTypeCreditOverageCharged       UnsafeUnwrapWebhookEventType = "credit.overage_charged"
-	UnsafeUnwrapWebhookEventTypeCreditOverageReset         UnsafeUnwrapWebhookEventType = "credit.overage_reset"
-	UnsafeUnwrapWebhookEventTypeCreditRolledOver           UnsafeUnwrapWebhookEventType = "credit.rolled_over"
-	UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited    UnsafeUnwrapWebhookEventType = "credit.rollover_forfeited"
-	UnsafeUnwrapWebhookEventTypeDisputeAccepted            UnsafeUnwrapWebhookEventType = "dispute.accepted"
-	UnsafeUnwrapWebhookEventTypeDisputeCancelled           UnsafeUnwrapWebhookEventType = "dispute.cancelled"
-	UnsafeUnwrapWebhookEventTypeDisputeChallenged          UnsafeUnwrapWebhookEventType = "dispute.challenged"
-	UnsafeUnwrapWebhookEventTypeDisputeExpired             UnsafeUnwrapWebhookEventType = "dispute.expired"
-	UnsafeUnwrapWebhookEventTypeDisputeLost                UnsafeUnwrapWebhookEventType = "dispute.lost"
-	UnsafeUnwrapWebhookEventTypeDisputeOpened              UnsafeUnwrapWebhookEventType = "dispute.opened"
-	UnsafeUnwrapWebhookEventTypeDisputeWon                 UnsafeUnwrapWebhookEventType = "dispute.won"
-	UnsafeUnwrapWebhookEventTypeDunningRecovered           UnsafeUnwrapWebhookEventType = "dunning.recovered"
-	UnsafeUnwrapWebhookEventTypeDunningStarted             UnsafeUnwrapWebhookEventType = "dunning.started"
-	UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated    UnsafeUnwrapWebhookEventType = "entitlement_grant.created"
-	UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered  UnsafeUnwrapWebhookEventType = "entitlement_grant.delivered"
-	UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed     UnsafeUnwrapWebhookEventType = "entitlement_grant.failed"
-	UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked    UnsafeUnwrapWebhookEventType = "entitlement_grant.revoked"
-	UnsafeUnwrapWebhookEventTypeLicenseKeyCreated          UnsafeUnwrapWebhookEventType = "license_key.created"
-	UnsafeUnwrapWebhookEventTypePaymentCancelled           UnsafeUnwrapWebhookEventType = "payment.cancelled"
-	UnsafeUnwrapWebhookEventTypePaymentFailed              UnsafeUnwrapWebhookEventType = "payment.failed"
-	UnsafeUnwrapWebhookEventTypePaymentProcessing          UnsafeUnwrapWebhookEventType = "payment.processing"
-	UnsafeUnwrapWebhookEventTypePaymentSucceeded           UnsafeUnwrapWebhookEventType = "payment.succeeded"
-	UnsafeUnwrapWebhookEventTypeRefundFailed               UnsafeUnwrapWebhookEventType = "refund.failed"
-	UnsafeUnwrapWebhookEventTypeRefundSucceeded            UnsafeUnwrapWebhookEventType = "refund.succeeded"
-	UnsafeUnwrapWebhookEventTypeSubscriptionActive         UnsafeUnwrapWebhookEventType = "subscription.active"
-	UnsafeUnwrapWebhookEventTypeSubscriptionCancelled      UnsafeUnwrapWebhookEventType = "subscription.cancelled"
-	UnsafeUnwrapWebhookEventTypeSubscriptionExpired        UnsafeUnwrapWebhookEventType = "subscription.expired"
-	UnsafeUnwrapWebhookEventTypeSubscriptionFailed         UnsafeUnwrapWebhookEventType = "subscription.failed"
-	UnsafeUnwrapWebhookEventTypeSubscriptionOnHold         UnsafeUnwrapWebhookEventType = "subscription.on_hold"
-	UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged    UnsafeUnwrapWebhookEventType = "subscription.plan_changed"
-	UnsafeUnwrapWebhookEventTypeSubscriptionRenewed        UnsafeUnwrapWebhookEventType = "subscription.renewed"
-	UnsafeUnwrapWebhookEventTypeSubscriptionUpdated        UnsafeUnwrapWebhookEventType = "subscription.updated"
+	UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected       UnsafeUnwrapWebhookEventType = "abandoned_checkout.detected"
+	UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered      UnsafeUnwrapWebhookEventType = "abandoned_checkout.recovered"
+	UnsafeUnwrapWebhookEventTypeCreditAdded                     UnsafeUnwrapWebhookEventType = "credit.added"
+	UnsafeUnwrapWebhookEventTypeCreditBalanceLow                UnsafeUnwrapWebhookEventType = "credit.balance_low"
+	UnsafeUnwrapWebhookEventTypeCreditDeducted                  UnsafeUnwrapWebhookEventType = "credit.deducted"
+	UnsafeUnwrapWebhookEventTypeCreditExpired                   UnsafeUnwrapWebhookEventType = "credit.expired"
+	UnsafeUnwrapWebhookEventTypeCreditManualAdjustment          UnsafeUnwrapWebhookEventType = "credit.manual_adjustment"
+	UnsafeUnwrapWebhookEventTypeCreditOverageCharged            UnsafeUnwrapWebhookEventType = "credit.overage_charged"
+	UnsafeUnwrapWebhookEventTypeCreditOverageReset              UnsafeUnwrapWebhookEventType = "credit.overage_reset"
+	UnsafeUnwrapWebhookEventTypeCreditRolledOver                UnsafeUnwrapWebhookEventType = "credit.rolled_over"
+	UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited         UnsafeUnwrapWebhookEventType = "credit.rollover_forfeited"
+	UnsafeUnwrapWebhookEventTypeDisputeAccepted                 UnsafeUnwrapWebhookEventType = "dispute.accepted"
+	UnsafeUnwrapWebhookEventTypeDisputeCancelled                UnsafeUnwrapWebhookEventType = "dispute.cancelled"
+	UnsafeUnwrapWebhookEventTypeDisputeChallenged               UnsafeUnwrapWebhookEventType = "dispute.challenged"
+	UnsafeUnwrapWebhookEventTypeDisputeExpired                  UnsafeUnwrapWebhookEventType = "dispute.expired"
+	UnsafeUnwrapWebhookEventTypeDisputeLost                     UnsafeUnwrapWebhookEventType = "dispute.lost"
+	UnsafeUnwrapWebhookEventTypeDisputeOpened                   UnsafeUnwrapWebhookEventType = "dispute.opened"
+	UnsafeUnwrapWebhookEventTypeDisputeWon                      UnsafeUnwrapWebhookEventType = "dispute.won"
+	UnsafeUnwrapWebhookEventTypeDunningRecovered                UnsafeUnwrapWebhookEventType = "dunning.recovered"
+	UnsafeUnwrapWebhookEventTypeDunningStarted                  UnsafeUnwrapWebhookEventType = "dunning.started"
+	UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated         UnsafeUnwrapWebhookEventType = "entitlement_grant.created"
+	UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered       UnsafeUnwrapWebhookEventType = "entitlement_grant.delivered"
+	UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed          UnsafeUnwrapWebhookEventType = "entitlement_grant.failed"
+	UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked         UnsafeUnwrapWebhookEventType = "entitlement_grant.revoked"
+	UnsafeUnwrapWebhookEventTypeLicenseKeyCreated               UnsafeUnwrapWebhookEventType = "license_key.created"
+	UnsafeUnwrapWebhookEventTypePaymentCancelled                UnsafeUnwrapWebhookEventType = "payment.cancelled"
+	UnsafeUnwrapWebhookEventTypePaymentFailed                   UnsafeUnwrapWebhookEventType = "payment.failed"
+	UnsafeUnwrapWebhookEventTypePaymentProcessing               UnsafeUnwrapWebhookEventType = "payment.processing"
+	UnsafeUnwrapWebhookEventTypePaymentSucceeded                UnsafeUnwrapWebhookEventType = "payment.succeeded"
+	UnsafeUnwrapWebhookEventTypeRefundFailed                    UnsafeUnwrapWebhookEventType = "refund.failed"
+	UnsafeUnwrapWebhookEventTypeRefundSucceeded                 UnsafeUnwrapWebhookEventType = "refund.succeeded"
+	UnsafeUnwrapWebhookEventTypeSubscriptionActive              UnsafeUnwrapWebhookEventType = "subscription.active"
+	UnsafeUnwrapWebhookEventTypeSubscriptionCancelled           UnsafeUnwrapWebhookEventType = "subscription.cancelled"
+	UnsafeUnwrapWebhookEventTypeSubscriptionExpired             UnsafeUnwrapWebhookEventType = "subscription.expired"
+	UnsafeUnwrapWebhookEventTypeSubscriptionFailed              UnsafeUnwrapWebhookEventType = "subscription.failed"
+	UnsafeUnwrapWebhookEventTypeSubscriptionOnHold              UnsafeUnwrapWebhookEventType = "subscription.on_hold"
+	UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged         UnsafeUnwrapWebhookEventType = "subscription.plan_changed"
+	UnsafeUnwrapWebhookEventTypeSubscriptionRenewed             UnsafeUnwrapWebhookEventType = "subscription.renewed"
+	UnsafeUnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod UnsafeUnwrapWebhookEventType = "subscription.update_payment_method"
+	UnsafeUnwrapWebhookEventTypeSubscriptionUpdated             UnsafeUnwrapWebhookEventType = "subscription.updated"
 )
 
 func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected, UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditOverageReset, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeDunningRecovered, UnsafeUnwrapWebhookEventTypeDunningStarted, UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated, UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered, UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed, UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected, UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditOverageReset, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeDunningRecovered, UnsafeUnwrapWebhookEventTypeDunningStarted, UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated, UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered, UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed, UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false
@@ -2891,7 +2950,9 @@ func (r *UnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
 // [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
 // [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent], [SubscriptionUpdatedWebhookEvent].
+// [SubscriptionRenewedWebhookEvent],
+// [SubscriptionUpdatePaymentMethodWebhookEvent],
+// [SubscriptionUpdatedWebhookEvent].
 func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
 	return r.union
 }
@@ -2915,7 +2976,8 @@ func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
 // [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
 // [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
 // [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent] or [SubscriptionUpdatedWebhookEvent].
+// [SubscriptionRenewedWebhookEvent], [SubscriptionUpdatePaymentMethodWebhookEvent]
+// or [SubscriptionUpdatedWebhookEvent].
 type UnwrapWebhookEventUnion interface {
 	implementsUnwrapWebhookEvent()
 }
@@ -3116,6 +3178,11 @@ func init() {
 		},
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(SubscriptionUpdatePaymentMethodWebhookEvent{}),
+			DiscriminatorValue: "subscription.update_payment_method",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
 			Type:               reflect.TypeOf(SubscriptionUpdatedWebhookEvent{}),
 			DiscriminatorValue: "subscription.updated",
 		},
@@ -3126,50 +3193,51 @@ func init() {
 type UnwrapWebhookEventType string
 
 const (
-	UnwrapWebhookEventTypeAbandonedCheckoutDetected  UnwrapWebhookEventType = "abandoned_checkout.detected"
-	UnwrapWebhookEventTypeAbandonedCheckoutRecovered UnwrapWebhookEventType = "abandoned_checkout.recovered"
-	UnwrapWebhookEventTypeCreditAdded                UnwrapWebhookEventType = "credit.added"
-	UnwrapWebhookEventTypeCreditBalanceLow           UnwrapWebhookEventType = "credit.balance_low"
-	UnwrapWebhookEventTypeCreditDeducted             UnwrapWebhookEventType = "credit.deducted"
-	UnwrapWebhookEventTypeCreditExpired              UnwrapWebhookEventType = "credit.expired"
-	UnwrapWebhookEventTypeCreditManualAdjustment     UnwrapWebhookEventType = "credit.manual_adjustment"
-	UnwrapWebhookEventTypeCreditOverageCharged       UnwrapWebhookEventType = "credit.overage_charged"
-	UnwrapWebhookEventTypeCreditOverageReset         UnwrapWebhookEventType = "credit.overage_reset"
-	UnwrapWebhookEventTypeCreditRolledOver           UnwrapWebhookEventType = "credit.rolled_over"
-	UnwrapWebhookEventTypeCreditRolloverForfeited    UnwrapWebhookEventType = "credit.rollover_forfeited"
-	UnwrapWebhookEventTypeDisputeAccepted            UnwrapWebhookEventType = "dispute.accepted"
-	UnwrapWebhookEventTypeDisputeCancelled           UnwrapWebhookEventType = "dispute.cancelled"
-	UnwrapWebhookEventTypeDisputeChallenged          UnwrapWebhookEventType = "dispute.challenged"
-	UnwrapWebhookEventTypeDisputeExpired             UnwrapWebhookEventType = "dispute.expired"
-	UnwrapWebhookEventTypeDisputeLost                UnwrapWebhookEventType = "dispute.lost"
-	UnwrapWebhookEventTypeDisputeOpened              UnwrapWebhookEventType = "dispute.opened"
-	UnwrapWebhookEventTypeDisputeWon                 UnwrapWebhookEventType = "dispute.won"
-	UnwrapWebhookEventTypeDunningRecovered           UnwrapWebhookEventType = "dunning.recovered"
-	UnwrapWebhookEventTypeDunningStarted             UnwrapWebhookEventType = "dunning.started"
-	UnwrapWebhookEventTypeEntitlementGrantCreated    UnwrapWebhookEventType = "entitlement_grant.created"
-	UnwrapWebhookEventTypeEntitlementGrantDelivered  UnwrapWebhookEventType = "entitlement_grant.delivered"
-	UnwrapWebhookEventTypeEntitlementGrantFailed     UnwrapWebhookEventType = "entitlement_grant.failed"
-	UnwrapWebhookEventTypeEntitlementGrantRevoked    UnwrapWebhookEventType = "entitlement_grant.revoked"
-	UnwrapWebhookEventTypeLicenseKeyCreated          UnwrapWebhookEventType = "license_key.created"
-	UnwrapWebhookEventTypePaymentCancelled           UnwrapWebhookEventType = "payment.cancelled"
-	UnwrapWebhookEventTypePaymentFailed              UnwrapWebhookEventType = "payment.failed"
-	UnwrapWebhookEventTypePaymentProcessing          UnwrapWebhookEventType = "payment.processing"
-	UnwrapWebhookEventTypePaymentSucceeded           UnwrapWebhookEventType = "payment.succeeded"
-	UnwrapWebhookEventTypeRefundFailed               UnwrapWebhookEventType = "refund.failed"
-	UnwrapWebhookEventTypeRefundSucceeded            UnwrapWebhookEventType = "refund.succeeded"
-	UnwrapWebhookEventTypeSubscriptionActive         UnwrapWebhookEventType = "subscription.active"
-	UnwrapWebhookEventTypeSubscriptionCancelled      UnwrapWebhookEventType = "subscription.cancelled"
-	UnwrapWebhookEventTypeSubscriptionExpired        UnwrapWebhookEventType = "subscription.expired"
-	UnwrapWebhookEventTypeSubscriptionFailed         UnwrapWebhookEventType = "subscription.failed"
-	UnwrapWebhookEventTypeSubscriptionOnHold         UnwrapWebhookEventType = "subscription.on_hold"
-	UnwrapWebhookEventTypeSubscriptionPlanChanged    UnwrapWebhookEventType = "subscription.plan_changed"
-	UnwrapWebhookEventTypeSubscriptionRenewed        UnwrapWebhookEventType = "subscription.renewed"
-	UnwrapWebhookEventTypeSubscriptionUpdated        UnwrapWebhookEventType = "subscription.updated"
+	UnwrapWebhookEventTypeAbandonedCheckoutDetected       UnwrapWebhookEventType = "abandoned_checkout.detected"
+	UnwrapWebhookEventTypeAbandonedCheckoutRecovered      UnwrapWebhookEventType = "abandoned_checkout.recovered"
+	UnwrapWebhookEventTypeCreditAdded                     UnwrapWebhookEventType = "credit.added"
+	UnwrapWebhookEventTypeCreditBalanceLow                UnwrapWebhookEventType = "credit.balance_low"
+	UnwrapWebhookEventTypeCreditDeducted                  UnwrapWebhookEventType = "credit.deducted"
+	UnwrapWebhookEventTypeCreditExpired                   UnwrapWebhookEventType = "credit.expired"
+	UnwrapWebhookEventTypeCreditManualAdjustment          UnwrapWebhookEventType = "credit.manual_adjustment"
+	UnwrapWebhookEventTypeCreditOverageCharged            UnwrapWebhookEventType = "credit.overage_charged"
+	UnwrapWebhookEventTypeCreditOverageReset              UnwrapWebhookEventType = "credit.overage_reset"
+	UnwrapWebhookEventTypeCreditRolledOver                UnwrapWebhookEventType = "credit.rolled_over"
+	UnwrapWebhookEventTypeCreditRolloverForfeited         UnwrapWebhookEventType = "credit.rollover_forfeited"
+	UnwrapWebhookEventTypeDisputeAccepted                 UnwrapWebhookEventType = "dispute.accepted"
+	UnwrapWebhookEventTypeDisputeCancelled                UnwrapWebhookEventType = "dispute.cancelled"
+	UnwrapWebhookEventTypeDisputeChallenged               UnwrapWebhookEventType = "dispute.challenged"
+	UnwrapWebhookEventTypeDisputeExpired                  UnwrapWebhookEventType = "dispute.expired"
+	UnwrapWebhookEventTypeDisputeLost                     UnwrapWebhookEventType = "dispute.lost"
+	UnwrapWebhookEventTypeDisputeOpened                   UnwrapWebhookEventType = "dispute.opened"
+	UnwrapWebhookEventTypeDisputeWon                      UnwrapWebhookEventType = "dispute.won"
+	UnwrapWebhookEventTypeDunningRecovered                UnwrapWebhookEventType = "dunning.recovered"
+	UnwrapWebhookEventTypeDunningStarted                  UnwrapWebhookEventType = "dunning.started"
+	UnwrapWebhookEventTypeEntitlementGrantCreated         UnwrapWebhookEventType = "entitlement_grant.created"
+	UnwrapWebhookEventTypeEntitlementGrantDelivered       UnwrapWebhookEventType = "entitlement_grant.delivered"
+	UnwrapWebhookEventTypeEntitlementGrantFailed          UnwrapWebhookEventType = "entitlement_grant.failed"
+	UnwrapWebhookEventTypeEntitlementGrantRevoked         UnwrapWebhookEventType = "entitlement_grant.revoked"
+	UnwrapWebhookEventTypeLicenseKeyCreated               UnwrapWebhookEventType = "license_key.created"
+	UnwrapWebhookEventTypePaymentCancelled                UnwrapWebhookEventType = "payment.cancelled"
+	UnwrapWebhookEventTypePaymentFailed                   UnwrapWebhookEventType = "payment.failed"
+	UnwrapWebhookEventTypePaymentProcessing               UnwrapWebhookEventType = "payment.processing"
+	UnwrapWebhookEventTypePaymentSucceeded                UnwrapWebhookEventType = "payment.succeeded"
+	UnwrapWebhookEventTypeRefundFailed                    UnwrapWebhookEventType = "refund.failed"
+	UnwrapWebhookEventTypeRefundSucceeded                 UnwrapWebhookEventType = "refund.succeeded"
+	UnwrapWebhookEventTypeSubscriptionActive              UnwrapWebhookEventType = "subscription.active"
+	UnwrapWebhookEventTypeSubscriptionCancelled           UnwrapWebhookEventType = "subscription.cancelled"
+	UnwrapWebhookEventTypeSubscriptionExpired             UnwrapWebhookEventType = "subscription.expired"
+	UnwrapWebhookEventTypeSubscriptionFailed              UnwrapWebhookEventType = "subscription.failed"
+	UnwrapWebhookEventTypeSubscriptionOnHold              UnwrapWebhookEventType = "subscription.on_hold"
+	UnwrapWebhookEventTypeSubscriptionPlanChanged         UnwrapWebhookEventType = "subscription.plan_changed"
+	UnwrapWebhookEventTypeSubscriptionRenewed             UnwrapWebhookEventType = "subscription.renewed"
+	UnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod UnwrapWebhookEventType = "subscription.update_payment_method"
+	UnwrapWebhookEventTypeSubscriptionUpdated             UnwrapWebhookEventType = "subscription.updated"
 )
 
 func (r UnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnwrapWebhookEventTypeAbandonedCheckoutDetected, UnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditOverageReset, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeDunningRecovered, UnwrapWebhookEventTypeDunningStarted, UnwrapWebhookEventTypeEntitlementGrantCreated, UnwrapWebhookEventTypeEntitlementGrantDelivered, UnwrapWebhookEventTypeEntitlementGrantFailed, UnwrapWebhookEventTypeEntitlementGrantRevoked, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnwrapWebhookEventTypeAbandonedCheckoutDetected, UnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditOverageReset, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeDunningRecovered, UnwrapWebhookEventTypeDunningStarted, UnwrapWebhookEventTypeEntitlementGrantCreated, UnwrapWebhookEventTypeEntitlementGrantDelivered, UnwrapWebhookEventTypeEntitlementGrantFailed, UnwrapWebhookEventTypeEntitlementGrantRevoked, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false

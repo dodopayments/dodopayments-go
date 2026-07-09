@@ -1798,6 +1798,8 @@ func (r SubscriptionUpdateParamsDisableOnDemand) MarshalJSON() (data []byte, err
 type SubscriptionListParams struct {
 	// filter by Brand id
 	BrandID param.Field[string] `query:"brand_id"`
+	// Filter by cancel_at_next_billing_date (subscriptions scheduled for cancellation)
+	CancelAtNextBillingDate param.Field[bool] `query:"cancel_at_next_billing_date"`
 	// Get events after this created time
 	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
 	// Get events created before this time
