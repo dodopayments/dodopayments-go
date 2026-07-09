@@ -555,6 +555,11 @@ type CheckoutSessionPreviewResponse struct {
 	ProductCart []CheckoutSessionPreviewResponseProductCart `json:"product_cart" api:"required"`
 	// Total calculate price of the product cart
 	TotalPrice int64 `json:"total_price" api:"required"`
+	// The upcoming billing date for subscriptions, computed relative to now: with a
+	// trial it is `now + trial_period_days`, otherwise `now + payment frequency`.
+	// `None` for one-time-only carts. This is a preview estimate; the authoritative
+	// value is set when the subscription activates.
+	NextBillingDate time.Time `json:"next_billing_date" api:"nullable" format:"date-time"`
 	// Breakup of recurring payments (None for one-time only)
 	RecurringBreakup CheckoutSessionPreviewResponseRecurringBreakup `json:"recurring_breakup" api:"nullable"`
 	// Registered business name from the official registry (EU/GB/AU) when found
@@ -577,6 +582,7 @@ type checkoutSessionPreviewResponseJSON struct {
 	IsByop            apijson.Field
 	ProductCart       apijson.Field
 	TotalPrice        apijson.Field
+	NextBillingDate   apijson.Field
 	RecurringBreakup  apijson.Field
 	TaxIDBusinessName apijson.Field
 	TaxIDErrMsg       apijson.Field
