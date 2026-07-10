@@ -330,6 +330,9 @@ type Payment struct {
 	DigitalProductsDelivered bool `json:"digital_products_delivered" api:"required"`
 	// List of disputes associated with this payment
 	Disputes []Dispute `json:"disputes" api:"required"`
+	// Whether this payment was created solely to update a subscription's payment
+	// method (a zero-/setup-amount charge). `false` for normal charges.
+	IsUpdatePaymentMethod bool `json:"is_update_payment_method" api:"required"`
 	// Additional custom data associated with the payment
 	Metadata Metadata `json:"metadata" api:"required"`
 	// Unique identifier for the payment
@@ -388,6 +391,8 @@ type Payment struct {
 	PaymentLink string `json:"payment_link" api:"nullable"`
 	// Payment method used by customer (e.g. "card", "bank_transfer")
 	PaymentMethod string `json:"payment_method" api:"nullable"`
+	// Identifier of the saved payment method used for this payment, if any.
+	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
 	// Specific type of payment method (e.g. "visa", "mastercard")
 	PaymentMethodType string `json:"payment_method_type" api:"nullable"`
 	// List of products purchased in a one-time payment
@@ -421,6 +426,7 @@ type paymentJSON struct {
 	Customer                 apijson.Field
 	DigitalProductsDelivered apijson.Field
 	Disputes                 apijson.Field
+	IsUpdatePaymentMethod    apijson.Field
 	Metadata                 apijson.Field
 	PaymentID                apijson.Field
 	PaymentProvider          apijson.Field
@@ -444,6 +450,7 @@ type paymentJSON struct {
 	InvoiceURL               apijson.Field
 	PaymentLink              apijson.Field
 	PaymentMethod            apijson.Field
+	PaymentMethodID          apijson.Field
 	PaymentMethodType        apijson.Field
 	ProductCart              apijson.Field
 	RefundStatus             apijson.Field
