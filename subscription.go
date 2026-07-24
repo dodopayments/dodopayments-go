@@ -627,8 +627,12 @@ type Subscription struct {
 	// Scheduled plan change details, if any
 	ScheduledChange ScheduledPlanChange `json:"scheduled_change" api:"nullable"`
 	// Tax identifier provided for this subscription (if applicable)
-	TaxID string           `json:"tax_id" api:"nullable"`
-	JSON  subscriptionJSON `json:"-"`
+	TaxID string `json:"tax_id" api:"nullable"`
+	// Per-unit trial amount after discounts, snapshotted at subscription creation
+	// (price currency minor units, pre-quantity, pre-tax). Null for a free trial or no
+	// trial.
+	TrialAmount int64            `json:"trial_amount" api:"nullable"`
+	JSON        subscriptionJSON `json:"-"`
 }
 
 // subscriptionJSON contains the JSON metadata for the struct [Subscription]
@@ -670,6 +674,7 @@ type subscriptionJSON struct {
 	PaymentMethodID            apijson.Field
 	ScheduledChange            apijson.Field
 	TaxID                      apijson.Field
+	TrialAmount                apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
 }
@@ -852,7 +857,10 @@ type SubscriptionNewResponse struct {
 	// One time products associated with the purchase of subscription
 	OneTimeProductCart []SubscriptionNewResponseOneTimeProductCart `json:"one_time_product_cart" api:"nullable"`
 	// URL to checkout page
-	PaymentLink string                      `json:"payment_link" api:"nullable"`
+	PaymentLink string `json:"payment_link" api:"nullable"`
+	// Per-unit trial amount after discounts, in the price currency's minor units
+	// (pre-quantity, pre-tax). Null for a free trial or no trial.
+	TrialAmount int64                       `json:"trial_amount" api:"nullable"`
 	JSON        subscriptionNewResponseJSON `json:"-"`
 }
 
@@ -871,6 +879,7 @@ type subscriptionNewResponseJSON struct {
 	ExpiresOn             apijson.Field
 	OneTimeProductCart    apijson.Field
 	PaymentLink           apijson.Field
+	TrialAmount           apijson.Field
 	raw                   string
 	ExtraFields           map[string]apijson.Field
 }
@@ -968,8 +977,12 @@ type SubscriptionListResponse struct {
 	// Scheduled plan change details, if any
 	ScheduledChange ScheduledPlanChange `json:"scheduled_change" api:"nullable"`
 	// Tax identifier provided for this subscription (if applicable)
-	TaxID string                       `json:"tax_id" api:"nullable"`
-	JSON  subscriptionListResponseJSON `json:"-"`
+	TaxID string `json:"tax_id" api:"nullable"`
+	// Per-unit trial amount after discounts, snapshotted at subscription creation
+	// (price currency minor units, pre-quantity, pre-tax). Null for a free trial or no
+	// trial.
+	TrialAmount int64                        `json:"trial_amount" api:"nullable"`
+	JSON        subscriptionListResponseJSON `json:"-"`
 }
 
 // subscriptionListResponseJSON contains the JSON metadata for the struct
@@ -1004,6 +1017,7 @@ type subscriptionListResponseJSON struct {
 	ProductName                apijson.Field
 	ScheduledChange            apijson.Field
 	TaxID                      apijson.Field
+	TrialAmount                apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
 }

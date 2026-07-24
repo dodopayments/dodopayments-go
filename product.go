@@ -491,6 +491,12 @@ type Price struct {
 	SuggestedPrice int64 `json:"suggested_price" api:"nullable"`
 	// Indicates if the price is tax inclusive.
 	TaxInclusive bool `json:"tax_inclusive" api:"nullable"`
+	// Amount charged today for a paid trial, in the price currency's minor units.
+	// Requires `trial_period_days > 0`. Omit or null for a free trial (the default).
+	TrialAmount int64 `json:"trial_amount" api:"nullable"`
+	// Whether discount codes reduce the trial charge. Defaults to false. Only
+	// meaningful when a paid trial is configured.
+	TrialApplyDiscounts bool `json:"trial_apply_discounts" api:"nullable"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays int64     `json:"trial_period_days"`
 	JSON            priceJSON `json:"-"`
@@ -513,6 +519,8 @@ type priceJSON struct {
 	SubscriptionPeriodInterval apijson.Field
 	SuggestedPrice             apijson.Field
 	TaxInclusive               apijson.Field
+	TrialAmount                apijson.Field
+	TrialApplyDiscounts        apijson.Field
 	TrialPeriodDays            apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
@@ -662,6 +670,12 @@ type PriceRecurringPrice struct {
 	Type                       PriceRecurringPriceType `json:"type" api:"required"`
 	// Indicates if the price is tax inclusive
 	TaxInclusive bool `json:"tax_inclusive" api:"nullable"`
+	// Amount charged today for a paid trial, in the price currency's minor units.
+	// Requires `trial_period_days > 0`. Omit or null for a free trial (the default).
+	TrialAmount int64 `json:"trial_amount" api:"nullable"`
+	// Whether discount codes reduce the trial charge. Defaults to false. Only
+	// meaningful when a paid trial is configured.
+	TrialApplyDiscounts bool `json:"trial_apply_discounts" api:"nullable"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays int64                   `json:"trial_period_days"`
 	JSON            priceRecurringPriceJSON `json:"-"`
@@ -680,6 +694,8 @@ type priceRecurringPriceJSON struct {
 	SubscriptionPeriodInterval apijson.Field
 	Type                       apijson.Field
 	TaxInclusive               apijson.Field
+	TrialAmount                apijson.Field
+	TrialApplyDiscounts        apijson.Field
 	TrialPeriodDays            apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
@@ -835,6 +851,12 @@ type PriceParam struct {
 	SuggestedPrice param.Field[int64] `json:"suggested_price"`
 	// Indicates if the price is tax inclusive.
 	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
+	// Amount charged today for a paid trial, in the price currency's minor units.
+	// Requires `trial_period_days > 0`. Omit or null for a free trial (the default).
+	TrialAmount param.Field[int64] `json:"trial_amount"`
+	// Whether discount codes reduce the trial charge. Defaults to false. Only
+	// meaningful when a paid trial is configured.
+	TrialApplyDiscounts param.Field[bool] `json:"trial_apply_discounts"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
@@ -911,6 +933,12 @@ type PriceRecurringPriceParam struct {
 	Type                       param.Field[PriceRecurringPriceType] `json:"type" api:"required"`
 	// Indicates if the price is tax inclusive
 	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
+	// Amount charged today for a paid trial, in the price currency's minor units.
+	// Requires `trial_period_days > 0`. Omit or null for a free trial (the default).
+	TrialAmount param.Field[int64] `json:"trial_amount"`
+	// Whether discount codes reduce the trial charge. Defaults to false. Only
+	// meaningful when a paid trial is configured.
+	TrialApplyDiscounts param.Field[bool] `json:"trial_apply_discounts"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
