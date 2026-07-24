@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.109.0](https://github.com/dodopayments/dodopayments-go/compare/v1.108.1...v1.109.0) (2026-07-24)
+
+
+### Features
+
+* **api:** add discount customers endpoints, trial support, currency options, and failure details ([b026080](https://github.com/dodopayments/dodopayments-go/commit/b026080e6eaa46469d2e9ba6ab9b263c37a83cf6))
+* **api:** add discount customers endpoints, trial support, currency options, and failure details ([086e20e](https://github.com/dodopayments/dodopayments-go/commit/086e20e43cb296caa12d2adc7aa2085aa5124f58))
+
 ## [1.108.1](https://github.com/dodopayments/dodopayments-go/compare/v1.108.0...v1.108.1) (2026-07-09)
 
 
