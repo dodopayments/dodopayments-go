@@ -569,8 +569,15 @@ type CheckoutSessionPreviewResponse struct {
 	// The matched tax ID notation (e.g. "VAT Number", "GSTIN") when valid
 	TaxIDFormatName string `json:"tax_id_format_name" api:"nullable"`
 	// Total tax
-	TotalTax int64                              `json:"total_tax" api:"nullable"`
-	JSON     checkoutSessionPreviewResponseJSON `json:"-"`
+	TotalTax int64 `json:"total_tax" api:"nullable"`
+	// Per-unit trial amount after discounts, in the price currency's minor units
+	// (pre-quantity, pre-tax; see `current_breakup` for the taxed total due today).
+	// Only present for a paid trial; `None` for a free trial or no trial.
+	TrialAmount int64 `json:"trial_amount" api:"nullable"`
+	// Effective trial duration in days for the subscription line, when there's a trial
+	// (free or paid). `None` if no subscription or no trial.
+	TrialPeriodDays int64                              `json:"trial_period_days" api:"nullable"`
+	JSON            checkoutSessionPreviewResponseJSON `json:"-"`
 }
 
 // checkoutSessionPreviewResponseJSON contains the JSON metadata for the struct
@@ -588,6 +595,8 @@ type checkoutSessionPreviewResponseJSON struct {
 	TaxIDErrMsg       apijson.Field
 	TaxIDFormatName   apijson.Field
 	TotalTax          apijson.Field
+	TrialAmount       apijson.Field
+	TrialPeriodDays   apijson.Field
 	raw               string
 	ExtraFields       map[string]apijson.Field
 }
@@ -659,7 +668,8 @@ type CheckoutSessionPreviewResponseProductCart struct {
 	TaxRate     int64                                            `json:"tax_rate" api:"required"`
 	Addons      []CheckoutSessionPreviewResponseProductCartAddon `json:"addons" api:"nullable"`
 	Description string                                           `json:"description" api:"nullable"`
-	// discount percentage
+	// Percentage rate (basis points) of the applicable percentage code; null for flat
+	// codes (their deduction is `og_price - discounted_price`).
 	DiscountAmount int64 `json:"discount_amount" api:"nullable"`
 	// number of cycles the discount will apply
 	DiscountCycle int64 `json:"discount_cycle" api:"nullable"`
@@ -777,10 +787,12 @@ type CheckoutSessionPreviewResponseProductCartAddon struct {
 	Quantity        int64    `json:"quantity" api:"required"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
-	TaxCategory    TaxCategory                                        `json:"tax_category" api:"required"`
-	TaxInclusive   bool                                               `json:"tax_inclusive" api:"required"`
-	TaxRate        int64                                              `json:"tax_rate" api:"required"`
-	Description    string                                             `json:"description" api:"nullable"`
+	TaxCategory  TaxCategory `json:"tax_category" api:"required"`
+	TaxInclusive bool        `json:"tax_inclusive" api:"required"`
+	TaxRate      int64       `json:"tax_rate" api:"required"`
+	Description  string      `json:"description" api:"nullable"`
+	// Percentage rate (basis points) of the applicable percentage code; null for flat
+	// codes (their deduction is `og_price - discounted_price`).
 	DiscountAmount int64                                              `json:"discount_amount" api:"nullable"`
 	Tax            int64                                              `json:"tax" api:"nullable"`
 	JSON           checkoutSessionPreviewResponseProductCartAddonJSON `json:"-"`
