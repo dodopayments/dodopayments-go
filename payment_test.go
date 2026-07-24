@@ -109,6 +109,7 @@ func TestPaymentListWithOptionalParams(t *testing.T) {
 		BrandID:        dodopayments.F("brand_id"),
 		CreatedAtGte:   dodopayments.F(time.Now()),
 		CreatedAtLte:   dodopayments.F(time.Now()),
+		Currency:       dodopayments.F(dodopayments.PaymentListParamsCurrencyAed),
 		CustomerID:     dodopayments.F("customer_id"),
 		PageNumber:     dodopayments.F(int64(0)),
 		PageSize:       dodopayments.F(int64(0)),

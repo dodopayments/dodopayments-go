@@ -28,18 +28,27 @@ func TestDiscountNewWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Discounts.New(context.TODO(), dodopayments.DiscountNewParams{
-		Amount:    dodopayments.F(int64(0)),
-		Type:      dodopayments.F(dodopayments.DiscountTypePercentage),
-		Code:      dodopayments.F("code"),
-		ExpiresAt: dodopayments.F(time.Now()),
+		Amount: dodopayments.F(int64(0)),
+		Type:   dodopayments.F(dodopayments.DiscountTypeFlat),
+		Code:   dodopayments.F("code"),
+		CurrencyOptions: dodopayments.F([]dodopayments.DiscountNewParamsCurrencyOption{{
+			Currency:          dodopayments.F(dodopayments.CurrencyAed),
+			IsDefault:         dodopayments.F(true),
+			MaxAmountPossible: dodopayments.F(int64(0)),
+			MinimumSubtotal:   dodopayments.F(int64(0)),
+		}}),
+		CustomerEligibility: dodopayments.F(dodopayments.DiscountNewParamsCustomerEligibilityAny),
+		ExpiresAt:           dodopayments.F(time.Now()),
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": shared.UnionString("string"),
 		}),
-		Name:                 dodopayments.F("name"),
-		PreserveOnPlanChange: dodopayments.F(true),
-		RestrictedTo:         dodopayments.F([]string{"string"}),
-		SubscriptionCycles:   dodopayments.F(int64(0)),
-		UsageLimit:           dodopayments.F(int64(0)),
+		Name:                  dodopayments.F("name"),
+		PerCustomerUsageLimit: dodopayments.F(int64(0)),
+		PreserveOnPlanChange:  dodopayments.F(true),
+		RestrictedTo:          dodopayments.F([]string{"string"}),
+		StartsAt:              dodopayments.F(time.Now()),
+		SubscriptionCycles:    dodopayments.F(int64(0)),
+		UsageLimit:            dodopayments.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -88,18 +97,27 @@ func TestDiscountUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"dsc_qxxEmg5PuM1uNTE0LgkP9",
 		dodopayments.DiscountUpdateParams{
-			Amount:    dodopayments.F(int64(0)),
-			Code:      dodopayments.F("code"),
-			ExpiresAt: dodopayments.F(time.Now()),
+			Amount: dodopayments.F(int64(0)),
+			Code:   dodopayments.F("code"),
+			CurrencyOptions: dodopayments.F([]dodopayments.DiscountUpdateParamsCurrencyOption{{
+				Currency:          dodopayments.F(dodopayments.CurrencyAed),
+				IsDefault:         dodopayments.F(true),
+				MaxAmountPossible: dodopayments.F(int64(0)),
+				MinimumSubtotal:   dodopayments.F(int64(0)),
+			}}),
+			CustomerEligibility: dodopayments.F(dodopayments.DiscountUpdateParamsCustomerEligibilityAny),
+			ExpiresAt:           dodopayments.F(time.Now()),
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": shared.UnionString("string"),
 			}),
-			Name:                 dodopayments.F("name"),
-			PreserveOnPlanChange: dodopayments.F(true),
-			RestrictedTo:         dodopayments.F([]string{"string"}),
-			SubscriptionCycles:   dodopayments.F(int64(0)),
-			Type:                 dodopayments.F(dodopayments.DiscountTypePercentage),
-			UsageLimit:           dodopayments.F(int64(0)),
+			Name:                  dodopayments.F("name"),
+			PerCustomerUsageLimit: dodopayments.F(int64(0)),
+			PreserveOnPlanChange:  dodopayments.F(true),
+			RestrictedTo:          dodopayments.F([]string{"string"}),
+			StartsAt:              dodopayments.F(time.Now()),
+			SubscriptionCycles:    dodopayments.F(int64(0)),
+			Type:                  dodopayments.F(dodopayments.DiscountTypeFlat),
+			UsageLimit:            dodopayments.F(int64(0)),
 		},
 	)
 	if err != nil {
@@ -126,7 +144,7 @@ func TestDiscountListWithOptionalParams(t *testing.T) {
 	_, err := client.Discounts.List(context.TODO(), dodopayments.DiscountListParams{
 		Active:       dodopayments.F(true),
 		Code:         dodopayments.F("code"),
-		DiscountType: dodopayments.F(dodopayments.DiscountTypePercentage),
+		DiscountType: dodopayments.F(dodopayments.DiscountTypeFlat),
 		PageNumber:   dodopayments.F(int64(0)),
 		PageSize:     dodopayments.F(int64(0)),
 		ProductID:    dodopayments.F("product_id"),
