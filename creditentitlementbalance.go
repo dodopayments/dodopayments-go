@@ -599,7 +599,9 @@ func (r CreditEntitlementBalanceListParams) URLQuery() (v url.Values) {
 }
 
 type CreditEntitlementBalanceNewLedgerEntryParams struct {
-	// Amount to credit or debit
+	// Amount to credit or debit. Bounded to a `NUMERIC(38,28)` column, so the integer
+	// part must have fewer than 10 digits (< 10^10); larger values previously reached
+	// the DB and failed with a 22003 overflow surfaced as a 500.
 	Amount param.Field[string] `json:"amount" api:"required"`
 	// Entry type: credit or debit
 	EntryType param.Field[LedgerEntryType] `json:"entry_type" api:"required"`
