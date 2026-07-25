@@ -383,6 +383,12 @@ type Payment struct {
 	ErrorCode string `json:"error_code" api:"nullable"`
 	// An error message if the payment failed
 	ErrorMessage string `json:"error_message" api:"nullable"`
+	// Purpose-built failure messaging for the merchant and the customer, derived from
+	// `error_code`. Present whenever `error_code` is set, regardless of payment
+	// status; unrecognised codes still resolve via a generic fallback rather than
+	// being omitted. The customer copy is always generic for fraud-sensitive declines
+	// (lost/stolen/pickup/fraudulent) so the true reason is never leaked.
+	FailureDetails PaymentFailureDetails `json:"failure_details" api:"nullable"`
 	// Invoice ID for this payment. Uses India-specific invoice ID if available.
 	InvoiceID string `json:"invoice_id" api:"nullable"`
 	// URL to download the invoice PDF for this payment.
@@ -446,6 +452,7 @@ type paymentJSON struct {
 	Discounts                apijson.Field
 	ErrorCode                apijson.Field
 	ErrorMessage             apijson.Field
+	FailureDetails           apijson.Field
 	InvoiceID                apijson.Field
 	InvoiceURL               apijson.Field
 	PaymentLink              apijson.Field
@@ -484,6 +491,123 @@ const (
 func (r PaymentPaymentProvider) IsKnown() bool {
 	switch r {
 	case PaymentPaymentProviderStripe, PaymentPaymentProviderAdyen, PaymentPaymentProviderDodo:
+		return true
+	}
+	return false
+}
+
+// Purpose-built failure messaging for the merchant and the customer, derived from
+// `error_code`. Present whenever `error_code` is set, regardless of payment
+// status; unrecognised codes still resolve via a generic fallback rather than
+// being omitted. The customer copy is always generic for fraud-sensitive declines
+// (lost/stolen/pickup/fraudulent) so the true reason is never leaked.
+type PaymentFailureDetails struct {
+	// The unified error code (echoes `error_code`).
+	Code string `json:"code" api:"required"`
+	// The primary CTA to show the customer.
+	CustomerCta PaymentFailureDetailsCustomerCta `json:"customer_cta" api:"required"`
+	// Whether the customer can resolve this themselves (e.g. fix CVC).
+	CustomerFixable bool `json:"customer_fixable" api:"required"`
+	// The customer-facing string. Always generic (`C11`) for the fraud-4.
+	CustomerMessage string `json:"customer_message" api:"required"`
+	// The customer message template identifier (C1..C20).
+	CustomerTemplate PaymentFailureDetailsCustomerTemplate `json:"customer_template" api:"required"`
+	// Soft or hard decline.
+	DeclineType PaymentFailureDetailsDeclineType `json:"decline_type" api:"required"`
+	// Merchant-facing headline + recommended action (Payment Details). For the fraud-4
+	// this includes the operator "do not reveal" warning.
+	MerchantMessage string                    `json:"merchant_message" api:"required"`
+	JSON            paymentFailureDetailsJSON `json:"-"`
+}
+
+// paymentFailureDetailsJSON contains the JSON metadata for the struct
+// [PaymentFailureDetails]
+type paymentFailureDetailsJSON struct {
+	Code             apijson.Field
+	CustomerCta      apijson.Field
+	CustomerFixable  apijson.Field
+	CustomerMessage  apijson.Field
+	CustomerTemplate apijson.Field
+	DeclineType      apijson.Field
+	MerchantMessage  apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *PaymentFailureDetails) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r paymentFailureDetailsJSON) RawJSON() string {
+	return r.raw
+}
+
+// The primary CTA to show the customer.
+type PaymentFailureDetailsCustomerCta string
+
+const (
+	PaymentFailureDetailsCustomerCtaEditAndRetry     PaymentFailureDetailsCustomerCta = "edit_and_retry"
+	PaymentFailureDetailsCustomerCtaUseAnotherMethod PaymentFailureDetailsCustomerCta = "use_another_method"
+	PaymentFailureDetailsCustomerCtaTryAgain         PaymentFailureDetailsCustomerCta = "try_again"
+	PaymentFailureDetailsCustomerCtaTryLater         PaymentFailureDetailsCustomerCta = "try_later"
+	PaymentFailureDetailsCustomerCtaRetryAndVerify   PaymentFailureDetailsCustomerCta = "retry_and_verify"
+	PaymentFailureDetailsCustomerCtaRestart          PaymentFailureDetailsCustomerCta = "restart"
+	PaymentFailureDetailsCustomerCtaUpdateMethod     PaymentFailureDetailsCustomerCta = "update_method"
+)
+
+func (r PaymentFailureDetailsCustomerCta) IsKnown() bool {
+	switch r {
+	case PaymentFailureDetailsCustomerCtaEditAndRetry, PaymentFailureDetailsCustomerCtaUseAnotherMethod, PaymentFailureDetailsCustomerCtaTryAgain, PaymentFailureDetailsCustomerCtaTryLater, PaymentFailureDetailsCustomerCtaRetryAndVerify, PaymentFailureDetailsCustomerCtaRestart, PaymentFailureDetailsCustomerCtaUpdateMethod:
+		return true
+	}
+	return false
+}
+
+// The customer message template identifier (C1..C20).
+type PaymentFailureDetailsCustomerTemplate string
+
+const (
+	PaymentFailureDetailsCustomerTemplateC1  PaymentFailureDetailsCustomerTemplate = "C1"
+	PaymentFailureDetailsCustomerTemplateC2  PaymentFailureDetailsCustomerTemplate = "C2"
+	PaymentFailureDetailsCustomerTemplateC3  PaymentFailureDetailsCustomerTemplate = "C3"
+	PaymentFailureDetailsCustomerTemplateC4  PaymentFailureDetailsCustomerTemplate = "C4"
+	PaymentFailureDetailsCustomerTemplateC5  PaymentFailureDetailsCustomerTemplate = "C5"
+	PaymentFailureDetailsCustomerTemplateC6  PaymentFailureDetailsCustomerTemplate = "C6"
+	PaymentFailureDetailsCustomerTemplateC7  PaymentFailureDetailsCustomerTemplate = "C7"
+	PaymentFailureDetailsCustomerTemplateC8  PaymentFailureDetailsCustomerTemplate = "C8"
+	PaymentFailureDetailsCustomerTemplateC9  PaymentFailureDetailsCustomerTemplate = "C9"
+	PaymentFailureDetailsCustomerTemplateC10 PaymentFailureDetailsCustomerTemplate = "C10"
+	PaymentFailureDetailsCustomerTemplateC11 PaymentFailureDetailsCustomerTemplate = "C11"
+	PaymentFailureDetailsCustomerTemplateC12 PaymentFailureDetailsCustomerTemplate = "C12"
+	PaymentFailureDetailsCustomerTemplateC13 PaymentFailureDetailsCustomerTemplate = "C13"
+	PaymentFailureDetailsCustomerTemplateC14 PaymentFailureDetailsCustomerTemplate = "C14"
+	PaymentFailureDetailsCustomerTemplateC15 PaymentFailureDetailsCustomerTemplate = "C15"
+	PaymentFailureDetailsCustomerTemplateC16 PaymentFailureDetailsCustomerTemplate = "C16"
+	PaymentFailureDetailsCustomerTemplateC17 PaymentFailureDetailsCustomerTemplate = "C17"
+	PaymentFailureDetailsCustomerTemplateC18 PaymentFailureDetailsCustomerTemplate = "C18"
+	PaymentFailureDetailsCustomerTemplateC19 PaymentFailureDetailsCustomerTemplate = "C19"
+	PaymentFailureDetailsCustomerTemplateC20 PaymentFailureDetailsCustomerTemplate = "C20"
+)
+
+func (r PaymentFailureDetailsCustomerTemplate) IsKnown() bool {
+	switch r {
+	case PaymentFailureDetailsCustomerTemplateC1, PaymentFailureDetailsCustomerTemplateC2, PaymentFailureDetailsCustomerTemplateC3, PaymentFailureDetailsCustomerTemplateC4, PaymentFailureDetailsCustomerTemplateC5, PaymentFailureDetailsCustomerTemplateC6, PaymentFailureDetailsCustomerTemplateC7, PaymentFailureDetailsCustomerTemplateC8, PaymentFailureDetailsCustomerTemplateC9, PaymentFailureDetailsCustomerTemplateC10, PaymentFailureDetailsCustomerTemplateC11, PaymentFailureDetailsCustomerTemplateC12, PaymentFailureDetailsCustomerTemplateC13, PaymentFailureDetailsCustomerTemplateC14, PaymentFailureDetailsCustomerTemplateC15, PaymentFailureDetailsCustomerTemplateC16, PaymentFailureDetailsCustomerTemplateC17, PaymentFailureDetailsCustomerTemplateC18, PaymentFailureDetailsCustomerTemplateC19, PaymentFailureDetailsCustomerTemplateC20:
+		return true
+	}
+	return false
+}
+
+// Soft or hard decline.
+type PaymentFailureDetailsDeclineType string
+
+const (
+	PaymentFailureDetailsDeclineTypeSoft PaymentFailureDetailsDeclineType = "soft"
+	PaymentFailureDetailsDeclineTypeHard PaymentFailureDetailsDeclineType = "hard"
+)
+
+func (r PaymentFailureDetailsDeclineType) IsKnown() bool {
+	switch r {
+	case PaymentFailureDetailsDeclineTypeSoft, PaymentFailureDetailsDeclineTypeHard:
 		return true
 	}
 	return false
@@ -595,7 +719,6 @@ const (
 	PaymentMethodTypesSepa                       PaymentMethodTypes = "sepa"
 	PaymentMethodTypesSepaBankTransfer           PaymentMethodTypes = "sepa_bank_transfer"
 	PaymentMethodTypesSofort                     PaymentMethodTypes = "sofort"
-	PaymentMethodTypesSunbit                     PaymentMethodTypes = "sunbit"
 	PaymentMethodTypesSwish                      PaymentMethodTypes = "swish"
 	PaymentMethodTypesTouchNGo                   PaymentMethodTypes = "touch_n_go"
 	PaymentMethodTypesTrustly                    PaymentMethodTypes = "trustly"
@@ -628,7 +751,7 @@ const (
 
 func (r PaymentMethodTypes) IsKnown() bool {
 	switch r {
-	case PaymentMethodTypesACH, PaymentMethodTypesAffirm, PaymentMethodTypesAfterpayClearpay, PaymentMethodTypesAlfamart, PaymentMethodTypesAliPay, PaymentMethodTypesAliPayHk, PaymentMethodTypesAlma, PaymentMethodTypesAmazonPay, PaymentMethodTypesApplePay, PaymentMethodTypesAtome, PaymentMethodTypesBacs, PaymentMethodTypesBancontactCard, PaymentMethodTypesBecs, PaymentMethodTypesBenefit, PaymentMethodTypesBizum, PaymentMethodTypesBlik, PaymentMethodTypesBoleto, PaymentMethodTypesBcaBankTransfer, PaymentMethodTypesBniVa, PaymentMethodTypesBriVa, PaymentMethodTypesCardRedirect, PaymentMethodTypesCimbVa, PaymentMethodTypesClassic, PaymentMethodTypesCredit, PaymentMethodTypesCryptoCurrency, PaymentMethodTypesCashapp, PaymentMethodTypesDana, PaymentMethodTypesDanamonVa, PaymentMethodTypesDebit, PaymentMethodTypesDuitNow, PaymentMethodTypesEfecty, PaymentMethodTypesEft, PaymentMethodTypesEps, PaymentMethodTypesFps, PaymentMethodTypesEvoucher, PaymentMethodTypesGiropay, PaymentMethodTypesGivex, PaymentMethodTypesGooglePay, PaymentMethodTypesGoPay, PaymentMethodTypesGcash, PaymentMethodTypesIdeal, PaymentMethodTypesInterac, PaymentMethodTypesIndomaret, PaymentMethodTypesKlarna, PaymentMethodTypesKakaoPay, PaymentMethodTypesLocalBankRedirect, PaymentMethodTypesMandiriVa, PaymentMethodTypesKnet, PaymentMethodTypesMBWay, PaymentMethodTypesMobilePay, PaymentMethodTypesMomo, PaymentMethodTypesMomoAtm, PaymentMethodTypesMultibanco, PaymentMethodTypesOnlineBankingThailand, PaymentMethodTypesOnlineBankingCzechRepublic, PaymentMethodTypesOnlineBankingFinland, PaymentMethodTypesOnlineBankingFpx, PaymentMethodTypesOnlineBankingPoland, PaymentMethodTypesOnlineBankingSlovakia, PaymentMethodTypesOxxo, PaymentMethodTypesPagoEfectivo, PaymentMethodTypesPermataBankTransfer, PaymentMethodTypesOpenBankingUk, PaymentMethodTypesPayBright, PaymentMethodTypesPaypal, PaymentMethodTypesPaze, PaymentMethodTypesPix, PaymentMethodTypesPaySafeCard, PaymentMethodTypesPrzelewy24, PaymentMethodTypesPromptPay, PaymentMethodTypesPse, PaymentMethodTypesRedCompra, PaymentMethodTypesRedPagos, PaymentMethodTypesSamsungPay, PaymentMethodTypesSepa, PaymentMethodTypesSepaBankTransfer, PaymentMethodTypesSofort, PaymentMethodTypesSunbit, PaymentMethodTypesSwish, PaymentMethodTypesTouchNGo, PaymentMethodTypesTrustly, PaymentMethodTypesTwint, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesVipps, PaymentMethodTypesVietQr, PaymentMethodTypesVenmo, PaymentMethodTypesWalley, PaymentMethodTypesWeChatPay, PaymentMethodTypesSevenEleven, PaymentMethodTypesLawson, PaymentMethodTypesMiniStop, PaymentMethodTypesFamilyMart, PaymentMethodTypesSeicomart, PaymentMethodTypesPayEasy, PaymentMethodTypesLocalBankTransfer, PaymentMethodTypesMifinity, PaymentMethodTypesOpenBankingPis, PaymentMethodTypesDirectCarrierBilling, PaymentMethodTypesInstantBankTransfer, PaymentMethodTypesBillie, PaymentMethodTypesZip, PaymentMethodTypesRevolutPay, PaymentMethodTypesNaverPay, PaymentMethodTypesPayco, PaymentMethodTypesSatispay:
+	case PaymentMethodTypesACH, PaymentMethodTypesAffirm, PaymentMethodTypesAfterpayClearpay, PaymentMethodTypesAlfamart, PaymentMethodTypesAliPay, PaymentMethodTypesAliPayHk, PaymentMethodTypesAlma, PaymentMethodTypesAmazonPay, PaymentMethodTypesApplePay, PaymentMethodTypesAtome, PaymentMethodTypesBacs, PaymentMethodTypesBancontactCard, PaymentMethodTypesBecs, PaymentMethodTypesBenefit, PaymentMethodTypesBizum, PaymentMethodTypesBlik, PaymentMethodTypesBoleto, PaymentMethodTypesBcaBankTransfer, PaymentMethodTypesBniVa, PaymentMethodTypesBriVa, PaymentMethodTypesCardRedirect, PaymentMethodTypesCimbVa, PaymentMethodTypesClassic, PaymentMethodTypesCredit, PaymentMethodTypesCryptoCurrency, PaymentMethodTypesCashapp, PaymentMethodTypesDana, PaymentMethodTypesDanamonVa, PaymentMethodTypesDebit, PaymentMethodTypesDuitNow, PaymentMethodTypesEfecty, PaymentMethodTypesEft, PaymentMethodTypesEps, PaymentMethodTypesFps, PaymentMethodTypesEvoucher, PaymentMethodTypesGiropay, PaymentMethodTypesGivex, PaymentMethodTypesGooglePay, PaymentMethodTypesGoPay, PaymentMethodTypesGcash, PaymentMethodTypesIdeal, PaymentMethodTypesInterac, PaymentMethodTypesIndomaret, PaymentMethodTypesKlarna, PaymentMethodTypesKakaoPay, PaymentMethodTypesLocalBankRedirect, PaymentMethodTypesMandiriVa, PaymentMethodTypesKnet, PaymentMethodTypesMBWay, PaymentMethodTypesMobilePay, PaymentMethodTypesMomo, PaymentMethodTypesMomoAtm, PaymentMethodTypesMultibanco, PaymentMethodTypesOnlineBankingThailand, PaymentMethodTypesOnlineBankingCzechRepublic, PaymentMethodTypesOnlineBankingFinland, PaymentMethodTypesOnlineBankingFpx, PaymentMethodTypesOnlineBankingPoland, PaymentMethodTypesOnlineBankingSlovakia, PaymentMethodTypesOxxo, PaymentMethodTypesPagoEfectivo, PaymentMethodTypesPermataBankTransfer, PaymentMethodTypesOpenBankingUk, PaymentMethodTypesPayBright, PaymentMethodTypesPaypal, PaymentMethodTypesPaze, PaymentMethodTypesPix, PaymentMethodTypesPaySafeCard, PaymentMethodTypesPrzelewy24, PaymentMethodTypesPromptPay, PaymentMethodTypesPse, PaymentMethodTypesRedCompra, PaymentMethodTypesRedPagos, PaymentMethodTypesSamsungPay, PaymentMethodTypesSepa, PaymentMethodTypesSepaBankTransfer, PaymentMethodTypesSofort, PaymentMethodTypesSwish, PaymentMethodTypesTouchNGo, PaymentMethodTypesTrustly, PaymentMethodTypesTwint, PaymentMethodTypesUpiCollect, PaymentMethodTypesUpiIntent, PaymentMethodTypesVipps, PaymentMethodTypesVietQr, PaymentMethodTypesVenmo, PaymentMethodTypesWalley, PaymentMethodTypesWeChatPay, PaymentMethodTypesSevenEleven, PaymentMethodTypesLawson, PaymentMethodTypesMiniStop, PaymentMethodTypesFamilyMart, PaymentMethodTypesSeicomart, PaymentMethodTypesPayEasy, PaymentMethodTypesLocalBankTransfer, PaymentMethodTypesMifinity, PaymentMethodTypesOpenBankingPis, PaymentMethodTypesDirectCarrierBilling, PaymentMethodTypesInstantBankTransfer, PaymentMethodTypesBillie, PaymentMethodTypesZip, PaymentMethodTypesRevolutPay, PaymentMethodTypesNaverPay, PaymentMethodTypesPayco, PaymentMethodTypesSatispay:
 		return true
 	}
 	return false
@@ -960,6 +1083,8 @@ type PaymentListParams struct {
 	CreatedAtGte param.Field[time.Time] `query:"created_at_gte" format:"date-time"`
 	// Get events created before this time
 	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
+	// Filter by currency
+	Currency param.Field[PaymentListParamsCurrency] `query:"currency"`
 	// Filter by customer id
 	CustomerID param.Field[string] `query:"customer_id"`
 	// Page number default is 0
@@ -980,6 +1105,165 @@ func (r PaymentListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// Filter by currency
+type PaymentListParamsCurrency string
+
+const (
+	PaymentListParamsCurrencyAed PaymentListParamsCurrency = "AED"
+	PaymentListParamsCurrencyAll PaymentListParamsCurrency = "ALL"
+	PaymentListParamsCurrencyAmd PaymentListParamsCurrency = "AMD"
+	PaymentListParamsCurrencyAng PaymentListParamsCurrency = "ANG"
+	PaymentListParamsCurrencyAoa PaymentListParamsCurrency = "AOA"
+	PaymentListParamsCurrencyArs PaymentListParamsCurrency = "ARS"
+	PaymentListParamsCurrencyAud PaymentListParamsCurrency = "AUD"
+	PaymentListParamsCurrencyAwg PaymentListParamsCurrency = "AWG"
+	PaymentListParamsCurrencyAzn PaymentListParamsCurrency = "AZN"
+	PaymentListParamsCurrencyBam PaymentListParamsCurrency = "BAM"
+	PaymentListParamsCurrencyBbd PaymentListParamsCurrency = "BBD"
+	PaymentListParamsCurrencyBdt PaymentListParamsCurrency = "BDT"
+	PaymentListParamsCurrencyBgn PaymentListParamsCurrency = "BGN"
+	PaymentListParamsCurrencyBhd PaymentListParamsCurrency = "BHD"
+	PaymentListParamsCurrencyBif PaymentListParamsCurrency = "BIF"
+	PaymentListParamsCurrencyBmd PaymentListParamsCurrency = "BMD"
+	PaymentListParamsCurrencyBnd PaymentListParamsCurrency = "BND"
+	PaymentListParamsCurrencyBob PaymentListParamsCurrency = "BOB"
+	PaymentListParamsCurrencyBrl PaymentListParamsCurrency = "BRL"
+	PaymentListParamsCurrencyBsd PaymentListParamsCurrency = "BSD"
+	PaymentListParamsCurrencyBwp PaymentListParamsCurrency = "BWP"
+	PaymentListParamsCurrencyByn PaymentListParamsCurrency = "BYN"
+	PaymentListParamsCurrencyBzd PaymentListParamsCurrency = "BZD"
+	PaymentListParamsCurrencyCad PaymentListParamsCurrency = "CAD"
+	PaymentListParamsCurrencyChf PaymentListParamsCurrency = "CHF"
+	PaymentListParamsCurrencyClp PaymentListParamsCurrency = "CLP"
+	PaymentListParamsCurrencyCny PaymentListParamsCurrency = "CNY"
+	PaymentListParamsCurrencyCop PaymentListParamsCurrency = "COP"
+	PaymentListParamsCurrencyCrc PaymentListParamsCurrency = "CRC"
+	PaymentListParamsCurrencyCup PaymentListParamsCurrency = "CUP"
+	PaymentListParamsCurrencyCve PaymentListParamsCurrency = "CVE"
+	PaymentListParamsCurrencyCzk PaymentListParamsCurrency = "CZK"
+	PaymentListParamsCurrencyDjf PaymentListParamsCurrency = "DJF"
+	PaymentListParamsCurrencyDkk PaymentListParamsCurrency = "DKK"
+	PaymentListParamsCurrencyDop PaymentListParamsCurrency = "DOP"
+	PaymentListParamsCurrencyDzd PaymentListParamsCurrency = "DZD"
+	PaymentListParamsCurrencyEgp PaymentListParamsCurrency = "EGP"
+	PaymentListParamsCurrencyEtb PaymentListParamsCurrency = "ETB"
+	PaymentListParamsCurrencyEur PaymentListParamsCurrency = "EUR"
+	PaymentListParamsCurrencyFjd PaymentListParamsCurrency = "FJD"
+	PaymentListParamsCurrencyFkp PaymentListParamsCurrency = "FKP"
+	PaymentListParamsCurrencyGbp PaymentListParamsCurrency = "GBP"
+	PaymentListParamsCurrencyGel PaymentListParamsCurrency = "GEL"
+	PaymentListParamsCurrencyGhs PaymentListParamsCurrency = "GHS"
+	PaymentListParamsCurrencyGip PaymentListParamsCurrency = "GIP"
+	PaymentListParamsCurrencyGmd PaymentListParamsCurrency = "GMD"
+	PaymentListParamsCurrencyGnf PaymentListParamsCurrency = "GNF"
+	PaymentListParamsCurrencyGtq PaymentListParamsCurrency = "GTQ"
+	PaymentListParamsCurrencyGyd PaymentListParamsCurrency = "GYD"
+	PaymentListParamsCurrencyHkd PaymentListParamsCurrency = "HKD"
+	PaymentListParamsCurrencyHnl PaymentListParamsCurrency = "HNL"
+	PaymentListParamsCurrencyHrk PaymentListParamsCurrency = "HRK"
+	PaymentListParamsCurrencyHtg PaymentListParamsCurrency = "HTG"
+	PaymentListParamsCurrencyHuf PaymentListParamsCurrency = "HUF"
+	PaymentListParamsCurrencyIdr PaymentListParamsCurrency = "IDR"
+	PaymentListParamsCurrencyIls PaymentListParamsCurrency = "ILS"
+	PaymentListParamsCurrencyInr PaymentListParamsCurrency = "INR"
+	PaymentListParamsCurrencyIqd PaymentListParamsCurrency = "IQD"
+	PaymentListParamsCurrencyJmd PaymentListParamsCurrency = "JMD"
+	PaymentListParamsCurrencyJod PaymentListParamsCurrency = "JOD"
+	PaymentListParamsCurrencyJpy PaymentListParamsCurrency = "JPY"
+	PaymentListParamsCurrencyKes PaymentListParamsCurrency = "KES"
+	PaymentListParamsCurrencyKgs PaymentListParamsCurrency = "KGS"
+	PaymentListParamsCurrencyKhr PaymentListParamsCurrency = "KHR"
+	PaymentListParamsCurrencyKmf PaymentListParamsCurrency = "KMF"
+	PaymentListParamsCurrencyKrw PaymentListParamsCurrency = "KRW"
+	PaymentListParamsCurrencyKwd PaymentListParamsCurrency = "KWD"
+	PaymentListParamsCurrencyKyd PaymentListParamsCurrency = "KYD"
+	PaymentListParamsCurrencyKzt PaymentListParamsCurrency = "KZT"
+	PaymentListParamsCurrencyLak PaymentListParamsCurrency = "LAK"
+	PaymentListParamsCurrencyLbp PaymentListParamsCurrency = "LBP"
+	PaymentListParamsCurrencyLkr PaymentListParamsCurrency = "LKR"
+	PaymentListParamsCurrencyLrd PaymentListParamsCurrency = "LRD"
+	PaymentListParamsCurrencyLsl PaymentListParamsCurrency = "LSL"
+	PaymentListParamsCurrencyLyd PaymentListParamsCurrency = "LYD"
+	PaymentListParamsCurrencyMad PaymentListParamsCurrency = "MAD"
+	PaymentListParamsCurrencyMdl PaymentListParamsCurrency = "MDL"
+	PaymentListParamsCurrencyMga PaymentListParamsCurrency = "MGA"
+	PaymentListParamsCurrencyMkd PaymentListParamsCurrency = "MKD"
+	PaymentListParamsCurrencyMmk PaymentListParamsCurrency = "MMK"
+	PaymentListParamsCurrencyMnt PaymentListParamsCurrency = "MNT"
+	PaymentListParamsCurrencyMop PaymentListParamsCurrency = "MOP"
+	PaymentListParamsCurrencyMru PaymentListParamsCurrency = "MRU"
+	PaymentListParamsCurrencyMur PaymentListParamsCurrency = "MUR"
+	PaymentListParamsCurrencyMvr PaymentListParamsCurrency = "MVR"
+	PaymentListParamsCurrencyMwk PaymentListParamsCurrency = "MWK"
+	PaymentListParamsCurrencyMxn PaymentListParamsCurrency = "MXN"
+	PaymentListParamsCurrencyMyr PaymentListParamsCurrency = "MYR"
+	PaymentListParamsCurrencyMzn PaymentListParamsCurrency = "MZN"
+	PaymentListParamsCurrencyNad PaymentListParamsCurrency = "NAD"
+	PaymentListParamsCurrencyNgn PaymentListParamsCurrency = "NGN"
+	PaymentListParamsCurrencyNio PaymentListParamsCurrency = "NIO"
+	PaymentListParamsCurrencyNok PaymentListParamsCurrency = "NOK"
+	PaymentListParamsCurrencyNpr PaymentListParamsCurrency = "NPR"
+	PaymentListParamsCurrencyNzd PaymentListParamsCurrency = "NZD"
+	PaymentListParamsCurrencyOmr PaymentListParamsCurrency = "OMR"
+	PaymentListParamsCurrencyPab PaymentListParamsCurrency = "PAB"
+	PaymentListParamsCurrencyPen PaymentListParamsCurrency = "PEN"
+	PaymentListParamsCurrencyPgk PaymentListParamsCurrency = "PGK"
+	PaymentListParamsCurrencyPhp PaymentListParamsCurrency = "PHP"
+	PaymentListParamsCurrencyPkr PaymentListParamsCurrency = "PKR"
+	PaymentListParamsCurrencyPln PaymentListParamsCurrency = "PLN"
+	PaymentListParamsCurrencyPyg PaymentListParamsCurrency = "PYG"
+	PaymentListParamsCurrencyQar PaymentListParamsCurrency = "QAR"
+	PaymentListParamsCurrencyRon PaymentListParamsCurrency = "RON"
+	PaymentListParamsCurrencyRsd PaymentListParamsCurrency = "RSD"
+	PaymentListParamsCurrencyRub PaymentListParamsCurrency = "RUB"
+	PaymentListParamsCurrencyRwf PaymentListParamsCurrency = "RWF"
+	PaymentListParamsCurrencySar PaymentListParamsCurrency = "SAR"
+	PaymentListParamsCurrencySbd PaymentListParamsCurrency = "SBD"
+	PaymentListParamsCurrencyScr PaymentListParamsCurrency = "SCR"
+	PaymentListParamsCurrencySek PaymentListParamsCurrency = "SEK"
+	PaymentListParamsCurrencySgd PaymentListParamsCurrency = "SGD"
+	PaymentListParamsCurrencyShp PaymentListParamsCurrency = "SHP"
+	PaymentListParamsCurrencySle PaymentListParamsCurrency = "SLE"
+	PaymentListParamsCurrencySll PaymentListParamsCurrency = "SLL"
+	PaymentListParamsCurrencySos PaymentListParamsCurrency = "SOS"
+	PaymentListParamsCurrencySrd PaymentListParamsCurrency = "SRD"
+	PaymentListParamsCurrencySsp PaymentListParamsCurrency = "SSP"
+	PaymentListParamsCurrencyStn PaymentListParamsCurrency = "STN"
+	PaymentListParamsCurrencySvc PaymentListParamsCurrency = "SVC"
+	PaymentListParamsCurrencySzl PaymentListParamsCurrency = "SZL"
+	PaymentListParamsCurrencyThb PaymentListParamsCurrency = "THB"
+	PaymentListParamsCurrencyTnd PaymentListParamsCurrency = "TND"
+	PaymentListParamsCurrencyTop PaymentListParamsCurrency = "TOP"
+	PaymentListParamsCurrencyTry PaymentListParamsCurrency = "TRY"
+	PaymentListParamsCurrencyTtd PaymentListParamsCurrency = "TTD"
+	PaymentListParamsCurrencyTwd PaymentListParamsCurrency = "TWD"
+	PaymentListParamsCurrencyTzs PaymentListParamsCurrency = "TZS"
+	PaymentListParamsCurrencyUah PaymentListParamsCurrency = "UAH"
+	PaymentListParamsCurrencyUgx PaymentListParamsCurrency = "UGX"
+	PaymentListParamsCurrencyUsd PaymentListParamsCurrency = "USD"
+	PaymentListParamsCurrencyUyu PaymentListParamsCurrency = "UYU"
+	PaymentListParamsCurrencyUzs PaymentListParamsCurrency = "UZS"
+	PaymentListParamsCurrencyVes PaymentListParamsCurrency = "VES"
+	PaymentListParamsCurrencyVnd PaymentListParamsCurrency = "VND"
+	PaymentListParamsCurrencyVuv PaymentListParamsCurrency = "VUV"
+	PaymentListParamsCurrencyWst PaymentListParamsCurrency = "WST"
+	PaymentListParamsCurrencyXaf PaymentListParamsCurrency = "XAF"
+	PaymentListParamsCurrencyXcd PaymentListParamsCurrency = "XCD"
+	PaymentListParamsCurrencyXof PaymentListParamsCurrency = "XOF"
+	PaymentListParamsCurrencyXpf PaymentListParamsCurrency = "XPF"
+	PaymentListParamsCurrencyYer PaymentListParamsCurrency = "YER"
+	PaymentListParamsCurrencyZar PaymentListParamsCurrency = "ZAR"
+	PaymentListParamsCurrencyZmw PaymentListParamsCurrency = "ZMW"
+)
+
+func (r PaymentListParamsCurrency) IsKnown() bool {
+	switch r {
+	case PaymentListParamsCurrencyAed, PaymentListParamsCurrencyAll, PaymentListParamsCurrencyAmd, PaymentListParamsCurrencyAng, PaymentListParamsCurrencyAoa, PaymentListParamsCurrencyArs, PaymentListParamsCurrencyAud, PaymentListParamsCurrencyAwg, PaymentListParamsCurrencyAzn, PaymentListParamsCurrencyBam, PaymentListParamsCurrencyBbd, PaymentListParamsCurrencyBdt, PaymentListParamsCurrencyBgn, PaymentListParamsCurrencyBhd, PaymentListParamsCurrencyBif, PaymentListParamsCurrencyBmd, PaymentListParamsCurrencyBnd, PaymentListParamsCurrencyBob, PaymentListParamsCurrencyBrl, PaymentListParamsCurrencyBsd, PaymentListParamsCurrencyBwp, PaymentListParamsCurrencyByn, PaymentListParamsCurrencyBzd, PaymentListParamsCurrencyCad, PaymentListParamsCurrencyChf, PaymentListParamsCurrencyClp, PaymentListParamsCurrencyCny, PaymentListParamsCurrencyCop, PaymentListParamsCurrencyCrc, PaymentListParamsCurrencyCup, PaymentListParamsCurrencyCve, PaymentListParamsCurrencyCzk, PaymentListParamsCurrencyDjf, PaymentListParamsCurrencyDkk, PaymentListParamsCurrencyDop, PaymentListParamsCurrencyDzd, PaymentListParamsCurrencyEgp, PaymentListParamsCurrencyEtb, PaymentListParamsCurrencyEur, PaymentListParamsCurrencyFjd, PaymentListParamsCurrencyFkp, PaymentListParamsCurrencyGbp, PaymentListParamsCurrencyGel, PaymentListParamsCurrencyGhs, PaymentListParamsCurrencyGip, PaymentListParamsCurrencyGmd, PaymentListParamsCurrencyGnf, PaymentListParamsCurrencyGtq, PaymentListParamsCurrencyGyd, PaymentListParamsCurrencyHkd, PaymentListParamsCurrencyHnl, PaymentListParamsCurrencyHrk, PaymentListParamsCurrencyHtg, PaymentListParamsCurrencyHuf, PaymentListParamsCurrencyIdr, PaymentListParamsCurrencyIls, PaymentListParamsCurrencyInr, PaymentListParamsCurrencyIqd, PaymentListParamsCurrencyJmd, PaymentListParamsCurrencyJod, PaymentListParamsCurrencyJpy, PaymentListParamsCurrencyKes, PaymentListParamsCurrencyKgs, PaymentListParamsCurrencyKhr, PaymentListParamsCurrencyKmf, PaymentListParamsCurrencyKrw, PaymentListParamsCurrencyKwd, PaymentListParamsCurrencyKyd, PaymentListParamsCurrencyKzt, PaymentListParamsCurrencyLak, PaymentListParamsCurrencyLbp, PaymentListParamsCurrencyLkr, PaymentListParamsCurrencyLrd, PaymentListParamsCurrencyLsl, PaymentListParamsCurrencyLyd, PaymentListParamsCurrencyMad, PaymentListParamsCurrencyMdl, PaymentListParamsCurrencyMga, PaymentListParamsCurrencyMkd, PaymentListParamsCurrencyMmk, PaymentListParamsCurrencyMnt, PaymentListParamsCurrencyMop, PaymentListParamsCurrencyMru, PaymentListParamsCurrencyMur, PaymentListParamsCurrencyMvr, PaymentListParamsCurrencyMwk, PaymentListParamsCurrencyMxn, PaymentListParamsCurrencyMyr, PaymentListParamsCurrencyMzn, PaymentListParamsCurrencyNad, PaymentListParamsCurrencyNgn, PaymentListParamsCurrencyNio, PaymentListParamsCurrencyNok, PaymentListParamsCurrencyNpr, PaymentListParamsCurrencyNzd, PaymentListParamsCurrencyOmr, PaymentListParamsCurrencyPab, PaymentListParamsCurrencyPen, PaymentListParamsCurrencyPgk, PaymentListParamsCurrencyPhp, PaymentListParamsCurrencyPkr, PaymentListParamsCurrencyPln, PaymentListParamsCurrencyPyg, PaymentListParamsCurrencyQar, PaymentListParamsCurrencyRon, PaymentListParamsCurrencyRsd, PaymentListParamsCurrencyRub, PaymentListParamsCurrencyRwf, PaymentListParamsCurrencySar, PaymentListParamsCurrencySbd, PaymentListParamsCurrencyScr, PaymentListParamsCurrencySek, PaymentListParamsCurrencySgd, PaymentListParamsCurrencyShp, PaymentListParamsCurrencySle, PaymentListParamsCurrencySll, PaymentListParamsCurrencySos, PaymentListParamsCurrencySrd, PaymentListParamsCurrencySsp, PaymentListParamsCurrencyStn, PaymentListParamsCurrencySvc, PaymentListParamsCurrencySzl, PaymentListParamsCurrencyThb, PaymentListParamsCurrencyTnd, PaymentListParamsCurrencyTop, PaymentListParamsCurrencyTry, PaymentListParamsCurrencyTtd, PaymentListParamsCurrencyTwd, PaymentListParamsCurrencyTzs, PaymentListParamsCurrencyUah, PaymentListParamsCurrencyUgx, PaymentListParamsCurrencyUsd, PaymentListParamsCurrencyUyu, PaymentListParamsCurrencyUzs, PaymentListParamsCurrencyVes, PaymentListParamsCurrencyVnd, PaymentListParamsCurrencyVuv, PaymentListParamsCurrencyWst, PaymentListParamsCurrencyXaf, PaymentListParamsCurrencyXcd, PaymentListParamsCurrencyXof, PaymentListParamsCurrencyXpf, PaymentListParamsCurrencyYer, PaymentListParamsCurrencyZar, PaymentListParamsCurrencyZmw:
+		return true
+	}
+	return false
 }
 
 // Filter by status
