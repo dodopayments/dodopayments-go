@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.110.0](https://github.com/dodopayments/dodopayments-go/compare/v1.109.0...v1.110.0) (2026-07-31)
+
+
+### Features
+
+* **api:** add payout webhook events and remove payment failure_details ([6955a54](https://github.com/dodopayments/dodopayments-go/commit/6955a54eda0532d6a1c19e3cd1a92164cbd6f371))
+* **api:** add payout webhook events and remove payment failure_details ([7517031](https://github.com/dodopayments/dodopayments-go/commit/7517031f042a81d17e313c7be4c7f01e67a55054))
+
 ## [1.108.1](https://github.com/dodopayments/dodopayments-go/compare/v1.108.0...v1.108.1) (2026-07-09)
 
 
