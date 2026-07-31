@@ -1981,6 +1981,711 @@ func (r PaymentSucceededWebhookEventType) IsKnown() bool {
 	return false
 }
 
+type PayoutCreatedWebhookEvent struct {
+	// The business identifier
+	BusinessID string                        `json:"business_id" api:"required"`
+	Data       PayoutCreatedWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type PayoutCreatedWebhookEventType `json:"type" api:"required"`
+	JSON payoutCreatedWebhookEventJSON `json:"-"`
+}
+
+// payoutCreatedWebhookEventJSON contains the JSON metadata for the struct
+// [PayoutCreatedWebhookEvent]
+type payoutCreatedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PayoutCreatedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r payoutCreatedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r PayoutCreatedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r PayoutCreatedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+type PayoutCreatedWebhookEventData struct {
+	// The total amount of the payout.
+	Amount int64 `json:"amount" api:"required"`
+	// The unique identifier of the business associated with the payout.
+	BusinessID string `json:"business_id" api:"required"`
+	// The total value of chargebacks associated with the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Chargebacks int64 `json:"chargebacks" api:"required"`
+	// The timestamp when the payout was created, in UTC.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// The currency of the payout, represented as an ISO 4217 currency code.
+	Currency Currency `json:"currency" api:"required"`
+	// The fee charged for processing the payout.
+	Fee int64 `json:"fee" api:"required"`
+	// The payment method used for the payout (e.g., bank transfer, card, etc.).
+	PaymentMethod string `json:"payment_method" api:"required"`
+	// The unique identifier of the payout.
+	PayoutID string `json:"payout_id" api:"required"`
+	// The total value of refunds associated with the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Refunds int64 `json:"refunds" api:"required"`
+	// The current status of the payout.
+	Status PayoutCreatedWebhookEventDataStatus `json:"status" api:"required"`
+	// The tax applied to the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Tax int64 `json:"tax" api:"required"`
+	// The timestamp when the payout was last updated, in UTC.
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
+	// The name of the payout recipient or purpose.
+	Name string `json:"name" api:"nullable"`
+	// The URL of the document associated with the payout.
+	PayoutDocumentURL string `json:"payout_document_url" api:"nullable"`
+	// Any additional remarks or notes associated with the payout.
+	Remarks string                            `json:"remarks" api:"nullable"`
+	JSON    payoutCreatedWebhookEventDataJSON `json:"-"`
+}
+
+// payoutCreatedWebhookEventDataJSON contains the JSON metadata for the struct
+// [PayoutCreatedWebhookEventData]
+type payoutCreatedWebhookEventDataJSON struct {
+	Amount            apijson.Field
+	BusinessID        apijson.Field
+	Chargebacks       apijson.Field
+	CreatedAt         apijson.Field
+	Currency          apijson.Field
+	Fee               apijson.Field
+	PaymentMethod     apijson.Field
+	PayoutID          apijson.Field
+	Refunds           apijson.Field
+	Status            apijson.Field
+	Tax               apijson.Field
+	UpdatedAt         apijson.Field
+	Name              apijson.Field
+	PayoutDocumentURL apijson.Field
+	Remarks           apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *PayoutCreatedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r payoutCreatedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+// The current status of the payout.
+type PayoutCreatedWebhookEventDataStatus string
+
+const (
+	PayoutCreatedWebhookEventDataStatusNotInitiated PayoutCreatedWebhookEventDataStatus = "not_initiated"
+	PayoutCreatedWebhookEventDataStatusInProgress   PayoutCreatedWebhookEventDataStatus = "in_progress"
+	PayoutCreatedWebhookEventDataStatusOnHold       PayoutCreatedWebhookEventDataStatus = "on_hold"
+	PayoutCreatedWebhookEventDataStatusFailed       PayoutCreatedWebhookEventDataStatus = "failed"
+	PayoutCreatedWebhookEventDataStatusSuccess      PayoutCreatedWebhookEventDataStatus = "success"
+)
+
+func (r PayoutCreatedWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case PayoutCreatedWebhookEventDataStatusNotInitiated, PayoutCreatedWebhookEventDataStatusInProgress, PayoutCreatedWebhookEventDataStatusOnHold, PayoutCreatedWebhookEventDataStatusFailed, PayoutCreatedWebhookEventDataStatusSuccess:
+		return true
+	}
+	return false
+}
+
+// The event type
+type PayoutCreatedWebhookEventType string
+
+const (
+	PayoutCreatedWebhookEventTypePayoutCreated PayoutCreatedWebhookEventType = "payout.created"
+)
+
+func (r PayoutCreatedWebhookEventType) IsKnown() bool {
+	switch r {
+	case PayoutCreatedWebhookEventTypePayoutCreated:
+		return true
+	}
+	return false
+}
+
+type PayoutFailedWebhookEvent struct {
+	// The business identifier
+	BusinessID string                       `json:"business_id" api:"required"`
+	Data       PayoutFailedWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type PayoutFailedWebhookEventType `json:"type" api:"required"`
+	JSON payoutFailedWebhookEventJSON `json:"-"`
+}
+
+// payoutFailedWebhookEventJSON contains the JSON metadata for the struct
+// [PayoutFailedWebhookEvent]
+type payoutFailedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PayoutFailedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r payoutFailedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r PayoutFailedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r PayoutFailedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+type PayoutFailedWebhookEventData struct {
+	// The total amount of the payout.
+	Amount int64 `json:"amount" api:"required"`
+	// The unique identifier of the business associated with the payout.
+	BusinessID string `json:"business_id" api:"required"`
+	// The total value of chargebacks associated with the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Chargebacks int64 `json:"chargebacks" api:"required"`
+	// The timestamp when the payout was created, in UTC.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// The currency of the payout, represented as an ISO 4217 currency code.
+	Currency Currency `json:"currency" api:"required"`
+	// The fee charged for processing the payout.
+	Fee int64 `json:"fee" api:"required"`
+	// The payment method used for the payout (e.g., bank transfer, card, etc.).
+	PaymentMethod string `json:"payment_method" api:"required"`
+	// The unique identifier of the payout.
+	PayoutID string `json:"payout_id" api:"required"`
+	// The total value of refunds associated with the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Refunds int64 `json:"refunds" api:"required"`
+	// The current status of the payout.
+	Status PayoutFailedWebhookEventDataStatus `json:"status" api:"required"`
+	// The tax applied to the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Tax int64 `json:"tax" api:"required"`
+	// The timestamp when the payout was last updated, in UTC.
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
+	// The name of the payout recipient or purpose.
+	Name string `json:"name" api:"nullable"`
+	// The URL of the document associated with the payout.
+	PayoutDocumentURL string `json:"payout_document_url" api:"nullable"`
+	// Any additional remarks or notes associated with the payout.
+	Remarks string                           `json:"remarks" api:"nullable"`
+	JSON    payoutFailedWebhookEventDataJSON `json:"-"`
+}
+
+// payoutFailedWebhookEventDataJSON contains the JSON metadata for the struct
+// [PayoutFailedWebhookEventData]
+type payoutFailedWebhookEventDataJSON struct {
+	Amount            apijson.Field
+	BusinessID        apijson.Field
+	Chargebacks       apijson.Field
+	CreatedAt         apijson.Field
+	Currency          apijson.Field
+	Fee               apijson.Field
+	PaymentMethod     apijson.Field
+	PayoutID          apijson.Field
+	Refunds           apijson.Field
+	Status            apijson.Field
+	Tax               apijson.Field
+	UpdatedAt         apijson.Field
+	Name              apijson.Field
+	PayoutDocumentURL apijson.Field
+	Remarks           apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *PayoutFailedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r payoutFailedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+// The current status of the payout.
+type PayoutFailedWebhookEventDataStatus string
+
+const (
+	PayoutFailedWebhookEventDataStatusNotInitiated PayoutFailedWebhookEventDataStatus = "not_initiated"
+	PayoutFailedWebhookEventDataStatusInProgress   PayoutFailedWebhookEventDataStatus = "in_progress"
+	PayoutFailedWebhookEventDataStatusOnHold       PayoutFailedWebhookEventDataStatus = "on_hold"
+	PayoutFailedWebhookEventDataStatusFailed       PayoutFailedWebhookEventDataStatus = "failed"
+	PayoutFailedWebhookEventDataStatusSuccess      PayoutFailedWebhookEventDataStatus = "success"
+)
+
+func (r PayoutFailedWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case PayoutFailedWebhookEventDataStatusNotInitiated, PayoutFailedWebhookEventDataStatusInProgress, PayoutFailedWebhookEventDataStatusOnHold, PayoutFailedWebhookEventDataStatusFailed, PayoutFailedWebhookEventDataStatusSuccess:
+		return true
+	}
+	return false
+}
+
+// The event type
+type PayoutFailedWebhookEventType string
+
+const (
+	PayoutFailedWebhookEventTypePayoutFailed PayoutFailedWebhookEventType = "payout.failed"
+)
+
+func (r PayoutFailedWebhookEventType) IsKnown() bool {
+	switch r {
+	case PayoutFailedWebhookEventTypePayoutFailed:
+		return true
+	}
+	return false
+}
+
+type PayoutInProgressWebhookEvent struct {
+	// The business identifier
+	BusinessID string                           `json:"business_id" api:"required"`
+	Data       PayoutInProgressWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type PayoutInProgressWebhookEventType `json:"type" api:"required"`
+	JSON payoutInProgressWebhookEventJSON `json:"-"`
+}
+
+// payoutInProgressWebhookEventJSON contains the JSON metadata for the struct
+// [PayoutInProgressWebhookEvent]
+type payoutInProgressWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PayoutInProgressWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r payoutInProgressWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r PayoutInProgressWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r PayoutInProgressWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+type PayoutInProgressWebhookEventData struct {
+	// The total amount of the payout.
+	Amount int64 `json:"amount" api:"required"`
+	// The unique identifier of the business associated with the payout.
+	BusinessID string `json:"business_id" api:"required"`
+	// The total value of chargebacks associated with the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Chargebacks int64 `json:"chargebacks" api:"required"`
+	// The timestamp when the payout was created, in UTC.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// The currency of the payout, represented as an ISO 4217 currency code.
+	Currency Currency `json:"currency" api:"required"`
+	// The fee charged for processing the payout.
+	Fee int64 `json:"fee" api:"required"`
+	// The payment method used for the payout (e.g., bank transfer, card, etc.).
+	PaymentMethod string `json:"payment_method" api:"required"`
+	// The unique identifier of the payout.
+	PayoutID string `json:"payout_id" api:"required"`
+	// The total value of refunds associated with the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Refunds int64 `json:"refunds" api:"required"`
+	// The current status of the payout.
+	Status PayoutInProgressWebhookEventDataStatus `json:"status" api:"required"`
+	// The tax applied to the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Tax int64 `json:"tax" api:"required"`
+	// The timestamp when the payout was last updated, in UTC.
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
+	// The name of the payout recipient or purpose.
+	Name string `json:"name" api:"nullable"`
+	// The URL of the document associated with the payout.
+	PayoutDocumentURL string `json:"payout_document_url" api:"nullable"`
+	// Any additional remarks or notes associated with the payout.
+	Remarks string                               `json:"remarks" api:"nullable"`
+	JSON    payoutInProgressWebhookEventDataJSON `json:"-"`
+}
+
+// payoutInProgressWebhookEventDataJSON contains the JSON metadata for the struct
+// [PayoutInProgressWebhookEventData]
+type payoutInProgressWebhookEventDataJSON struct {
+	Amount            apijson.Field
+	BusinessID        apijson.Field
+	Chargebacks       apijson.Field
+	CreatedAt         apijson.Field
+	Currency          apijson.Field
+	Fee               apijson.Field
+	PaymentMethod     apijson.Field
+	PayoutID          apijson.Field
+	Refunds           apijson.Field
+	Status            apijson.Field
+	Tax               apijson.Field
+	UpdatedAt         apijson.Field
+	Name              apijson.Field
+	PayoutDocumentURL apijson.Field
+	Remarks           apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *PayoutInProgressWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r payoutInProgressWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+// The current status of the payout.
+type PayoutInProgressWebhookEventDataStatus string
+
+const (
+	PayoutInProgressWebhookEventDataStatusNotInitiated PayoutInProgressWebhookEventDataStatus = "not_initiated"
+	PayoutInProgressWebhookEventDataStatusInProgress   PayoutInProgressWebhookEventDataStatus = "in_progress"
+	PayoutInProgressWebhookEventDataStatusOnHold       PayoutInProgressWebhookEventDataStatus = "on_hold"
+	PayoutInProgressWebhookEventDataStatusFailed       PayoutInProgressWebhookEventDataStatus = "failed"
+	PayoutInProgressWebhookEventDataStatusSuccess      PayoutInProgressWebhookEventDataStatus = "success"
+)
+
+func (r PayoutInProgressWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case PayoutInProgressWebhookEventDataStatusNotInitiated, PayoutInProgressWebhookEventDataStatusInProgress, PayoutInProgressWebhookEventDataStatusOnHold, PayoutInProgressWebhookEventDataStatusFailed, PayoutInProgressWebhookEventDataStatusSuccess:
+		return true
+	}
+	return false
+}
+
+// The event type
+type PayoutInProgressWebhookEventType string
+
+const (
+	PayoutInProgressWebhookEventTypePayoutInProgress PayoutInProgressWebhookEventType = "payout.in_progress"
+)
+
+func (r PayoutInProgressWebhookEventType) IsKnown() bool {
+	switch r {
+	case PayoutInProgressWebhookEventTypePayoutInProgress:
+		return true
+	}
+	return false
+}
+
+type PayoutOnHoldWebhookEvent struct {
+	// The business identifier
+	BusinessID string                       `json:"business_id" api:"required"`
+	Data       PayoutOnHoldWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type PayoutOnHoldWebhookEventType `json:"type" api:"required"`
+	JSON payoutOnHoldWebhookEventJSON `json:"-"`
+}
+
+// payoutOnHoldWebhookEventJSON contains the JSON metadata for the struct
+// [PayoutOnHoldWebhookEvent]
+type payoutOnHoldWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PayoutOnHoldWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r payoutOnHoldWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r PayoutOnHoldWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r PayoutOnHoldWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+type PayoutOnHoldWebhookEventData struct {
+	// The total amount of the payout.
+	Amount int64 `json:"amount" api:"required"`
+	// The unique identifier of the business associated with the payout.
+	BusinessID string `json:"business_id" api:"required"`
+	// The total value of chargebacks associated with the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Chargebacks int64 `json:"chargebacks" api:"required"`
+	// The timestamp when the payout was created, in UTC.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// The currency of the payout, represented as an ISO 4217 currency code.
+	Currency Currency `json:"currency" api:"required"`
+	// The fee charged for processing the payout.
+	Fee int64 `json:"fee" api:"required"`
+	// The payment method used for the payout (e.g., bank transfer, card, etc.).
+	PaymentMethod string `json:"payment_method" api:"required"`
+	// The unique identifier of the payout.
+	PayoutID string `json:"payout_id" api:"required"`
+	// The total value of refunds associated with the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Refunds int64 `json:"refunds" api:"required"`
+	// The current status of the payout.
+	Status PayoutOnHoldWebhookEventDataStatus `json:"status" api:"required"`
+	// The tax applied to the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Tax int64 `json:"tax" api:"required"`
+	// The timestamp when the payout was last updated, in UTC.
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
+	// The name of the payout recipient or purpose.
+	Name string `json:"name" api:"nullable"`
+	// The URL of the document associated with the payout.
+	PayoutDocumentURL string `json:"payout_document_url" api:"nullable"`
+	// Any additional remarks or notes associated with the payout.
+	Remarks string                           `json:"remarks" api:"nullable"`
+	JSON    payoutOnHoldWebhookEventDataJSON `json:"-"`
+}
+
+// payoutOnHoldWebhookEventDataJSON contains the JSON metadata for the struct
+// [PayoutOnHoldWebhookEventData]
+type payoutOnHoldWebhookEventDataJSON struct {
+	Amount            apijson.Field
+	BusinessID        apijson.Field
+	Chargebacks       apijson.Field
+	CreatedAt         apijson.Field
+	Currency          apijson.Field
+	Fee               apijson.Field
+	PaymentMethod     apijson.Field
+	PayoutID          apijson.Field
+	Refunds           apijson.Field
+	Status            apijson.Field
+	Tax               apijson.Field
+	UpdatedAt         apijson.Field
+	Name              apijson.Field
+	PayoutDocumentURL apijson.Field
+	Remarks           apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *PayoutOnHoldWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r payoutOnHoldWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+// The current status of the payout.
+type PayoutOnHoldWebhookEventDataStatus string
+
+const (
+	PayoutOnHoldWebhookEventDataStatusNotInitiated PayoutOnHoldWebhookEventDataStatus = "not_initiated"
+	PayoutOnHoldWebhookEventDataStatusInProgress   PayoutOnHoldWebhookEventDataStatus = "in_progress"
+	PayoutOnHoldWebhookEventDataStatusOnHold       PayoutOnHoldWebhookEventDataStatus = "on_hold"
+	PayoutOnHoldWebhookEventDataStatusFailed       PayoutOnHoldWebhookEventDataStatus = "failed"
+	PayoutOnHoldWebhookEventDataStatusSuccess      PayoutOnHoldWebhookEventDataStatus = "success"
+)
+
+func (r PayoutOnHoldWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case PayoutOnHoldWebhookEventDataStatusNotInitiated, PayoutOnHoldWebhookEventDataStatusInProgress, PayoutOnHoldWebhookEventDataStatusOnHold, PayoutOnHoldWebhookEventDataStatusFailed, PayoutOnHoldWebhookEventDataStatusSuccess:
+		return true
+	}
+	return false
+}
+
+// The event type
+type PayoutOnHoldWebhookEventType string
+
+const (
+	PayoutOnHoldWebhookEventTypePayoutOnHold PayoutOnHoldWebhookEventType = "payout.on_hold"
+)
+
+func (r PayoutOnHoldWebhookEventType) IsKnown() bool {
+	switch r {
+	case PayoutOnHoldWebhookEventTypePayoutOnHold:
+		return true
+	}
+	return false
+}
+
+type PayoutSuccessWebhookEvent struct {
+	// The business identifier
+	BusinessID string                        `json:"business_id" api:"required"`
+	Data       PayoutSuccessWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type PayoutSuccessWebhookEventType `json:"type" api:"required"`
+	JSON payoutSuccessWebhookEventJSON `json:"-"`
+}
+
+// payoutSuccessWebhookEventJSON contains the JSON metadata for the struct
+// [PayoutSuccessWebhookEvent]
+type payoutSuccessWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PayoutSuccessWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r payoutSuccessWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r PayoutSuccessWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r PayoutSuccessWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+type PayoutSuccessWebhookEventData struct {
+	// The total amount of the payout.
+	Amount int64 `json:"amount" api:"required"`
+	// The unique identifier of the business associated with the payout.
+	BusinessID string `json:"business_id" api:"required"`
+	// The total value of chargebacks associated with the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Chargebacks int64 `json:"chargebacks" api:"required"`
+	// The timestamp when the payout was created, in UTC.
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// The currency of the payout, represented as an ISO 4217 currency code.
+	Currency Currency `json:"currency" api:"required"`
+	// The fee charged for processing the payout.
+	Fee int64 `json:"fee" api:"required"`
+	// The payment method used for the payout (e.g., bank transfer, card, etc.).
+	PaymentMethod string `json:"payment_method" api:"required"`
+	// The unique identifier of the payout.
+	PayoutID string `json:"payout_id" api:"required"`
+	// The total value of refunds associated with the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Refunds int64 `json:"refunds" api:"required"`
+	// The current status of the payout.
+	Status PayoutSuccessWebhookEventDataStatus `json:"status" api:"required"`
+	// The tax applied to the payout.
+	//
+	// Deprecated: Use the v3 payout breakup endpoints instead. Will be removed in a
+	// future release.
+	Tax int64 `json:"tax" api:"required"`
+	// The timestamp when the payout was last updated, in UTC.
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
+	// The name of the payout recipient or purpose.
+	Name string `json:"name" api:"nullable"`
+	// The URL of the document associated with the payout.
+	PayoutDocumentURL string `json:"payout_document_url" api:"nullable"`
+	// Any additional remarks or notes associated with the payout.
+	Remarks string                            `json:"remarks" api:"nullable"`
+	JSON    payoutSuccessWebhookEventDataJSON `json:"-"`
+}
+
+// payoutSuccessWebhookEventDataJSON contains the JSON metadata for the struct
+// [PayoutSuccessWebhookEventData]
+type payoutSuccessWebhookEventDataJSON struct {
+	Amount            apijson.Field
+	BusinessID        apijson.Field
+	Chargebacks       apijson.Field
+	CreatedAt         apijson.Field
+	Currency          apijson.Field
+	Fee               apijson.Field
+	PaymentMethod     apijson.Field
+	PayoutID          apijson.Field
+	Refunds           apijson.Field
+	Status            apijson.Field
+	Tax               apijson.Field
+	UpdatedAt         apijson.Field
+	Name              apijson.Field
+	PayoutDocumentURL apijson.Field
+	Remarks           apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *PayoutSuccessWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r payoutSuccessWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+// The current status of the payout.
+type PayoutSuccessWebhookEventDataStatus string
+
+const (
+	PayoutSuccessWebhookEventDataStatusNotInitiated PayoutSuccessWebhookEventDataStatus = "not_initiated"
+	PayoutSuccessWebhookEventDataStatusInProgress   PayoutSuccessWebhookEventDataStatus = "in_progress"
+	PayoutSuccessWebhookEventDataStatusOnHold       PayoutSuccessWebhookEventDataStatus = "on_hold"
+	PayoutSuccessWebhookEventDataStatusFailed       PayoutSuccessWebhookEventDataStatus = "failed"
+	PayoutSuccessWebhookEventDataStatusSuccess      PayoutSuccessWebhookEventDataStatus = "success"
+)
+
+func (r PayoutSuccessWebhookEventDataStatus) IsKnown() bool {
+	switch r {
+	case PayoutSuccessWebhookEventDataStatusNotInitiated, PayoutSuccessWebhookEventDataStatusInProgress, PayoutSuccessWebhookEventDataStatusOnHold, PayoutSuccessWebhookEventDataStatusFailed, PayoutSuccessWebhookEventDataStatusSuccess:
+		return true
+	}
+	return false
+}
+
+// The event type
+type PayoutSuccessWebhookEventType string
+
+const (
+	PayoutSuccessWebhookEventTypePayoutSuccess PayoutSuccessWebhookEventType = "payout.success"
+)
+
+func (r PayoutSuccessWebhookEventType) IsKnown() bool {
+	switch r {
+	case PayoutSuccessWebhookEventTypePayoutSuccess:
+		return true
+	}
+	return false
+}
+
 type RefundFailedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
@@ -2537,7 +3242,10 @@ type UnsafeUnwrapWebhookEvent struct {
 	// [AbandonedCheckoutRecoveredWebhookEventData], [CreditLedgerEntry],
 	// [CreditBalanceLowWebhookEventData], [Dispute],
 	// [DunningRecoveredWebhookEventData], [DunningStartedWebhookEventData],
-	// [EntitlementGrant], [LicenseKey], [Payment], [Refund], [Subscription].
+	// [EntitlementGrant], [LicenseKey], [Payment], [PayoutCreatedWebhookEventData],
+	// [PayoutFailedWebhookEventData], [PayoutInProgressWebhookEventData],
+	// [PayoutOnHoldWebhookEventData], [PayoutSuccessWebhookEventData], [Refund],
+	// [Subscription].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
@@ -2589,11 +3297,13 @@ func (r *UnsafeUnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
 // [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
 // [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
-// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
-// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
-// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
-// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent],
+// [PayoutCreatedWebhookEvent], [PayoutFailedWebhookEvent],
+// [PayoutInProgressWebhookEvent], [PayoutOnHoldWebhookEvent],
+// [PayoutSuccessWebhookEvent], [RefundFailedWebhookEvent],
+// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
+// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
+// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
 // [SubscriptionUpdatePaymentMethodWebhookEvent],
 // [SubscriptionUpdatedWebhookEvent].
 func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
@@ -2615,12 +3325,15 @@ func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
 // [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
 // [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
 // [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
-// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
-// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
-// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
-// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent], [SubscriptionUpdatePaymentMethodWebhookEvent]
-// or [SubscriptionUpdatedWebhookEvent].
+// [PayoutCreatedWebhookEvent], [PayoutFailedWebhookEvent],
+// [PayoutInProgressWebhookEvent], [PayoutOnHoldWebhookEvent],
+// [PayoutSuccessWebhookEvent], [RefundFailedWebhookEvent],
+// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
+// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
+// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
+// [SubscriptionUpdatePaymentMethodWebhookEvent] or
+// [SubscriptionUpdatedWebhookEvent].
 type UnsafeUnwrapWebhookEventUnion interface {
 	implementsUnsafeUnwrapWebhookEvent()
 }
@@ -2776,6 +3489,31 @@ func init() {
 		},
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PayoutCreatedWebhookEvent{}),
+			DiscriminatorValue: "payout.created",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PayoutFailedWebhookEvent{}),
+			DiscriminatorValue: "payout.failed",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PayoutInProgressWebhookEvent{}),
+			DiscriminatorValue: "payout.in_progress",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PayoutOnHoldWebhookEvent{}),
+			DiscriminatorValue: "payout.on_hold",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PayoutSuccessWebhookEvent{}),
+			DiscriminatorValue: "payout.success",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
 			Type:               reflect.TypeOf(RefundFailedWebhookEvent{}),
 			DiscriminatorValue: "refund.failed",
 		},
@@ -2865,6 +3603,11 @@ const (
 	UnsafeUnwrapWebhookEventTypePaymentFailed                   UnsafeUnwrapWebhookEventType = "payment.failed"
 	UnsafeUnwrapWebhookEventTypePaymentProcessing               UnsafeUnwrapWebhookEventType = "payment.processing"
 	UnsafeUnwrapWebhookEventTypePaymentSucceeded                UnsafeUnwrapWebhookEventType = "payment.succeeded"
+	UnsafeUnwrapWebhookEventTypePayoutCreated                   UnsafeUnwrapWebhookEventType = "payout.created"
+	UnsafeUnwrapWebhookEventTypePayoutFailed                    UnsafeUnwrapWebhookEventType = "payout.failed"
+	UnsafeUnwrapWebhookEventTypePayoutInProgress                UnsafeUnwrapWebhookEventType = "payout.in_progress"
+	UnsafeUnwrapWebhookEventTypePayoutOnHold                    UnsafeUnwrapWebhookEventType = "payout.on_hold"
+	UnsafeUnwrapWebhookEventTypePayoutSuccess                   UnsafeUnwrapWebhookEventType = "payout.success"
 	UnsafeUnwrapWebhookEventTypeRefundFailed                    UnsafeUnwrapWebhookEventType = "refund.failed"
 	UnsafeUnwrapWebhookEventTypeRefundSucceeded                 UnsafeUnwrapWebhookEventType = "refund.succeeded"
 	UnsafeUnwrapWebhookEventTypeSubscriptionActive              UnsafeUnwrapWebhookEventType = "subscription.active"
@@ -2880,7 +3623,7 @@ const (
 
 func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected, UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditOverageReset, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeDunningRecovered, UnsafeUnwrapWebhookEventTypeDunningStarted, UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated, UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered, UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed, UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected, UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditOverageReset, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeDunningRecovered, UnsafeUnwrapWebhookEventTypeDunningStarted, UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated, UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered, UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed, UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypePayoutCreated, UnsafeUnwrapWebhookEventTypePayoutFailed, UnsafeUnwrapWebhookEventTypePayoutInProgress, UnsafeUnwrapWebhookEventTypePayoutOnHold, UnsafeUnwrapWebhookEventTypePayoutSuccess, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false
@@ -2894,7 +3637,10 @@ type UnwrapWebhookEvent struct {
 	// [AbandonedCheckoutRecoveredWebhookEventData], [CreditLedgerEntry],
 	// [CreditBalanceLowWebhookEventData], [Dispute],
 	// [DunningRecoveredWebhookEventData], [DunningStartedWebhookEventData],
-	// [EntitlementGrant], [LicenseKey], [Payment], [Refund], [Subscription].
+	// [EntitlementGrant], [LicenseKey], [Payment], [PayoutCreatedWebhookEventData],
+	// [PayoutFailedWebhookEventData], [PayoutInProgressWebhookEventData],
+	// [PayoutOnHoldWebhookEventData], [PayoutSuccessWebhookEventData], [Refund],
+	// [Subscription].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
@@ -2946,11 +3692,13 @@ func (r *UnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
 // [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
 // [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
-// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
-// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
-// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
-// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent],
+// [PayoutCreatedWebhookEvent], [PayoutFailedWebhookEvent],
+// [PayoutInProgressWebhookEvent], [PayoutOnHoldWebhookEvent],
+// [PayoutSuccessWebhookEvent], [RefundFailedWebhookEvent],
+// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
+// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
+// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
 // [SubscriptionUpdatePaymentMethodWebhookEvent],
 // [SubscriptionUpdatedWebhookEvent].
 func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
@@ -2972,12 +3720,15 @@ func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
 // [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
 // [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
 // [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
-// [RefundFailedWebhookEvent], [RefundSucceededWebhookEvent],
-// [SubscriptionActiveWebhookEvent], [SubscriptionCancelledWebhookEvent],
-// [SubscriptionExpiredWebhookEvent], [SubscriptionFailedWebhookEvent],
-// [SubscriptionOnHoldWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent], [SubscriptionUpdatePaymentMethodWebhookEvent]
-// or [SubscriptionUpdatedWebhookEvent].
+// [PayoutCreatedWebhookEvent], [PayoutFailedWebhookEvent],
+// [PayoutInProgressWebhookEvent], [PayoutOnHoldWebhookEvent],
+// [PayoutSuccessWebhookEvent], [RefundFailedWebhookEvent],
+// [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
+// [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
+// [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
+// [SubscriptionUpdatePaymentMethodWebhookEvent] or
+// [SubscriptionUpdatedWebhookEvent].
 type UnwrapWebhookEventUnion interface {
 	implementsUnwrapWebhookEvent()
 }
@@ -3133,6 +3884,31 @@ func init() {
 		},
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PayoutCreatedWebhookEvent{}),
+			DiscriminatorValue: "payout.created",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PayoutFailedWebhookEvent{}),
+			DiscriminatorValue: "payout.failed",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PayoutInProgressWebhookEvent{}),
+			DiscriminatorValue: "payout.in_progress",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PayoutOnHoldWebhookEvent{}),
+			DiscriminatorValue: "payout.on_hold",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(PayoutSuccessWebhookEvent{}),
+			DiscriminatorValue: "payout.success",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
 			Type:               reflect.TypeOf(RefundFailedWebhookEvent{}),
 			DiscriminatorValue: "refund.failed",
 		},
@@ -3222,6 +3998,11 @@ const (
 	UnwrapWebhookEventTypePaymentFailed                   UnwrapWebhookEventType = "payment.failed"
 	UnwrapWebhookEventTypePaymentProcessing               UnwrapWebhookEventType = "payment.processing"
 	UnwrapWebhookEventTypePaymentSucceeded                UnwrapWebhookEventType = "payment.succeeded"
+	UnwrapWebhookEventTypePayoutCreated                   UnwrapWebhookEventType = "payout.created"
+	UnwrapWebhookEventTypePayoutFailed                    UnwrapWebhookEventType = "payout.failed"
+	UnwrapWebhookEventTypePayoutInProgress                UnwrapWebhookEventType = "payout.in_progress"
+	UnwrapWebhookEventTypePayoutOnHold                    UnwrapWebhookEventType = "payout.on_hold"
+	UnwrapWebhookEventTypePayoutSuccess                   UnwrapWebhookEventType = "payout.success"
 	UnwrapWebhookEventTypeRefundFailed                    UnwrapWebhookEventType = "refund.failed"
 	UnwrapWebhookEventTypeRefundSucceeded                 UnwrapWebhookEventType = "refund.succeeded"
 	UnwrapWebhookEventTypeSubscriptionActive              UnwrapWebhookEventType = "subscription.active"
@@ -3237,7 +4018,7 @@ const (
 
 func (r UnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnwrapWebhookEventTypeAbandonedCheckoutDetected, UnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditOverageReset, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeDunningRecovered, UnwrapWebhookEventTypeDunningStarted, UnwrapWebhookEventTypeEntitlementGrantCreated, UnwrapWebhookEventTypeEntitlementGrantDelivered, UnwrapWebhookEventTypeEntitlementGrantFailed, UnwrapWebhookEventTypeEntitlementGrantRevoked, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnwrapWebhookEventTypeAbandonedCheckoutDetected, UnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditOverageReset, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeDunningRecovered, UnwrapWebhookEventTypeDunningStarted, UnwrapWebhookEventTypeEntitlementGrantCreated, UnwrapWebhookEventTypeEntitlementGrantDelivered, UnwrapWebhookEventTypeEntitlementGrantFailed, UnwrapWebhookEventTypeEntitlementGrantRevoked, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypePayoutCreated, UnwrapWebhookEventTypePayoutFailed, UnwrapWebhookEventTypePayoutInProgress, UnwrapWebhookEventTypePayoutOnHold, UnwrapWebhookEventTypePayoutSuccess, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false

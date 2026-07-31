@@ -381,14 +381,10 @@ type Payment struct {
 	Discounts []DiscountDetail `json:"discounts" api:"nullable"`
 	// An error code if the payment failed
 	ErrorCode string `json:"error_code" api:"nullable"`
-	// An error message if the payment failed
+	// An error message if the payment failed. When `error_code` is a recognised
+	// unified code, this is the merchant-facing headline + recommended action (Payment
+	// Details copy) rather than the raw connector text.
 	ErrorMessage string `json:"error_message" api:"nullable"`
-	// Purpose-built failure messaging for the merchant and the customer, derived from
-	// `error_code`. Present whenever `error_code` is set, regardless of payment
-	// status; unrecognised codes still resolve via a generic fallback rather than
-	// being omitted. The customer copy is always generic for fraud-sensitive declines
-	// (lost/stolen/pickup/fraudulent) so the true reason is never leaked.
-	FailureDetails PaymentFailureDetails `json:"failure_details" api:"nullable"`
 	// Invoice ID for this payment. Uses India-specific invoice ID if available.
 	InvoiceID string `json:"invoice_id" api:"nullable"`
 	// URL to download the invoice PDF for this payment.
@@ -452,7 +448,6 @@ type paymentJSON struct {
 	Discounts                apijson.Field
 	ErrorCode                apijson.Field
 	ErrorMessage             apijson.Field
-	FailureDetails           apijson.Field
 	InvoiceID                apijson.Field
 	InvoiceURL               apijson.Field
 	PaymentLink              apijson.Field
@@ -491,123 +486,6 @@ const (
 func (r PaymentPaymentProvider) IsKnown() bool {
 	switch r {
 	case PaymentPaymentProviderStripe, PaymentPaymentProviderAdyen, PaymentPaymentProviderDodo:
-		return true
-	}
-	return false
-}
-
-// Purpose-built failure messaging for the merchant and the customer, derived from
-// `error_code`. Present whenever `error_code` is set, regardless of payment
-// status; unrecognised codes still resolve via a generic fallback rather than
-// being omitted. The customer copy is always generic for fraud-sensitive declines
-// (lost/stolen/pickup/fraudulent) so the true reason is never leaked.
-type PaymentFailureDetails struct {
-	// The unified error code (echoes `error_code`).
-	Code string `json:"code" api:"required"`
-	// The primary CTA to show the customer.
-	CustomerCta PaymentFailureDetailsCustomerCta `json:"customer_cta" api:"required"`
-	// Whether the customer can resolve this themselves (e.g. fix CVC).
-	CustomerFixable bool `json:"customer_fixable" api:"required"`
-	// The customer-facing string. Always generic (`C11`) for the fraud-4.
-	CustomerMessage string `json:"customer_message" api:"required"`
-	// The customer message template identifier (C1..C20).
-	CustomerTemplate PaymentFailureDetailsCustomerTemplate `json:"customer_template" api:"required"`
-	// Soft or hard decline.
-	DeclineType PaymentFailureDetailsDeclineType `json:"decline_type" api:"required"`
-	// Merchant-facing headline + recommended action (Payment Details). For the fraud-4
-	// this includes the operator "do not reveal" warning.
-	MerchantMessage string                    `json:"merchant_message" api:"required"`
-	JSON            paymentFailureDetailsJSON `json:"-"`
-}
-
-// paymentFailureDetailsJSON contains the JSON metadata for the struct
-// [PaymentFailureDetails]
-type paymentFailureDetailsJSON struct {
-	Code             apijson.Field
-	CustomerCta      apijson.Field
-	CustomerFixable  apijson.Field
-	CustomerMessage  apijson.Field
-	CustomerTemplate apijson.Field
-	DeclineType      apijson.Field
-	MerchantMessage  apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *PaymentFailureDetails) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentFailureDetailsJSON) RawJSON() string {
-	return r.raw
-}
-
-// The primary CTA to show the customer.
-type PaymentFailureDetailsCustomerCta string
-
-const (
-	PaymentFailureDetailsCustomerCtaEditAndRetry     PaymentFailureDetailsCustomerCta = "edit_and_retry"
-	PaymentFailureDetailsCustomerCtaUseAnotherMethod PaymentFailureDetailsCustomerCta = "use_another_method"
-	PaymentFailureDetailsCustomerCtaTryAgain         PaymentFailureDetailsCustomerCta = "try_again"
-	PaymentFailureDetailsCustomerCtaTryLater         PaymentFailureDetailsCustomerCta = "try_later"
-	PaymentFailureDetailsCustomerCtaRetryAndVerify   PaymentFailureDetailsCustomerCta = "retry_and_verify"
-	PaymentFailureDetailsCustomerCtaRestart          PaymentFailureDetailsCustomerCta = "restart"
-	PaymentFailureDetailsCustomerCtaUpdateMethod     PaymentFailureDetailsCustomerCta = "update_method"
-)
-
-func (r PaymentFailureDetailsCustomerCta) IsKnown() bool {
-	switch r {
-	case PaymentFailureDetailsCustomerCtaEditAndRetry, PaymentFailureDetailsCustomerCtaUseAnotherMethod, PaymentFailureDetailsCustomerCtaTryAgain, PaymentFailureDetailsCustomerCtaTryLater, PaymentFailureDetailsCustomerCtaRetryAndVerify, PaymentFailureDetailsCustomerCtaRestart, PaymentFailureDetailsCustomerCtaUpdateMethod:
-		return true
-	}
-	return false
-}
-
-// The customer message template identifier (C1..C20).
-type PaymentFailureDetailsCustomerTemplate string
-
-const (
-	PaymentFailureDetailsCustomerTemplateC1  PaymentFailureDetailsCustomerTemplate = "C1"
-	PaymentFailureDetailsCustomerTemplateC2  PaymentFailureDetailsCustomerTemplate = "C2"
-	PaymentFailureDetailsCustomerTemplateC3  PaymentFailureDetailsCustomerTemplate = "C3"
-	PaymentFailureDetailsCustomerTemplateC4  PaymentFailureDetailsCustomerTemplate = "C4"
-	PaymentFailureDetailsCustomerTemplateC5  PaymentFailureDetailsCustomerTemplate = "C5"
-	PaymentFailureDetailsCustomerTemplateC6  PaymentFailureDetailsCustomerTemplate = "C6"
-	PaymentFailureDetailsCustomerTemplateC7  PaymentFailureDetailsCustomerTemplate = "C7"
-	PaymentFailureDetailsCustomerTemplateC8  PaymentFailureDetailsCustomerTemplate = "C8"
-	PaymentFailureDetailsCustomerTemplateC9  PaymentFailureDetailsCustomerTemplate = "C9"
-	PaymentFailureDetailsCustomerTemplateC10 PaymentFailureDetailsCustomerTemplate = "C10"
-	PaymentFailureDetailsCustomerTemplateC11 PaymentFailureDetailsCustomerTemplate = "C11"
-	PaymentFailureDetailsCustomerTemplateC12 PaymentFailureDetailsCustomerTemplate = "C12"
-	PaymentFailureDetailsCustomerTemplateC13 PaymentFailureDetailsCustomerTemplate = "C13"
-	PaymentFailureDetailsCustomerTemplateC14 PaymentFailureDetailsCustomerTemplate = "C14"
-	PaymentFailureDetailsCustomerTemplateC15 PaymentFailureDetailsCustomerTemplate = "C15"
-	PaymentFailureDetailsCustomerTemplateC16 PaymentFailureDetailsCustomerTemplate = "C16"
-	PaymentFailureDetailsCustomerTemplateC17 PaymentFailureDetailsCustomerTemplate = "C17"
-	PaymentFailureDetailsCustomerTemplateC18 PaymentFailureDetailsCustomerTemplate = "C18"
-	PaymentFailureDetailsCustomerTemplateC19 PaymentFailureDetailsCustomerTemplate = "C19"
-	PaymentFailureDetailsCustomerTemplateC20 PaymentFailureDetailsCustomerTemplate = "C20"
-)
-
-func (r PaymentFailureDetailsCustomerTemplate) IsKnown() bool {
-	switch r {
-	case PaymentFailureDetailsCustomerTemplateC1, PaymentFailureDetailsCustomerTemplateC2, PaymentFailureDetailsCustomerTemplateC3, PaymentFailureDetailsCustomerTemplateC4, PaymentFailureDetailsCustomerTemplateC5, PaymentFailureDetailsCustomerTemplateC6, PaymentFailureDetailsCustomerTemplateC7, PaymentFailureDetailsCustomerTemplateC8, PaymentFailureDetailsCustomerTemplateC9, PaymentFailureDetailsCustomerTemplateC10, PaymentFailureDetailsCustomerTemplateC11, PaymentFailureDetailsCustomerTemplateC12, PaymentFailureDetailsCustomerTemplateC13, PaymentFailureDetailsCustomerTemplateC14, PaymentFailureDetailsCustomerTemplateC15, PaymentFailureDetailsCustomerTemplateC16, PaymentFailureDetailsCustomerTemplateC17, PaymentFailureDetailsCustomerTemplateC18, PaymentFailureDetailsCustomerTemplateC19, PaymentFailureDetailsCustomerTemplateC20:
-		return true
-	}
-	return false
-}
-
-// Soft or hard decline.
-type PaymentFailureDetailsDeclineType string
-
-const (
-	PaymentFailureDetailsDeclineTypeSoft PaymentFailureDetailsDeclineType = "soft"
-	PaymentFailureDetailsDeclineTypeHard PaymentFailureDetailsDeclineType = "hard"
-)
-
-func (r PaymentFailureDetailsDeclineType) IsKnown() bool {
-	switch r {
-	case PaymentFailureDetailsDeclineTypeSoft, PaymentFailureDetailsDeclineTypeHard:
 		return true
 	}
 	return false
@@ -1087,7 +965,8 @@ type PaymentListParams struct {
 	Currency param.Field[PaymentListParamsCurrency] `query:"currency"`
 	// Filter by customer id
 	CustomerID param.Field[string] `query:"customer_id"`
-	// Page number default is 0
+	// Page number default is 0. Capped to bound OFFSET-based deep pagination, which
+	// forces Postgres to scan and discard every preceding row.
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100
 	PageSize param.Field[int64] `query:"page_size"`
