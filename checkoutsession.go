@@ -785,6 +785,11 @@ type CheckoutSessionPreviewResponseProductCartAddon struct {
 	OgCurrency      Currency `json:"og_currency" api:"required"`
 	OgPrice         int64    `json:"og_price" api:"required"`
 	Quantity        int64    `json:"quantity" api:"required"`
+	// Per-unit price in `currency`, converted and adaptive-priced but pre-tax and
+	// pre-discount (both depend on quantity and the rest of the cart). Set even when
+	// `quantity` is 0, so the checkout page can price the addon before the buyer has
+	// selected any.
+	SingleQuantityPrice int64 `json:"single_quantity_price" api:"required"`
 	// Represents the different categories of taxation applicable to various products
 	// and services.
 	TaxCategory  TaxCategory `json:"tax_category" api:"required"`
@@ -801,21 +806,22 @@ type CheckoutSessionPreviewResponseProductCartAddon struct {
 // checkoutSessionPreviewResponseProductCartAddonJSON contains the JSON metadata
 // for the struct [CheckoutSessionPreviewResponseProductCartAddon]
 type checkoutSessionPreviewResponseProductCartAddonJSON struct {
-	AddonID         apijson.Field
-	Currency        apijson.Field
-	DiscountedPrice apijson.Field
-	Name            apijson.Field
-	OgCurrency      apijson.Field
-	OgPrice         apijson.Field
-	Quantity        apijson.Field
-	TaxCategory     apijson.Field
-	TaxInclusive    apijson.Field
-	TaxRate         apijson.Field
-	Description     apijson.Field
-	DiscountAmount  apijson.Field
-	Tax             apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+	AddonID             apijson.Field
+	Currency            apijson.Field
+	DiscountedPrice     apijson.Field
+	Name                apijson.Field
+	OgCurrency          apijson.Field
+	OgPrice             apijson.Field
+	Quantity            apijson.Field
+	SingleQuantityPrice apijson.Field
+	TaxCategory         apijson.Field
+	TaxInclusive        apijson.Field
+	TaxRate             apijson.Field
+	Description         apijson.Field
+	DiscountAmount      apijson.Field
+	Tax                 apijson.Field
+	raw                 string
+	ExtraFields         map[string]apijson.Field
 }
 
 func (r *CheckoutSessionPreviewResponseProductCartAddon) UnmarshalJSON(data []byte) (err error) {
