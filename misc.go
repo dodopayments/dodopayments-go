@@ -513,11 +513,12 @@ const (
 	TaxCategorySaas            TaxCategory = "saas"
 	TaxCategoryEBook           TaxCategory = "e_book"
 	TaxCategoryEdtech          TaxCategory = "edtech"
+	TaxCategoryLiveTutoring    TaxCategory = "live_tutoring"
 )
 
 func (r TaxCategory) IsKnown() bool {
 	switch r {
-	case TaxCategoryDigitalProducts, TaxCategorySaas, TaxCategoryEBook, TaxCategoryEdtech:
+	case TaxCategoryDigitalProducts, TaxCategorySaas, TaxCategoryEBook, TaxCategoryEdtech, TaxCategoryLiveTutoring:
 		return true
 	}
 	return false
