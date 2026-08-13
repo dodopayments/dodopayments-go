@@ -156,6 +156,7 @@ func TestSubscriptionUpdateWithOptionalParams(t *testing.T) {
 				"foo": shared.UnionString("string"),
 			}),
 			NextBillingDate:            dodopayments.F(time.Now()),
+			Pause:                      dodopayments.F(true),
 			Status:                     dodopayments.F(dodopayments.SubscriptionStatusPending),
 			SubscriptionPeriodCount:    dodopayments.F(int64(0)),
 			SubscriptionPeriodInterval: dodopayments.F(dodopayments.TimeIntervalDay),
