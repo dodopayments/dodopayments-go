@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.112.0](https://github.com/dodopayments/dodopayments-go/compare/v1.111.0...v1.112.0) (2026-08-13)
+
+
+### Features
+
+* **api:** add subscription pause/unpause ([9f1ec43](https://github.com/dodopayments/dodopayments-go/commit/9f1ec43f06fd9fcae1c358e9dedf485faca440b7))
+* **api:** add subscription pause/unpause ([253f243](https://github.com/dodopayments/dodopayments-go/commit/253f2439e6b05d6017469874f950e8c0649741eb))
+
 ## [1.110.0](https://github.com/dodopayments/dodopayments-go/compare/v1.109.0...v1.110.0) (2026-07-31)
 
 
