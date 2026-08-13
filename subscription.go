@@ -622,6 +622,9 @@ type Subscription struct {
 	Discounts []DiscountDetail `json:"discounts" api:"nullable"`
 	// Timestamp when the subscription will expire
 	ExpiresAt time.Time `json:"expires_at" api:"nullable" format:"date-time"`
+	// Timestamp when the subscription was paused, if it currently is (or is `OnHold`
+	// due to an unresolved pause settlement). `null` otherwise.
+	PausedAt time.Time `json:"paused_at" api:"nullable" format:"date-time"`
 	// Saved payment method id used for recurring charges
 	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
 	// Scheduled plan change details, if any
@@ -671,6 +674,7 @@ type subscriptionJSON struct {
 	DiscountID                 apijson.Field
 	Discounts                  apijson.Field
 	ExpiresAt                  apijson.Field
+	PausedAt                   apijson.Field
 	PaymentMethodID            apijson.Field
 	ScheduledChange            apijson.Field
 	TaxID                      apijson.Field
@@ -693,6 +697,7 @@ const (
 	SubscriptionStatusPending   SubscriptionStatus = "pending"
 	SubscriptionStatusActive    SubscriptionStatus = "active"
 	SubscriptionStatusOnHold    SubscriptionStatus = "on_hold"
+	SubscriptionStatusPaused    SubscriptionStatus = "paused"
 	SubscriptionStatusCancelled SubscriptionStatus = "cancelled"
 	SubscriptionStatusFailed    SubscriptionStatus = "failed"
 	SubscriptionStatusExpired   SubscriptionStatus = "expired"
@@ -700,7 +705,7 @@ const (
 
 func (r SubscriptionStatus) IsKnown() bool {
 	switch r {
-	case SubscriptionStatusPending, SubscriptionStatusActive, SubscriptionStatusOnHold, SubscriptionStatusCancelled, SubscriptionStatusFailed, SubscriptionStatusExpired:
+	case SubscriptionStatusPending, SubscriptionStatusActive, SubscriptionStatusOnHold, SubscriptionStatusPaused, SubscriptionStatusCancelled, SubscriptionStatusFailed, SubscriptionStatusExpired:
 		return true
 	}
 	return false
@@ -970,6 +975,9 @@ type SubscriptionListResponse struct {
 	DiscountCyclesRemaining int64 `json:"discount_cycles_remaining" api:"nullable"`
 	// DEPRECATED: Use discounts instead.
 	DiscountID string `json:"discount_id" api:"nullable"`
+	// Timestamp when the subscription was paused, if it currently is (or is `OnHold`
+	// due to an unresolved pause settlement). `null` otherwise.
+	PausedAt time.Time `json:"paused_at" api:"nullable" format:"date-time"`
 	// Saved payment method id used for recurring charges
 	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
 	// Name of the product associated with this subscription
@@ -1013,6 +1021,7 @@ type subscriptionListResponseJSON struct {
 	CustomerBusinessName       apijson.Field
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
+	PausedAt                   apijson.Field
 	PaymentMethodID            apijson.Field
 	ProductName                apijson.Field
 	ScheduledChange            apijson.Field
@@ -1746,9 +1755,12 @@ type SubscriptionUpdateParams struct {
 	CustomerName         param.Field[string]                                  `json:"customer_name"`
 	DisableOnDemand      param.Field[SubscriptionUpdateParamsDisableOnDemand] `json:"disable_on_demand"`
 	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
-	Metadata        param.Field[MetadataParam]      `json:"metadata"`
-	NextBillingDate param.Field[time.Time]          `json:"next_billing_date" format:"date-time"`
-	Status          param.Field[SubscriptionStatus] `json:"status"`
+	Metadata        param.Field[MetadataParam] `json:"metadata"`
+	NextBillingDate param.Field[time.Time]     `json:"next_billing_date" format:"date-time"`
+	// `Some(true)` pauses an active subscription; `Some(false)` unpauses a `Paused`
+	// (or abandoned `OnHold`) subscription. Exclusive of every other field.
+	Pause  param.Field[bool]               `json:"pause"`
+	Status param.Field[SubscriptionStatus] `json:"status"`
 	// New number of `subscription_period_interval` units the subscription entitlement
 	// should span. Used together with `subscription_period_interval` to extend the
 	// subscription period. The resulting period must not be shorter than the current
@@ -1845,6 +1857,7 @@ const (
 	SubscriptionListParamsStatusPending   SubscriptionListParamsStatus = "pending"
 	SubscriptionListParamsStatusActive    SubscriptionListParamsStatus = "active"
 	SubscriptionListParamsStatusOnHold    SubscriptionListParamsStatus = "on_hold"
+	SubscriptionListParamsStatusPaused    SubscriptionListParamsStatus = "paused"
 	SubscriptionListParamsStatusCancelled SubscriptionListParamsStatus = "cancelled"
 	SubscriptionListParamsStatusFailed    SubscriptionListParamsStatus = "failed"
 	SubscriptionListParamsStatusExpired   SubscriptionListParamsStatus = "expired"
@@ -1852,7 +1865,7 @@ const (
 
 func (r SubscriptionListParamsStatus) IsKnown() bool {
 	switch r {
-	case SubscriptionListParamsStatusPending, SubscriptionListParamsStatusActive, SubscriptionListParamsStatusOnHold, SubscriptionListParamsStatusCancelled, SubscriptionListParamsStatusFailed, SubscriptionListParamsStatusExpired:
+	case SubscriptionListParamsStatusPending, SubscriptionListParamsStatusActive, SubscriptionListParamsStatusOnHold, SubscriptionListParamsStatusPaused, SubscriptionListParamsStatusCancelled, SubscriptionListParamsStatusFailed, SubscriptionListParamsStatusExpired:
 		return true
 	}
 	return false
