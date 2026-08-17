@@ -96,7 +96,7 @@ func TestBrandUpdateWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestBrandList(t *testing.T) {
+func TestBrandListWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -108,7 +108,37 @@ func TestBrandList(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Brands.List(context.TODO())
+	_, err := client.Brands.List(context.TODO(), dodopayments.BrandListParams{
+		IncludeArchived: dodopayments.F(true),
+	})
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestBrandArchiveWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Brands.Archive(
+		context.TODO(),
+		"brnd_8dFiAW42v28JzhlVSocjq",
+		dodopayments.BrandArchiveParams{
+			MoveProductsTo: dodopayments.F("move_products_to"),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
