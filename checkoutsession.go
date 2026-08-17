@@ -171,6 +171,12 @@ type CheckoutSessionFlagsParam struct {
 	//
 	// Default is false
 	RequirePhoneNumber param.Field[bool] `json:"require_phone_number"`
+	// If true, the session uses the single-page checkout flow: the page initializes
+	// the payment at load time and confirms it in place, with no separate payment
+	// page.
+	//
+	// Default is false
+	SinglePage param.Field[bool] `json:"single_page"`
 }
 
 func (r CheckoutSessionFlagsParam) MarshalJSON() (data []byte, err error) {
