@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.113.0](https://github.com/dodopayments/dodopayments-go/compare/v1.112.0...v1.113.0) (2026-08-17)
+
+
+### Features
+
+* **api:** add brand archive endpoint ([b0e275c](https://github.com/dodopayments/dodopayments-go/commit/b0e275cf978e90c38c19b8e6c76c239fa9acfe49))
+* **api:** add brand archive endpoint ([f11ad5f](https://github.com/dodopayments/dodopayments-go/commit/f11ad5f8eb0550729a6a43251d945daa45ed6614))
+
 ## [1.112.0](https://github.com/dodopayments/dodopayments-go/compare/v1.111.0...v1.112.0) (2026-08-13)
 
 
