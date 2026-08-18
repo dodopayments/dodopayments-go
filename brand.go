@@ -7,9 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
+	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
+	"github.com/dodopayments/dodopayments-go/internal/apiquery"
 	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
@@ -64,10 +67,23 @@ func (r *BrandService) Update(ctx context.Context, id string, body BrandUpdatePa
 	return res, err
 }
 
-func (r *BrandService) List(ctx context.Context, opts ...option.RequestOption) (res *BrandListResponse, err error) {
+func (r *BrandService) List(ctx context.Context, query BrandListParams, opts ...option.RequestOption) (res *BrandListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "brands"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
+// Archive a brand. Its products, live subscriptions, and product collections move
+// to the `move_products_to` brand. Archive is permanent.
+func (r *BrandService) Archive(ctx context.Context, id string, body BrandArchiveParams, opts ...option.RequestOption) (res *BrandArchiveResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("brands/%s/archive", id)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return res, err
 }
 
@@ -89,9 +105,11 @@ type Brand struct {
 	StatementDescriptor string                  `json:"statement_descriptor" api:"required"`
 	VerificationEnabled bool                    `json:"verification_enabled" api:"required"`
 	VerificationStatus  BrandVerificationStatus `json:"verification_status" api:"required"`
-	Description         string                  `json:"description" api:"nullable"`
-	Image               string                  `json:"image" api:"nullable"`
-	Name                string                  `json:"name" api:"nullable"`
+	// Time the brand was archived. Null for an active brand.
+	ArchivedAt  time.Time `json:"archived_at" api:"nullable" format:"date-time"`
+	Description string    `json:"description" api:"nullable"`
+	Image       string    `json:"image" api:"nullable"`
+	Name        string    `json:"name" api:"nullable"`
 	// Incase the brand verification fails or is put on hold
 	ReasonForHold string    `json:"reason_for_hold" api:"nullable"`
 	SupportEmail  string    `json:"support_email" api:"nullable"`
@@ -107,6 +125,7 @@ type brandJSON struct {
 	StatementDescriptor apijson.Field
 	VerificationEnabled apijson.Field
 	VerificationStatus  apijson.Field
+	ArchivedAt          apijson.Field
 	Description         apijson.Field
 	Image               apijson.Field
 	Name                apijson.Field
@@ -164,6 +183,43 @@ func (r brandListResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type BrandArchiveResponse struct {
+	// Time the brand was archived.
+	ArchivedAt time.Time `json:"archived_at" api:"required" format:"date-time"`
+	// The archived brand.
+	BrandID string `json:"brand_id" api:"required"`
+	// Count of product collections moved to the target brand.
+	CollectionsMoved int64 `json:"collections_moved" api:"required"`
+	// Count of products moved to the target brand.
+	ProductsMoved int64 `json:"products_moved" api:"required"`
+	// Count of live subscriptions moved to the target brand.
+	SubscriptionsMoved int64 `json:"subscriptions_moved" api:"required"`
+	// Brand that received the moved records. Null when no target was given.
+	MovedToBrandID string                   `json:"moved_to_brand_id" api:"nullable"`
+	JSON           brandArchiveResponseJSON `json:"-"`
+}
+
+// brandArchiveResponseJSON contains the JSON metadata for the struct
+// [BrandArchiveResponse]
+type brandArchiveResponseJSON struct {
+	ArchivedAt         apijson.Field
+	BrandID            apijson.Field
+	CollectionsMoved   apijson.Field
+	ProductsMoved      apijson.Field
+	SubscriptionsMoved apijson.Field
+	MovedToBrandID     apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
+}
+
+func (r *BrandArchiveResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r brandArchiveResponseJSON) RawJSON() string {
+	return r.raw
+}
+
 type BrandUpdateImagesResponse struct {
 	// UUID that will be used as the image identifier/key suffix
 	ImageID string `json:"image_id" api:"required" format:"uuid"`
@@ -212,5 +268,30 @@ type BrandUpdateParams struct {
 }
 
 func (r BrandUpdateParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type BrandListParams struct {
+	// Set to true to also list archived brands. Default false.
+	IncludeArchived param.Field[bool] `query:"include_archived"`
+}
+
+// URLQuery serializes [BrandListParams]'s query parameters as `url.Values`.
+func (r BrandListParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type BrandArchiveParams struct {
+	// Brand that takes over the products and the live subscriptions of the brand you
+	// archive. It must be a brand of the same business, and it must not be archived.
+	// The primary brand (its brand id is the business id) is a valid target. Omit this
+	// field only when the brand holds no products and no live subscriptions.
+	MoveProductsTo param.Field[string] `json:"move_products_to"`
+}
+
+func (r BrandArchiveParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
