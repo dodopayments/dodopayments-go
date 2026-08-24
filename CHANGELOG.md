@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.114.0](https://github.com/dodopayments/dodopayments-go/compare/v1.113.0...v1.114.0) (2026-08-24)
+
+
+### Features
+
+* **api:** return checkout handles from subscription change-plan ([c7d95f6](https://github.com/dodopayments/dodopayments-go/commit/c7d95f6ba1dacabcf2221fd56298120986153811))
+* **api:** return checkout handles from subscription change-plan ([61737f5](https://github.com/dodopayments/dodopayments-go/commit/61737f525d3e9887dcc937fac60ab5ce5eb87b55))
+
 ## [1.112.0](https://github.com/dodopayments/dodopayments-go/compare/v1.111.0...v1.112.0) (2026-08-13)
 
 
