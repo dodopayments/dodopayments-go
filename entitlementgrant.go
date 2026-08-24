@@ -210,10 +210,16 @@ func (r EntitlementGrantStatus) IsKnown() bool {
 // License-key delivery payload, present on grants for `license_key` entitlements.
 // The grant's top-level `status` is the source of truth for the grant's lifecycle.
 type LicenseKeyGrant struct {
-	// Number of activations consumed so far.
+	// Identifier of the issued license key.
+	ID string `json:"id" api:"required"`
+	// Number of instances currently active. Activation increments it and deactivation
+	// decrements it, so it is a live count and not a total.
 	ActivationsUsed int64 `json:"activations_used" api:"required"`
 	// Issued license key.
 	Key string `json:"key" api:"required"`
+	// Current status of the license key. Activation fails unless it is `active`, so a
+	// client can warn before the customer tries.
+	Status LicenseKeyStatus `json:"status" api:"required"`
 	// Maximum activations allowed by the entitlement, when set.
 	ActivationsLimit int64 `json:"activations_limit" api:"nullable"`
 	// When the license key expires, when applicable.
@@ -223,8 +229,10 @@ type LicenseKeyGrant struct {
 
 // licenseKeyGrantJSON contains the JSON metadata for the struct [LicenseKeyGrant]
 type licenseKeyGrantJSON struct {
+	ID               apijson.Field
 	ActivationsUsed  apijson.Field
 	Key              apijson.Field
+	Status           apijson.Field
 	ActivationsLimit apijson.Field
 	ExpiresAt        apijson.Field
 	raw              string
