@@ -238,7 +238,7 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	err := client.Subscriptions.ChangePlan(
+	_, err := client.Subscriptions.ChangePlan(
 		context.TODO(),
 		"sub_Iuaq622bbmmfOGrVTqdXv",
 		dodopayments.SubscriptionChangePlanParams{
@@ -251,9 +251,11 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 					AddonID:  dodopayments.F("addon_id"),
 					Quantity: dodopayments.F(int64(0)),
 				}}),
-				DiscountCode:  dodopayments.F("discount_code"),
-				DiscountCodes: dodopayments.F([]string{"string"}),
-				EffectiveAt:   dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
+				CancelScheduledChangePlan: dodopayments.F(true),
+				CollectViaPaymentLink:     dodopayments.F(true),
+				DiscountCode:              dodopayments.F("discount_code"),
+				DiscountCodes:             dodopayments.F([]string{"string"}),
+				EffectiveAt:               dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
 				Metadata: dodopayments.F(dodopayments.MetadataParam{
 					"foo": shared.UnionString("string"),
 				}),
@@ -333,9 +335,11 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 					AddonID:  dodopayments.F("addon_id"),
 					Quantity: dodopayments.F(int64(0)),
 				}}),
-				DiscountCode:  dodopayments.F("discount_code"),
-				DiscountCodes: dodopayments.F([]string{"string"}),
-				EffectiveAt:   dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
+				CancelScheduledChangePlan: dodopayments.F(true),
+				CollectViaPaymentLink:     dodopayments.F(true),
+				DiscountCode:              dodopayments.F("discount_code"),
+				DiscountCodes:             dodopayments.F([]string{"string"}),
+				EffectiveAt:               dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
 				Metadata: dodopayments.F(dodopayments.MetadataParam{
 					"foo": shared.UnionString("string"),
 				}),
