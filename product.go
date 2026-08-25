@@ -456,11 +456,8 @@ type Price struct {
 	// The currency in which the payment is made.
 	Currency Currency `json:"currency" api:"required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount int64 `json:"discount" api:"required"`
-	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now.
-	PurchasingPowerParity bool      `json:"purchasing_power_parity" api:"required"`
-	Type                  PriceType `json:"type" api:"required"`
+	Discount int64     `json:"discount" api:"required"`
+	Type     PriceType `json:"type" api:"required"`
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	FixedPrice int64 `json:"fixed_price"`
@@ -480,6 +477,10 @@ type Price struct {
 	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
 	// represents the **minimum** amount the customer must pay.
 	Price int64 `json:"price"`
+	// Opts this price in to purchasing power parity. The business must also enable
+	// purchasing power parity. The discount percentage per country is always
+	// business-wide. Defaults to `false`.
+	PurchasingPowerParity bool `json:"purchasing_power_parity"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount int64 `json:"subscription_period_count"`
@@ -507,7 +508,6 @@ type Price struct {
 type priceJSON struct {
 	Currency                   apijson.Field
 	Discount                   apijson.Field
-	PurchasingPowerParity      apijson.Field
 	Type                       apijson.Field
 	FixedPrice                 apijson.Field
 	Meters                     apijson.Field
@@ -515,6 +515,7 @@ type priceJSON struct {
 	PaymentFrequencyCount      apijson.Field
 	PaymentFrequencyInterval   apijson.Field
 	Price                      apijson.Field
+	PurchasingPowerParity      apijson.Field
 	SubscriptionPeriodCount    apijson.Field
 	SubscriptionPeriodInterval apijson.Field
 	SuggestedPrice             apijson.Field
@@ -589,14 +590,15 @@ type PriceOneTimePrice struct {
 	//
 	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
 	// represents the **minimum** amount the customer must pay.
-	Price int64 `json:"price" api:"required"`
-	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now.
-	PurchasingPowerParity bool                  `json:"purchasing_power_parity" api:"required"`
-	Type                  PriceOneTimePriceType `json:"type" api:"required"`
+	Price int64                 `json:"price" api:"required"`
+	Type  PriceOneTimePriceType `json:"type" api:"required"`
 	// Indicates whether the customer can pay any amount they choose. If set to `true`,
 	// the [`price`](Self::price) field is the minimum amount.
 	PayWhatYouWant bool `json:"pay_what_you_want"`
+	// Opts this price in to purchasing power parity. The business must also enable
+	// purchasing power parity. The discount percentage per country is always
+	// business-wide. Defaults to `false`.
+	PurchasingPowerParity bool `json:"purchasing_power_parity"`
 	// A suggested price for the user to pay. This value is only considered if
 	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
 	// ignored.
@@ -612,9 +614,9 @@ type priceOneTimePriceJSON struct {
 	Currency              apijson.Field
 	Discount              apijson.Field
 	Price                 apijson.Field
-	PurchasingPowerParity apijson.Field
 	Type                  apijson.Field
 	PayWhatYouWant        apijson.Field
+	PurchasingPowerParity apijson.Field
 	SuggestedPrice        apijson.Field
 	TaxInclusive          apijson.Field
 	raw                   string
@@ -659,15 +661,16 @@ type PriceRecurringPrice struct {
 	// The payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	Price int64 `json:"price" api:"required"`
-	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
-	PurchasingPowerParity bool `json:"purchasing_power_parity" api:"required"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount int64 `json:"subscription_period_count" api:"required"`
 	// The time interval for the subscription period (e.g., day, month, year).
 	SubscriptionPeriodInterval TimeInterval            `json:"subscription_period_interval" api:"required"`
 	Type                       PriceRecurringPriceType `json:"type" api:"required"`
+	// Opts this price in to purchasing power parity. The business must also enable
+	// purchasing power parity. The discount percentage per country is always
+	// business-wide. Defaults to `false`.
+	PurchasingPowerParity bool `json:"purchasing_power_parity"`
 	// Indicates if the price is tax inclusive
 	TaxInclusive bool `json:"tax_inclusive" api:"nullable"`
 	// Amount charged today for a paid trial, in the price currency's minor units.
@@ -689,10 +692,10 @@ type priceRecurringPriceJSON struct {
 	PaymentFrequencyCount      apijson.Field
 	PaymentFrequencyInterval   apijson.Field
 	Price                      apijson.Field
-	PurchasingPowerParity      apijson.Field
 	SubscriptionPeriodCount    apijson.Field
 	SubscriptionPeriodInterval apijson.Field
 	Type                       apijson.Field
+	PurchasingPowerParity      apijson.Field
 	TaxInclusive               apijson.Field
 	TrialAmount                apijson.Field
 	TrialApplyDiscounts        apijson.Field
@@ -739,9 +742,6 @@ type PriceUsageBasedPrice struct {
 	PaymentFrequencyCount int64 `json:"payment_frequency_count" api:"required"`
 	// The time interval for the payment frequency (e.g., day, month, year).
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval" api:"required"`
-	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
-	PurchasingPowerParity bool `json:"purchasing_power_parity" api:"required"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount int64 `json:"subscription_period_count" api:"required"`
@@ -749,6 +749,11 @@ type PriceUsageBasedPrice struct {
 	SubscriptionPeriodInterval TimeInterval             `json:"subscription_period_interval" api:"required"`
 	Type                       PriceUsageBasedPriceType `json:"type" api:"required"`
 	Meters                     []AddMeterToPrice        `json:"meters" api:"nullable"`
+	// Opts this price in to purchasing power parity. The business must also enable
+	// purchasing power parity. The discount percentage per country is always
+	// business-wide. Applies to the fixed fee only, never to metered usage. Defaults
+	// to `false`.
+	PurchasingPowerParity bool `json:"purchasing_power_parity"`
 	// Indicates if the price is tax inclusive
 	TaxInclusive bool                     `json:"tax_inclusive" api:"nullable"`
 	JSON         priceUsageBasedPriceJSON `json:"-"`
@@ -762,11 +767,11 @@ type priceUsageBasedPriceJSON struct {
 	FixedPrice                 apijson.Field
 	PaymentFrequencyCount      apijson.Field
 	PaymentFrequencyInterval   apijson.Field
-	PurchasingPowerParity      apijson.Field
 	SubscriptionPeriodCount    apijson.Field
 	SubscriptionPeriodInterval apijson.Field
 	Type                       apijson.Field
 	Meters                     apijson.Field
+	PurchasingPowerParity      apijson.Field
 	TaxInclusive               apijson.Field
 	raw                        string
 	ExtraFields                map[string]apijson.Field
@@ -817,11 +822,8 @@ type PriceParam struct {
 	// The currency in which the payment is made.
 	Currency param.Field[Currency] `json:"currency" api:"required"`
 	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[int64] `json:"discount" api:"required"`
-	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now.
-	PurchasingPowerParity param.Field[bool]      `json:"purchasing_power_parity" api:"required"`
-	Type                  param.Field[PriceType] `json:"type" api:"required"`
+	Discount param.Field[int64]     `json:"discount" api:"required"`
+	Type     param.Field[PriceType] `json:"type" api:"required"`
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	FixedPrice param.Field[int64]       `json:"fixed_price"`
@@ -840,6 +842,10 @@ type PriceParam struct {
 	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
 	// represents the **minimum** amount the customer must pay.
 	Price param.Field[int64] `json:"price"`
+	// Opts this price in to purchasing power parity. The business must also enable
+	// purchasing power parity. The discount percentage per country is always
+	// business-wide. Defaults to `false`.
+	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count"`
@@ -886,14 +892,15 @@ type PriceOneTimePriceParam struct {
 	//
 	// If [`pay_what_you_want`](Self::pay_what_you_want) is set to `true`, this field
 	// represents the **minimum** amount the customer must pay.
-	Price param.Field[int64] `json:"price" api:"required"`
-	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now.
-	PurchasingPowerParity param.Field[bool]                  `json:"purchasing_power_parity" api:"required"`
-	Type                  param.Field[PriceOneTimePriceType] `json:"type" api:"required"`
+	Price param.Field[int64]                 `json:"price" api:"required"`
+	Type  param.Field[PriceOneTimePriceType] `json:"type" api:"required"`
 	// Indicates whether the customer can pay any amount they choose. If set to `true`,
 	// the [`price`](Self::price) field is the minimum amount.
 	PayWhatYouWant param.Field[bool] `json:"pay_what_you_want"`
+	// Opts this price in to purchasing power parity. The business must also enable
+	// purchasing power parity. The discount percentage per country is always
+	// business-wide. Defaults to `false`.
+	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity"`
 	// A suggested price for the user to pay. This value is only considered if
 	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
 	// ignored.
@@ -922,15 +929,16 @@ type PriceRecurringPriceParam struct {
 	// The payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	Price param.Field[int64] `json:"price" api:"required"`
-	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
-	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity" api:"required"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count" api:"required"`
 	// The time interval for the subscription period (e.g., day, month, year).
 	SubscriptionPeriodInterval param.Field[TimeInterval]            `json:"subscription_period_interval" api:"required"`
 	Type                       param.Field[PriceRecurringPriceType] `json:"type" api:"required"`
+	// Opts this price in to purchasing power parity. The business must also enable
+	// purchasing power parity. The discount percentage per country is always
+	// business-wide. Defaults to `false`.
+	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity"`
 	// Indicates if the price is tax inclusive
 	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 	// Amount charged today for a paid trial, in the price currency's minor units.
@@ -963,9 +971,6 @@ type PriceUsageBasedPriceParam struct {
 	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count" api:"required"`
 	// The time interval for the payment frequency (e.g., day, month, year).
 	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval" api:"required"`
-	// Indicates if purchasing power parity adjustments are applied to the price.
-	// Purchasing power parity feature is not available as of now
-	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity" api:"required"`
 	// Number of units for the subscription period. For example, a value of `12` with a
 	// `subscription_period_interval` of `month` represents a one-year subscription.
 	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count" api:"required"`
@@ -973,6 +978,11 @@ type PriceUsageBasedPriceParam struct {
 	SubscriptionPeriodInterval param.Field[TimeInterval]             `json:"subscription_period_interval" api:"required"`
 	Type                       param.Field[PriceUsageBasedPriceType] `json:"type" api:"required"`
 	Meters                     param.Field[[]AddMeterToPriceParam]   `json:"meters"`
+	// Opts this price in to purchasing power parity. The business must also enable
+	// purchasing power parity. The discount percentage per country is always
+	// business-wide. Applies to the fixed fee only, never to metered usage. Defaults
+	// to `false`.
+	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity"`
 	// Indicates if the price is tax inclusive
 	TaxInclusive param.Field[bool] `json:"tax_inclusive"`
 }
