@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.115.0](https://github.com/dodopayments/dodopayments-go/compare/v1.114.0...v1.115.0) (2026-09-01)
+
+
+### Features
+
+* **api:** add customer blocklist and manual payment retry ([c04160a](https://github.com/dodopayments/dodopayments-go/commit/c04160ad35ff80864c0a96a7f6a969ad410e5222))
+* **api:** add customer blocklist and manual payment retry ([8e65c6e](https://github.com/dodopayments/dodopayments-go/commit/8e65c6e7379239485b71d0378cc1840d32d37ea7))
+
 ## [1.114.0](https://github.com/dodopayments/dodopayments-go/compare/v1.113.0...v1.114.0) (2026-08-24)
 
 
