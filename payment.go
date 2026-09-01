@@ -89,6 +89,28 @@ func (r *PaymentService) GetLineItems(ctx context.Context, paymentID string, opt
 	return res, err
 }
 
+func (r *PaymentService) GetRetryState(ctx context.Context, paymentID string, opts ...option.RequestOption) (res *ManualRetryState, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if paymentID == "" {
+		err = errors.New("missing required payment_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("payments/%s/retry", paymentID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return res, err
+}
+
+func (r *PaymentService) Retry(ctx context.Context, paymentID string, opts ...option.RequestOption) (res *ManualRetry, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if paymentID == "" {
+		err = errors.New("missing required payment_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("payments/%s/retry", paymentID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
+	return res, err
+}
+
 type AttachExistingCustomerParam struct {
 	CustomerID param.Field[string] `json:"customer_id" api:"required"`
 }
@@ -254,6 +276,80 @@ func (r IntentStatus) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+type ManualRetry struct {
+	// The invoice the send charged.
+	InvoiceID string `json:"invoice_id" api:"required"`
+	// Always true on this route. Tells the row apart from an automatic attempt.
+	IsManualRetry bool `json:"is_manual_retry" api:"required"`
+	// The payment row this send created.
+	PaymentID string `json:"payment_id" api:"required"`
+	// Which attempt this send is, counting manual sends on the invoice.
+	RetryAttempt int64 `json:"retry_attempt" api:"required"`
+	SendsAllowed int64 `json:"sends_allowed" api:"required"`
+	// Manual sends spent on this invoice, including this one.
+	SendsUsed int64 `json:"sends_used" api:"required"`
+	// When the next send becomes available. Null when no send is left.
+	RetryAvailableAt time.Time `json:"retry_available_at" api:"nullable" format:"date-time"`
+	// Outcome of the charge. `processing` means the processor has not settled it yet,
+	// and the payment webhooks report the result.
+	Status IntentStatus    `json:"status" api:"nullable"`
+	JSON   manualRetryJSON `json:"-"`
+}
+
+// manualRetryJSON contains the JSON metadata for the struct [ManualRetry]
+type manualRetryJSON struct {
+	InvoiceID        apijson.Field
+	IsManualRetry    apijson.Field
+	PaymentID        apijson.Field
+	RetryAttempt     apijson.Field
+	SendsAllowed     apijson.Field
+	SendsUsed        apijson.Field
+	RetryAvailableAt apijson.Field
+	Status           apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *ManualRetry) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r manualRetryJSON) RawJSON() string {
+	return r.raw
+}
+
+type ManualRetryState struct {
+	CanRetry     bool  `json:"can_retry" api:"required"`
+	SendsAllowed int64 `json:"sends_allowed" api:"required"`
+	SendsUsed    int64 `json:"sends_used" api:"required"`
+	// The code `POST` would fail with. Null when `can_retry` is true.
+	Reason string `json:"reason" api:"nullable"`
+	// When the next send becomes available. Null when no send is left, or when the
+	// block has nothing to do with the cooldown.
+	RetryAvailableAt time.Time            `json:"retry_available_at" api:"nullable" format:"date-time"`
+	JSON             manualRetryStateJSON `json:"-"`
+}
+
+// manualRetryStateJSON contains the JSON metadata for the struct
+// [ManualRetryState]
+type manualRetryStateJSON struct {
+	CanRetry         apijson.Field
+	SendsAllowed     apijson.Field
+	SendsUsed        apijson.Field
+	Reason           apijson.Field
+	RetryAvailableAt apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *ManualRetryState) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r manualRetryStateJSON) RawJSON() string {
+	return r.raw
 }
 
 type NewCustomerParam struct {

@@ -26,6 +26,7 @@ type Client struct {
 	LicenseKeys         *LicenseKeyService
 	LicenseKeyInstances *LicenseKeyInstanceService
 	Customers           *CustomerService
+	Blocklist           *BlocklistService
 	Refunds             *RefundService
 	Disputes            *DisputeService
 	Payouts             *PayoutService
@@ -87,6 +88,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.LicenseKeys = NewLicenseKeyService(opts...)
 	r.LicenseKeyInstances = NewLicenseKeyInstanceService(opts...)
 	r.Customers = NewCustomerService(opts...)
+	r.Blocklist = NewBlocklistService(opts...)
 	r.Refunds = NewRefundService(opts...)
 	r.Disputes = NewDisputeService(opts...)
 	r.Payouts = NewPayoutService(opts...)
