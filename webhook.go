@@ -1391,11 +1391,12 @@ type DunningRecoveredWebhookEventDataTriggerState string
 const (
 	DunningRecoveredWebhookEventDataTriggerStateOnHold    DunningRecoveredWebhookEventDataTriggerState = "on_hold"
 	DunningRecoveredWebhookEventDataTriggerStateCancelled DunningRecoveredWebhookEventDataTriggerState = "cancelled"
+	DunningRecoveredWebhookEventDataTriggerStatePastDue   DunningRecoveredWebhookEventDataTriggerState = "past_due"
 )
 
 func (r DunningRecoveredWebhookEventDataTriggerState) IsKnown() bool {
 	switch r {
-	case DunningRecoveredWebhookEventDataTriggerStateOnHold, DunningRecoveredWebhookEventDataTriggerStateCancelled:
+	case DunningRecoveredWebhookEventDataTriggerStateOnHold, DunningRecoveredWebhookEventDataTriggerStateCancelled, DunningRecoveredWebhookEventDataTriggerStatePastDue:
 		return true
 	}
 	return false
@@ -1507,11 +1508,12 @@ type DunningStartedWebhookEventDataTriggerState string
 const (
 	DunningStartedWebhookEventDataTriggerStateOnHold    DunningStartedWebhookEventDataTriggerState = "on_hold"
 	DunningStartedWebhookEventDataTriggerStateCancelled DunningStartedWebhookEventDataTriggerState = "cancelled"
+	DunningStartedWebhookEventDataTriggerStatePastDue   DunningStartedWebhookEventDataTriggerState = "past_due"
 )
 
 func (r DunningStartedWebhookEventDataTriggerState) IsKnown() bool {
 	switch r {
-	case DunningStartedWebhookEventDataTriggerStateOnHold, DunningStartedWebhookEventDataTriggerStateCancelled:
+	case DunningStartedWebhookEventDataTriggerStateOnHold, DunningStartedWebhookEventDataTriggerStateCancelled, DunningStartedWebhookEventDataTriggerStatePastDue:
 		return true
 	}
 	return false
@@ -2787,8 +2789,9 @@ func (r RefundSucceededWebhookEventType) IsKnown() bool {
 type SubscriptionActiveWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// Response struct representing subscription details
-	Data Subscription `json:"data" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionActiveWebhookEventData `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -2819,6 +2822,37 @@ func (r SubscriptionActiveWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionActiveWebhookEvent) implementsUnwrapWebhookEvent() {}
 
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionActiveWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                              `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionActiveWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionActiveWebhookEventDataJSON contains the JSON metadata for the struct
+// [SubscriptionActiveWebhookEventData]
+type subscriptionActiveWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionActiveWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionActiveWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
 // The event type
 type SubscriptionActiveWebhookEventType string
 
@@ -2837,8 +2871,9 @@ func (r SubscriptionActiveWebhookEventType) IsKnown() bool {
 type SubscriptionCancelledWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// Response struct representing subscription details
-	Data Subscription `json:"data" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionCancelledWebhookEventData `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -2869,6 +2904,37 @@ func (r SubscriptionCancelledWebhookEvent) implementsUnsafeUnwrapWebhookEvent() 
 
 func (r SubscriptionCancelledWebhookEvent) implementsUnwrapWebhookEvent() {}
 
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionCancelledWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                                 `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionCancelledWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionCancelledWebhookEventDataJSON contains the JSON metadata for the
+// struct [SubscriptionCancelledWebhookEventData]
+type subscriptionCancelledWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionCancelledWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionCancelledWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
 // The event type
 type SubscriptionCancelledWebhookEventType string
 
@@ -2887,8 +2953,9 @@ func (r SubscriptionCancelledWebhookEventType) IsKnown() bool {
 type SubscriptionExpiredWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// Response struct representing subscription details
-	Data Subscription `json:"data" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionExpiredWebhookEventData `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -2919,6 +2986,37 @@ func (r SubscriptionExpiredWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionExpiredWebhookEvent) implementsUnwrapWebhookEvent() {}
 
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionExpiredWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                               `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionExpiredWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionExpiredWebhookEventDataJSON contains the JSON metadata for the
+// struct [SubscriptionExpiredWebhookEventData]
+type subscriptionExpiredWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionExpiredWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionExpiredWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
 // The event type
 type SubscriptionExpiredWebhookEventType string
 
@@ -2937,8 +3035,9 @@ func (r SubscriptionExpiredWebhookEventType) IsKnown() bool {
 type SubscriptionFailedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// Response struct representing subscription details
-	Data Subscription `json:"data" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionFailedWebhookEventData `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -2969,6 +3068,37 @@ func (r SubscriptionFailedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionFailedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionFailedWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                              `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionFailedWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionFailedWebhookEventDataJSON contains the JSON metadata for the struct
+// [SubscriptionFailedWebhookEventData]
+type subscriptionFailedWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionFailedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionFailedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
 // The event type
 type SubscriptionFailedWebhookEventType string
 
@@ -2987,8 +3117,9 @@ func (r SubscriptionFailedWebhookEventType) IsKnown() bool {
 type SubscriptionOnHoldWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// Response struct representing subscription details
-	Data Subscription `json:"data" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionOnHoldWebhookEventData `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -3019,6 +3150,37 @@ func (r SubscriptionOnHoldWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionOnHoldWebhookEvent) implementsUnwrapWebhookEvent() {}
 
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionOnHoldWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                              `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionOnHoldWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionOnHoldWebhookEventDataJSON contains the JSON metadata for the struct
+// [SubscriptionOnHoldWebhookEventData]
+type subscriptionOnHoldWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionOnHoldWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionOnHoldWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
 // The event type
 type SubscriptionOnHoldWebhookEventType string
 
@@ -3034,11 +3196,94 @@ func (r SubscriptionOnHoldWebhookEventType) IsKnown() bool {
 	return false
 }
 
+type SubscriptionPastDueWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionPastDueWebhookEventData `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type SubscriptionPastDueWebhookEventType `json:"type" api:"required"`
+	JSON subscriptionPastDueWebhookEventJSON `json:"-"`
+}
+
+// subscriptionPastDueWebhookEventJSON contains the JSON metadata for the struct
+// [SubscriptionPastDueWebhookEvent]
+type subscriptionPastDueWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionPastDueWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionPastDueWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r SubscriptionPastDueWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r SubscriptionPastDueWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionPastDueWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                               `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionPastDueWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionPastDueWebhookEventDataJSON contains the JSON metadata for the
+// struct [SubscriptionPastDueWebhookEventData]
+type subscriptionPastDueWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionPastDueWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionPastDueWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
+// The event type
+type SubscriptionPastDueWebhookEventType string
+
+const (
+	SubscriptionPastDueWebhookEventTypeSubscriptionPastDue SubscriptionPastDueWebhookEventType = "subscription.past_due"
+)
+
+func (r SubscriptionPastDueWebhookEventType) IsKnown() bool {
+	switch r {
+	case SubscriptionPastDueWebhookEventTypeSubscriptionPastDue:
+		return true
+	}
+	return false
+}
+
 type SubscriptionPausedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// Response struct representing subscription details
-	Data Subscription `json:"data" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionPausedWebhookEventData `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -3069,6 +3314,37 @@ func (r SubscriptionPausedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionPausedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionPausedWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                              `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionPausedWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionPausedWebhookEventDataJSON contains the JSON metadata for the struct
+// [SubscriptionPausedWebhookEventData]
+type subscriptionPausedWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionPausedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionPausedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
 // The event type
 type SubscriptionPausedWebhookEventType string
 
@@ -3087,8 +3363,9 @@ func (r SubscriptionPausedWebhookEventType) IsKnown() bool {
 type SubscriptionPlanChangedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// Response struct representing subscription details
-	Data Subscription `json:"data" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionPlanChangedWebhookEventData `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -3119,6 +3396,37 @@ func (r SubscriptionPlanChangedWebhookEvent) implementsUnsafeUnwrapWebhookEvent(
 
 func (r SubscriptionPlanChangedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionPlanChangedWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                                   `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionPlanChangedWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionPlanChangedWebhookEventDataJSON contains the JSON metadata for the
+// struct [SubscriptionPlanChangedWebhookEventData]
+type subscriptionPlanChangedWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionPlanChangedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionPlanChangedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
 // The event type
 type SubscriptionPlanChangedWebhookEventType string
 
@@ -3137,8 +3445,9 @@ func (r SubscriptionPlanChangedWebhookEventType) IsKnown() bool {
 type SubscriptionRenewedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// Response struct representing subscription details
-	Data Subscription `json:"data" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionRenewedWebhookEventData `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -3169,6 +3478,37 @@ func (r SubscriptionRenewedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionRenewedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionRenewedWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                               `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionRenewedWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionRenewedWebhookEventDataJSON contains the JSON metadata for the
+// struct [SubscriptionRenewedWebhookEventData]
+type subscriptionRenewedWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionRenewedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionRenewedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
 // The event type
 type SubscriptionRenewedWebhookEventType string
 
@@ -3187,8 +3527,9 @@ func (r SubscriptionRenewedWebhookEventType) IsKnown() bool {
 type SubscriptionUnpausedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// Response struct representing subscription details
-	Data Subscription `json:"data" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionUnpausedWebhookEventData `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -3219,6 +3560,37 @@ func (r SubscriptionUnpausedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {
 
 func (r SubscriptionUnpausedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionUnpausedWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                                `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionUnpausedWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionUnpausedWebhookEventDataJSON contains the JSON metadata for the
+// struct [SubscriptionUnpausedWebhookEventData]
+type subscriptionUnpausedWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionUnpausedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionUnpausedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
 // The event type
 type SubscriptionUnpausedWebhookEventType string
 
@@ -3237,8 +3609,9 @@ func (r SubscriptionUnpausedWebhookEventType) IsKnown() bool {
 type SubscriptionUpdatePaymentMethodWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// Response struct representing subscription details
-	Data Subscription `json:"data" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionUpdatePaymentMethodWebhookEventData `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -3269,6 +3642,37 @@ func (r SubscriptionUpdatePaymentMethodWebhookEvent) implementsUnsafeUnwrapWebho
 
 func (r SubscriptionUpdatePaymentMethodWebhookEvent) implementsUnwrapWebhookEvent() {}
 
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionUpdatePaymentMethodWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                                           `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionUpdatePaymentMethodWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionUpdatePaymentMethodWebhookEventDataJSON contains the JSON metadata
+// for the struct [SubscriptionUpdatePaymentMethodWebhookEventData]
+type subscriptionUpdatePaymentMethodWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionUpdatePaymentMethodWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionUpdatePaymentMethodWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
 // The event type
 type SubscriptionUpdatePaymentMethodWebhookEventType string
 
@@ -3287,8 +3691,9 @@ func (r SubscriptionUpdatePaymentMethodWebhookEventType) IsKnown() bool {
 type SubscriptionUpdatedWebhookEvent struct {
 	// The business identifier
 	BusinessID string `json:"business_id" api:"required"`
-	// Response struct representing subscription details
-	Data Subscription `json:"data" api:"required"`
+	// Subscription payload sent on a webhook. It carries every field of
+	// `SubscriptionResponse`, plus the grace-period deadline.
+	Data SubscriptionUpdatedWebhookEventData `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
 	// The event type
@@ -3319,6 +3724,37 @@ func (r SubscriptionUpdatedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
 
 func (r SubscriptionUpdatedWebhookEvent) implementsUnwrapWebhookEvent() {}
 
+// Subscription payload sent on a webhook. It carries every field of
+// `SubscriptionResponse`, plus the grace-period deadline.
+type SubscriptionUpdatedWebhookEventData struct {
+	// Time when the grace period ends. The subscription moves to `on_hold` or to
+	// `cancelled` at this time.
+	//
+	// Read in the same query as the rest of the payload, so it always comes from the
+	// row snapshot that produced `status`. It is set whenever the subscription sits in
+	// a window at that moment. A delayed event of another type therefore carries the
+	// deadline too, next to a `past_due` status.
+	PastDueEndsAt time.Time                               `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	JSON          subscriptionUpdatedWebhookEventDataJSON `json:"-"`
+	Subscription
+}
+
+// subscriptionUpdatedWebhookEventDataJSON contains the JSON metadata for the
+// struct [SubscriptionUpdatedWebhookEventData]
+type subscriptionUpdatedWebhookEventDataJSON struct {
+	PastDueEndsAt apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *SubscriptionUpdatedWebhookEventData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionUpdatedWebhookEventDataJSON) RawJSON() string {
+	return r.raw
+}
+
 // The event type
 type SubscriptionUpdatedWebhookEventType string
 
@@ -3345,7 +3781,13 @@ type UnsafeUnwrapWebhookEvent struct {
 	// [EntitlementGrant], [LicenseKey], [Payment], [PayoutCreatedWebhookEventData],
 	// [PayoutFailedWebhookEventData], [PayoutInProgressWebhookEventData],
 	// [PayoutOnHoldWebhookEventData], [PayoutSuccessWebhookEventData], [Refund],
-	// [Subscription].
+	// [SubscriptionActiveWebhookEventData], [SubscriptionCancelledWebhookEventData],
+	// [SubscriptionExpiredWebhookEventData], [SubscriptionFailedWebhookEventData],
+	// [SubscriptionOnHoldWebhookEventData], [SubscriptionPastDueWebhookEventData],
+	// [SubscriptionPausedWebhookEventData], [SubscriptionPlanChangedWebhookEventData],
+	// [SubscriptionRenewedWebhookEventData], [SubscriptionUnpausedWebhookEventData],
+	// [SubscriptionUpdatePaymentMethodWebhookEventData],
+	// [SubscriptionUpdatedWebhookEventData].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
@@ -3403,8 +3845,9 @@ func (r *UnsafeUnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
 // [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
 // [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPausedWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent], [SubscriptionUnpausedWebhookEvent],
+// [SubscriptionPastDueWebhookEvent], [SubscriptionPausedWebhookEvent],
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
+// [SubscriptionUnpausedWebhookEvent],
 // [SubscriptionUpdatePaymentMethodWebhookEvent],
 // [SubscriptionUpdatedWebhookEvent].
 func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
@@ -3432,8 +3875,9 @@ func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
 // [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
 // [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
 // [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPausedWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent], [SubscriptionUnpausedWebhookEvent],
+// [SubscriptionPastDueWebhookEvent], [SubscriptionPausedWebhookEvent],
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
+// [SubscriptionUnpausedWebhookEvent],
 // [SubscriptionUpdatePaymentMethodWebhookEvent] or
 // [SubscriptionUpdatedWebhookEvent].
 type UnsafeUnwrapWebhookEventUnion interface {
@@ -3651,6 +4095,11 @@ func init() {
 		},
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(SubscriptionPastDueWebhookEvent{}),
+			DiscriminatorValue: "subscription.past_due",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
 			Type:               reflect.TypeOf(SubscriptionPausedWebhookEvent{}),
 			DiscriminatorValue: "subscription.paused",
 		},
@@ -3727,6 +4176,7 @@ const (
 	UnsafeUnwrapWebhookEventTypeSubscriptionExpired             UnsafeUnwrapWebhookEventType = "subscription.expired"
 	UnsafeUnwrapWebhookEventTypeSubscriptionFailed              UnsafeUnwrapWebhookEventType = "subscription.failed"
 	UnsafeUnwrapWebhookEventTypeSubscriptionOnHold              UnsafeUnwrapWebhookEventType = "subscription.on_hold"
+	UnsafeUnwrapWebhookEventTypeSubscriptionPastDue             UnsafeUnwrapWebhookEventType = "subscription.past_due"
 	UnsafeUnwrapWebhookEventTypeSubscriptionPaused              UnsafeUnwrapWebhookEventType = "subscription.paused"
 	UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged         UnsafeUnwrapWebhookEventType = "subscription.plan_changed"
 	UnsafeUnwrapWebhookEventTypeSubscriptionRenewed             UnsafeUnwrapWebhookEventType = "subscription.renewed"
@@ -3737,7 +4187,7 @@ const (
 
 func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected, UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditOverageReset, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeDunningRecovered, UnsafeUnwrapWebhookEventTypeDunningStarted, UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated, UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered, UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed, UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypePayoutCreated, UnsafeUnwrapWebhookEventTypePayoutFailed, UnsafeUnwrapWebhookEventTypePayoutInProgress, UnsafeUnwrapWebhookEventTypePayoutOnHold, UnsafeUnwrapWebhookEventTypePayoutSuccess, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPaused, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUnpaused, UnsafeUnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected, UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditOverageReset, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeDunningRecovered, UnsafeUnwrapWebhookEventTypeDunningStarted, UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated, UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered, UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed, UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypePayoutCreated, UnsafeUnwrapWebhookEventTypePayoutFailed, UnsafeUnwrapWebhookEventTypePayoutInProgress, UnsafeUnwrapWebhookEventTypePayoutOnHold, UnsafeUnwrapWebhookEventTypePayoutSuccess, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPastDue, UnsafeUnwrapWebhookEventTypeSubscriptionPaused, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUnpaused, UnsafeUnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false
@@ -3754,7 +4204,13 @@ type UnwrapWebhookEvent struct {
 	// [EntitlementGrant], [LicenseKey], [Payment], [PayoutCreatedWebhookEventData],
 	// [PayoutFailedWebhookEventData], [PayoutInProgressWebhookEventData],
 	// [PayoutOnHoldWebhookEventData], [PayoutSuccessWebhookEventData], [Refund],
-	// [Subscription].
+	// [SubscriptionActiveWebhookEventData], [SubscriptionCancelledWebhookEventData],
+	// [SubscriptionExpiredWebhookEventData], [SubscriptionFailedWebhookEventData],
+	// [SubscriptionOnHoldWebhookEventData], [SubscriptionPastDueWebhookEventData],
+	// [SubscriptionPausedWebhookEventData], [SubscriptionPlanChangedWebhookEventData],
+	// [SubscriptionRenewedWebhookEventData], [SubscriptionUnpausedWebhookEventData],
+	// [SubscriptionUpdatePaymentMethodWebhookEventData],
+	// [SubscriptionUpdatedWebhookEventData].
 	Data interface{} `json:"data" api:"required"`
 	// The timestamp of when the event occurred
 	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
@@ -3812,8 +4268,9 @@ func (r *UnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
 // [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
 // [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPausedWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent], [SubscriptionUnpausedWebhookEvent],
+// [SubscriptionPastDueWebhookEvent], [SubscriptionPausedWebhookEvent],
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
+// [SubscriptionUnpausedWebhookEvent],
 // [SubscriptionUpdatePaymentMethodWebhookEvent],
 // [SubscriptionUpdatedWebhookEvent].
 func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
@@ -3841,8 +4298,9 @@ func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
 // [RefundSucceededWebhookEvent], [SubscriptionActiveWebhookEvent],
 // [SubscriptionCancelledWebhookEvent], [SubscriptionExpiredWebhookEvent],
 // [SubscriptionFailedWebhookEvent], [SubscriptionOnHoldWebhookEvent],
-// [SubscriptionPausedWebhookEvent], [SubscriptionPlanChangedWebhookEvent],
-// [SubscriptionRenewedWebhookEvent], [SubscriptionUnpausedWebhookEvent],
+// [SubscriptionPastDueWebhookEvent], [SubscriptionPausedWebhookEvent],
+// [SubscriptionPlanChangedWebhookEvent], [SubscriptionRenewedWebhookEvent],
+// [SubscriptionUnpausedWebhookEvent],
 // [SubscriptionUpdatePaymentMethodWebhookEvent] or
 // [SubscriptionUpdatedWebhookEvent].
 type UnwrapWebhookEventUnion interface {
@@ -4060,6 +4518,11 @@ func init() {
 		},
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(SubscriptionPastDueWebhookEvent{}),
+			DiscriminatorValue: "subscription.past_due",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
 			Type:               reflect.TypeOf(SubscriptionPausedWebhookEvent{}),
 			DiscriminatorValue: "subscription.paused",
 		},
@@ -4136,6 +4599,7 @@ const (
 	UnwrapWebhookEventTypeSubscriptionExpired             UnwrapWebhookEventType = "subscription.expired"
 	UnwrapWebhookEventTypeSubscriptionFailed              UnwrapWebhookEventType = "subscription.failed"
 	UnwrapWebhookEventTypeSubscriptionOnHold              UnwrapWebhookEventType = "subscription.on_hold"
+	UnwrapWebhookEventTypeSubscriptionPastDue             UnwrapWebhookEventType = "subscription.past_due"
 	UnwrapWebhookEventTypeSubscriptionPaused              UnwrapWebhookEventType = "subscription.paused"
 	UnwrapWebhookEventTypeSubscriptionPlanChanged         UnwrapWebhookEventType = "subscription.plan_changed"
 	UnwrapWebhookEventTypeSubscriptionRenewed             UnwrapWebhookEventType = "subscription.renewed"
@@ -4146,7 +4610,7 @@ const (
 
 func (r UnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnwrapWebhookEventTypeAbandonedCheckoutDetected, UnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditOverageReset, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeDunningRecovered, UnwrapWebhookEventTypeDunningStarted, UnwrapWebhookEventTypeEntitlementGrantCreated, UnwrapWebhookEventTypeEntitlementGrantDelivered, UnwrapWebhookEventTypeEntitlementGrantFailed, UnwrapWebhookEventTypeEntitlementGrantRevoked, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypePayoutCreated, UnwrapWebhookEventTypePayoutFailed, UnwrapWebhookEventTypePayoutInProgress, UnwrapWebhookEventTypePayoutOnHold, UnwrapWebhookEventTypePayoutSuccess, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPaused, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUnpaused, UnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnwrapWebhookEventTypeAbandonedCheckoutDetected, UnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditOverageReset, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeDunningRecovered, UnwrapWebhookEventTypeDunningStarted, UnwrapWebhookEventTypeEntitlementGrantCreated, UnwrapWebhookEventTypeEntitlementGrantDelivered, UnwrapWebhookEventTypeEntitlementGrantFailed, UnwrapWebhookEventTypeEntitlementGrantRevoked, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypePayoutCreated, UnwrapWebhookEventTypePayoutFailed, UnwrapWebhookEventTypePayoutInProgress, UnwrapWebhookEventTypePayoutOnHold, UnwrapWebhookEventTypePayoutSuccess, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPastDue, UnwrapWebhookEventTypeSubscriptionPaused, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUnpaused, UnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false
