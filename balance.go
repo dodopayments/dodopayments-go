@@ -69,6 +69,7 @@ type BalanceLedgerEntry struct {
 	AfterBalance        int64                       `json:"after_balance" api:"nullable"`
 	BeforeBalance       int64                       `json:"before_balance" api:"nullable"`
 	Description         string                      `json:"description" api:"nullable"`
+	PayoutID            string                      `json:"payout_id" api:"nullable"`
 	ReferenceObjectID   string                      `json:"reference_object_id" api:"nullable"`
 	JSON                balanceLedgerEntryJSON      `json:"-"`
 }
@@ -87,6 +88,7 @@ type balanceLedgerEntryJSON struct {
 	AfterBalance        apijson.Field
 	BeforeBalance       apijson.Field
 	Description         apijson.Field
+	PayoutID            apijson.Field
 	ReferenceObjectID   apijson.Field
 	raw                 string
 	ExtraFields         map[string]apijson.Field

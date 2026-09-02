@@ -178,6 +178,12 @@ type Customer struct {
 	CustomerID string    `json:"customer_id" api:"required"`
 	Email      string    `json:"email" api:"required"`
 	Name       string    `json:"name" api:"required"`
+	// When the merchant blocked this customer. The dashboard shows the "Blocked" badge
+	// and the unblock action from it. The list route leaves it empty; only the
+	// single-customer route resolves it.
+	BlockedAt time.Time `json:"blocked_at" api:"nullable" format:"date-time"`
+	// Blocklist entry behind `blocked_at`, so the dashboard can link to it.
+	BlocklistEntryID string `json:"blocklist_entry_id" api:"nullable"`
 	// Additional metadata for the customer
 	Metadata    Metadata     `json:"metadata"`
 	PhoneNumber string       `json:"phone_number" api:"nullable"`
@@ -186,15 +192,17 @@ type Customer struct {
 
 // customerJSON contains the JSON metadata for the struct [Customer]
 type customerJSON struct {
-	BusinessID  apijson.Field
-	CreatedAt   apijson.Field
-	CustomerID  apijson.Field
-	Email       apijson.Field
-	Name        apijson.Field
-	Metadata    apijson.Field
-	PhoneNumber apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	BusinessID       apijson.Field
+	CreatedAt        apijson.Field
+	CustomerID       apijson.Field
+	Email            apijson.Field
+	Name             apijson.Field
+	BlockedAt        apijson.Field
+	BlocklistEntryID apijson.Field
+	Metadata         apijson.Field
+	PhoneNumber      apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *Customer) UnmarshalJSON(data []byte) (err error) {

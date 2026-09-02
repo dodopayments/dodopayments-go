@@ -700,11 +700,12 @@ const (
 	SubscriptionStatusCancelled SubscriptionStatus = "cancelled"
 	SubscriptionStatusFailed    SubscriptionStatus = "failed"
 	SubscriptionStatusExpired   SubscriptionStatus = "expired"
+	SubscriptionStatusPastDue   SubscriptionStatus = "past_due"
 )
 
 func (r SubscriptionStatus) IsKnown() bool {
 	switch r {
-	case SubscriptionStatusPending, SubscriptionStatusActive, SubscriptionStatusOnHold, SubscriptionStatusPaused, SubscriptionStatusCancelled, SubscriptionStatusFailed, SubscriptionStatusExpired:
+	case SubscriptionStatusPending, SubscriptionStatusActive, SubscriptionStatusOnHold, SubscriptionStatusPaused, SubscriptionStatusCancelled, SubscriptionStatusFailed, SubscriptionStatusExpired, SubscriptionStatusPastDue:
 		return true
 	}
 	return false
@@ -1849,15 +1850,16 @@ func (r SubscriptionUpdateParams) MarshalJSON() (data []byte, err error) {
 type SubscriptionUpdateParamsCancelReason string
 
 const (
-	SubscriptionUpdateParamsCancelReasonCancelledByCustomer            SubscriptionUpdateParamsCancelReason = "cancelled_by_customer"
-	SubscriptionUpdateParamsCancelReasonCancelledByMerchant            SubscriptionUpdateParamsCancelReason = "cancelled_by_merchant"
-	SubscriptionUpdateParamsCancelReasonCancelledByMerchantSendDunning SubscriptionUpdateParamsCancelReason = "cancelled_by_merchant_send_dunning"
-	SubscriptionUpdateParamsCancelReasonDodoTeam                       SubscriptionUpdateParamsCancelReason = "dodo_team"
+	SubscriptionUpdateParamsCancelReasonCancelledByCustomer                   SubscriptionUpdateParamsCancelReason = "cancelled_by_customer"
+	SubscriptionUpdateParamsCancelReasonCancelledByMerchant                   SubscriptionUpdateParamsCancelReason = "cancelled_by_merchant"
+	SubscriptionUpdateParamsCancelReasonCancelledByMerchantSendDunning        SubscriptionUpdateParamsCancelReason = "cancelled_by_merchant_send_dunning"
+	SubscriptionUpdateParamsCancelReasonCancelledByMerchantGracePeriodExpired SubscriptionUpdateParamsCancelReason = "cancelled_by_merchant_grace_period_expired"
+	SubscriptionUpdateParamsCancelReasonDodoTeam                              SubscriptionUpdateParamsCancelReason = "dodo_team"
 )
 
 func (r SubscriptionUpdateParamsCancelReason) IsKnown() bool {
 	switch r {
-	case SubscriptionUpdateParamsCancelReasonCancelledByCustomer, SubscriptionUpdateParamsCancelReasonCancelledByMerchant, SubscriptionUpdateParamsCancelReasonCancelledByMerchantSendDunning, SubscriptionUpdateParamsCancelReasonDodoTeam:
+	case SubscriptionUpdateParamsCancelReasonCancelledByCustomer, SubscriptionUpdateParamsCancelReasonCancelledByMerchant, SubscriptionUpdateParamsCancelReasonCancelledByMerchantSendDunning, SubscriptionUpdateParamsCancelReasonCancelledByMerchantGracePeriodExpired, SubscriptionUpdateParamsCancelReasonDodoTeam:
 		return true
 	}
 	return false
@@ -1930,11 +1932,12 @@ const (
 	SubscriptionListParamsStatusCancelled SubscriptionListParamsStatus = "cancelled"
 	SubscriptionListParamsStatusFailed    SubscriptionListParamsStatus = "failed"
 	SubscriptionListParamsStatusExpired   SubscriptionListParamsStatus = "expired"
+	SubscriptionListParamsStatusPastDue   SubscriptionListParamsStatus = "past_due"
 )
 
 func (r SubscriptionListParamsStatus) IsKnown() bool {
 	switch r {
-	case SubscriptionListParamsStatusPending, SubscriptionListParamsStatusActive, SubscriptionListParamsStatusOnHold, SubscriptionListParamsStatusPaused, SubscriptionListParamsStatusCancelled, SubscriptionListParamsStatusFailed, SubscriptionListParamsStatusExpired:
+	case SubscriptionListParamsStatusPending, SubscriptionListParamsStatusActive, SubscriptionListParamsStatusOnHold, SubscriptionListParamsStatusPaused, SubscriptionListParamsStatusCancelled, SubscriptionListParamsStatusFailed, SubscriptionListParamsStatusExpired, SubscriptionListParamsStatusPastDue:
 		return true
 	}
 	return false
