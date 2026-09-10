@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.116.0](https://github.com/dodopayments/dodopayments-go/compare/v1.115.0...v1.116.0) (2026-09-10)
+
+
+### Features
+
+* **api:** add customer email logs ([b95910a](https://github.com/dodopayments/dodopayments-go/commit/b95910a964a1bb79a8704e56ba6c15188fae5590))
+* **api:** add customer email logs ([c957545](https://github.com/dodopayments/dodopayments-go/commit/c957545999afcc2f41c2ebaa74d1275e67ba4de7))
+
 ## [1.114.0](https://github.com/dodopayments/dodopayments-go/compare/v1.113.0...v1.114.0) (2026-08-24)
 
 
