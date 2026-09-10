@@ -557,6 +557,9 @@ type CheckoutSessionPreviewResponse struct {
 	// country; in that case the quoted amounts exclude Dodo-computed tax because the
 	// merchant is MoR and owns tax.
 	IsByop bool `json:"is_byop" api:"required"`
+	// False when the customer can confirm this session with no card. True for every
+	// other cart, including a one-time cart.
+	PaymentMethodRequired bool `json:"payment_method_required" api:"required"`
 	// The total product cart
 	ProductCart []CheckoutSessionPreviewResponseProductCart `json:"product_cart" api:"required"`
 	// Total calculate price of the product cart
@@ -589,22 +592,23 @@ type CheckoutSessionPreviewResponse struct {
 // checkoutSessionPreviewResponseJSON contains the JSON metadata for the struct
 // [CheckoutSessionPreviewResponse]
 type checkoutSessionPreviewResponseJSON struct {
-	BillingCountry    apijson.Field
-	Currency          apijson.Field
-	CurrentBreakup    apijson.Field
-	IsByop            apijson.Field
-	ProductCart       apijson.Field
-	TotalPrice        apijson.Field
-	NextBillingDate   apijson.Field
-	RecurringBreakup  apijson.Field
-	TaxIDBusinessName apijson.Field
-	TaxIDErrMsg       apijson.Field
-	TaxIDFormatName   apijson.Field
-	TotalTax          apijson.Field
-	TrialAmount       apijson.Field
-	TrialPeriodDays   apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
+	BillingCountry        apijson.Field
+	Currency              apijson.Field
+	CurrentBreakup        apijson.Field
+	IsByop                apijson.Field
+	PaymentMethodRequired apijson.Field
+	ProductCart           apijson.Field
+	TotalPrice            apijson.Field
+	NextBillingDate       apijson.Field
+	RecurringBreakup      apijson.Field
+	TaxIDBusinessName     apijson.Field
+	TaxIDErrMsg           apijson.Field
+	TaxIDFormatName       apijson.Field
+	TotalTax              apijson.Field
+	TrialAmount           apijson.Field
+	TrialPeriodDays       apijson.Field
+	raw                   string
+	ExtraFields           map[string]apijson.Field
 }
 
 func (r *CheckoutSessionPreviewResponse) UnmarshalJSON(data []byte) (err error) {
