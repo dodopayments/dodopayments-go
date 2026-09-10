@@ -454,10 +454,21 @@ func (r LicenseKeyDurationParam) MarshalJSON() (data []byte, err error) {
 // One-time price details.
 type Price struct {
 	// The currency in which the payment is made.
-	Currency Currency `json:"currency" api:"required"`
-	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount int64     `json:"discount" api:"required"`
+	Currency Currency  `json:"currency" api:"required"`
 	Type     PriceType `json:"type" api:"required"`
+	// Deprecated: use `discount_bps` instead.
+	//
+	// Discount applied to the price, represented as a percentage (0 to 100). A
+	// response rounds this value to the nearest whole percent. Defaults to `0`.
+	//
+	// Deprecated: deprecated
+	Discount int64 `json:"discount"`
+	// Discount applied to the price, in basis points. 100 basis points make one
+	// percent, so `1250` is a discount of 12.5%.
+	//
+	// Use this field for a discount with a fraction of a percent. A request that sends
+	// this field ignores `discount`. A value of `0` gives no discount.
+	DiscountBps int64 `json:"discount_bps" api:"nullable"`
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	FixedPrice int64 `json:"fixed_price"`
@@ -498,33 +509,41 @@ type Price struct {
 	// Whether discount codes reduce the trial charge. Defaults to false. Only
 	// meaningful when a paid trial is configured.
 	TrialApplyDiscounts bool `json:"trial_apply_discounts" api:"nullable"`
+	// Let a customer start a free trial with no card. Defaults to false.
+	TrialPaymentMethodOptional bool `json:"trial_payment_method_optional"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
-	TrialPeriodDays int64     `json:"trial_period_days"`
-	JSON            priceJSON `json:"-"`
-	union           PriceUnion
+	TrialPeriodDays int64 `json:"trial_period_days"`
+	// Let a customer start a subscription with no card, when the amount due today is
+	// `0` (a native `0` price, or a 100% discount). Defaults to false.
+	ZeroAmountPaymentMethodOptional bool      `json:"zero_amount_payment_method_optional"`
+	JSON                            priceJSON `json:"-"`
+	union                           PriceUnion
 }
 
 // priceJSON contains the JSON metadata for the struct [Price]
 type priceJSON struct {
-	Currency                   apijson.Field
-	Discount                   apijson.Field
-	Type                       apijson.Field
-	FixedPrice                 apijson.Field
-	Meters                     apijson.Field
-	PayWhatYouWant             apijson.Field
-	PaymentFrequencyCount      apijson.Field
-	PaymentFrequencyInterval   apijson.Field
-	Price                      apijson.Field
-	PurchasingPowerParity      apijson.Field
-	SubscriptionPeriodCount    apijson.Field
-	SubscriptionPeriodInterval apijson.Field
-	SuggestedPrice             apijson.Field
-	TaxInclusive               apijson.Field
-	TrialAmount                apijson.Field
-	TrialApplyDiscounts        apijson.Field
-	TrialPeriodDays            apijson.Field
-	raw                        string
-	ExtraFields                map[string]apijson.Field
+	Currency                        apijson.Field
+	Type                            apijson.Field
+	Discount                        apijson.Field
+	DiscountBps                     apijson.Field
+	FixedPrice                      apijson.Field
+	Meters                          apijson.Field
+	PayWhatYouWant                  apijson.Field
+	PaymentFrequencyCount           apijson.Field
+	PaymentFrequencyInterval        apijson.Field
+	Price                           apijson.Field
+	PurchasingPowerParity           apijson.Field
+	SubscriptionPeriodCount         apijson.Field
+	SubscriptionPeriodInterval      apijson.Field
+	SuggestedPrice                  apijson.Field
+	TaxInclusive                    apijson.Field
+	TrialAmount                     apijson.Field
+	TrialApplyDiscounts             apijson.Field
+	TrialPaymentMethodOptional      apijson.Field
+	TrialPeriodDays                 apijson.Field
+	ZeroAmountPaymentMethodOptional apijson.Field
+	raw                             string
+	ExtraFields                     map[string]apijson.Field
 }
 
 func (r priceJSON) RawJSON() string {
@@ -583,8 +602,6 @@ func init() {
 type PriceOneTimePrice struct {
 	// The currency in which the payment is made.
 	Currency Currency `json:"currency" api:"required"`
-	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount int64 `json:"discount" api:"required"`
 	// The payment amount, in the smallest denomination of the currency (e.g., cents
 	// for USD). For example, to charge $1.00, pass `100`.
 	//
@@ -592,6 +609,19 @@ type PriceOneTimePrice struct {
 	// represents the **minimum** amount the customer must pay.
 	Price int64                 `json:"price" api:"required"`
 	Type  PriceOneTimePriceType `json:"type" api:"required"`
+	// Deprecated: use `discount_bps` instead.
+	//
+	// Discount applied to the price, represented as a percentage (0 to 100). A
+	// response rounds this value to the nearest whole percent. Defaults to `0`.
+	//
+	// Deprecated: deprecated
+	Discount int64 `json:"discount"`
+	// Discount applied to the price, in basis points. 100 basis points make one
+	// percent, so `1250` is a discount of 12.5%.
+	//
+	// Use this field for a discount with a fraction of a percent. A request that sends
+	// this field ignores `discount`. A value of `0` gives no discount.
+	DiscountBps int64 `json:"discount_bps" api:"nullable"`
 	// Indicates whether the customer can pay any amount they choose. If set to `true`,
 	// the [`price`](Self::price) field is the minimum amount.
 	PayWhatYouWant bool `json:"pay_what_you_want"`
@@ -612,9 +642,10 @@ type PriceOneTimePrice struct {
 // [PriceOneTimePrice]
 type priceOneTimePriceJSON struct {
 	Currency              apijson.Field
-	Discount              apijson.Field
 	Price                 apijson.Field
 	Type                  apijson.Field
+	Discount              apijson.Field
+	DiscountBps           apijson.Field
 	PayWhatYouWant        apijson.Field
 	PurchasingPowerParity apijson.Field
 	SuggestedPrice        apijson.Field
@@ -651,8 +682,6 @@ func (r PriceOneTimePriceType) IsKnown() bool {
 type PriceRecurringPrice struct {
 	// The currency in which the payment is made.
 	Currency Currency `json:"currency" api:"required"`
-	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount int64 `json:"discount" api:"required"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
 	PaymentFrequencyCount int64 `json:"payment_frequency_count" api:"required"`
@@ -667,6 +696,19 @@ type PriceRecurringPrice struct {
 	// The time interval for the subscription period (e.g., day, month, year).
 	SubscriptionPeriodInterval TimeInterval            `json:"subscription_period_interval" api:"required"`
 	Type                       PriceRecurringPriceType `json:"type" api:"required"`
+	// Deprecated: use `discount_bps` instead.
+	//
+	// Discount applied to the price, represented as a percentage (0 to 100). A
+	// response rounds this value to the nearest whole percent. Defaults to `0`.
+	//
+	// Deprecated: deprecated
+	Discount int64 `json:"discount"`
+	// Discount applied to the price, in basis points. 100 basis points make one
+	// percent, so `1250` is a discount of 12.5%.
+	//
+	// Use this field for a discount with a fraction of a percent. A request that sends
+	// this field ignores `discount`. A value of `0` gives no discount.
+	DiscountBps int64 `json:"discount_bps" api:"nullable"`
 	// Opts this price in to purchasing power parity. The business must also enable
 	// purchasing power parity. The discount percentage per country is always
 	// business-wide. Defaults to `false`.
@@ -679,29 +721,37 @@ type PriceRecurringPrice struct {
 	// Whether discount codes reduce the trial charge. Defaults to false. Only
 	// meaningful when a paid trial is configured.
 	TrialApplyDiscounts bool `json:"trial_apply_discounts" api:"nullable"`
+	// Let a customer start a free trial with no card. Defaults to false.
+	TrialPaymentMethodOptional bool `json:"trial_payment_method_optional"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
-	TrialPeriodDays int64                   `json:"trial_period_days"`
-	JSON            priceRecurringPriceJSON `json:"-"`
+	TrialPeriodDays int64 `json:"trial_period_days"`
+	// Let a customer start a subscription with no card, when the amount due today is
+	// `0` (a native `0` price, or a 100% discount). Defaults to false.
+	ZeroAmountPaymentMethodOptional bool                    `json:"zero_amount_payment_method_optional"`
+	JSON                            priceRecurringPriceJSON `json:"-"`
 }
 
 // priceRecurringPriceJSON contains the JSON metadata for the struct
 // [PriceRecurringPrice]
 type priceRecurringPriceJSON struct {
-	Currency                   apijson.Field
-	Discount                   apijson.Field
-	PaymentFrequencyCount      apijson.Field
-	PaymentFrequencyInterval   apijson.Field
-	Price                      apijson.Field
-	SubscriptionPeriodCount    apijson.Field
-	SubscriptionPeriodInterval apijson.Field
-	Type                       apijson.Field
-	PurchasingPowerParity      apijson.Field
-	TaxInclusive               apijson.Field
-	TrialAmount                apijson.Field
-	TrialApplyDiscounts        apijson.Field
-	TrialPeriodDays            apijson.Field
-	raw                        string
-	ExtraFields                map[string]apijson.Field
+	Currency                        apijson.Field
+	PaymentFrequencyCount           apijson.Field
+	PaymentFrequencyInterval        apijson.Field
+	Price                           apijson.Field
+	SubscriptionPeriodCount         apijson.Field
+	SubscriptionPeriodInterval      apijson.Field
+	Type                            apijson.Field
+	Discount                        apijson.Field
+	DiscountBps                     apijson.Field
+	PurchasingPowerParity           apijson.Field
+	TaxInclusive                    apijson.Field
+	TrialAmount                     apijson.Field
+	TrialApplyDiscounts             apijson.Field
+	TrialPaymentMethodOptional      apijson.Field
+	TrialPeriodDays                 apijson.Field
+	ZeroAmountPaymentMethodOptional apijson.Field
+	raw                             string
+	ExtraFields                     map[string]apijson.Field
 }
 
 func (r *PriceRecurringPrice) UnmarshalJSON(data []byte) (err error) {
@@ -732,8 +782,6 @@ func (r PriceRecurringPriceType) IsKnown() bool {
 type PriceUsageBasedPrice struct {
 	// The currency in which the payment is made.
 	Currency Currency `json:"currency" api:"required"`
-	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount int64 `json:"discount" api:"required"`
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	FixedPrice int64 `json:"fixed_price" api:"required"`
@@ -748,7 +796,20 @@ type PriceUsageBasedPrice struct {
 	// The time interval for the subscription period (e.g., day, month, year).
 	SubscriptionPeriodInterval TimeInterval             `json:"subscription_period_interval" api:"required"`
 	Type                       PriceUsageBasedPriceType `json:"type" api:"required"`
-	Meters                     []AddMeterToPrice        `json:"meters" api:"nullable"`
+	// Deprecated: use `discount_bps` instead.
+	//
+	// Discount applied to the price, represented as a percentage (0 to 100). A
+	// response rounds this value to the nearest whole percent. Defaults to `0`.
+	//
+	// Deprecated: deprecated
+	Discount int64 `json:"discount"`
+	// Discount applied to the price, in basis points. 100 basis points make one
+	// percent, so `1250` is a discount of 12.5%.
+	//
+	// Use this field for a discount with a fraction of a percent. A request that sends
+	// this field ignores `discount`. A value of `0` gives no discount.
+	DiscountBps int64             `json:"discount_bps" api:"nullable"`
+	Meters      []AddMeterToPrice `json:"meters" api:"nullable"`
 	// Opts this price in to purchasing power parity. The business must also enable
 	// purchasing power parity. The discount percentage per country is always
 	// business-wide. Applies to the fixed fee only, never to metered usage. Defaults
@@ -763,13 +824,14 @@ type PriceUsageBasedPrice struct {
 // [PriceUsageBasedPrice]
 type priceUsageBasedPriceJSON struct {
 	Currency                   apijson.Field
-	Discount                   apijson.Field
 	FixedPrice                 apijson.Field
 	PaymentFrequencyCount      apijson.Field
 	PaymentFrequencyInterval   apijson.Field
 	SubscriptionPeriodCount    apijson.Field
 	SubscriptionPeriodInterval apijson.Field
 	Type                       apijson.Field
+	Discount                   apijson.Field
+	DiscountBps                apijson.Field
 	Meters                     apijson.Field
 	PurchasingPowerParity      apijson.Field
 	TaxInclusive               apijson.Field
@@ -820,10 +882,21 @@ func (r PriceType) IsKnown() bool {
 // One-time price details.
 type PriceParam struct {
 	// The currency in which the payment is made.
-	Currency param.Field[Currency] `json:"currency" api:"required"`
-	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[int64]     `json:"discount" api:"required"`
+	Currency param.Field[Currency]  `json:"currency" api:"required"`
 	Type     param.Field[PriceType] `json:"type" api:"required"`
+	// Deprecated: use `discount_bps` instead.
+	//
+	// Discount applied to the price, represented as a percentage (0 to 100). A
+	// response rounds this value to the nearest whole percent. Defaults to `0`.
+	//
+	// Deprecated: deprecated
+	Discount param.Field[int64] `json:"discount"`
+	// Discount applied to the price, in basis points. 100 basis points make one
+	// percent, so `1250` is a discount of 12.5%.
+	//
+	// Use this field for a discount with a fraction of a percent. A request that sends
+	// this field ignores `discount`. A value of `0` gives no discount.
+	DiscountBps param.Field[int64] `json:"discount_bps"`
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	FixedPrice param.Field[int64]       `json:"fixed_price"`
@@ -863,8 +936,13 @@ type PriceParam struct {
 	// Whether discount codes reduce the trial charge. Defaults to false. Only
 	// meaningful when a paid trial is configured.
 	TrialApplyDiscounts param.Field[bool] `json:"trial_apply_discounts"`
+	// Let a customer start a free trial with no card. Defaults to false.
+	TrialPaymentMethodOptional param.Field[bool] `json:"trial_payment_method_optional"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
+	// Let a customer start a subscription with no card, when the amount due today is
+	// `0` (a native `0` price, or a 100% discount). Defaults to false.
+	ZeroAmountPaymentMethodOptional param.Field[bool] `json:"zero_amount_payment_method_optional"`
 }
 
 func (r PriceParam) MarshalJSON() (data []byte, err error) {
@@ -885,8 +963,6 @@ type PriceUnionParam interface {
 type PriceOneTimePriceParam struct {
 	// The currency in which the payment is made.
 	Currency param.Field[Currency] `json:"currency" api:"required"`
-	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[int64] `json:"discount" api:"required"`
 	// The payment amount, in the smallest denomination of the currency (e.g., cents
 	// for USD). For example, to charge $1.00, pass `100`.
 	//
@@ -894,6 +970,19 @@ type PriceOneTimePriceParam struct {
 	// represents the **minimum** amount the customer must pay.
 	Price param.Field[int64]                 `json:"price" api:"required"`
 	Type  param.Field[PriceOneTimePriceType] `json:"type" api:"required"`
+	// Deprecated: use `discount_bps` instead.
+	//
+	// Discount applied to the price, represented as a percentage (0 to 100). A
+	// response rounds this value to the nearest whole percent. Defaults to `0`.
+	//
+	// Deprecated: deprecated
+	Discount param.Field[int64] `json:"discount"`
+	// Discount applied to the price, in basis points. 100 basis points make one
+	// percent, so `1250` is a discount of 12.5%.
+	//
+	// Use this field for a discount with a fraction of a percent. A request that sends
+	// this field ignores `discount`. A value of `0` gives no discount.
+	DiscountBps param.Field[int64] `json:"discount_bps"`
 	// Indicates whether the customer can pay any amount they choose. If set to `true`,
 	// the [`price`](Self::price) field is the minimum amount.
 	PayWhatYouWant param.Field[bool] `json:"pay_what_you_want"`
@@ -919,8 +1008,6 @@ func (r PriceOneTimePriceParam) implementsPriceUnionParam() {}
 type PriceRecurringPriceParam struct {
 	// The currency in which the payment is made.
 	Currency param.Field[Currency] `json:"currency" api:"required"`
-	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[int64] `json:"discount" api:"required"`
 	// Number of units for the payment frequency. For example, a value of `1` with a
 	// `payment_frequency_interval` of `month` represents monthly payments.
 	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count" api:"required"`
@@ -935,6 +1022,19 @@ type PriceRecurringPriceParam struct {
 	// The time interval for the subscription period (e.g., day, month, year).
 	SubscriptionPeriodInterval param.Field[TimeInterval]            `json:"subscription_period_interval" api:"required"`
 	Type                       param.Field[PriceRecurringPriceType] `json:"type" api:"required"`
+	// Deprecated: use `discount_bps` instead.
+	//
+	// Discount applied to the price, represented as a percentage (0 to 100). A
+	// response rounds this value to the nearest whole percent. Defaults to `0`.
+	//
+	// Deprecated: deprecated
+	Discount param.Field[int64] `json:"discount"`
+	// Discount applied to the price, in basis points. 100 basis points make one
+	// percent, so `1250` is a discount of 12.5%.
+	//
+	// Use this field for a discount with a fraction of a percent. A request that sends
+	// this field ignores `discount`. A value of `0` gives no discount.
+	DiscountBps param.Field[int64] `json:"discount_bps"`
 	// Opts this price in to purchasing power parity. The business must also enable
 	// purchasing power parity. The discount percentage per country is always
 	// business-wide. Defaults to `false`.
@@ -947,8 +1047,13 @@ type PriceRecurringPriceParam struct {
 	// Whether discount codes reduce the trial charge. Defaults to false. Only
 	// meaningful when a paid trial is configured.
 	TrialApplyDiscounts param.Field[bool] `json:"trial_apply_discounts"`
+	// Let a customer start a free trial with no card. Defaults to false.
+	TrialPaymentMethodOptional param.Field[bool] `json:"trial_payment_method_optional"`
 	// Number of days for the trial period. A value of `0` indicates no trial period.
 	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
+	// Let a customer start a subscription with no card, when the amount due today is
+	// `0` (a native `0` price, or a 100% discount). Defaults to false.
+	ZeroAmountPaymentMethodOptional param.Field[bool] `json:"zero_amount_payment_method_optional"`
 }
 
 func (r PriceRecurringPriceParam) MarshalJSON() (data []byte, err error) {
@@ -961,8 +1066,6 @@ func (r PriceRecurringPriceParam) implementsPriceUnionParam() {}
 type PriceUsageBasedPriceParam struct {
 	// The currency in which the payment is made.
 	Currency param.Field[Currency] `json:"currency" api:"required"`
-	// Discount applied to the price, represented as a percentage (0 to 100).
-	Discount param.Field[int64] `json:"discount" api:"required"`
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	FixedPrice param.Field[int64] `json:"fixed_price" api:"required"`
@@ -977,7 +1080,20 @@ type PriceUsageBasedPriceParam struct {
 	// The time interval for the subscription period (e.g., day, month, year).
 	SubscriptionPeriodInterval param.Field[TimeInterval]             `json:"subscription_period_interval" api:"required"`
 	Type                       param.Field[PriceUsageBasedPriceType] `json:"type" api:"required"`
-	Meters                     param.Field[[]AddMeterToPriceParam]   `json:"meters"`
+	// Deprecated: use `discount_bps` instead.
+	//
+	// Discount applied to the price, represented as a percentage (0 to 100). A
+	// response rounds this value to the nearest whole percent. Defaults to `0`.
+	//
+	// Deprecated: deprecated
+	Discount param.Field[int64] `json:"discount"`
+	// Discount applied to the price, in basis points. 100 basis points make one
+	// percent, so `1250` is a discount of 12.5%.
+	//
+	// Use this field for a discount with a fraction of a percent. A request that sends
+	// this field ignores `discount`. A value of `0` gives no discount.
+	DiscountBps param.Field[int64]                  `json:"discount_bps"`
+	Meters      param.Field[[]AddMeterToPriceParam] `json:"meters"`
 	// Opts this price in to purchasing power parity. The business must also enable
 	// purchasing power parity. The discount percentage per country is always
 	// business-wide. Applies to the fixed fee only, never to metered usage. Defaults

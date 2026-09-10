@@ -158,6 +158,7 @@ func (r *CreditEntitlementBalanceService) ListAutoPaging(ctx context.Context, cr
 // - `reason` - Optional human-readable reason
 // - `expires_at` - Optional expiration for credited amount (only for credit type)
 // - `idempotency_key` - Optional key to prevent duplicate entries
+// - `metadata` - Optional key-value pairs
 //
 // # Responses
 //
@@ -344,9 +345,7 @@ type CreditLedgerEntry struct {
 	CreditEntitlementID string    `json:"credit_entitlement_id" api:"required"`
 	CustomerID          string    `json:"customer_id" api:"required"`
 	IsCredit            bool      `json:"is_credit" api:"required"`
-	// Metadata associated with the credit grant's source (the subscription or payment
-	// created at checkout). Empty when the grant has no resolvable source (e.g.
-	// credits granted directly via the API).
+	// Metadata associated with this entry.
 	Metadata        Metadata                         `json:"metadata" api:"required"`
 	OverageAfter    string                           `json:"overage_after" api:"required"`
 	OverageBefore   string                           `json:"overage_before" api:"required"`
@@ -467,20 +466,22 @@ func (r LedgerEntryType) IsKnown() bool {
 
 // Response for creating a ledger entry
 type CreditEntitlementBalanceNewLedgerEntryResponse struct {
-	ID                  string                                             `json:"id" api:"required"`
-	Amount              string                                             `json:"amount" api:"required"`
-	BalanceAfter        string                                             `json:"balance_after" api:"required"`
-	BalanceBefore       string                                             `json:"balance_before" api:"required"`
-	CreatedAt           time.Time                                          `json:"created_at" api:"required" format:"date-time"`
-	CreditEntitlementID string                                             `json:"credit_entitlement_id" api:"required"`
-	CustomerID          string                                             `json:"customer_id" api:"required"`
-	EntryType           LedgerEntryType                                    `json:"entry_type" api:"required"`
-	IsCredit            bool                                               `json:"is_credit" api:"required"`
-	OverageAfter        string                                             `json:"overage_after" api:"required"`
-	OverageBefore       string                                             `json:"overage_before" api:"required"`
-	GrantID             string                                             `json:"grant_id" api:"nullable"`
-	Reason              string                                             `json:"reason" api:"nullable"`
-	JSON                creditEntitlementBalanceNewLedgerEntryResponseJSON `json:"-"`
+	ID                  string          `json:"id" api:"required"`
+	Amount              string          `json:"amount" api:"required"`
+	BalanceAfter        string          `json:"balance_after" api:"required"`
+	BalanceBefore       string          `json:"balance_before" api:"required"`
+	CreatedAt           time.Time       `json:"created_at" api:"required" format:"date-time"`
+	CreditEntitlementID string          `json:"credit_entitlement_id" api:"required"`
+	CustomerID          string          `json:"customer_id" api:"required"`
+	EntryType           LedgerEntryType `json:"entry_type" api:"required"`
+	IsCredit            bool            `json:"is_credit" api:"required"`
+	// Metadata stored on this entry.
+	Metadata      Metadata                                           `json:"metadata" api:"required"`
+	OverageAfter  string                                             `json:"overage_after" api:"required"`
+	OverageBefore string                                             `json:"overage_before" api:"required"`
+	GrantID       string                                             `json:"grant_id" api:"nullable"`
+	Reason        string                                             `json:"reason" api:"nullable"`
+	JSON          creditEntitlementBalanceNewLedgerEntryResponseJSON `json:"-"`
 }
 
 // creditEntitlementBalanceNewLedgerEntryResponseJSON contains the JSON metadata
@@ -495,6 +496,7 @@ type creditEntitlementBalanceNewLedgerEntryResponseJSON struct {
 	CustomerID          apijson.Field
 	EntryType           apijson.Field
 	IsCredit            apijson.Field
+	Metadata            apijson.Field
 	OverageAfter        apijson.Field
 	OverageBefore       apijson.Field
 	GrantID             apijson.Field
@@ -610,7 +612,7 @@ type CreditEntitlementBalanceNewLedgerEntryParams struct {
 	// Idempotency key to prevent duplicate entries
 	IdempotencyKey param.Field[string] `json:"idempotency_key"`
 	// Optional metadata (max 50 key-value pairs, key max 40 chars, value max 500
-	// chars)
+	// chars).
 	Metadata param.Field[MetadataParam] `json:"metadata"`
 	// Human-readable reason for the entry
 	Reason param.Field[string] `json:"reason"`
