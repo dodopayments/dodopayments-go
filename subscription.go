@@ -566,6 +566,9 @@ type Subscription struct {
 	Currency Currency `json:"currency" api:"required"`
 	// Customer details associated with the subscription
 	Customer CustomerLimitedDetails `json:"customer" api:"required"`
+	// Whether a payment method is on file. False while a card-optional subscription
+	// waits for the customer to add one.
+	HasPaymentMethod bool `json:"has_payment_method" api:"required"`
 	// Additional custom data associated with the subscription
 	Metadata Metadata `json:"metadata" api:"required"`
 	// Meter credit entitlement cart settings for this subscription
@@ -647,6 +650,7 @@ type subscriptionJSON struct {
 	CreditEntitlementCart      apijson.Field
 	Currency                   apijson.Field
 	Customer                   apijson.Field
+	HasPaymentMethod           apijson.Field
 	Metadata                   apijson.Field
 	MeterCreditEntitlementCart apijson.Field
 	Meters                     apijson.Field
@@ -864,6 +868,9 @@ type SubscriptionNewResponse struct {
 	Metadata Metadata `json:"metadata" api:"required"`
 	// First payment id for the subscription
 	PaymentID string `json:"payment_id" api:"required"`
+	// False when the customer can start this subscription with no card. True for every
+	// other subscription.
+	PaymentMethodRequired bool `json:"payment_method_required" api:"required"`
 	// Tax will be added to the amount and charged to the customer on each billing
 	// cycle
 	RecurringPreTaxAmount int64 `json:"recurring_pre_tax_amount" api:"required"`
@@ -898,6 +905,7 @@ type subscriptionNewResponseJSON struct {
 	Customer              apijson.Field
 	Metadata              apijson.Field
 	PaymentID             apijson.Field
+	PaymentMethodRequired apijson.Field
 	RecurringPreTaxAmount apijson.Field
 	SubscriptionID        apijson.Field
 	ClientSecret          apijson.Field
@@ -956,6 +964,9 @@ type SubscriptionListResponse struct {
 	Customer CustomerLimitedDetails `json:"customer" api:"required"`
 	// All stacked discounts applied, in order of application
 	Discounts []SubscriptionListResponseDiscount `json:"discounts" api:"required"`
+	// Whether a payment method is on file. False while a card-optional subscription
+	// waits for the customer to add one.
+	HasPaymentMethod bool `json:"has_payment_method" api:"required"`
 	// Additional custom data associated with the subscription
 	Metadata Metadata `json:"metadata" api:"required"`
 	// Timestamp of the next scheduled billing. Indicates the end of current billing
@@ -1024,6 +1035,7 @@ type subscriptionListResponseJSON struct {
 	Currency                   apijson.Field
 	Customer                   apijson.Field
 	Discounts                  apijson.Field
+	HasPaymentMethod           apijson.Field
 	Metadata                   apijson.Field
 	NextBillingDate            apijson.Field
 	OnDemand                   apijson.Field
