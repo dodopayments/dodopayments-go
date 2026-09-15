@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.116.1](https://github.com/dodopayments/dodopayments-go/compare/v1.116.0...v1.116.1) (2026-09-15)
+
+
+### Chores
+
+* add Dependabot config for GitHub Actions ([02aa8dc](https://github.com/dodopayments/dodopayments-go/commit/02aa8dca07099f496fd19067bc5d9586fb423c58))
+
 ## [1.116.0](https://github.com/dodopayments/dodopayments-go/compare/v1.115.0...v1.116.0) (2026-09-10)
 
 
