@@ -131,19 +131,20 @@ func (r emailBodyJSON) RawJSON() string {
 type EmailFailureCode string
 
 const (
-	EmailFailureCodeMailboxNotFound   EmailFailureCode = "mailbox_not_found"
-	EmailFailureCodeAddressRejected   EmailFailureCode = "address_rejected"
-	EmailFailureCodeAddressSuppressed EmailFailureCode = "address_suppressed"
-	EmailFailureCodeMailboxFull       EmailFailureCode = "mailbox_full"
-	EmailFailureCodeTemporaryFailure  EmailFailureCode = "temporary_failure"
-	EmailFailureCodeMessageTooLarge   EmailFailureCode = "message_too_large"
-	EmailFailureCodeMarkedAsSpam      EmailFailureCode = "marked_as_spam"
-	EmailFailureCodeSendFailed        EmailFailureCode = "send_failed"
+	EmailFailureCodeMailboxNotFound    EmailFailureCode = "mailbox_not_found"
+	EmailFailureCodeAddressRejected    EmailFailureCode = "address_rejected"
+	EmailFailureCodeAddressSuppressed  EmailFailureCode = "address_suppressed"
+	EmailFailureCodeMailboxFull        EmailFailureCode = "mailbox_full"
+	EmailFailureCodeTemporaryFailure   EmailFailureCode = "temporary_failure"
+	EmailFailureCodeMessageTooLarge    EmailFailureCode = "message_too_large"
+	EmailFailureCodeMarkedAsSpam       EmailFailureCode = "marked_as_spam"
+	EmailFailureCodeSendFailed         EmailFailureCode = "send_failed"
+	EmailFailureCodeTestModeQuotaSpent EmailFailureCode = "test_mode_quota_spent"
 )
 
 func (r EmailFailureCode) IsKnown() bool {
 	switch r {
-	case EmailFailureCodeMailboxNotFound, EmailFailureCodeAddressRejected, EmailFailureCodeAddressSuppressed, EmailFailureCodeMailboxFull, EmailFailureCodeTemporaryFailure, EmailFailureCodeMessageTooLarge, EmailFailureCodeMarkedAsSpam, EmailFailureCodeSendFailed:
+	case EmailFailureCodeMailboxNotFound, EmailFailureCodeAddressRejected, EmailFailureCodeAddressSuppressed, EmailFailureCodeMailboxFull, EmailFailureCodeTemporaryFailure, EmailFailureCodeMessageTooLarge, EmailFailureCodeMarkedAsSpam, EmailFailureCodeSendFailed, EmailFailureCodeTestModeQuotaSpent:
 		return true
 	}
 	return false
@@ -172,9 +173,6 @@ type EmailLogItem struct {
 	FailureReason string `json:"failure_reason" api:"nullable"`
 	// The address the email was sent from.
 	From string `json:"from" api:"nullable"`
-	// What the merchant typed, when test mode redirected the send to the business
-	// owner.
-	IntendedRecipient string `json:"intended_recipient" api:"nullable"`
 	// The address the email reached.
 	Recipient string `json:"recipient" api:"nullable"`
 	// The subject line as it was sent. Empty until the provider replicates.
@@ -184,21 +182,20 @@ type EmailLogItem struct {
 
 // emailLogItemJSON contains the JSON metadata for the struct [EmailLogItem]
 type emailLogItemJSON struct {
-	Category          apijson.Field
-	CreatedAt         apijson.Field
-	EmailLogID        apijson.Field
-	EmailType         apijson.Field
-	HasPreview        apijson.Field
-	Policies          apijson.Field
-	Status            apijson.Field
-	FailureCode       apijson.Field
-	FailureReason     apijson.Field
-	From              apijson.Field
-	IntendedRecipient apijson.Field
-	Recipient         apijson.Field
-	Subject           apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
+	Category      apijson.Field
+	CreatedAt     apijson.Field
+	EmailLogID    apijson.Field
+	EmailType     apijson.Field
+	HasPreview    apijson.Field
+	Policies      apijson.Field
+	Status        apijson.Field
+	FailureCode   apijson.Field
+	FailureReason apijson.Field
+	From          apijson.Field
+	Recipient     apijson.Field
+	Subject       apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
 }
 
 func (r *EmailLogItem) UnmarshalJSON(data []byte) (err error) {
@@ -241,8 +238,11 @@ type EmailPolicies struct {
 	// How many sends are left in this email's chain.
 	ResendsRemaining int64 `json:"resends_remaining" api:"required"`
 	// The row failed and may be sent again.
-	RetryAllowed bool              `json:"retry_allowed" api:"required"`
-	JSON         emailPoliciesJSON `json:"-"`
+	RetryAllowed bool `json:"retry_allowed" api:"required"`
+	// A later send of this email reached the provider, so this row is history. To send
+	// it again would deliver a second copy.
+	Superseded bool              `json:"superseded" api:"required"`
+	JSON       emailPoliciesJSON `json:"-"`
 }
 
 // emailPoliciesJSON contains the JSON metadata for the struct [EmailPolicies]
@@ -251,6 +251,7 @@ type emailPoliciesJSON struct {
 	ResendAllowed            apijson.Field
 	ResendsRemaining         apijson.Field
 	RetryAllowed             apijson.Field
+	Superseded               apijson.Field
 	raw                      string
 	ExtraFields              map[string]apijson.Field
 }
