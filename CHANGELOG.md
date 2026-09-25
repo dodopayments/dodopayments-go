@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.118.0](https://github.com/dodopayments/dodopayments-go/compare/v1.117.0...v1.118.0) (2026-09-25)
+
+
+### Features
+
+* **api:** add moderation API and multi-subscription payments ([df72f94](https://github.com/dodopayments/dodopayments-go/commit/df72f9491fe5261dd88fa4733dc01ce72b0f1b49))
+* **api:** add moderation API and multi-subscription payments ([4b49fea](https://github.com/dodopayments/dodopayments-go/commit/4b49fea683db0ecac726e5575705c98254ff043b))
+
 ## [1.116.0](https://github.com/dodopayments/dodopayments-go/compare/v1.115.0...v1.116.0) (2026-09-10)
 
 
