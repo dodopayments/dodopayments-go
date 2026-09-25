@@ -348,9 +348,11 @@ type DiscountNewParams struct {
 	// - If omitted, a random 16-character code is generated.
 	Code param.Field[string] `json:"code"`
 	// Per-currency options (flat deduction / percentage cap + minimum subtotal).
-	// Required for `flat` codes (must include a resolvable default); optional
-	// per-currency caps for `percentage` codes. Per-row invariants are checked in
-	// `normalize_currency_options`, not via `#[validate(nested)]`.
+	// Checkout uses the row for the currency the buyer pays in. For any other currency
+	// it converts the default row. Required for `flat` codes (must include a
+	// resolvable default); optional per-currency caps for `percentage` codes. Per-row
+	// invariants are checked in `normalize_currency_options`, not via
+	// `#[validate(nested)]`.
 	CurrencyOptions param.Field[[]DiscountNewParamsCurrencyOption] `json:"currency_options"`
 	// Who may redeem this discount code. Defaults to `any` (unrestricted). `specific`
 	// starts with zero attached customers (fails closed) until customers are attached
@@ -390,10 +392,11 @@ func (r DiscountNewParams) MarshalJSON() (data []byte, err error) {
 // flat deduction for `flat` codes, or the max-discount cap for `percentage` codes.
 // Maps to the DB column of the same name.
 type DiscountNewParamsCurrencyOption struct {
-	// The currency this option applies to.
+	// The currency this option applies to. The row applies when the buyer pays in this
+	// currency.
 	Currency param.Field[Currency] `json:"currency" api:"required"`
-	// Whether this row is the default to convert from for unconfigured currencies. At
-	// most one row per discount may be default.
+	// Whether this row is the default to convert from when the buyer pays in a
+	// currency that has no row. At most one row per discount may be default.
 	IsDefault param.Field[bool] `json:"is_default"`
 	// The most this code discounts in this currency's subunits. For `flat` codes this
 	// is the deduction; for `percentage` codes it is the max-discount cap. Must be > 0
@@ -477,10 +480,11 @@ func (r DiscountUpdateParams) MarshalJSON() (data []byte, err error) {
 // flat deduction for `flat` codes, or the max-discount cap for `percentage` codes.
 // Maps to the DB column of the same name.
 type DiscountUpdateParamsCurrencyOption struct {
-	// The currency this option applies to.
+	// The currency this option applies to. The row applies when the buyer pays in this
+	// currency.
 	Currency param.Field[Currency] `json:"currency" api:"required"`
-	// Whether this row is the default to convert from for unconfigured currencies. At
-	// most one row per discount may be default.
+	// Whether this row is the default to convert from when the buyer pays in a
+	// currency that has no row. At most one row per discount may be default.
 	IsDefault param.Field[bool] `json:"is_default"`
 	// The most this code discounts in this currency's subunits. For `flat` codes this
 	// is the deduction; for `percentage` codes it is the max-discount cap. Must be > 0

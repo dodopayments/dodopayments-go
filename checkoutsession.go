@@ -166,6 +166,11 @@ type CheckoutSessionFlagsParam struct {
 	//
 	// Default is false
 	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`
+	// If true, the customer must give the name on the card to pay by card. The
+	// checkout page enforces this. Other payment methods ignore it.
+	//
+	// Default is false
+	RequireCardholderName param.Field[bool] `json:"require_cardholder_name"`
 	// If true, the customer must provide a phone number to complete checkout. Requires
 	// `allow_phone_number_collection` to also be true.
 	//
@@ -196,6 +201,9 @@ func (r CheckoutSessionFlagsParam) MarshalJSON() (data []byte, err error) {
 }
 
 type CheckoutSessionRequestParam struct {
+	// The products of the checkout. A cart holds at most 20 of them, one-time and
+	// subscription products together. An empty cart is valid for the
+	// product-collection flow, where the customer chooses the product later.
 	ProductCart param.Field[[]ProductItemReqParam] `json:"product_cart" api:"required"`
 	// Customers will never see payment methods that are not in this list. However,
 	// adding a method here does not guarantee customers will see it. Availability
@@ -579,10 +587,15 @@ type CheckoutSessionPreviewResponse struct {
 	// The upcoming billing date for subscriptions, computed relative to now: with a
 	// trial it is `now + trial_period_days`, otherwise `now + payment frequency`.
 	// `None` for one-time-only carts. This is a preview estimate; the authoritative
-	// value is set when the subscription activates.
+	// value is set when the subscription activates. For a cart of more than one
+	// subscription, this is the earliest date of the cart. `subscriptions` gives the
+	// date of each subscription.
 	NextBillingDate time.Time `json:"next_billing_date" api:"nullable" format:"date-time"`
 	// Breakup of recurring payments (None for one-time only)
 	RecurringBreakup CheckoutSessionPreviewResponseRecurringBreakup `json:"recurring_breakup" api:"nullable"`
+	// One entry for each subscription of a cart that holds more than one. Each
+	// subscription renews on its own schedule, so the checkout shows each one here.
+	Subscriptions []CheckoutSessionPreviewResponseSubscription `json:"subscriptions" api:"nullable"`
 	// Registered business name from the official registry (EU/GB/AU) when found
 	TaxIDBusinessName string `json:"tax_id_business_name" api:"nullable"`
 	// Error message if tax ID validation failed
@@ -593,10 +606,13 @@ type CheckoutSessionPreviewResponse struct {
 	TotalTax int64 `json:"total_tax" api:"nullable"`
 	// Per-unit trial amount after discounts, in the price currency's minor units
 	// (pre-quantity, pre-tax; see `current_breakup` for the taxed total due today).
-	// Only present for a paid trial; `None` for a free trial or no trial.
+	// Only present for a paid trial; `None` for a free trial or no trial. Always
+	// `None` for a cart of more than one subscription.
 	TrialAmount int64 `json:"trial_amount" api:"nullable"`
 	// Effective trial duration in days for the subscription line, when there's a trial
-	// (free or paid). `None` if no subscription or no trial.
+	// (free or paid). `None` if no subscription or no trial. Always `None` for a cart
+	// of more than one subscription. Read the trial of each subscription from
+	// `subscriptions`.
 	TrialPeriodDays int64                              `json:"trial_period_days" api:"nullable"`
 	JSON            checkoutSessionPreviewResponseJSON `json:"-"`
 }
@@ -613,6 +629,7 @@ type checkoutSessionPreviewResponseJSON struct {
 	TotalPrice            apijson.Field
 	NextBillingDate       apijson.Field
 	RecurringBreakup      apijson.Field
+	Subscriptions         apijson.Field
 	TaxIDBusinessName     apijson.Field
 	TaxIDErrMsg           apijson.Field
 	TaxIDFormatName       apijson.Field
@@ -883,6 +900,48 @@ func (r *CheckoutSessionPreviewResponseRecurringBreakup) UnmarshalJSON(data []by
 }
 
 func (r checkoutSessionPreviewResponseRecurringBreakupJSON) RawJSON() string {
+	return r.raw
+}
+
+// The quote of one subscription in a cart of several.
+type CheckoutSessionPreviewResponseSubscription struct {
+	// The amount this subscription charges today, including tax.
+	AmountDueNow int64 `json:"amount_due_now" api:"required"`
+	// The subscription product.
+	ProductID string `json:"product_id" api:"required"`
+	// The amount of each renewal, including tax.
+	RecurringAmount int64 `json:"recurring_amount" api:"required"`
+	// A preview of the first renewal date. The date is set when the subscription
+	// activates.
+	NextBillingDate time.Time `json:"next_billing_date" api:"nullable" format:"date-time"`
+	// The tax in `recurring_amount`.
+	RecurringTax int64 `json:"recurring_tax" api:"nullable"`
+	// The tax in `amount_due_now`.
+	TaxDueNow int64 `json:"tax_due_now" api:"nullable"`
+	// The trial duration in days. `None` when the subscription has no trial.
+	TrialPeriodDays int64                                          `json:"trial_period_days" api:"nullable"`
+	JSON            checkoutSessionPreviewResponseSubscriptionJSON `json:"-"`
+}
+
+// checkoutSessionPreviewResponseSubscriptionJSON contains the JSON metadata for
+// the struct [CheckoutSessionPreviewResponseSubscription]
+type checkoutSessionPreviewResponseSubscriptionJSON struct {
+	AmountDueNow    apijson.Field
+	ProductID       apijson.Field
+	RecurringAmount apijson.Field
+	NextBillingDate apijson.Field
+	RecurringTax    apijson.Field
+	TaxDueNow       apijson.Field
+	TrialPeriodDays apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *CheckoutSessionPreviewResponseSubscription) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r checkoutSessionPreviewResponseSubscriptionJSON) RawJSON() string {
 	return r.raw
 }
 
