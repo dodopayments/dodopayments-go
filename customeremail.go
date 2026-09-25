@@ -173,7 +173,8 @@ type EmailLogItem struct {
 	FailureReason string `json:"failure_reason" api:"nullable"`
 	// The address the email was sent from.
 	From string `json:"from" api:"nullable"`
-	// The address the email reached.
+	// The address the email went to. On a failed email this is the address the
+	// provider reports as bounced.
 	Recipient string `json:"recipient" api:"nullable"`
 	// The subject line as it was sent. Empty until the provider replicates.
 	Subject string           `json:"subject" api:"nullable"`
@@ -239,8 +240,9 @@ type EmailPolicies struct {
 	ResendsRemaining int64 `json:"resends_remaining" api:"required"`
 	// The row failed and may be sent again.
 	RetryAllowed bool `json:"retry_allowed" api:"required"`
-	// A later send of this email reached the provider, so this row is history. To send
-	// it again would deliver a second copy.
+	// A later send of this email replaced this row, so this row is history. A row that
+	// never went out needs a later send that reached the provider. A failed row needs
+	// a later send that was delivered.
 	Superseded bool              `json:"superseded" api:"required"`
 	JSON       emailPoliciesJSON `json:"-"`
 }

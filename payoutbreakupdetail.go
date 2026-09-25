@@ -38,10 +38,10 @@ func NewPayoutBreakupDetailService(opts ...option.RequestOption) (r *PayoutBreak
 	return
 }
 
-// Returns paginated individual balance ledger entries for a payout, with each
-// entry's amount pro-rated into the payout's currency. Supports pagination via
-// `page_size` (default 10, max 100) and `page_number` (default 0) query
-// parameters.
+// Returns paginated individual balance ledger entries for a payout. Each entry is
+// converted into the payout's currency at the rate the payout settled at. Supports
+// pagination via `page_size` (default 10, max 100) and `page_number` (default 0)
+// query parameters.
 func (r *PayoutBreakupDetailService) List(ctx context.Context, payoutID string, query PayoutBreakupDetailListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[PayoutBreakupDetailListResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -63,10 +63,10 @@ func (r *PayoutBreakupDetailService) List(ctx context.Context, payoutID string, 
 	return res, nil
 }
 
-// Returns paginated individual balance ledger entries for a payout, with each
-// entry's amount pro-rated into the payout's currency. Supports pagination via
-// `page_size` (default 10, max 100) and `page_number` (default 0) query
-// parameters.
+// Returns paginated individual balance ledger entries for a payout. Each entry is
+// converted into the payout's currency at the rate the payout settled at. Supports
+// pagination via `page_size` (default 10, max 100) and `page_number` (default 0)
+// query parameters.
 func (r *PayoutBreakupDetailService) ListAutoPaging(ctx context.Context, payoutID string, query PayoutBreakupDetailListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[PayoutBreakupDetailListResponse] {
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, payoutID, query, opts...))
 }
@@ -87,8 +87,8 @@ func (r *PayoutBreakupDetailService) DownloadCsv(ctx context.Context, payoutID s
 	return err
 }
 
-// Individual balance ledger entry for a payout, with amounts pro-rated into the
-// payout's currency.
+// Individual balance ledger entry for a payout, converted into the payout's
+// currency.
 type PayoutBreakupDetailListResponse struct {
 	// Unique identifier of the balance ledger entry.
 	ID string `json:"id" api:"required"`
@@ -103,8 +103,9 @@ type PayoutBreakupDetailListResponse struct {
 	// Original currency as ISO 4217 code (e.g., "USD", "EUR").
 	OriginalCurrency string `json:"original_currency" api:"required"`
 	// Amount in the payout's currency, in that currency's smallest unit (cents for
-	// USD, yen for JPY, fils for KWD). Uses cumulative rounding to ensure sum matches
-	// payout total exactly.
+	// USD, yen for JPY, fils for KWD). The entry is converted at the rate the payout
+	// settled at. These amounts sum to the value of the entries, which can be less
+	// than the payout: the grouped breakup reports the difference as `unattributed`.
 	PayoutCurrencyAmount int64 `json:"payout_currency_amount" api:"required"`
 	// USD equivalent of the original amount (in cents).
 	UsdEquivalentAmount int64 `json:"usd_equivalent_amount" api:"required"`
