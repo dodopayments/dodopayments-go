@@ -43,6 +43,7 @@ type Client struct {
 	CreditEntitlements  *CreditEntitlementService
 	Entitlements        *EntitlementService
 	ProductCollections  *ProductCollectionService
+	Moderation          *ModerationService
 }
 
 // DefaultClientOptions read from the environment (DODO_PAYMENTS_API_KEY,
@@ -105,6 +106,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.CreditEntitlements = NewCreditEntitlementService(opts...)
 	r.Entitlements = NewEntitlementService(opts...)
 	r.ProductCollections = NewProductCollectionService(opts...)
+	r.Moderation = NewModerationService(opts...)
 
 	return
 }

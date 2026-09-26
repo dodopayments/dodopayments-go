@@ -426,6 +426,10 @@ type Payment struct {
 	DigitalProductsDelivered bool `json:"digital_products_delivered" api:"required"`
 	// List of disputes associated with this payment
 	Disputes []Dispute `json:"disputes" api:"required"`
+	// True when one payment starts more than one subscription. Read this field to find
+	// the payment type. Do not read the length of `subscription_ids`. Do not read
+	// `subscription_id` for null.
+	IsMultiSubscription bool `json:"is_multi_subscription" api:"required"`
 	// Whether this payment was created solely to update a subscription's payment
 	// method (a zero-/setup-amount charge). `false` for normal charges.
 	IsUpdatePaymentMethod bool `json:"is_update_payment_method" api:"required"`
@@ -450,6 +454,10 @@ type Payment struct {
 	// balance. This may differ from the customer's payment currency in adaptive
 	// pricing scenarios.
 	SettlementCurrency Currency `json:"settlement_currency" api:"required"`
+	// Every subscription that this payment starts or charges, in a stable order. It is
+	// empty for a one-time payment. It holds the value of `subscription_id` when the
+	// payment names one subscription.
+	SubscriptionIDs []string `json:"subscription_ids" api:"required"`
 	// Total amount charged to the customer including tax, in the currency's smallest
 	// unit (e.g. cents for USD, yen for JPY, fils for KWD — see the currency's decimal
 	// places)
@@ -504,7 +512,9 @@ type Payment struct {
 	SettlementTax int64 `json:"settlement_tax" api:"nullable"`
 	// Current status of the payment intent
 	Status IntentStatus `json:"status" api:"nullable"`
-	// Identifier of the subscription if payment is part of a subscription
+	// Identifier of the subscription if payment is part of a subscription. A
+	// multi-subscription payment leaves this null, because no single subscription owns
+	// the payment. Read `subscription_ids` for those.
 	SubscriptionID string `json:"subscription_id" api:"nullable"`
 	// Amount of tax collected in the currency's smallest unit (e.g. cents for USD, yen
 	// for JPY, fils for KWD)
@@ -524,6 +534,7 @@ type paymentJSON struct {
 	Customer                 apijson.Field
 	DigitalProductsDelivered apijson.Field
 	Disputes                 apijson.Field
+	IsMultiSubscription      apijson.Field
 	IsUpdatePaymentMethod    apijson.Field
 	Metadata                 apijson.Field
 	PaymentID                apijson.Field
@@ -532,6 +543,7 @@ type paymentJSON struct {
 	RetryAttempt             apijson.Field
 	SettlementAmount         apijson.Field
 	SettlementCurrency       apijson.Field
+	SubscriptionIDs          apijson.Field
 	TotalAmount              apijson.Field
 	CardHolderName           apijson.Field
 	CardIssuingCountry       apijson.Field
@@ -852,13 +864,21 @@ type PaymentListResponse struct {
 	Customer                 CustomerLimitedDetails `json:"customer" api:"required"`
 	DigitalProductsDelivered bool                   `json:"digital_products_delivered" api:"required"`
 	HasLicenseKey            bool                   `json:"has_license_key" api:"required"`
+	// True when one payment starts more than one subscription. Read this field to find
+	// the payment type. Do not read the length of `subscription_ids`. Do not read
+	// `subscription_id` for null.
+	IsMultiSubscription bool `json:"is_multi_subscription" api:"required"`
 	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
 	Metadata  Metadata `json:"metadata" api:"required"`
 	PaymentID string   `json:"payment_id" api:"required"`
 	// Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
 	// merchant's own payment connector); `dodo` for everything Dodo processed itself.
 	PaymentProvider PaymentListResponsePaymentProvider `json:"payment_provider" api:"required"`
-	TotalAmount     int64                              `json:"total_amount" api:"required"`
+	// Every subscription that this payment starts or charges, in a stable order. It is
+	// empty for a one-time payment. It holds the value of `subscription_id` when the
+	// payment names one subscription.
+	SubscriptionIDs []string `json:"subscription_ids" api:"required"`
+	TotalAmount     int64    `json:"total_amount" api:"required"`
 	// The last four digits of the card
 	CardLastFour string `json:"card_last_four" api:"nullable"`
 	// Card network like VISA, MASTERCARD etc.
@@ -888,9 +908,11 @@ type paymentListResponseJSON struct {
 	Customer                 apijson.Field
 	DigitalProductsDelivered apijson.Field
 	HasLicenseKey            apijson.Field
+	IsMultiSubscription      apijson.Field
 	Metadata                 apijson.Field
 	PaymentID                apijson.Field
 	PaymentProvider          apijson.Field
+	SubscriptionIDs          apijson.Field
 	TotalAmount              apijson.Field
 	CardLastFour             apijson.Field
 	CardNetwork              apijson.Field
