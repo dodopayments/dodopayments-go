@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.119.0](https://github.com/dodopayments/dodopayments-go/compare/v1.118.0...v1.119.0) (2026-10-05)
+
+
+### Features
+
+* **api:** refund network references and subscription cancelled_by ([bf1de72](https://github.com/dodopayments/dodopayments-go/commit/bf1de724ac732369977be04555558aad7ac25672))
+* **api:** refund network references and subscription cancelled_by ([cc226a1](https://github.com/dodopayments/dodopayments-go/commit/cc226a151d9ed978048254ff36aa14699f535066))
+
 ## [1.118.0](https://github.com/dodopayments/dodopayments-go/compare/v1.117.0...v1.118.0) (2026-09-25)
 
 
