@@ -775,6 +775,12 @@ type RefundListItem struct {
 	Amount int64 `json:"amount" api:"nullable"`
 	// The currency of the refund, represented as an ISO 4217 currency code.
 	Currency Currency `json:"currency" api:"nullable"`
+	// The reference number that the card network or the bank gives to the refund. The
+	// customer can give this number to their bank to trace the refund. It is null
+	// until the payment processor sends it.
+	NetworkReference string `json:"network_reference" api:"nullable"`
+	// The kind of `network_reference`: ARN, STAN or RRN.
+	NetworkReferenceType RefundNetworkReferenceType `json:"network_reference_type" api:"nullable"`
 	// The reason provided for the refund, if any. Optional.
 	Reason string             `json:"reason" api:"nullable"`
 	JSON   refundListItemJSON `json:"-"`
@@ -782,17 +788,19 @@ type RefundListItem struct {
 
 // refundListItemJSON contains the JSON metadata for the struct [RefundListItem]
 type refundListItemJSON struct {
-	BusinessID  apijson.Field
-	CreatedAt   apijson.Field
-	IsPartial   apijson.Field
-	PaymentID   apijson.Field
-	RefundID    apijson.Field
-	Status      apijson.Field
-	Amount      apijson.Field
-	Currency    apijson.Field
-	Reason      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	BusinessID           apijson.Field
+	CreatedAt            apijson.Field
+	IsPartial            apijson.Field
+	PaymentID            apijson.Field
+	RefundID             apijson.Field
+	Status               apijson.Field
+	Amount               apijson.Field
+	Currency             apijson.Field
+	NetworkReference     apijson.Field
+	NetworkReferenceType apijson.Field
+	Reason               apijson.Field
+	raw                  string
+	ExtraFields          map[string]apijson.Field
 }
 
 func (r *RefundListItem) UnmarshalJSON(data []byte) (err error) {

@@ -611,6 +611,9 @@ type Subscription struct {
 	CancellationFeedback CancellationFeedback `json:"cancellation_feedback" api:"nullable"`
 	// Cancelled timestamp if the subscription is cancelled
 	CancelledAt time.Time `json:"cancelled_at" api:"nullable" format:"date-time"`
+	// The caller that cancelled the subscription or scheduled its cancel. `null` when
+	// no caller is known, for example when the system cancelled the subscription.
+	CancelledBy SubscriptionCancelledBy `json:"cancelled_by" api:"nullable"`
 	// Customer's responses to custom fields collected during checkout
 	CustomFieldResponses []CustomFieldResponse `json:"custom_field_responses" api:"nullable"`
 	// Business / legal name associated with the tax id (B2B). When set this is used on
@@ -671,6 +674,7 @@ type subscriptionJSON struct {
 	CancellationComment        apijson.Field
 	CancellationFeedback       apijson.Field
 	CancelledAt                apijson.Field
+	CancelledBy                apijson.Field
 	CustomFieldResponses       apijson.Field
 	CustomerBusinessName       apijson.Field
 	DiscountCyclesRemaining    apijson.Field
@@ -692,6 +696,55 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 
 func (r subscriptionJSON) RawJSON() string {
 	return r.raw
+}
+
+// The caller that cancelled a subscription or scheduled its cancel.
+type SubscriptionCancelledBy struct {
+	// The kind of caller.
+	ActorType SubscriptionCancelledByActorType `json:"actor_type" api:"required"`
+	// Email of the customer or of the dashboard user. `null` for an API key or the
+	// Dodo Payments team.
+	Email string `json:"email" api:"nullable"`
+	// Name of the customer or of the dashboard user. `null` for an API key or the Dodo
+	// Payments team.
+	Name string                      `json:"name" api:"nullable"`
+	JSON subscriptionCancelledByJSON `json:"-"`
+}
+
+// subscriptionCancelledByJSON contains the JSON metadata for the struct
+// [SubscriptionCancelledBy]
+type subscriptionCancelledByJSON struct {
+	ActorType   apijson.Field
+	Email       apijson.Field
+	Name        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SubscriptionCancelledBy) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionCancelledByJSON) RawJSON() string {
+	return r.raw
+}
+
+// The kind of caller.
+type SubscriptionCancelledByActorType string
+
+const (
+	SubscriptionCancelledByActorTypeCustomer     SubscriptionCancelledByActorType = "customer"
+	SubscriptionCancelledByActorTypeMerchantUser SubscriptionCancelledByActorType = "merchant_user"
+	SubscriptionCancelledByActorTypeAPIKey       SubscriptionCancelledByActorType = "api_key"
+	SubscriptionCancelledByActorTypeDodoTeam     SubscriptionCancelledByActorType = "dodo_team"
+)
+
+func (r SubscriptionCancelledByActorType) IsKnown() bool {
+	switch r {
+	case SubscriptionCancelledByActorTypeCustomer, SubscriptionCancelledByActorTypeMerchantUser, SubscriptionCancelledByActorTypeAPIKey, SubscriptionCancelledByActorTypeDodoTeam:
+		return true
+	}
+	return false
 }
 
 type SubscriptionStatus string
@@ -1001,6 +1054,9 @@ type SubscriptionListResponse struct {
 	TrialPeriodDays int64 `json:"trial_period_days" api:"required"`
 	// Cancelled timestamp if the subscription is cancelled
 	CancelledAt time.Time `json:"cancelled_at" api:"nullable" format:"date-time"`
+	// The caller that cancelled the subscription or scheduled its cancel. `null` when
+	// no caller is known, for example when the system cancelled the subscription.
+	CancelledBy SubscriptionCancelledBy `json:"cancelled_by" api:"nullable"`
 	// Business / legal name associated with the tax id (B2B). When set this is used on
 	// the invoice in place of the customer's personal name.
 	CustomerBusinessName string `json:"customer_business_name" api:"nullable"`
@@ -1052,6 +1108,7 @@ type subscriptionListResponseJSON struct {
 	TaxInclusive               apijson.Field
 	TrialPeriodDays            apijson.Field
 	CancelledAt                apijson.Field
+	CancelledBy                apijson.Field
 	CustomerBusinessName       apijson.Field
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
@@ -1518,33 +1575,39 @@ func (r SubscriptionPreviewChangePlanResponseImmediateChargeLineItemsType) IsKno
 
 type SubscriptionPreviewChangePlanResponseImmediateChargeSummary struct {
 	Currency Currency `json:"currency" api:"required"`
-	// Net credit movement in the smallest currency unit (e.g. cents). **Negative** –
-	// credits were deducted from the customer's balance to offset the charge (typical
-	// on upgrades). **Positive** – credits were added to the customer's balance,
-	// either from a downgrade proration refund or from topping-up the wallet to meet a
-	// gateway minimum-charge threshold. **Zero** – no credit movement occurred.
-	CustomerCredits    int64                                                           `json:"customer_credits" api:"required"`
-	SettlementAmount   int64                                                           `json:"settlement_amount" api:"required"`
-	SettlementCurrency Currency                                                        `json:"settlement_currency" api:"required"`
-	TotalAmount        int64                                                           `json:"total_amount" api:"required"`
-	SettlementTax      int64                                                           `json:"settlement_tax" api:"nullable"`
-	Tax                int64                                                           `json:"tax" api:"nullable"`
-	JSON               subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON `json:"-"`
+	// Net credit movement in the smallest unit of `customer_credits_currency` (e.g.
+	// cents). Read `customer_credits_currency` for the currency. It can differ from
+	// `currency`. **Negative** – credits were deducted from the customer's balance to
+	// offset the charge (typical on upgrades). **Positive** – credits were added to
+	// the customer's balance, either from a downgrade proration refund or from
+	// topping-up the wallet to meet a gateway minimum-charge threshold. **Zero** – no
+	// credit movement occurred.
+	CustomerCredits int64 `json:"customer_credits" api:"required"`
+	// This field gives the currency of `customer_credits`. The credit wallet uses the
+	// subscription currency.
+	CustomerCreditsCurrency Currency                                                        `json:"customer_credits_currency" api:"required"`
+	SettlementAmount        int64                                                           `json:"settlement_amount" api:"required"`
+	SettlementCurrency      Currency                                                        `json:"settlement_currency" api:"required"`
+	TotalAmount             int64                                                           `json:"total_amount" api:"required"`
+	SettlementTax           int64                                                           `json:"settlement_tax" api:"nullable"`
+	Tax                     int64                                                           `json:"tax" api:"nullable"`
+	JSON                    subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON `json:"-"`
 }
 
 // subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON contains the
 // JSON metadata for the struct
 // [SubscriptionPreviewChangePlanResponseImmediateChargeSummary]
 type subscriptionPreviewChangePlanResponseImmediateChargeSummaryJSON struct {
-	Currency           apijson.Field
-	CustomerCredits    apijson.Field
-	SettlementAmount   apijson.Field
-	SettlementCurrency apijson.Field
-	TotalAmount        apijson.Field
-	SettlementTax      apijson.Field
-	Tax                apijson.Field
-	raw                string
-	ExtraFields        map[string]apijson.Field
+	Currency                apijson.Field
+	CustomerCredits         apijson.Field
+	CustomerCreditsCurrency apijson.Field
+	SettlementAmount        apijson.Field
+	SettlementCurrency      apijson.Field
+	TotalAmount             apijson.Field
+	SettlementTax           apijson.Field
+	Tax                     apijson.Field
+	raw                     string
+	ExtraFields             map[string]apijson.Field
 }
 
 func (r *SubscriptionPreviewChangePlanResponseImmediateChargeSummary) UnmarshalJSON(data []byte) (err error) {
