@@ -100,6 +100,12 @@ type Refund struct {
 	Amount int64 `json:"amount" api:"nullable"`
 	// The currency of the refund, represented as an ISO 4217 currency code.
 	Currency Currency `json:"currency" api:"nullable"`
+	// The reference number that the card network or the bank gives to the refund. The
+	// customer can give this number to their bank to trace the refund. It is null
+	// until the payment processor sends it.
+	NetworkReference string `json:"network_reference" api:"nullable"`
+	// The kind of `network_reference`: ARN, STAN or RRN.
+	NetworkReferenceType RefundNetworkReferenceType `json:"network_reference_type" api:"nullable"`
 	// The reason provided for the refund, if any. Optional.
 	Reason string     `json:"reason" api:"nullable"`
 	JSON   refundJSON `json:"-"`
@@ -107,20 +113,22 @@ type Refund struct {
 
 // refundJSON contains the JSON metadata for the struct [Refund]
 type refundJSON struct {
-	BrandID     apijson.Field
-	BusinessID  apijson.Field
-	CreatedAt   apijson.Field
-	Customer    apijson.Field
-	IsPartial   apijson.Field
-	Metadata    apijson.Field
-	PaymentID   apijson.Field
-	RefundID    apijson.Field
-	Status      apijson.Field
-	Amount      apijson.Field
-	Currency    apijson.Field
-	Reason      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	BrandID              apijson.Field
+	BusinessID           apijson.Field
+	CreatedAt            apijson.Field
+	Customer             apijson.Field
+	IsPartial            apijson.Field
+	Metadata             apijson.Field
+	PaymentID            apijson.Field
+	RefundID             apijson.Field
+	Status               apijson.Field
+	Amount               apijson.Field
+	Currency             apijson.Field
+	NetworkReference     apijson.Field
+	NetworkReferenceType apijson.Field
+	Reason               apijson.Field
+	raw                  string
+	ExtraFields          map[string]apijson.Field
 }
 
 func (r *Refund) UnmarshalJSON(data []byte) (err error) {
@@ -129,6 +137,25 @@ func (r *Refund) UnmarshalJSON(data []byte) (err error) {
 
 func (r refundJSON) RawJSON() string {
 	return r.raw
+}
+
+// The kind of reference number that the card network or the bank gives to a
+// refund.
+type RefundNetworkReferenceType string
+
+const (
+	RefundNetworkReferenceTypeAcquirerReferenceNumber  RefundNetworkReferenceType = "acquirer_reference_number"
+	RefundNetworkReferenceTypeSystemTraceAuditNumber   RefundNetworkReferenceType = "system_trace_audit_number"
+	RefundNetworkReferenceTypeRetrievalReferenceNumber RefundNetworkReferenceType = "retrieval_reference_number"
+	RefundNetworkReferenceTypeOther                    RefundNetworkReferenceType = "other"
+)
+
+func (r RefundNetworkReferenceType) IsKnown() bool {
+	switch r {
+	case RefundNetworkReferenceTypeAcquirerReferenceNumber, RefundNetworkReferenceTypeSystemTraceAuditNumber, RefundNetworkReferenceTypeRetrievalReferenceNumber, RefundNetworkReferenceTypeOther:
+		return true
+	}
+	return false
 }
 
 type RefundStatus string

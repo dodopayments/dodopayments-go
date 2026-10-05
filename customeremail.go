@@ -232,7 +232,8 @@ func (r EmailLogStatus) IsKnown() bool {
 // What the merchant may do with one row. The server decides; the client never
 // derives eligibility itself.
 type EmailPolicies struct {
-	// A permanent failure was recorded, so the same address would be a no-op.
+	// A permanent failure was recorded, so a send to the same address delivers
+	// nothing. It is false for a suppressed address that a resend can clear.
 	RequiresDifferentAddress bool `json:"requires_different_address" api:"required"`
 	// The row was delivered and may be sent again.
 	ResendAllowed bool `json:"resend_allowed" api:"required"`
