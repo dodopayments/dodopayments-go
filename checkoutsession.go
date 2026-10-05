@@ -166,8 +166,10 @@ type CheckoutSessionFlagsParam struct {
 	//
 	// Default is false
 	RedirectImmediately param.Field[bool] `json:"redirect_immediately"`
-	// If true, the customer must give the name on the card to pay by card. The
-	// checkout page enforces this. Other payment methods ignore it.
+	// If true, the customer must give the name on the card to pay by card. Apple Pay
+	// and Google Pay also collect the payer name, and the payment stores it as the
+	// card holder name. The checkout page enforces this. Other payment methods ignore
+	// it.
 	//
 	// Default is false
 	RequireCardholderName param.Field[bool] `json:"require_cardholder_name"`
@@ -214,7 +216,14 @@ type CheckoutSessionRequestParam struct {
 	AllowedPaymentMethodTypes param.Field[[]PaymentMethodTypes] `json:"allowed_payment_method_types"`
 	// Billing address information for the session
 	BillingAddress param.Field[CheckoutSessionBillingAddressParam] `json:"billing_address"`
-	// This field is ingored if adaptive pricing is disabled
+	// The currency to charge the customer in.
+	//
+	// Adaptive pricing must be enabled for the business. The customer then pays in
+	// this currency. If you do not set it, the currency comes from the billing
+	// country.
+	//
+	// If adaptive pricing is disabled, the API discards this field. The currency then
+	// comes from the product price, or from the billing country.
 	BillingCurrency param.Field[Currency] `json:"billing_currency"`
 	// The URL to redirect the customer if they cancel or go back from the checkout. If
 	// not provided, the back button will not be displayed.
@@ -255,6 +264,9 @@ type CheckoutSessionRequestParam struct {
 	Metadata param.Field[MetadataParam] `json:"metadata"`
 	// If true, only zipcode is required when confirm is true; other address fields
 	// remain optional
+	//
+	// Default is true when `feature_flags.single_page` is true. Otherwise, default is
+	// false.
 	MinimalAddress param.Field[bool] `json:"minimal_address"`
 	// Optional payment method ID to use for this checkout session. Only allowed when
 	// `confirm` is true. If provided, existing customer id must also be provided.
