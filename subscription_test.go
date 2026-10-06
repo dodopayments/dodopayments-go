@@ -251,6 +251,7 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 					AddonID:  dodopayments.F("addon_id"),
 					Quantity: dodopayments.F(int64(0)),
 				}}),
+				CancelOlderPaymentLink:    dodopayments.F(true),
 				CancelScheduledChangePlan: dodopayments.F(true),
 				CollectViaPaymentLink:     dodopayments.F(true),
 				DiscountCode:              dodopayments.F("discount_code"),
@@ -260,6 +261,7 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 					"foo": shared.UnionString("string"),
 				}),
 				OnPaymentFailure: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqOnPaymentFailurePreventChange),
+				ReturnURL:        dodopayments.F("return_url"),
 			},
 		},
 	)
@@ -335,6 +337,7 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 					AddonID:  dodopayments.F("addon_id"),
 					Quantity: dodopayments.F(int64(0)),
 				}}),
+				CancelOlderPaymentLink:    dodopayments.F(true),
 				CancelScheduledChangePlan: dodopayments.F(true),
 				CollectViaPaymentLink:     dodopayments.F(true),
 				DiscountCode:              dodopayments.F("discount_code"),
@@ -344,6 +347,7 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 					"foo": shared.UnionString("string"),
 				}),
 				OnPaymentFailure: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqOnPaymentFailurePreventChange),
+				ReturnURL:        dodopayments.F("return_url"),
 			},
 		},
 	)
