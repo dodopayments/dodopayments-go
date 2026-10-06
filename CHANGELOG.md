@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.120.0](https://github.com/dodopayments/dodopayments-go/compare/v1.119.0...v1.120.0) (2026-10-06)
+
+
+### Features
+
+* **api:** change-plan cancel_older_payment_link and return_url ([e2e834c](https://github.com/dodopayments/dodopayments-go/commit/e2e834cea4ef0e24768b0c742f0fe1867c67485e))
+* **api:** change-plan cancel_older_payment_link and return_url ([034ffa4](https://github.com/dodopayments/dodopayments-go/commit/034ffa41baa9649e7c974b577e8037bcbdcc92f6))
+
 ## [1.119.0](https://github.com/dodopayments/dodopayments-go/compare/v1.118.0...v1.119.0) (2026-10-05)
 
 
