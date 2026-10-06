@@ -102,7 +102,7 @@ type Refund struct {
 	Currency Currency `json:"currency" api:"nullable"`
 	// The reference number that the card network or the bank gives to the refund. The
 	// customer can give this number to their bank to trace the refund. It is null
-	// until the payment processor sends it.
+	// until the reference is available.
 	NetworkReference string `json:"network_reference" api:"nullable"`
 	// The kind of `network_reference`: ARN, STAN or RRN.
 	NetworkReferenceType RefundNetworkReferenceType `json:"network_reference_type" api:"nullable"`
