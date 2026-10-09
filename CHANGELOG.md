@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.120.1](https://github.com/dodopayments/dodopayments-go/compare/v1.120.0...v1.120.1) (2026-10-09)
+
+
+### Bug Fixes
+
+* **deps:** refresh generated SDK dependencies and CI action pins ([54e96db](https://github.com/dodopayments/dodopayments-go/commit/54e96dbc75dd7e2de5325f5bf92cfcc2d0758570))
+* **deps:** refresh generated SDK dependencies and CI action pins ([8c22b33](https://github.com/dodopayments/dodopayments-go/commit/8c22b3383d9ead8b8b7b1003635ac01918f16692))
+
 ## [1.120.0](https://github.com/dodopayments/dodopayments-go/compare/v1.119.0...v1.120.0) (2026-10-06)
 
 
