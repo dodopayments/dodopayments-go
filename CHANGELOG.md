@@ -1,13 +1,5 @@
 # Changelog
 
-## [1.120.2](https://github.com/dodopayments/dodopayments-go/compare/v1.120.1...v1.120.2) (2026-10-09)
-
-
-### Bug Fixes
-
-* **deps:** upgrade SDK toolchains (pnpm, uv, TypeScript 7, Gradle 9, okhttp 5, zod 4) and stop cursor pagination on done ([b405239](https://github.com/dodopayments/dodopayments-go/commit/b40523926629f00f6918daf9057f3d4f7301fd59))
-* **deps:** upgrade SDK toolchains (pnpm, uv, TypeScript 7, Gradle 9, okhttp 5, zod 4) and stop cursor pagination on done ([68d5a93](https://github.com/dodopayments/dodopayments-go/commit/68d5a9355589d5b4d6df95240c6b6252f58e25e6))
-
 ## [1.120.1](https://github.com/dodopayments/dodopayments-go/compare/v1.120.0...v1.120.1) (2026-10-09)
 
 
