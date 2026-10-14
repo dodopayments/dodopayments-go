@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.121.0](https://github.com/dodopayments/dodopayments-go/compare/v1.120.2...v1.121.0) (2026-10-14)
+
+
+### Features
+
+* **api:** payment service periods, retry attempts and subscription renewal payment_id ([613c2b9](https://github.com/dodopayments/dodopayments-go/commit/613c2b908c029ea7ddcbd1d28b72a23f5f8962a8))
+* **api:** payment service periods, retry attempts and subscription renewal payment_id ([f62f761](https://github.com/dodopayments/dodopayments-go/commit/f62f761346ca407a040c69b822467b58e882d9ef))
+
 ## [1.120.2](https://github.com/dodopayments/dodopayments-go/compare/v1.120.1...v1.120.2) (2026-10-09)
 
 
