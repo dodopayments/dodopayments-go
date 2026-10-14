@@ -881,15 +881,16 @@ func (r UpdateSubscriptionPlanReqParam) MarshalJSON() (data []byte, err error) {
 type UpdateSubscriptionPlanReqProrationBillingMode string
 
 const (
-	UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately   UpdateSubscriptionPlanReqProrationBillingMode = "prorated_immediately"
-	UpdateSubscriptionPlanReqProrationBillingModeFullImmediately       UpdateSubscriptionPlanReqProrationBillingMode = "full_immediately"
-	UpdateSubscriptionPlanReqProrationBillingModeDifferenceImmediately UpdateSubscriptionPlanReqProrationBillingMode = "difference_immediately"
-	UpdateSubscriptionPlanReqProrationBillingModeDoNotBill             UpdateSubscriptionPlanReqProrationBillingMode = "do_not_bill"
+	UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately          UpdateSubscriptionPlanReqProrationBillingMode = "prorated_immediately"
+	UpdateSubscriptionPlanReqProrationBillingModeFullImmediately              UpdateSubscriptionPlanReqProrationBillingMode = "full_immediately"
+	UpdateSubscriptionPlanReqProrationBillingModeDifferenceImmediately        UpdateSubscriptionPlanReqProrationBillingMode = "difference_immediately"
+	UpdateSubscriptionPlanReqProrationBillingModeDoNotBill                    UpdateSubscriptionPlanReqProrationBillingMode = "do_not_bill"
+	UpdateSubscriptionPlanReqProrationBillingModeProratedImmediatelyKeepCycle UpdateSubscriptionPlanReqProrationBillingMode = "prorated_immediately_keep_cycle"
 )
 
 func (r UpdateSubscriptionPlanReqProrationBillingMode) IsKnown() bool {
 	switch r {
-	case UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately, UpdateSubscriptionPlanReqProrationBillingModeFullImmediately, UpdateSubscriptionPlanReqProrationBillingModeDifferenceImmediately, UpdateSubscriptionPlanReqProrationBillingModeDoNotBill:
+	case UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately, UpdateSubscriptionPlanReqProrationBillingModeFullImmediately, UpdateSubscriptionPlanReqProrationBillingModeDifferenceImmediately, UpdateSubscriptionPlanReqProrationBillingModeDoNotBill, UpdateSubscriptionPlanReqProrationBillingModeProratedImmediatelyKeepCycle:
 		return true
 	}
 	return false

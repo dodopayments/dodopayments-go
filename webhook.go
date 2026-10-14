@@ -2832,8 +2832,11 @@ type SubscriptionActiveWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                              `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionActiveWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                 `json:"payment_id" api:"nullable"`
+	JSON      subscriptionActiveWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -2841,6 +2844,7 @@ type SubscriptionActiveWebhookEventData struct {
 // [SubscriptionActiveWebhookEventData]
 type subscriptionActiveWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -2914,8 +2918,11 @@ type SubscriptionCancelledWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                                 `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionCancelledWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                    `json:"payment_id" api:"nullable"`
+	JSON      subscriptionCancelledWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -2923,6 +2930,7 @@ type SubscriptionCancelledWebhookEventData struct {
 // struct [SubscriptionCancelledWebhookEventData]
 type subscriptionCancelledWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -2996,8 +3004,11 @@ type SubscriptionExpiredWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                               `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionExpiredWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                  `json:"payment_id" api:"nullable"`
+	JSON      subscriptionExpiredWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -3005,6 +3016,7 @@ type SubscriptionExpiredWebhookEventData struct {
 // struct [SubscriptionExpiredWebhookEventData]
 type subscriptionExpiredWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -3078,8 +3090,11 @@ type SubscriptionFailedWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                              `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionFailedWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                 `json:"payment_id" api:"nullable"`
+	JSON      subscriptionFailedWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -3087,6 +3102,7 @@ type SubscriptionFailedWebhookEventData struct {
 // [SubscriptionFailedWebhookEventData]
 type subscriptionFailedWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -3160,8 +3176,11 @@ type SubscriptionOnHoldWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                              `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionOnHoldWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                 `json:"payment_id" api:"nullable"`
+	JSON      subscriptionOnHoldWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -3169,6 +3188,7 @@ type SubscriptionOnHoldWebhookEventData struct {
 // [SubscriptionOnHoldWebhookEventData]
 type subscriptionOnHoldWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -3242,8 +3262,11 @@ type SubscriptionPastDueWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                               `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionPastDueWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                  `json:"payment_id" api:"nullable"`
+	JSON      subscriptionPastDueWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -3251,6 +3274,7 @@ type SubscriptionPastDueWebhookEventData struct {
 // struct [SubscriptionPastDueWebhookEventData]
 type subscriptionPastDueWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -3324,8 +3348,11 @@ type SubscriptionPausedWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                              `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionPausedWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                 `json:"payment_id" api:"nullable"`
+	JSON      subscriptionPausedWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -3333,6 +3360,7 @@ type SubscriptionPausedWebhookEventData struct {
 // [SubscriptionPausedWebhookEventData]
 type subscriptionPausedWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -3406,8 +3434,11 @@ type SubscriptionPlanChangedWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                                   `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionPlanChangedWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                      `json:"payment_id" api:"nullable"`
+	JSON      subscriptionPlanChangedWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -3415,6 +3446,7 @@ type SubscriptionPlanChangedWebhookEventData struct {
 // struct [SubscriptionPlanChangedWebhookEventData]
 type subscriptionPlanChangedWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -3488,8 +3520,11 @@ type SubscriptionRenewedWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                               `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionRenewedWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                  `json:"payment_id" api:"nullable"`
+	JSON      subscriptionRenewedWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -3497,6 +3532,7 @@ type SubscriptionRenewedWebhookEventData struct {
 // struct [SubscriptionRenewedWebhookEventData]
 type subscriptionRenewedWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -3570,8 +3606,11 @@ type SubscriptionUnpausedWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                                `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionUnpausedWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                   `json:"payment_id" api:"nullable"`
+	JSON      subscriptionUnpausedWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -3579,6 +3618,7 @@ type SubscriptionUnpausedWebhookEventData struct {
 // struct [SubscriptionUnpausedWebhookEventData]
 type subscriptionUnpausedWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -3652,8 +3692,11 @@ type SubscriptionUpdatePaymentMethodWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                                           `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionUpdatePaymentMethodWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                              `json:"payment_id" api:"nullable"`
+	JSON      subscriptionUpdatePaymentMethodWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -3661,6 +3704,7 @@ type SubscriptionUpdatePaymentMethodWebhookEventData struct {
 // for the struct [SubscriptionUpdatePaymentMethodWebhookEventData]
 type subscriptionUpdatePaymentMethodWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -3734,8 +3778,11 @@ type SubscriptionUpdatedWebhookEventData struct {
 	// row snapshot that produced `status`. It is set whenever the subscription sits in
 	// a window at that moment. A delayed event of another type therefore carries the
 	// deadline too, next to a `past_due` status.
-	PastDueEndsAt time.Time                               `json:"past_due_ends_at" api:"nullable" format:"date-time"`
-	JSON          subscriptionUpdatedWebhookEventDataJSON `json:"-"`
+	PastDueEndsAt time.Time `json:"past_due_ends_at" api:"nullable" format:"date-time"`
+	// Identifier of the payment that caused this event. It is set only for
+	// `subscription.renewed`. It is null for all other subscription events.
+	PaymentID string                                  `json:"payment_id" api:"nullable"`
+	JSON      subscriptionUpdatedWebhookEventDataJSON `json:"-"`
 	Subscription
 }
 
@@ -3743,6 +3790,7 @@ type SubscriptionUpdatedWebhookEventData struct {
 // struct [SubscriptionUpdatedWebhookEventData]
 type subscriptionUpdatedWebhookEventDataJSON struct {
 	PastDueEndsAt apijson.Field
+	PaymentID     apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
