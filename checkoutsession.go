@@ -142,6 +142,9 @@ type CheckoutSessionFlagsParam struct {
 	AllowCustomerEditingZipcode      param.Field[bool] `json:"allow_customer_editing_zipcode"`
 	// If the customer is allowed to apply discount code, set it to true.
 	//
+	// If this flag is false, the customer cannot change the discount codes. The
+	// discount codes that you give when you create the session still apply.
+	//
 	// Default is true
 	AllowDiscountCode param.Field[bool] `json:"allow_discount_code"`
 	// If true, the customer can add or remove addons on a subscription product during

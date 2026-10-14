@@ -106,6 +106,10 @@ type Refund struct {
 	NetworkReference string `json:"network_reference" api:"nullable"`
 	// The kind of `network_reference`: ARN, STAN or RRN.
 	NetworkReferenceType RefundNetworkReferenceType `json:"network_reference_type" api:"nullable"`
+	// The time in UTC when `network_reference` became available. It is null when the
+	// reference is not available, or when it became available before this field
+	// existed.
+	NetworkReferenceUpdatedAt time.Time `json:"network_reference_updated_at" api:"nullable" format:"date-time"`
 	// The reason provided for the refund, if any. Optional.
 	Reason string     `json:"reason" api:"nullable"`
 	JSON   refundJSON `json:"-"`
@@ -113,22 +117,23 @@ type Refund struct {
 
 // refundJSON contains the JSON metadata for the struct [Refund]
 type refundJSON struct {
-	BrandID              apijson.Field
-	BusinessID           apijson.Field
-	CreatedAt            apijson.Field
-	Customer             apijson.Field
-	IsPartial            apijson.Field
-	Metadata             apijson.Field
-	PaymentID            apijson.Field
-	RefundID             apijson.Field
-	Status               apijson.Field
-	Amount               apijson.Field
-	Currency             apijson.Field
-	NetworkReference     apijson.Field
-	NetworkReferenceType apijson.Field
-	Reason               apijson.Field
-	raw                  string
-	ExtraFields          map[string]apijson.Field
+	BrandID                   apijson.Field
+	BusinessID                apijson.Field
+	CreatedAt                 apijson.Field
+	Customer                  apijson.Field
+	IsPartial                 apijson.Field
+	Metadata                  apijson.Field
+	PaymentID                 apijson.Field
+	RefundID                  apijson.Field
+	Status                    apijson.Field
+	Amount                    apijson.Field
+	Currency                  apijson.Field
+	NetworkReference          apijson.Field
+	NetworkReferenceType      apijson.Field
+	NetworkReferenceUpdatedAt apijson.Field
+	Reason                    apijson.Field
+	raw                       string
+	ExtraFields               map[string]apijson.Field
 }
 
 func (r *Refund) UnmarshalJSON(data []byte) (err error) {

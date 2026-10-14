@@ -324,6 +324,14 @@ type ManualRetryState struct {
 	CanRetry     bool  `json:"can_retry" api:"required"`
 	SendsAllowed int64 `json:"sends_allowed" api:"required"`
 	SendsUsed    int64 `json:"sends_used" api:"required"`
+	// The number of the queued automatic retry, starting at 1.
+	AutomaticRetryNumber int64 `json:"automatic_retry_number" api:"nullable"`
+	// The number of automatic retries that the current configuration plans for this
+	// invoice. It is never less than `automatic_retry_number`.
+	AutomaticRetryTotal int64 `json:"automatic_retry_total" api:"nullable"`
+	// When the next automatic retry on this invoice is scheduled. Null when no
+	// automatic retry is queued or automatic retries are disabled.
+	NextAutomaticRetryAt time.Time `json:"next_automatic_retry_at" api:"nullable" format:"date-time"`
 	// The code `POST` would fail with. Null when `can_retry` is true.
 	Reason string `json:"reason" api:"nullable"`
 	// When the next send becomes available. Null when no send is left, or when the
@@ -335,13 +343,16 @@ type ManualRetryState struct {
 // manualRetryStateJSON contains the JSON metadata for the struct
 // [ManualRetryState]
 type manualRetryStateJSON struct {
-	CanRetry         apijson.Field
-	SendsAllowed     apijson.Field
-	SendsUsed        apijson.Field
-	Reason           apijson.Field
-	RetryAvailableAt apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
+	CanRetry             apijson.Field
+	SendsAllowed         apijson.Field
+	SendsUsed            apijson.Field
+	AutomaticRetryNumber apijson.Field
+	AutomaticRetryTotal  apijson.Field
+	NextAutomaticRetryAt apijson.Field
+	Reason               apijson.Field
+	RetryAvailableAt     apijson.Field
+	raw                  string
+	ExtraFields          map[string]apijson.Field
 }
 
 func (r *ManualRetryState) UnmarshalJSON(data []byte) (err error) {
@@ -446,6 +457,12 @@ type Payment struct {
 	// payment, `1`+ for each scheduled off-session retry after a failed renewal.
 	// Always `0` for non-subscription payments.
 	RetryAttempt int64 `json:"retry_attempt" api:"required"`
+	// The service period of each subscription that this payment pays for. The order is
+	// the same as `subscription_ids`. For a plan change charge, the period starts at
+	// the plan change and ends at the next billing date. The list is empty unless the
+	// payment status is `succeeded`. The list is also empty for a one-time payment, an
+	// on-demand charge, or a payment method update.
+	ServicePeriods []SubscriptionServicePeriod `json:"service_periods" api:"required"`
 	// The amount that will be credited to your Dodo balance after currency conversion
 	// and processing. Especially relevant for adaptive pricing where the customer's
 	// payment currency differs from your settlement currency.
@@ -541,6 +558,7 @@ type paymentJSON struct {
 	PaymentProvider          apijson.Field
 	Refunds                  apijson.Field
 	RetryAttempt             apijson.Field
+	ServicePeriods           apijson.Field
 	SettlementAmount         apijson.Field
 	SettlementCurrency       apijson.Field
 	SubscriptionIDs          apijson.Field
@@ -781,6 +799,10 @@ type RefundListItem struct {
 	NetworkReference string `json:"network_reference" api:"nullable"`
 	// The kind of `network_reference`: ARN, STAN or RRN.
 	NetworkReferenceType RefundNetworkReferenceType `json:"network_reference_type" api:"nullable"`
+	// The time in UTC when `network_reference` became available. It is null when the
+	// reference is not available, or when it became available before this field
+	// existed.
+	NetworkReferenceUpdatedAt time.Time `json:"network_reference_updated_at" api:"nullable" format:"date-time"`
 	// The reason provided for the refund, if any. Optional.
 	Reason string             `json:"reason" api:"nullable"`
 	JSON   refundListItemJSON `json:"-"`
@@ -788,19 +810,20 @@ type RefundListItem struct {
 
 // refundListItemJSON contains the JSON metadata for the struct [RefundListItem]
 type refundListItemJSON struct {
-	BusinessID           apijson.Field
-	CreatedAt            apijson.Field
-	IsPartial            apijson.Field
-	PaymentID            apijson.Field
-	RefundID             apijson.Field
-	Status               apijson.Field
-	Amount               apijson.Field
-	Currency             apijson.Field
-	NetworkReference     apijson.Field
-	NetworkReferenceType apijson.Field
-	Reason               apijson.Field
-	raw                  string
-	ExtraFields          map[string]apijson.Field
+	BusinessID                apijson.Field
+	CreatedAt                 apijson.Field
+	IsPartial                 apijson.Field
+	PaymentID                 apijson.Field
+	RefundID                  apijson.Field
+	Status                    apijson.Field
+	Amount                    apijson.Field
+	Currency                  apijson.Field
+	NetworkReference          apijson.Field
+	NetworkReferenceType      apijson.Field
+	NetworkReferenceUpdatedAt apijson.Field
+	Reason                    apijson.Field
+	raw                       string
+	ExtraFields               map[string]apijson.Field
 }
 
 func (r *RefundListItem) UnmarshalJSON(data []byte) (err error) {
@@ -808,6 +831,37 @@ func (r *RefundListItem) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r refundListItemJSON) RawJSON() string {
+	return r.raw
+}
+
+// The service period that a payment pays for, for one subscription.
+type SubscriptionServicePeriod struct {
+	// End of the service period.
+	EndsAt time.Time `json:"ends_at" api:"required" format:"date-time"`
+	// Start of the service period. For a renewal, this is the billing date. For a plan
+	// change that applies at the next billing date, this is the time when the change
+	// applied. This time can be some minutes after the billing date.
+	StartsAt time.Time `json:"starts_at" api:"required" format:"date-time"`
+	// Identifier of the subscription.
+	SubscriptionID string                        `json:"subscription_id" api:"required"`
+	JSON           subscriptionServicePeriodJSON `json:"-"`
+}
+
+// subscriptionServicePeriodJSON contains the JSON metadata for the struct
+// [SubscriptionServicePeriod]
+type subscriptionServicePeriodJSON struct {
+	EndsAt         apijson.Field
+	StartsAt       apijson.Field
+	SubscriptionID apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
+}
+
+func (r *SubscriptionServicePeriod) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionServicePeriodJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -882,6 +936,16 @@ type PaymentListResponse struct {
 	// Which processor handled this payment. `stripe` / `adyen` for BYOP routes (the
 	// merchant's own payment connector); `dodo` for everything Dodo processed itself.
 	PaymentProvider PaymentListResponsePaymentProvider `json:"payment_provider" api:"required"`
+	// The retry attempt number of this payment. The value is `0` for the original
+	// payment. Each retry after a failed subscription renewal adds `1`. The value is
+	// always `0` for a payment that is not for a subscription.
+	RetryAttempt int64 `json:"retry_attempt" api:"required"`
+	// The service period of each subscription that this payment pays for. The order is
+	// the same as `subscription_ids`. For a plan change charge, the period starts at
+	// the plan change and ends at the next billing date. The list is empty unless the
+	// payment status is `succeeded`. The list is also empty for a one-time payment, an
+	// on-demand charge, or a payment method update.
+	ServicePeriods []SubscriptionServicePeriod `json:"service_periods" api:"required"`
 	// Every subscription that this payment starts or charges, in a stable order. It is
 	// empty for a one-time payment. It holds the value of `subscription_id` when the
 	// payment names one subscription.
@@ -891,6 +955,9 @@ type PaymentListResponse struct {
 	CardLastFour string `json:"card_last_four" api:"nullable"`
 	// Card network like VISA, MASTERCARD etc.
 	CardNetwork string `json:"card_network" api:"nullable"`
+	// The ID of the checkout session for this payment. The value is null when the
+	// payment does not use a checkout session.
+	CheckoutSessionID string `json:"checkout_session_id" api:"nullable"`
 	// The most recent dispute status for this payment. None if no disputes exist.
 	DisputeStatus DisputeStatus `json:"dispute_status" api:"nullable"`
 	// Invoice ID for this payment. Uses India-specific invoice ID if available.
@@ -920,10 +987,13 @@ type paymentListResponseJSON struct {
 	Metadata                 apijson.Field
 	PaymentID                apijson.Field
 	PaymentProvider          apijson.Field
+	RetryAttempt             apijson.Field
+	ServicePeriods           apijson.Field
 	SubscriptionIDs          apijson.Field
 	TotalAmount              apijson.Field
 	CardLastFour             apijson.Field
 	CardNetwork              apijson.Field
+	CheckoutSessionID        apijson.Field
 	DisputeStatus            apijson.Field
 	InvoiceID                apijson.Field
 	InvoiceURL               apijson.Field
