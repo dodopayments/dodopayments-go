@@ -48,6 +48,7 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentMethodTypes">PaymentMethodTypes</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentRefundStatus">PaymentRefundStatus</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#RefundListItem">RefundListItem</a>
+- <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#SubscriptionServicePeriod">SubscriptionServicePeriod</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentNewResponse">PaymentNewResponse</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentListResponse">PaymentListResponse</a>
 - <a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go">dodopayments</a>.<a href="https://pkg.go.dev/github.com/dodopayments/dodopayments-go#PaymentGetLineItemsResponse">PaymentGetLineItemsResponse</a>
