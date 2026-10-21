@@ -7,8 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
 
+	"github.com/dodopayments/dodopayments-go/internal/apiquery"
+	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
 )
@@ -32,7 +35,7 @@ func NewInvoicePaymentService(opts ...option.RequestOption) (r *InvoicePaymentSe
 	return
 }
 
-func (r *InvoicePaymentService) Get(ctx context.Context, paymentID string, opts ...option.RequestOption) (res *http.Response, err error) {
+func (r *InvoicePaymentService) Get(ctx context.Context, paymentID string, query InvoicePaymentGetParams, opts ...option.RequestOption) (res *http.Response, err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
 	if paymentID == "" {
@@ -40,11 +43,11 @@ func (r *InvoicePaymentService) Get(ctx context.Context, paymentID string, opts 
 		return nil, err
 	}
 	path := fmt.Sprintf("invoices/payments/%s", paymentID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
-func (r *InvoicePaymentService) GetPayout(ctx context.Context, payoutID string, opts ...option.RequestOption) (res *http.Response, err error) {
+func (r *InvoicePaymentService) GetPayout(ctx context.Context, payoutID string, query InvoicePaymentGetPayoutParams, opts ...option.RequestOption) (res *http.Response, err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
 	if payoutID == "" {
@@ -52,11 +55,11 @@ func (r *InvoicePaymentService) GetPayout(ctx context.Context, payoutID string, 
 		return nil, err
 	}
 	path := fmt.Sprintf("invoices/payouts/%s", payoutID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
-func (r *InvoicePaymentService) GetRefund(ctx context.Context, refundID string, opts ...option.RequestOption) (res *http.Response, err error) {
+func (r *InvoicePaymentService) GetRefund(ctx context.Context, refundID string, query InvoicePaymentGetRefundParams, opts ...option.RequestOption) (res *http.Response, err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
 	if refundID == "" {
@@ -64,6 +67,51 @@ func (r *InvoicePaymentService) GetRefund(ctx context.Context, refundID string, 
 		return nil, err
 	}
 	path := fmt.Sprintf("invoices/refunds/%s", refundID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
+}
+
+type InvoicePaymentGetParams struct {
+	// The signed link token. If the business asks for a credential on its invoice
+	// links, a valid token for this record replaces the credential.
+	Token param.Field[string] `query:"token"`
+}
+
+// URLQuery serializes [InvoicePaymentGetParams]'s query parameters as
+// `url.Values`.
+func (r InvoicePaymentGetParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type InvoicePaymentGetPayoutParams struct {
+	// The signed link token. If the business asks for a credential on its invoice
+	// links, a valid token for this record replaces the credential.
+	Token param.Field[string] `query:"token"`
+}
+
+// URLQuery serializes [InvoicePaymentGetPayoutParams]'s query parameters as
+// `url.Values`.
+func (r InvoicePaymentGetPayoutParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type InvoicePaymentGetRefundParams struct {
+	// The signed link token. If the business asks for a credential on its invoice
+	// links, a valid token for this record replaces the credential.
+	Token param.Field[string] `query:"token"`
+}
+
+// URLQuery serializes [InvoicePaymentGetRefundParams]'s query parameters as
+// `url.Values`.
+func (r InvoicePaymentGetRefundParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

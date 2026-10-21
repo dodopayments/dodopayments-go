@@ -477,10 +477,12 @@ type Price struct {
 	// Indicates whether the customer can pay any amount they choose. If set to `true`,
 	// the [`price`](Self::price) field is the minimum amount.
 	PayWhatYouWant bool `json:"pay_what_you_want"`
-	// Number of units for the payment frequency. For example, a value of `1` with a
-	// `payment_frequency_interval` of `month` represents monthly payments.
+	// Number of `payment_frequency_interval` units between two charges. This field
+	// sets the billing cycle. For example, `1` with a `payment_frequency_interval` of
+	// `month` charges the customer every month.
 	PaymentFrequencyCount int64 `json:"payment_frequency_count"`
-	// The time interval for the payment frequency (e.g., day, month, year).
+	// The time unit of the billing cycle (e.g., day, month, year). Use it with
+	// `payment_frequency_count`.
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval"`
 	// The payment amount, in the smallest denomination of the currency (e.g., cents
 	// for USD). For example, to charge $1.00, pass `100`.
@@ -492,10 +494,26 @@ type Price struct {
 	// purchasing power parity. The discount percentage per country is always
 	// business-wide. Defaults to `false`.
 	PurchasingPowerParity bool `json:"purchasing_power_parity"`
-	// Number of units for the subscription period. For example, a value of `12` with a
-	// `subscription_period_interval` of `month` represents a one-year subscription.
+	// Number of `subscription_period_interval` units for the total duration of the
+	// subscription. This field does not set the billing cycle. Use
+	// `payment_frequency_count` for the billing cycle. When this period ends, the
+	// subscription expires. Dodo Payments does not start a new billing cycle after the
+	// subscription expires. Dodo Payments can still retry a failed payment for an
+	// earlier billing cycle.
+	//
+	// For a subscription that renews until the customer cancels it, set this to `20`
+	// with a `subscription_period_interval` of `year`. This is the recommended value
+	// and also the maximum. The subscription expires after 20 years if the customer
+	// does not cancel it before then.
+	//
+	// For example, a monthly plan uses a `payment_frequency_count` of `1`, a
+	// `payment_frequency_interval` of `month`, and a subscription period of `20`
+	// `year`. Do not set the subscription period to `1` `month` for a monthly plan:
+	// the subscription then expires after one month.
 	SubscriptionPeriodCount int64 `json:"subscription_period_count"`
-	// The time interval for the subscription period (e.g., day, month, year).
+	// The time unit of the total subscription duration (e.g., day, month, year). Use
+	// it with `subscription_period_count`. The recommended value is `year`, with a
+	// `subscription_period_count` of `20`.
 	SubscriptionPeriodInterval TimeInterval `json:"subscription_period_interval"`
 	// A suggested price for the user to pay. This value is only considered if
 	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
@@ -682,18 +700,36 @@ func (r PriceOneTimePriceType) IsKnown() bool {
 type PriceRecurringPrice struct {
 	// The currency in which the payment is made.
 	Currency Currency `json:"currency" api:"required"`
-	// Number of units for the payment frequency. For example, a value of `1` with a
-	// `payment_frequency_interval` of `month` represents monthly payments.
+	// Number of `payment_frequency_interval` units between two charges. This field
+	// sets the billing cycle. For example, `1` with a `payment_frequency_interval` of
+	// `month` charges the customer every month.
 	PaymentFrequencyCount int64 `json:"payment_frequency_count" api:"required"`
-	// The time interval for the payment frequency (e.g., day, month, year).
+	// The time unit of the billing cycle (e.g., day, month, year). Use it with
+	// `payment_frequency_count`.
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval" api:"required"`
 	// The payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	Price int64 `json:"price" api:"required"`
-	// Number of units for the subscription period. For example, a value of `12` with a
-	// `subscription_period_interval` of `month` represents a one-year subscription.
+	// Number of `subscription_period_interval` units for the total duration of the
+	// subscription. This field does not set the billing cycle. Use
+	// `payment_frequency_count` for the billing cycle. When this period ends, the
+	// subscription expires. Dodo Payments does not start a new billing cycle after the
+	// subscription expires. Dodo Payments can still retry a failed payment for an
+	// earlier billing cycle.
+	//
+	// For a subscription that renews until the customer cancels it, set this to `20`
+	// with a `subscription_period_interval` of `year`. This is the recommended value
+	// and also the maximum. The subscription expires after 20 years if the customer
+	// does not cancel it before then.
+	//
+	// For example, a monthly plan uses a `payment_frequency_count` of `1`, a
+	// `payment_frequency_interval` of `month`, and a subscription period of `20`
+	// `year`. Do not set the subscription period to `1` `month` for a monthly plan:
+	// the subscription then expires after one month.
 	SubscriptionPeriodCount int64 `json:"subscription_period_count" api:"required"`
-	// The time interval for the subscription period (e.g., day, month, year).
+	// The time unit of the total subscription duration (e.g., day, month, year). Use
+	// it with `subscription_period_count`. The recommended value is `year`, with a
+	// `subscription_period_count` of `20`.
 	SubscriptionPeriodInterval TimeInterval            `json:"subscription_period_interval" api:"required"`
 	Type                       PriceRecurringPriceType `json:"type" api:"required"`
 	// Deprecated: use `discount_bps` instead.
@@ -785,15 +821,33 @@ type PriceUsageBasedPrice struct {
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	FixedPrice int64 `json:"fixed_price" api:"required"`
-	// Number of units for the payment frequency. For example, a value of `1` with a
-	// `payment_frequency_interval` of `month` represents monthly payments.
+	// Number of `payment_frequency_interval` units between two charges. This field
+	// sets the billing cycle. For example, `1` with a `payment_frequency_interval` of
+	// `month` charges the customer every month.
 	PaymentFrequencyCount int64 `json:"payment_frequency_count" api:"required"`
-	// The time interval for the payment frequency (e.g., day, month, year).
+	// The time unit of the billing cycle (e.g., day, month, year). Use it with
+	// `payment_frequency_count`.
 	PaymentFrequencyInterval TimeInterval `json:"payment_frequency_interval" api:"required"`
-	// Number of units for the subscription period. For example, a value of `12` with a
-	// `subscription_period_interval` of `month` represents a one-year subscription.
+	// Number of `subscription_period_interval` units for the total duration of the
+	// subscription. This field does not set the billing cycle. Use
+	// `payment_frequency_count` for the billing cycle. When this period ends, the
+	// subscription expires. Dodo Payments does not start a new billing cycle after the
+	// subscription expires. Dodo Payments can still retry a failed payment for an
+	// earlier billing cycle.
+	//
+	// For a subscription that renews until the customer cancels it, set this to `20`
+	// with a `subscription_period_interval` of `year`. This is the recommended value
+	// and also the maximum. The subscription expires after 20 years if the customer
+	// does not cancel it before then.
+	//
+	// For example, a monthly plan uses a `payment_frequency_count` of `1`, a
+	// `payment_frequency_interval` of `month`, and a subscription period of `20`
+	// `year`. Do not set the subscription period to `1` `month` for a monthly plan:
+	// the subscription then expires after one month.
 	SubscriptionPeriodCount int64 `json:"subscription_period_count" api:"required"`
-	// The time interval for the subscription period (e.g., day, month, year).
+	// The time unit of the total subscription duration (e.g., day, month, year). Use
+	// it with `subscription_period_count`. The recommended value is `year`, with a
+	// `subscription_period_count` of `20`.
 	SubscriptionPeriodInterval TimeInterval             `json:"subscription_period_interval" api:"required"`
 	Type                       PriceUsageBasedPriceType `json:"type" api:"required"`
 	// Deprecated: use `discount_bps` instead.
@@ -904,10 +958,12 @@ type PriceParam struct {
 	// Indicates whether the customer can pay any amount they choose. If set to `true`,
 	// the [`price`](Self::price) field is the minimum amount.
 	PayWhatYouWant param.Field[bool] `json:"pay_what_you_want"`
-	// Number of units for the payment frequency. For example, a value of `1` with a
-	// `payment_frequency_interval` of `month` represents monthly payments.
+	// Number of `payment_frequency_interval` units between two charges. This field
+	// sets the billing cycle. For example, `1` with a `payment_frequency_interval` of
+	// `month` charges the customer every month.
 	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count"`
-	// The time interval for the payment frequency (e.g., day, month, year).
+	// The time unit of the billing cycle (e.g., day, month, year). Use it with
+	// `payment_frequency_count`.
 	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval"`
 	// The payment amount, in the smallest denomination of the currency (e.g., cents
 	// for USD). For example, to charge $1.00, pass `100`.
@@ -919,10 +975,26 @@ type PriceParam struct {
 	// purchasing power parity. The discount percentage per country is always
 	// business-wide. Defaults to `false`.
 	PurchasingPowerParity param.Field[bool] `json:"purchasing_power_parity"`
-	// Number of units for the subscription period. For example, a value of `12` with a
-	// `subscription_period_interval` of `month` represents a one-year subscription.
+	// Number of `subscription_period_interval` units for the total duration of the
+	// subscription. This field does not set the billing cycle. Use
+	// `payment_frequency_count` for the billing cycle. When this period ends, the
+	// subscription expires. Dodo Payments does not start a new billing cycle after the
+	// subscription expires. Dodo Payments can still retry a failed payment for an
+	// earlier billing cycle.
+	//
+	// For a subscription that renews until the customer cancels it, set this to `20`
+	// with a `subscription_period_interval` of `year`. This is the recommended value
+	// and also the maximum. The subscription expires after 20 years if the customer
+	// does not cancel it before then.
+	//
+	// For example, a monthly plan uses a `payment_frequency_count` of `1`, a
+	// `payment_frequency_interval` of `month`, and a subscription period of `20`
+	// `year`. Do not set the subscription period to `1` `month` for a monthly plan:
+	// the subscription then expires after one month.
 	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count"`
-	// The time interval for the subscription period (e.g., day, month, year).
+	// The time unit of the total subscription duration (e.g., day, month, year). Use
+	// it with `subscription_period_count`. The recommended value is `year`, with a
+	// `subscription_period_count` of `20`.
 	SubscriptionPeriodInterval param.Field[TimeInterval] `json:"subscription_period_interval"`
 	// A suggested price for the user to pay. This value is only considered if
 	// [`pay_what_you_want`](Self::pay_what_you_want) is `true`. Otherwise, it is
@@ -1008,18 +1080,36 @@ func (r PriceOneTimePriceParam) implementsPriceUnionParam() {}
 type PriceRecurringPriceParam struct {
 	// The currency in which the payment is made.
 	Currency param.Field[Currency] `json:"currency" api:"required"`
-	// Number of units for the payment frequency. For example, a value of `1` with a
-	// `payment_frequency_interval` of `month` represents monthly payments.
+	// Number of `payment_frequency_interval` units between two charges. This field
+	// sets the billing cycle. For example, `1` with a `payment_frequency_interval` of
+	// `month` charges the customer every month.
 	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count" api:"required"`
-	// The time interval for the payment frequency (e.g., day, month, year).
+	// The time unit of the billing cycle (e.g., day, month, year). Use it with
+	// `payment_frequency_count`.
 	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval" api:"required"`
 	// The payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	Price param.Field[int64] `json:"price" api:"required"`
-	// Number of units for the subscription period. For example, a value of `12` with a
-	// `subscription_period_interval` of `month` represents a one-year subscription.
+	// Number of `subscription_period_interval` units for the total duration of the
+	// subscription. This field does not set the billing cycle. Use
+	// `payment_frequency_count` for the billing cycle. When this period ends, the
+	// subscription expires. Dodo Payments does not start a new billing cycle after the
+	// subscription expires. Dodo Payments can still retry a failed payment for an
+	// earlier billing cycle.
+	//
+	// For a subscription that renews until the customer cancels it, set this to `20`
+	// with a `subscription_period_interval` of `year`. This is the recommended value
+	// and also the maximum. The subscription expires after 20 years if the customer
+	// does not cancel it before then.
+	//
+	// For example, a monthly plan uses a `payment_frequency_count` of `1`, a
+	// `payment_frequency_interval` of `month`, and a subscription period of `20`
+	// `year`. Do not set the subscription period to `1` `month` for a monthly plan:
+	// the subscription then expires after one month.
 	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count" api:"required"`
-	// The time interval for the subscription period (e.g., day, month, year).
+	// The time unit of the total subscription duration (e.g., day, month, year). Use
+	// it with `subscription_period_count`. The recommended value is `year`, with a
+	// `subscription_period_count` of `20`.
 	SubscriptionPeriodInterval param.Field[TimeInterval]            `json:"subscription_period_interval" api:"required"`
 	Type                       param.Field[PriceRecurringPriceType] `json:"type" api:"required"`
 	// Deprecated: use `discount_bps` instead.
@@ -1069,15 +1159,33 @@ type PriceUsageBasedPriceParam struct {
 	// The fixed payment amount. Represented in the lowest denomination of the currency
 	// (e.g., cents for USD). For example, to charge $1.00, pass `100`.
 	FixedPrice param.Field[int64] `json:"fixed_price" api:"required"`
-	// Number of units for the payment frequency. For example, a value of `1` with a
-	// `payment_frequency_interval` of `month` represents monthly payments.
+	// Number of `payment_frequency_interval` units between two charges. This field
+	// sets the billing cycle. For example, `1` with a `payment_frequency_interval` of
+	// `month` charges the customer every month.
 	PaymentFrequencyCount param.Field[int64] `json:"payment_frequency_count" api:"required"`
-	// The time interval for the payment frequency (e.g., day, month, year).
+	// The time unit of the billing cycle (e.g., day, month, year). Use it with
+	// `payment_frequency_count`.
 	PaymentFrequencyInterval param.Field[TimeInterval] `json:"payment_frequency_interval" api:"required"`
-	// Number of units for the subscription period. For example, a value of `12` with a
-	// `subscription_period_interval` of `month` represents a one-year subscription.
+	// Number of `subscription_period_interval` units for the total duration of the
+	// subscription. This field does not set the billing cycle. Use
+	// `payment_frequency_count` for the billing cycle. When this period ends, the
+	// subscription expires. Dodo Payments does not start a new billing cycle after the
+	// subscription expires. Dodo Payments can still retry a failed payment for an
+	// earlier billing cycle.
+	//
+	// For a subscription that renews until the customer cancels it, set this to `20`
+	// with a `subscription_period_interval` of `year`. This is the recommended value
+	// and also the maximum. The subscription expires after 20 years if the customer
+	// does not cancel it before then.
+	//
+	// For example, a monthly plan uses a `payment_frequency_count` of `1`, a
+	// `payment_frequency_interval` of `month`, and a subscription period of `20`
+	// `year`. Do not set the subscription period to `1` `month` for a monthly plan:
+	// the subscription then expires after one month.
 	SubscriptionPeriodCount param.Field[int64] `json:"subscription_period_count" api:"required"`
-	// The time interval for the subscription period (e.g., day, month, year).
+	// The time unit of the total subscription duration (e.g., day, month, year). Use
+	// it with `subscription_period_count`. The recommended value is `year`, with a
+	// `subscription_period_count` of `20`.
 	SubscriptionPeriodInterval param.Field[TimeInterval]             `json:"subscription_period_interval" api:"required"`
 	Type                       param.Field[PriceUsageBasedPriceType] `json:"type" api:"required"`
 	// Deprecated: use `discount_bps` instead.
