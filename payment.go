@@ -171,6 +171,39 @@ func (r BillingAddressParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+// The type of subscription charge that a payment is for.
+//
+// A payment has one invoice, and the invoice has one type. Thus each payment has
+// one charge type. A payment that charges no subscription has no charge type.
+//
+//   - `new`: the first payment of one or more subscriptions. A retry of that payment
+//     is also `new`. A cart with new subscriptions and one-time products is `new`.
+//     Read the one-time products from `product_cart`.
+//   - `renewal`: a charge at the billing date. A dunning retry and a manual retry of
+//     that charge are also `renewal`. A `renewal` does not always extend the service
+//     period. For example, the usage settlement of a paused subscription is a
+//     `renewal` with `includes_usage` true and no entry in `service_periods`.
+//     Examine `service_periods` before you extend access.
+//   - `plan_change`: a charge for a plan change. The change applies now or at the
+//     next billing date.
+//   - `on_demand`: an on-demand charge of an on-demand subscription.
+type ChargeType string
+
+const (
+	ChargeTypeNew        ChargeType = "new"
+	ChargeTypeRenewal    ChargeType = "renewal"
+	ChargeTypePlanChange ChargeType = "plan_change"
+	ChargeTypeOnDemand   ChargeType = "on_demand"
+)
+
+func (r ChargeType) IsKnown() bool {
+	switch r {
+	case ChargeTypeNew, ChargeTypeRenewal, ChargeTypePlanChange, ChargeTypeOnDemand:
+		return true
+	}
+	return false
+}
+
 // Customer's response to a custom field
 type CustomFieldResponse struct {
 	// Key matching the custom field definition
@@ -437,6 +470,10 @@ type Payment struct {
 	DigitalProductsDelivered bool `json:"digital_products_delivered" api:"required"`
 	// List of disputes associated with this payment
 	Disputes []Dispute `json:"disputes" api:"required"`
+	// True when this payment also bills metered usage or credit overage. The usage is
+	// for the billing cycle before the service period, not for the service period. The
+	// value is set for each payment status. It is false when `charge_type` is null.
+	IncludesUsage bool `json:"includes_usage" api:"required"`
 	// True when one payment starts more than one subscription. Read this field to find
 	// the payment type. Do not read the length of `subscription_ids`. Do not read
 	// `subscription_id` for null.
@@ -461,7 +498,10 @@ type Payment struct {
 	// the same as `subscription_ids`. For a plan change charge, the period starts at
 	// the plan change and ends at the next billing date. The list is empty unless the
 	// payment status is `succeeded`. The list is also empty for a one-time payment, an
-	// on-demand charge, or a payment method update.
+	// on-demand charge, or a payment method update. The list is set for `new`,
+	// `renewal` and `plan_change` charges that succeeded. It can be empty for some
+	// zero-amount payments. A `renewal` with no entry for its subscription bills usage
+	// only. That payment does not extend the service period.
 	ServicePeriods []SubscriptionServicePeriod `json:"service_periods" api:"required"`
 	// The amount that will be credited to your Dodo balance after currency conversion
 	// and processing. Especially relevant for adaptive pricing where the customer's
@@ -479,16 +519,30 @@ type Payment struct {
 	// unit (e.g. cents for USD, yen for JPY, fils for KWD — see the currency's decimal
 	// places)
 	TotalAmount int64 `json:"total_amount" api:"required"`
+	// Expiry month of the card, as two digits from `01` to `12`. For Apple Pay and
+	// Google Pay, this is the expiry of the wallet token, which can differ from the
+	// expiry of the physical card.
+	CardExpMonth string `json:"card_exp_month" api:"nullable"`
+	// Expiry year of the card, as four digits, for example `2029`. For Apple Pay and
+	// Google Pay, this is the expiry of the wallet token, which can differ from the
+	// expiry of the physical card.
+	CardExpYear string `json:"card_exp_year" api:"nullable"`
 	// Cardholder name
 	CardHolderName string `json:"card_holder_name" api:"nullable"`
 	// ISO2 country code of the card
 	CardIssuingCountry CountryCode `json:"card_issuing_country" api:"nullable"`
 	// The last four digits of the card
 	CardLastFour string `json:"card_last_four" api:"nullable"`
-	// Card network like VISA, MASTERCARD etc.
+	// Card network, in lowercase, for example `visa`, `mastercard` or `amex`. Older
+	// payments can carry other casing.
 	CardNetwork string `json:"card_network" api:"nullable"`
-	// The type of card DEBIT or CREDIT
+	// The type of card, in lowercase: `credit`, `debit` or `prepaid`. Older payments
+	// can carry other casing.
 	CardType string `json:"card_type" api:"nullable"`
+	// The type of subscription charge that this payment is for. Refer to `ChargeType`.
+	// The value is set for each payment status, not only for `succeeded`. The value is
+	// null when this payment charges no subscription.
+	ChargeType ChargeType `json:"charge_type" api:"nullable"`
 	// If payment is made using a checkout session, this field is set to the id of the
 	// session.
 	CheckoutSessionID string `json:"checkout_session_id" api:"nullable"`
@@ -508,7 +562,11 @@ type Payment struct {
 	ErrorMessage string `json:"error_message" api:"nullable"`
 	// Invoice ID for this payment. Uses India-specific invoice ID if available.
 	InvoiceID string `json:"invoice_id" api:"nullable"`
-	// URL to download the invoice PDF for this payment.
+	// DEPRECATED: Use `GET /invoices/payments/{payment_id}` with an API key. URL to
+	// download the invoice PDF for this payment. The URL has no signed token. If the
+	// business asks for a credential on its invoice links, the URL needs an API key.
+	//
+	// Deprecated: Use `GET /invoices/payments/{payment_id}` with an API key.
 	InvoiceURL string `json:"invoice_url" api:"nullable"`
 	// Checkout URL
 	PaymentLink string `json:"payment_link" api:"nullable"`
@@ -551,6 +609,7 @@ type paymentJSON struct {
 	Customer                 apijson.Field
 	DigitalProductsDelivered apijson.Field
 	Disputes                 apijson.Field
+	IncludesUsage            apijson.Field
 	IsMultiSubscription      apijson.Field
 	IsUpdatePaymentMethod    apijson.Field
 	Metadata                 apijson.Field
@@ -563,11 +622,14 @@ type paymentJSON struct {
 	SettlementCurrency       apijson.Field
 	SubscriptionIDs          apijson.Field
 	TotalAmount              apijson.Field
+	CardExpMonth             apijson.Field
+	CardExpYear              apijson.Field
 	CardHolderName           apijson.Field
 	CardIssuingCountry       apijson.Field
 	CardLastFour             apijson.Field
 	CardNetwork              apijson.Field
 	CardType                 apijson.Field
+	ChargeType               apijson.Field
 	CheckoutSessionID        apijson.Field
 	CustomFieldResponses     apijson.Field
 	DiscountID               apijson.Field
@@ -838,6 +900,11 @@ func (r refundListItemJSON) RawJSON() string {
 type SubscriptionServicePeriod struct {
 	// End of the service period.
 	EndsAt time.Time `json:"ends_at" api:"required" format:"date-time"`
+	// The part of one full billing period that the plan charge pays for. The value
+	// `"1"` is a full period. A value less than 1 is a partial period, for example
+	// after a plan change that keeps the billing cycle. For a plan change, this is the
+	// value of the new plan. The credit for the old plan is not in this value.
+	ProrationFactor string `json:"proration_factor" api:"required"`
 	// Start of the service period. For a renewal, this is the billing date. For a plan
 	// change that applies at the next billing date, this is the time when the change
 	// applied. This time can be some minutes after the billing date.
@@ -850,11 +917,12 @@ type SubscriptionServicePeriod struct {
 // subscriptionServicePeriodJSON contains the JSON metadata for the struct
 // [SubscriptionServicePeriod]
 type subscriptionServicePeriodJSON struct {
-	EndsAt         apijson.Field
-	StartsAt       apijson.Field
-	SubscriptionID apijson.Field
-	raw            string
-	ExtraFields    map[string]apijson.Field
+	EndsAt          apijson.Field
+	ProrationFactor apijson.Field
+	StartsAt        apijson.Field
+	SubscriptionID  apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
 }
 
 func (r *SubscriptionServicePeriod) UnmarshalJSON(data []byte) (err error) {
@@ -926,6 +994,10 @@ type PaymentListResponse struct {
 	Customer                 CustomerLimitedDetails `json:"customer" api:"required"`
 	DigitalProductsDelivered bool                   `json:"digital_products_delivered" api:"required"`
 	HasLicenseKey            bool                   `json:"has_license_key" api:"required"`
+	// True when this payment also bills metered usage or credit overage. The usage is
+	// for the billing cycle before the service period, not for the service period. The
+	// value is set for each payment status. It is false when `charge_type` is null.
+	IncludesUsage bool `json:"includes_usage" api:"required"`
 	// True when one payment starts more than one subscription. Read this field to find
 	// the payment type. Do not read the length of `subscription_ids`. Do not read
 	// `subscription_id` for null.
@@ -944,17 +1016,36 @@ type PaymentListResponse struct {
 	// the same as `subscription_ids`. For a plan change charge, the period starts at
 	// the plan change and ends at the next billing date. The list is empty unless the
 	// payment status is `succeeded`. The list is also empty for a one-time payment, an
-	// on-demand charge, or a payment method update.
+	// on-demand charge, or a payment method update. The list is set for `new`,
+	// `renewal` and `plan_change` charges that succeeded. It can be empty for some
+	// zero-amount payments. A `renewal` with no entry for its subscription bills usage
+	// only. That payment does not extend the service period.
 	ServicePeriods []SubscriptionServicePeriod `json:"service_periods" api:"required"`
 	// Every subscription that this payment starts or charges, in a stable order. It is
 	// empty for a one-time payment. It holds the value of `subscription_id` when the
 	// payment names one subscription.
 	SubscriptionIDs []string `json:"subscription_ids" api:"required"`
 	TotalAmount     int64    `json:"total_amount" api:"required"`
+	// Expiry month of the card, as two digits from `01` to `12`. For Apple Pay and
+	// Google Pay, this is the expiry of the wallet token, which can differ from the
+	// expiry of the physical card.
+	CardExpMonth string `json:"card_exp_month" api:"nullable"`
+	// Expiry year of the card, as four digits, for example `2029`. For Apple Pay and
+	// Google Pay, this is the expiry of the wallet token, which can differ from the
+	// expiry of the physical card.
+	CardExpYear string `json:"card_exp_year" api:"nullable"`
 	// The last four digits of the card
 	CardLastFour string `json:"card_last_four" api:"nullable"`
-	// Card network like VISA, MASTERCARD etc.
+	// Card network, in lowercase, for example `visa`, `mastercard` or `amex`. Older
+	// payments can carry other casing.
 	CardNetwork string `json:"card_network" api:"nullable"`
+	// The type of card, in lowercase: `credit`, `debit` or `prepaid`. Older payments
+	// can carry other casing.
+	CardType string `json:"card_type" api:"nullable"`
+	// The type of subscription charge that this payment is for. Refer to `ChargeType`.
+	// The value is set for each payment status, not only for `succeeded`. The value is
+	// null when this payment charges no subscription.
+	ChargeType ChargeType `json:"charge_type" api:"nullable"`
 	// The ID of the checkout session for this payment. The value is null when the
 	// payment does not use a checkout session.
 	CheckoutSessionID string `json:"checkout_session_id" api:"nullable"`
@@ -962,7 +1053,11 @@ type PaymentListResponse struct {
 	DisputeStatus DisputeStatus `json:"dispute_status" api:"nullable"`
 	// Invoice ID for this payment. Uses India-specific invoice ID if available.
 	InvoiceID string `json:"invoice_id" api:"nullable"`
-	// URL to download the invoice PDF for this payment.
+	// DEPRECATED: Use `GET /invoices/payments/{payment_id}` with an API key. URL to
+	// download the invoice PDF for this payment. The URL has no signed token. If the
+	// business asks for a credential on its invoice links, the URL needs an API key.
+	//
+	// Deprecated: Use `GET /invoices/payments/{payment_id}` with an API key.
 	InvoiceURL        string `json:"invoice_url" api:"nullable"`
 	PaymentMethod     string `json:"payment_method" api:"nullable"`
 	PaymentMethodType string `json:"payment_method_type" api:"nullable"`
@@ -983,6 +1078,7 @@ type paymentListResponseJSON struct {
 	Customer                 apijson.Field
 	DigitalProductsDelivered apijson.Field
 	HasLicenseKey            apijson.Field
+	IncludesUsage            apijson.Field
 	IsMultiSubscription      apijson.Field
 	Metadata                 apijson.Field
 	PaymentID                apijson.Field
@@ -991,8 +1087,12 @@ type paymentListResponseJSON struct {
 	ServicePeriods           apijson.Field
 	SubscriptionIDs          apijson.Field
 	TotalAmount              apijson.Field
+	CardExpMonth             apijson.Field
+	CardExpYear              apijson.Field
 	CardLastFour             apijson.Field
 	CardNetwork              apijson.Field
+	CardType                 apijson.Field
+	ChargeType               apijson.Field
 	CheckoutSessionID        apijson.Field
 	DisputeStatus            apijson.Field
 	InvoiceID                apijson.Field

@@ -727,6 +727,11 @@ type CheckoutSessionPreviewResponseProductCart struct {
 	DiscountAmount int64 `json:"discount_amount" api:"nullable"`
 	// number of cycles the discount will apply
 	DiscountCycle int64 `json:"discount_cycle" api:"nullable"`
+	// The monthly equivalent of the yearly unit price after discounts, in minor units
+	// of `currency`. Only the hosted checkout sets it, when the business shows yearly
+	// plans as monthly. The value is only for display. The order summary shows the
+	// amounts that we charge.
+	MonthlyEquivalent int64 `json:"monthly_equivalent" api:"nullable"`
 	// name of the product
 	Name string `json:"name" api:"nullable"`
 	// total tax
@@ -754,6 +759,7 @@ type checkoutSessionPreviewResponseProductCartJSON struct {
 	Description        apijson.Field
 	DiscountAmount     apijson.Field
 	DiscountCycle      apijson.Field
+	MonthlyEquivalent  apijson.Field
 	Name               apijson.Field
 	Tax                apijson.Field
 	raw                string
