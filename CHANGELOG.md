@@ -1,13 +1,5 @@
 # Changelog
 
-## [1.122.0](https://github.com/dodopayments/dodopayments-go/compare/v1.121.0...v1.122.0) (2026-10-21)
-
-
-### Features
-
-* **api:** payment charge type, usage flag and card details, signed invoice link tokens ([d4d4472](https://github.com/dodopayments/dodopayments-go/commit/d4d4472c8c7ed3e6056858367fd1c12eb109fd54))
-* **api:** payment charge type, usage flag and card details, signed invoice link tokens ([87f1239](https://github.com/dodopayments/dodopayments-go/commit/87f1239f302db3d00306ec2fb83f7b8f45342d5f))
-
 ## [1.121.0](https://github.com/dodopayments/dodopayments-go/compare/v1.120.2...v1.121.0) (2026-10-14)
 
 
