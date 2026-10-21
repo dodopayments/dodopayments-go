@@ -141,7 +141,8 @@ func (r ProductCollectionGroupNewParams) MarshalJSON() (data []byte, err error) 
 
 type ProductCollectionGroupUpdateParams struct {
 	// Optional group name update: Some(Some(name)) = set name, Some(None) = clear
-	// name, None = no change
+	// name, None = no change The API returns 422 if another group in the collection
+	// has no name.
 	GroupName param.Field[string] `json:"group_name"`
 	// Optional new order for products in this group (array of
 	// product_collection_group_pdts UUIDs)

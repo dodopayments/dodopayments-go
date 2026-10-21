@@ -15,7 +15,7 @@ import (
 	"github.com/dodopayments/dodopayments-go/option"
 )
 
-func TestInvoicePaymentGet(t *testing.T) {
+func TestInvoicePaymentGetWithOptionalParams(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte("abc"))
@@ -26,7 +26,13 @@ func TestInvoicePaymentGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	resp, err := client.Invoices.Payments.Get(context.TODO(), "pay_gr4RizvMOXFJ6xca3y2tU")
+	resp, err := client.Invoices.Payments.Get(
+		context.TODO(),
+		"pay_gr4RizvMOXFJ6xca3y2tU",
+		dodopayments.InvoicePaymentGetParams{
+			Token: dodopayments.F("token"),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -49,7 +55,7 @@ func TestInvoicePaymentGet(t *testing.T) {
 	}
 }
 
-func TestInvoicePaymentGetPayout(t *testing.T) {
+func TestInvoicePaymentGetPayoutWithOptionalParams(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte("abc"))
@@ -60,7 +66,13 @@ func TestInvoicePaymentGetPayout(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	resp, err := client.Invoices.Payments.GetPayout(context.TODO(), "pyt_zFTrrn4sk3x3y2vjDBW3T")
+	resp, err := client.Invoices.Payments.GetPayout(
+		context.TODO(),
+		"pyt_zFTrrn4sk3x3y2vjDBW3T",
+		dodopayments.InvoicePaymentGetPayoutParams{
+			Token: dodopayments.F("token"),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -83,7 +95,7 @@ func TestInvoicePaymentGetPayout(t *testing.T) {
 	}
 }
 
-func TestInvoicePaymentGetRefund(t *testing.T) {
+func TestInvoicePaymentGetRefundWithOptionalParams(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte("abc"))
@@ -94,7 +106,13 @@ func TestInvoicePaymentGetRefund(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	resp, err := client.Invoices.Payments.GetRefund(context.TODO(), "ref_F0gZetLvTxxBrMU2CZcmy")
+	resp, err := client.Invoices.Payments.GetRefund(
+		context.TODO(),
+		"ref_F0gZetLvTxxBrMU2CZcmy",
+		dodopayments.InvoicePaymentGetRefundParams{
+			Token: dodopayments.F("token"),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
