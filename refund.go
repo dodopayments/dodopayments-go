@@ -183,6 +183,9 @@ func (r RefundStatus) IsKnown() bool {
 type RefundNewParams struct {
 	// The unique identifier of the payment to be refunded.
 	PaymentID param.Field[string] `json:"payment_id" api:"required"`
+	// The currency of every `items[].amount`. It must be the currency the customer
+	// paid in. Without it, the amounts are in the settlement currency.
+	Currency param.Field[Currency] `json:"currency"`
 	// Partially Refund an Individual Item
 	Items param.Field[[]RefundNewParamsItem] `json:"items"`
 	// Additional metadata associated with the refund.
