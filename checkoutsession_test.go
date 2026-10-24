@@ -340,6 +340,7 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 			}),
 			TaxID: dodopayments.F("tax_id"),
 		},
+		Locale: dodopayments.F("locale"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

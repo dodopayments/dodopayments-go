@@ -28,9 +28,10 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewEntitlementService] method instead.
 type EntitlementService struct {
-	Options []option.RequestOption
-	Files   *EntitlementFileService
-	Grants  *EntitlementGrantService
+	Options      []option.RequestOption
+	Translations *EntitlementTranslationService
+	Files        *EntitlementFileService
+	Grants       *EntitlementGrantService
 }
 
 // NewEntitlementService generates a new service that applies the given options to
@@ -39,6 +40,7 @@ type EntitlementService struct {
 func NewEntitlementService(opts ...option.RequestOption) (r *EntitlementService) {
 	r = &EntitlementService{}
 	r.Options = opts
+	r.Translations = NewEntitlementTranslationService(opts...)
 	r.Files = NewEntitlementFileService(opts...)
 	r.Grants = NewEntitlementGrantService(opts...)
 	return
@@ -53,14 +55,14 @@ func (r *EntitlementService) New(ctx context.Context, body EntitlementNewParams,
 }
 
 // GET /entitlements/{id}
-func (r *EntitlementService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *Entitlement, err error) {
+func (r *EntitlementService) Get(ctx context.Context, id string, query EntitlementGetParams, opts ...option.RequestOption) (res *Entitlement, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("entitlements/%s", id)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -1017,6 +1019,24 @@ func (r EntitlementNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type EntitlementGetParams struct {
+	// Shows the translated name, description and unit of the catalog entities in this
+	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
+	// with no translation, an unknown code, or no code shows the base text.
+	//
+	// Do not send a text from a localized response back in a create or update request.
+	// The base text then changes to the translated text.
+	Locale param.Field[string] `query:"locale"`
+}
+
+// URLQuery serializes [EntitlementGetParams]'s query parameters as `url.Values`.
+func (r EntitlementGetParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
 type EntitlementUpdateParams struct {
 	Description param.Field[string] `json:"description"`
 	// Integration-specific configuration supplied when creating or updating an
@@ -1038,6 +1058,13 @@ func (r EntitlementUpdateParams) MarshalJSON() (data []byte, err error) {
 type EntitlementListParams struct {
 	// Filter by integration type
 	IntegrationType param.Field[EntitlementListParamsIntegrationType] `query:"integration_type"`
+	// Shows the translated name, description and unit of the catalog entities in this
+	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
+	// with no translation, an unknown code, or no code shows the base text.
+	//
+	// Do not send a text from a localized response back in a create or update request.
+	// The base text then changes to the translated text.
+	Locale param.Field[string] `query:"locale"`
 	// Page number (default 0)
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size (default 10, max 100)

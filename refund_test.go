@@ -29,6 +29,7 @@ func TestRefundNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Refunds.New(context.TODO(), dodopayments.RefundNewParams{
 		PaymentID: dodopayments.F("payment_id"),
+		Currency:  dodopayments.F(dodopayments.CurrencyAed),
 		Items: dodopayments.F([]dodopayments.RefundNewParamsItem{{
 			ItemID:       dodopayments.F("item_id"),
 			Amount:       dodopayments.F(int64(0)),

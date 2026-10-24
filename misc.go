@@ -34,6 +34,14 @@ func NewMiscService(opts ...option.RequestOption) (r *MiscService) {
 	return
 }
 
+// Lists the locales that a translation can have.
+func (r *MiscService) ListLocales(ctx context.Context, opts ...option.RequestOption) (res *[]LocaleInfo, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "locales"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return res, err
+}
+
 func (r *MiscService) ListSupportedCountries(ctx context.Context, opts ...option.RequestOption) (res *[]CountryCode, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "checkout/supported_countries"
@@ -460,6 +468,72 @@ func (r Currency) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+// A locale that the checkout and the customer portal can show.
+//
+// The codes are a copy of the checkout locales. `GET /locales` lists them.
+type Locale string
+
+const (
+	LocaleAr Locale = "ar"
+	LocaleCa Locale = "ca"
+	LocaleZh Locale = "zh"
+	LocaleNl Locale = "nl"
+	LocaleEn Locale = "en"
+	LocaleFr Locale = "fr"
+	LocaleDe Locale = "de"
+	LocaleHe Locale = "he"
+	LocaleID Locale = "id"
+	LocaleIt Locale = "it"
+	LocaleJa Locale = "ja"
+	LocaleKa Locale = "ka"
+	LocaleKo Locale = "ko"
+	LocaleMs Locale = "ms"
+	LocalePl Locale = "pl"
+	LocalePt Locale = "pt"
+	LocaleRo Locale = "ro"
+	LocaleRu Locale = "ru"
+	LocaleEs Locale = "es"
+	LocaleSv Locale = "sv"
+	LocaleTh Locale = "th"
+	LocaleTr Locale = "tr"
+)
+
+func (r Locale) IsKnown() bool {
+	switch r {
+	case LocaleAr, LocaleCa, LocaleZh, LocaleNl, LocaleEn, LocaleFr, LocaleDe, LocaleHe, LocaleID, LocaleIt, LocaleJa, LocaleKa, LocaleKo, LocaleMs, LocalePl, LocalePt, LocaleRo, LocaleRu, LocaleEs, LocaleSv, LocaleTh, LocaleTr:
+		return true
+	}
+	return false
+}
+
+// A locale that the checkout and the customer portal can show.
+type LocaleInfo struct {
+	// The code to send in the `locale` parameter.
+	Code Locale `json:"code" api:"required"`
+	// The English name of the language.
+	Name string `json:"name" api:"required"`
+	// The name of the language in that language.
+	NativeName string         `json:"native_name" api:"required"`
+	JSON       localeInfoJSON `json:"-"`
+}
+
+// localeInfoJSON contains the JSON metadata for the struct [LocaleInfo]
+type localeInfoJSON struct {
+	Code        apijson.Field
+	Name        apijson.Field
+	NativeName  apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *LocaleInfo) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r localeInfoJSON) RawJSON() string {
+	return r.raw
 }
 
 type Metadata map[string]MetadataItemUnion

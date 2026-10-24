@@ -29,7 +29,8 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewMeterService] method instead.
 type MeterService struct {
-	Options []option.RequestOption
+	Options      []option.RequestOption
+	Translations *MeterTranslationService
 }
 
 // NewMeterService generates a new service that applies the given options to each
@@ -38,6 +39,7 @@ type MeterService struct {
 func NewMeterService(opts ...option.RequestOption) (r *MeterService) {
 	r = &MeterService{}
 	r.Options = opts
+	r.Translations = NewMeterTranslationService(opts...)
 	return
 }
 
@@ -48,14 +50,25 @@ func (r *MeterService) New(ctx context.Context, body MeterNewParams, opts ...opt
 	return res, err
 }
 
-func (r *MeterService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *Meter, err error) {
+func (r *MeterService) Get(ctx context.Context, id string, query MeterGetParams, opts ...option.RequestOption) (res *Meter, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("meters/%s", id)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
+}
+
+func (r *MeterService) Update(ctx context.Context, id string, body MeterUpdateParams, opts ...option.RequestOption) (res *Meter, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("meters/%s", id)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
 	return res, err
 }
 
@@ -436,9 +449,48 @@ func (r MeterNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type MeterGetParams struct {
+	// Shows the translated name, description and unit of the catalog entities in this
+	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
+	// with no translation, an unknown code, or no code shows the base text.
+	//
+	// Do not send a text from a localized response back in a create or update request.
+	// The base text then changes to the translated text.
+	Locale param.Field[string] `query:"locale"`
+}
+
+// URLQuery serializes [MeterGetParams]'s query parameters as `url.Values`.
+func (r MeterGetParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type MeterUpdateParams struct {
+	// Description of the meter. Send `null` to remove the description. Omit it to keep
+	// it.
+	Description param.Field[string] `json:"description"`
+	// Measurement unit
+	MeasurementUnit param.Field[string] `json:"measurement_unit"`
+	// Name of the meter
+	Name param.Field[string] `json:"name"`
+}
+
+func (r MeterUpdateParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type MeterListParams struct {
 	// List archived meters
 	Archived param.Field[bool] `query:"archived"`
+	// Shows the translated name, description and unit of the catalog entities in this
+	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
+	// with no translation, an unknown code, or no code shows the base text.
+	//
+	// Do not send a text from a localized response back in a create or update request.
+	// The base text then changes to the translated text.
+	Locale param.Field[string] `query:"locale"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100

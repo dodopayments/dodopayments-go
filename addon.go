@@ -26,7 +26,8 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewAddonService] method instead.
 type AddonService struct {
-	Options []option.RequestOption
+	Options      []option.RequestOption
+	Translations *AddonTranslationService
 }
 
 // NewAddonService generates a new service that applies the given options to each
@@ -35,6 +36,7 @@ type AddonService struct {
 func NewAddonService(opts ...option.RequestOption) (r *AddonService) {
 	r = &AddonService{}
 	r.Options = opts
+	r.Translations = NewAddonTranslationService(opts...)
 	return
 }
 
@@ -45,14 +47,14 @@ func (r *AddonService) New(ctx context.Context, body AddonNewParams, opts ...opt
 	return res, err
 }
 
-func (r *AddonService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *AddonResponse, err error) {
+func (r *AddonService) Get(ctx context.Context, id string, query AddonGetParams, opts ...option.RequestOption) (res *AddonResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("addons/%s", id)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -86,6 +88,30 @@ func (r *AddonService) List(ctx context.Context, query AddonListParams, opts ...
 
 func (r *AddonService) ListAutoPaging(ctx context.Context, query AddonListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[AddonResponse] {
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
+}
+
+func (r *AddonService) Delete(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return err
+	}
+	path := fmt.Sprintf("addons/%s", id)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
+	return err
+}
+
+func (r *AddonService) Unarchive(ctx context.Context, id string, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	if id == "" {
+		err = errors.New("missing required id parameter")
+		return err
+	}
+	path := fmt.Sprintf("addons/%s/unarchive", id)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, nil, opts...)
+	return err
 }
 
 func (r *AddonService) UpdateImages(ctx context.Context, id string, opts ...option.RequestOption) (res *AddonUpdateImagesResponse, err error) {
@@ -187,6 +213,24 @@ func (r AddonNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type AddonGetParams struct {
+	// Shows the translated name, description and unit of the catalog entities in this
+	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
+	// with no translation, an unknown code, or no code shows the base text.
+	//
+	// Do not send a text from a localized response back in a create or update request.
+	// The base text then changes to the translated text.
+	Locale param.Field[string] `query:"locale"`
+}
+
+// URLQuery serializes [AddonGetParams]'s query parameters as `url.Values`.
+func (r AddonGetParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
 type AddonUpdateParams struct {
 	// The currency of the Addon
 	Currency param.Field[Currency] `json:"currency"`
@@ -208,6 +252,15 @@ func (r AddonUpdateParams) MarshalJSON() (data []byte, err error) {
 }
 
 type AddonListParams struct {
+	// List archived addons. The default is false.
+	Archived param.Field[bool] `query:"archived"`
+	// Shows the translated name, description and unit of the catalog entities in this
+	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
+	// with no translation, an unknown code, or no code shows the base text.
+	//
+	// Do not send a text from a localized response back in a create or update request.
+	// The base text then changes to the translated text.
+	Locale param.Field[string] `query:"locale"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100

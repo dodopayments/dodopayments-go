@@ -78,14 +78,14 @@ func (r *PaymentService) ListAutoPaging(ctx context.Context, query PaymentListPa
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, query, opts...))
 }
 
-func (r *PaymentService) GetLineItems(ctx context.Context, paymentID string, opts ...option.RequestOption) (res *PaymentGetLineItemsResponse, err error) {
+func (r *PaymentService) GetLineItems(ctx context.Context, paymentID string, query PaymentGetLineItemsParams, opts ...option.RequestOption) (res *PaymentGetLineItemsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if paymentID == "" {
 		err = errors.New("missing required payment_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("payments/%s/line-items", paymentID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -594,6 +594,16 @@ type Payment struct {
 	// Amount of tax collected in the currency's smallest unit (e.g. cents for USD, yen
 	// for JPY, fils for KWD)
 	Tax int64 `json:"tax" api:"nullable"`
+	// How the cardholder completed the 3DS authentication. The value is null when the
+	// processor does not report it.
+	ThreeDSFlow ThreeDSFlow `json:"three_ds_flow" api:"nullable"`
+	// The result of the 3DS authentication, as the processor reports it. The value is
+	// null when the processor reports no 3DS data, for example when the payment did
+	// not use 3DS.
+	ThreeDSStatus ThreeDSStatus `json:"three_ds_status" api:"nullable"`
+	// The 3DS protocol version, for example `2.2.0`. The value is null when the
+	// processor does not report it.
+	ThreeDSVersion string `json:"three_ds_version" api:"nullable"`
 	// Timestamp when the payment was last updated
 	UpdatedAt time.Time   `json:"updated_at" api:"nullable" format:"date-time"`
 	JSON      paymentJSON `json:"-"`
@@ -648,6 +658,9 @@ type paymentJSON struct {
 	Status                   apijson.Field
 	SubscriptionID           apijson.Field
 	Tax                      apijson.Field
+	ThreeDSFlow              apijson.Field
+	ThreeDSStatus            apijson.Field
+	ThreeDSVersion           apijson.Field
 	UpdatedAt                apijson.Field
 	raw                      string
 	ExtraFields              map[string]apijson.Field
@@ -933,6 +946,43 @@ func (r subscriptionServicePeriodJSON) RawJSON() string {
 	return r.raw
 }
 
+// How the cardholder completed the 3DS authentication.
+type ThreeDSFlow string
+
+const (
+	ThreeDSFlowChallenge    ThreeDSFlow = "challenge"
+	ThreeDSFlowFrictionless ThreeDSFlow = "frictionless"
+)
+
+func (r ThreeDSFlow) IsKnown() bool {
+	switch r {
+	case ThreeDSFlowChallenge, ThreeDSFlowFrictionless:
+		return true
+	}
+	return false
+}
+
+// The result of the 3DS authentication of a card payment, as the processor reports
+// it.
+type ThreeDSStatus string
+
+const (
+	ThreeDSStatusAuthenticated       ThreeDSStatus = "authenticated"
+	ThreeDSStatusAttemptAcknowledged ThreeDSStatus = "attempt_acknowledged"
+	ThreeDSStatusExempted            ThreeDSStatus = "exempted"
+	ThreeDSStatusFailed              ThreeDSStatus = "failed"
+	ThreeDSStatusNotSupported        ThreeDSStatus = "not_supported"
+	ThreeDSStatusProcessingError     ThreeDSStatus = "processing_error"
+)
+
+func (r ThreeDSStatus) IsKnown() bool {
+	switch r {
+	case ThreeDSStatusAuthenticated, ThreeDSStatusAttemptAcknowledged, ThreeDSStatusExempted, ThreeDSStatusFailed, ThreeDSStatusNotSupported, ThreeDSStatusProcessingError:
+		return true
+	}
+	return false
+}
+
 type PaymentNewResponse struct {
 	// Client secret used to load Dodo checkout SDK NOTE : Dodo checkout SDK will be
 	// coming soon
@@ -1063,9 +1113,19 @@ type PaymentListResponse struct {
 	PaymentMethodType string `json:"payment_method_type" api:"nullable"`
 	// Summary of the refund status for this payment. None if no succeeded refunds
 	// exist.
-	RefundStatus   PaymentRefundStatus     `json:"refund_status" api:"nullable"`
-	Status         IntentStatus            `json:"status" api:"nullable"`
-	SubscriptionID string                  `json:"subscription_id" api:"nullable"`
+	RefundStatus   PaymentRefundStatus `json:"refund_status" api:"nullable"`
+	Status         IntentStatus        `json:"status" api:"nullable"`
+	SubscriptionID string              `json:"subscription_id" api:"nullable"`
+	// How the cardholder completed the 3DS authentication. The value is null when the
+	// processor does not report it.
+	ThreeDSFlow ThreeDSFlow `json:"three_ds_flow" api:"nullable"`
+	// The result of the 3DS authentication, as the processor reports it. The value is
+	// null when the processor reports no 3DS data, for example when the payment did
+	// not use 3DS.
+	ThreeDSStatus ThreeDSStatus `json:"three_ds_status" api:"nullable"`
+	// The 3DS protocol version, for example `2.2.0`. The value is null when the
+	// processor does not report it.
+	ThreeDSVersion string                  `json:"three_ds_version" api:"nullable"`
 	JSON           paymentListResponseJSON `json:"-"`
 }
 
@@ -1102,6 +1162,9 @@ type paymentListResponseJSON struct {
 	RefundStatus             apijson.Field
 	Status                   apijson.Field
 	SubscriptionID           apijson.Field
+	ThreeDSFlow              apijson.Field
+	ThreeDSStatus            apijson.Field
+	ThreeDSVersion           apijson.Field
 	raw                      string
 	ExtraFields              map[string]apijson.Field
 }
@@ -1135,16 +1198,19 @@ func (r PaymentListResponsePaymentProvider) IsKnown() bool {
 type PaymentGetLineItemsResponse struct {
 	Currency Currency                          `json:"currency" api:"required"`
 	Items    []PaymentGetLineItemsResponseItem `json:"items" api:"required"`
-	JSON     paymentGetLineItemsResponseJSON   `json:"-"`
+	// False when the payment method does not allow a partial refund of this payment.
+	PartialRefundAllowed bool                            `json:"partial_refund_allowed" api:"required"`
+	JSON                 paymentGetLineItemsResponseJSON `json:"-"`
 }
 
 // paymentGetLineItemsResponseJSON contains the JSON metadata for the struct
 // [PaymentGetLineItemsResponse]
 type paymentGetLineItemsResponseJSON struct {
-	Currency    apijson.Field
-	Items       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	Currency             apijson.Field
+	Items                apijson.Field
+	PartialRefundAllowed apijson.Field
+	raw                  string
+	ExtraFields          map[string]apijson.Field
 }
 
 func (r *PaymentGetLineItemsResponse) UnmarshalJSON(data []byte) (err error) {
@@ -1464,4 +1530,19 @@ func (r PaymentListParamsStatus) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+type PaymentGetLineItemsParams struct {
+	// The currency of the amounts. It must be the currency that the customer paid in.
+	// Without it, the amounts are in the settlement currency.
+	Currency param.Field[Currency] `query:"currency"`
+}
+
+// URLQuery serializes [PaymentGetLineItemsParams]'s query parameters as
+// `url.Values`.
+func (r PaymentGetLineItemsParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
