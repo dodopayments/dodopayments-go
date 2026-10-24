@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.123.0](https://github.com/dodopayments/dodopayments-go/compare/v1.122.0...v1.123.0) (2026-10-24)
+
+
+### Features
+
+* **api:** translations and locales, addon delete/unarchive, meter update, 3DS payment details ([1ac7a8d](https://github.com/dodopayments/dodopayments-go/commit/1ac7a8d74ff1c4a6fc58b2d6f1aeac5933b9f2c6))
+* **api:** translations and locales, addon delete/unarchive, meter update, 3DS payment details ([6053650](https://github.com/dodopayments/dodopayments-go/commit/6053650defba8ef3ac95d7f9a7d3862993146f63))
+
 ## [1.122.0](https://github.com/dodopayments/dodopayments-go/compare/v1.121.0...v1.122.0) (2026-10-21)
 
 
