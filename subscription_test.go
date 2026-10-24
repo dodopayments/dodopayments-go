@@ -85,7 +85,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestSubscriptionGet(t *testing.T) {
+func TestSubscriptionGetWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -97,7 +97,13 @@ func TestSubscriptionGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Subscriptions.Get(context.TODO(), "sub_Iuaq622bbmmfOGrVTqdXv")
+	_, err := client.Subscriptions.Get(
+		context.TODO(),
+		"sub_Iuaq622bbmmfOGrVTqdXv",
+		dodopayments.SubscriptionGetParams{
+			Locale: dodopayments.F("locale"),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -190,6 +196,7 @@ func TestSubscriptionListWithOptionalParams(t *testing.T) {
 		CreatedAtGte:            dodopayments.F(time.Now()),
 		CreatedAtLte:            dodopayments.F(time.Now()),
 		CustomerID:              dodopayments.F("customer_id"),
+		Locale:                  dodopayments.F("locale"),
 		PageNumber:              dodopayments.F(int64(0)),
 		PageSize:                dodopayments.F(int64(0)),
 		ProductID:               dodopayments.F("product_id"),

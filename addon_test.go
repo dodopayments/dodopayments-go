@@ -41,7 +41,7 @@ func TestAddonNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestAddonGet(t *testing.T) {
+func TestAddonGetWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -53,7 +53,13 @@ func TestAddonGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Addons.Get(context.TODO(), "adn_NX1zdqW4Hbivsqz8vI9dc")
+	_, err := client.Addons.Get(
+		context.TODO(),
+		"adn_NX1zdqW4Hbivsqz8vI9dc",
+		dodopayments.AddonGetParams{
+			Locale: dodopayments.F("locale"),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -109,9 +115,55 @@ func TestAddonListWithOptionalParams(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Addons.List(context.TODO(), dodopayments.AddonListParams{
+		Archived:   dodopayments.F(true),
+		Locale:     dodopayments.F("locale"),
 		PageNumber: dodopayments.F(int64(0)),
 		PageSize:   dodopayments.F(int64(0)),
 	})
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestAddonDelete(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	err := client.Addons.Delete(context.TODO(), "adn_NX1zdqW4Hbivsqz8vI9dc")
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestAddonUnarchive(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	err := client.Addons.Unarchive(context.TODO(), "adn_NX1zdqW4Hbivsqz8vI9dc")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

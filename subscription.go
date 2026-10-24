@@ -48,14 +48,14 @@ func (r *SubscriptionService) New(ctx context.Context, body SubscriptionNewParam
 	return res, err
 }
 
-func (r *SubscriptionService) Get(ctx context.Context, subscriptionID string, opts ...option.RequestOption) (res *Subscription, err error) {
+func (r *SubscriptionService) Get(ctx context.Context, subscriptionID string, query SubscriptionGetParams, opts ...option.RequestOption) (res *Subscription, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if subscriptionID == "" {
 		err = errors.New("missing required subscription_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("subscriptions/%s", subscriptionID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -858,6 +858,11 @@ type UpdateSubscriptionPlanReqParam struct {
 	//   - `apply_change` (default): Apply plan change immediately regardless of payment
 	//     outcome
 	//
+	// With `effective_at: next_billing_date`, the plan change payment replaces the
+	// renewal payment. If that payment fails with `prevent_change`, the plan change is
+	// cancelled. The subscription then renews on the current plan, with the usual
+	// payment retries.
+	//
 	// If not specified, uses the business-level default setting.
 	OnPaymentFailure param.Field[UpdateSubscriptionPlanReqOnPaymentFailure] `json:"on_payment_failure"`
 	// The URL that receives the customer after they pay the payment link. Needs
@@ -920,6 +925,11 @@ func (r UpdateSubscriptionPlanReqEffectiveAt) IsKnown() bool {
 //   - `prevent_change`: Keep subscription on current plan until payment succeeds
 //   - `apply_change` (default): Apply plan change immediately regardless of payment
 //     outcome
+//
+// With `effective_at: next_billing_date`, the plan change payment replaces the
+// renewal payment. If that payment fails with `prevent_change`, the plan change is
+// cancelled. The subscription then renews on the current plan, with the usual
+// payment retries.
 //
 // If not specified, uses the business-level default setting.
 type UpdateSubscriptionPlanReqOnPaymentFailure string
@@ -1892,6 +1902,24 @@ func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type SubscriptionGetParams struct {
+	// Shows the translated name, description and unit of the catalog entities in this
+	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
+	// with no translation, an unknown code, or no code shows the base text.
+	//
+	// Do not send a text from a localized response back in a create or update request.
+	// The base text then changes to the translated text.
+	Locale param.Field[string] `query:"locale"`
+}
+
+// URLQuery serializes [SubscriptionGetParams]'s query parameters as `url.Values`.
+func (r SubscriptionGetParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
 type SubscriptionUpdateParams struct {
 	Billing param.Field[BillingAddressParam] `json:"billing"`
 	// When set, the subscription will remain active until the end of billing period
@@ -2003,6 +2031,13 @@ type SubscriptionListParams struct {
 	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
 	// Filter by customer id
 	CustomerID param.Field[string] `query:"customer_id"`
+	// Shows the translated name, description and unit of the catalog entities in this
+	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
+	// with no translation, an unknown code, or no code shows the base text.
+	//
+	// Do not send a text from a localized response back in a create or update request.
+	// The base text then changes to the translated text.
+	Locale param.Field[string] `query:"locale"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100

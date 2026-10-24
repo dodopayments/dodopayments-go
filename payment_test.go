@@ -126,7 +126,7 @@ func TestPaymentListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestPaymentGetLineItems(t *testing.T) {
+func TestPaymentGetLineItemsWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -138,7 +138,13 @@ func TestPaymentGetLineItems(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Payments.GetLineItems(context.TODO(), "pay_gr4RizvMOXFJ6xca3y2tU")
+	_, err := client.Payments.GetLineItems(
+		context.TODO(),
+		"pay_gr4RizvMOXFJ6xca3y2tU",
+		dodopayments.PaymentGetLineItemsParams{
+			Currency: dodopayments.F(dodopayments.CurrencyAed),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {

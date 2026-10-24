@@ -187,9 +187,11 @@ type Customer struct {
 	// Blocklist entry behind `blocked_at`, so the dashboard can link to it.
 	BlocklistEntryID string `json:"blocklist_entry_id" api:"nullable"`
 	// Additional metadata for the customer
-	Metadata    Metadata     `json:"metadata"`
-	PhoneNumber string       `json:"phone_number" api:"nullable"`
-	JSON        customerJSON `json:"-"`
+	Metadata    Metadata `json:"metadata"`
+	PhoneNumber string   `json:"phone_number" api:"nullable"`
+	// The language of the customer emails. `null` gives English.
+	PreferredLocale Locale       `json:"preferred_locale" api:"nullable"`
+	JSON            customerJSON `json:"-"`
 }
 
 // customerJSON contains the JSON metadata for the struct [Customer]
@@ -203,6 +205,7 @@ type customerJSON struct {
 	BlocklistEntryID apijson.Field
 	Metadata         apijson.Field
 	PhoneNumber      apijson.Field
+	PreferredLocale  apijson.Field
 	raw              string
 	ExtraFields      map[string]apijson.Field
 }
@@ -497,6 +500,10 @@ type CustomerNewParams struct {
 	// Additional metadata for the customer
 	Metadata    param.Field[MetadataParam] `json:"metadata"`
 	PhoneNumber param.Field[string]        `json:"phone_number"`
+	// The language of the customer emails, a code from `GET /locales`. With no value,
+	// the emails are in English until a checkout or the customer portal sets a
+	// language.
+	PreferredLocale param.Field[Locale] `json:"preferred_locale"`
 }
 
 func (r CustomerNewParams) MarshalJSON() (data []byte, err error) {
@@ -509,6 +516,10 @@ type CustomerUpdateParams struct {
 	Metadata    param.Field[MetadataParam] `json:"metadata"`
 	Name        param.Field[string]        `json:"name"`
 	PhoneNumber param.Field[string]        `json:"phone_number"`
+	// The language of the customer emails, a code from `GET /locales`. A value
+	// replaces the current language, and `null` removes it. Send this field only to
+	// change the language on purpose. With no language, the emails are in English.
+	PreferredLocale param.Field[Locale] `json:"preferred_locale"`
 }
 
 func (r CustomerUpdateParams) MarshalJSON() (data []byte, err error) {

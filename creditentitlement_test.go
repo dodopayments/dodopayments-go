@@ -51,7 +51,7 @@ func TestCreditEntitlementNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestCreditEntitlementGet(t *testing.T) {
+func TestCreditEntitlementGetWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -63,7 +63,13 @@ func TestCreditEntitlementGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.CreditEntitlements.Get(context.TODO(), "cde_ztxm5XJsKxWucRWA3rjdM")
+	_, err := client.CreditEntitlements.Get(
+		context.TODO(),
+		"cde_ztxm5XJsKxWucRWA3rjdM",
+		dodopayments.CreditEntitlementGetParams{
+			Locale: dodopayments.F("locale"),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -128,6 +134,7 @@ func TestCreditEntitlementListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.CreditEntitlements.List(context.TODO(), dodopayments.CreditEntitlementListParams{
 		Deleted:    dodopayments.F(true),
+		Locale:     dodopayments.F("locale"),
 		PageNumber: dodopayments.F(int64(0)),
 		PageSize:   dodopayments.F(int64(0)),
 	})
