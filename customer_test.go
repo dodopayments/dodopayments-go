@@ -33,7 +33,8 @@ func TestCustomerNewWithOptionalParams(t *testing.T) {
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": shared.UnionString("string"),
 		}),
-		PhoneNumber: dodopayments.F("phone_number"),
+		PhoneNumber:     dodopayments.F("phone_number"),
+		PreferredLocale: dodopayments.F(dodopayments.LocaleAr),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
@@ -86,8 +87,9 @@ func TestCustomerUpdateWithOptionalParams(t *testing.T) {
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": shared.UnionString("string"),
 			}),
-			Name:        dodopayments.F("name"),
-			PhoneNumber: dodopayments.F("phone_number"),
+			Name:            dodopayments.F("name"),
+			PhoneNumber:     dodopayments.F("phone_number"),
+			PreferredLocale: dodopayments.F(dodopayments.LocaleAr),
 		},
 	)
 	if err != nil {

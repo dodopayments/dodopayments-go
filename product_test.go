@@ -90,7 +90,7 @@ func TestProductNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestProductGet(t *testing.T) {
+func TestProductGetWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -102,7 +102,13 @@ func TestProductGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Products.Get(context.TODO(), "pdt_R8AWMPiV8RyJElcCKvAID")
+	_, err := client.Products.Get(
+		context.TODO(),
+		"pdt_R8AWMPiV8RyJElcCKvAID",
+		dodopayments.ProductGetParams{
+			Locale: dodopayments.F("locale"),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -209,6 +215,7 @@ func TestProductListWithOptionalParams(t *testing.T) {
 	_, err := client.Products.List(context.TODO(), dodopayments.ProductListParams{
 		Archived:   dodopayments.F(true),
 		BrandID:    dodopayments.F("brand_id"),
+		Locale:     dodopayments.F("locale"),
 		PageNumber: dodopayments.F(int64(0)),
 		PageSize:   dodopayments.F(int64(0)),
 		Recurring:  dodopayments.F(true),

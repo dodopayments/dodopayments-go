@@ -57,7 +57,7 @@ func TestMeterNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestMeterGet(t *testing.T) {
+func TestMeterGetWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -69,7 +69,43 @@ func TestMeterGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Meters.Get(context.TODO(), "mtr_h5tgTWL55OyMO0L2Q9w9v")
+	_, err := client.Meters.Get(
+		context.TODO(),
+		"mtr_h5tgTWL55OyMO0L2Q9w9v",
+		dodopayments.MeterGetParams{
+			Locale: dodopayments.F("locale"),
+		},
+	)
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestMeterUpdateWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Meters.Update(
+		context.TODO(),
+		"mtr_h5tgTWL55OyMO0L2Q9w9v",
+		dodopayments.MeterUpdateParams{
+			Description:     dodopayments.F("description"),
+			MeasurementUnit: dodopayments.F("measurement_unit"),
+			Name:            dodopayments.F("name"),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -93,6 +129,7 @@ func TestMeterListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Meters.List(context.TODO(), dodopayments.MeterListParams{
 		Archived:   dodopayments.F(true),
+		Locale:     dodopayments.F("locale"),
 		PageNumber: dodopayments.F(int64(0)),
 		PageSize:   dodopayments.F(int64(0)),
 	})

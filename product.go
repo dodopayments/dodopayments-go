@@ -29,6 +29,7 @@ import (
 // the [NewProductService] method instead.
 type ProductService struct {
 	Options         []option.RequestOption
+	Translations    *ProductTranslationService
 	Images          *ProductImageService
 	ShortLinks      *ProductShortLinkService
 	LocalizedPrices *ProductLocalizedPriceService
@@ -40,6 +41,7 @@ type ProductService struct {
 func NewProductService(opts ...option.RequestOption) (r *ProductService) {
 	r = &ProductService{}
 	r.Options = opts
+	r.Translations = NewProductTranslationService(opts...)
 	r.Images = NewProductImageService(opts...)
 	r.ShortLinks = NewProductShortLinkService(opts...)
 	r.LocalizedPrices = NewProductLocalizedPriceService(opts...)
@@ -53,14 +55,14 @@ func (r *ProductService) New(ctx context.Context, body ProductNewParams, opts ..
 	return res, err
 }
 
-func (r *ProductService) Get(ctx context.Context, id string, opts ...option.RequestOption) (res *Product, err error) {
+func (r *ProductService) Get(ctx context.Context, id string, query ProductGetParams, opts ...option.RequestOption) (res *Product, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("products/%s", id)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -1520,6 +1522,24 @@ func (r ProductNewParamsDigitalProductDelivery) MarshalJSON() (data []byte, err 
 	return apijson.MarshalRoot(r)
 }
 
+type ProductGetParams struct {
+	// Shows the translated name, description and unit of the catalog entities in this
+	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
+	// with no translation, an unknown code, or no code shows the base text.
+	//
+	// Do not send a text from a localized response back in a create or update request.
+	// The base text then changes to the translated text.
+	Locale param.Field[string] `query:"locale"`
+}
+
+// URLQuery serializes [ProductGetParams]'s query parameters as `url.Values`.
+func (r ProductGetParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
 type ProductUpdateParams struct {
 	// Available Addons for subscription products
 	Addons  param.Field[[]string] `json:"addons"`
@@ -1605,6 +1625,13 @@ type ProductListParams struct {
 	Archived param.Field[bool] `query:"archived"`
 	// filter by Brand id
 	BrandID param.Field[string] `query:"brand_id"`
+	// Shows the translated name, description and unit of the catalog entities in this
+	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
+	// with no translation, an unknown code, or no code shows the base text.
+	//
+	// Do not send a text from a localized response back in a create or update request.
+	// The base text then changes to the translated text.
+	Locale param.Field[string] `query:"locale"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100

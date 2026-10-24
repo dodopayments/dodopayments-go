@@ -7,10 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
+	"github.com/dodopayments/dodopayments-go/internal/apiquery"
 	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
@@ -53,10 +55,10 @@ func (r *CheckoutSessionService) Get(ctx context.Context, id string, opts ...opt
 	return res, err
 }
 
-func (r *CheckoutSessionService) Preview(ctx context.Context, body CheckoutSessionPreviewParams, opts ...option.RequestOption) (res *CheckoutSessionPreviewResponse, err error) {
+func (r *CheckoutSessionService) Preview(ctx context.Context, params CheckoutSessionPreviewParams, opts ...option.RequestOption) (res *CheckoutSessionPreviewResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "checkouts/preview"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
 
@@ -976,8 +978,24 @@ func (r CheckoutSessionNewParams) MarshalJSON() (data []byte, err error) {
 
 type CheckoutSessionPreviewParams struct {
 	CheckoutSessionRequest CheckoutSessionRequestParam `json:"checkout_session_request" api:"required"`
+	// Shows the translated name, description and unit of the catalog entities in this
+	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
+	// with no translation, an unknown code, or no code shows the base text.
+	//
+	// Do not send a text from a localized response back in a create or update request.
+	// The base text then changes to the translated text.
+	Locale param.Field[string] `query:"locale"`
 }
 
 func (r CheckoutSessionPreviewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r.CheckoutSessionRequest)
+}
+
+// URLQuery serializes [CheckoutSessionPreviewParams]'s query parameters as
+// `url.Values`.
+func (r CheckoutSessionPreviewParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
