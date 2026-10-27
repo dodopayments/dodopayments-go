@@ -224,6 +224,11 @@ type RequestConfig struct {
 	Middlewares    []middleware
 	BearerToken    string
 	WebhookKey     string
+	// WorkloadIdentity holds the workload identity configuration and the cached access
+	// token.
+	WorkloadIdentity *WorkloadIdentityState
+	// ExplicitBearerToken is false when the bearer token comes from the environment.
+	ExplicitBearerToken bool
 	// If ResponseBodyInto not nil, then we will attempt to deserialize into
 	// ResponseBodyInto. If Destination is a []byte, then it will return the body as
 	// is.
@@ -426,6 +431,10 @@ func (cfg *RequestConfig) Execute() (err error) {
 	for i := len(cfg.Middlewares) - 1; i >= 0; i -= 1 {
 		handler = applyMiddleware(cfg.Middlewares[i], handler)
 	}
+	handler, err = cfg.withWorkloadIdentity(handler)
+	if err != nil {
+		return err
+	}
 
 	// Don't send the current retry count in the headers if the caller modified the header defaults.
 	shouldSendRetryCount := cfg.Request.Header.Get("X-Stainless-Retry-Count") == "0"
@@ -450,6 +459,9 @@ func (cfg *RequestConfig) Execute() (err error) {
 		}
 
 		res, err = handler(req)
+		if wiErr, ok := err.(*workloadIdentityError); ok {
+			return wiErr.err
+		}
 		if ctx != nil && ctx.Err() != nil {
 			return ctx.Err()
 		}
@@ -590,15 +602,17 @@ func (cfg *RequestConfig) Clone(ctx context.Context) *RequestConfig {
 		return nil
 	}
 	new := &RequestConfig{
-		MaxRetries:     cfg.MaxRetries,
-		RequestTimeout: cfg.RequestTimeout,
-		Context:        ctx,
-		Request:        req,
-		BaseURL:        cfg.BaseURL,
-		HTTPClient:     cfg.HTTPClient,
-		Middlewares:    cfg.Middlewares,
-		BearerToken:    cfg.BearerToken,
-		WebhookKey:     cfg.WebhookKey,
+		MaxRetries:          cfg.MaxRetries,
+		RequestTimeout:      cfg.RequestTimeout,
+		Context:             ctx,
+		Request:             req,
+		BaseURL:             cfg.BaseURL,
+		HTTPClient:          cfg.HTTPClient,
+		Middlewares:         cfg.Middlewares,
+		BearerToken:         cfg.BearerToken,
+		WebhookKey:          cfg.WebhookKey,
+		WorkloadIdentity:    cfg.WorkloadIdentity,
+		ExplicitBearerToken: cfg.ExplicitBearerToken,
 	}
 
 	return new

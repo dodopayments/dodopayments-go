@@ -44,6 +44,7 @@ type Client struct {
 	Entitlements        *EntitlementService
 	ProductCollections  *ProductCollectionService
 	Moderation          *ModerationService
+	WorkloadIdentity    *WorkloadIdentityService
 }
 
 // DefaultClientOptions read from the environment (DODO_PAYMENTS_API_KEY,
@@ -60,6 +61,7 @@ func DefaultClientOptions() []option.RequestOption {
 	if o, ok := os.LookupEnv("DODO_PAYMENTS_WEBHOOK_KEY"); ok {
 		defaults = append(defaults, option.WithWebhookKey(o))
 	}
+	defaults = append(defaults, requestconfig.WithWorkloadIdentityFromEnvironment())
 	if o, ok := os.LookupEnv("DODO_PAYMENTS_CUSTOM_HEADERS"); ok {
 		for _, line := range strings.Split(o, "\n") {
 			colon := strings.Index(line, ":")
@@ -107,6 +109,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Entitlements = NewEntitlementService(opts...)
 	r.ProductCollections = NewProductCollectionService(opts...)
 	r.Moderation = NewModerationService(opts...)
+	r.WorkloadIdentity = NewWorkloadIdentityService(opts...)
 
 	return
 }
