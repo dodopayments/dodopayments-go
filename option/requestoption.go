@@ -277,6 +277,7 @@ func WithEnvironmentTestMode() RequestOption {
 func WithBearerToken(value string) RequestOption {
 	return requestconfig.RequestOptionFunc(func(r *requestconfig.RequestConfig) error {
 		r.BearerToken = value
+		r.ExplicitBearerToken = true
 		return r.Apply(WithHeader("authorization", fmt.Sprintf("Bearer %s", r.BearerToken)))
 	})
 }
