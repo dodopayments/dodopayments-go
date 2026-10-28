@@ -30,7 +30,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/dodopayments/dodopayments-go@v1.123.0'
+go get -u 'github.com/dodopayments/dodopayments-go@v1.124.0'
 ```
 
 <!-- x-release-please-end -->
@@ -379,6 +379,25 @@ with `result.JSON.RawJSON()`, or get the raw JSON of a particular field on the r
 `result.JSON.Foo.Raw()`.
 
 Any fields that are not present on the response struct will be saved and can be accessed by `result.JSON.ExtraFields()` which returns the extra fields as a `map[string]Field`.
+
+### Workload identity
+
+To authenticate without an API key, use workload identity federation. The client exchanges a token from your platform (a JWT) for a short-lived access token. The client caches the access token and gets a new one when 5 minutes or less remain.
+
+```go
+client := dodopayments.NewClient(
+	option.WithWorkloadIdentity(option.WorkloadIdentity{
+		IdentityProviderID: "wip_...",                          // defaults to os.LookupEnv("DODO_PAYMENTS_IDENTITY_PROVIDER_ID")
+		Provider:           workloadidentity.GitHubActions(""), // defaults to workloadidentity.Auto()
+	}),
+)
+```
+
+The `workloadidentity` package has these token sources: `GitHubActions`, `GitLab`, `TerraformCloud`, `GCP`, `Vercel`, `Kubernetes`, `File`, `AWS`, `Static` and `Auto`. You can also supply an `option.SubjectTokenProvider` or an `option.SubjectTokenProviderFunc`.
+
+Do not use `option.WithBearerToken` together with `option.WithWorkloadIdentity`. If you supply neither and `DODO_PAYMENTS_API_KEY` is not set, the client uses workload identity when `DODO_PAYMENTS_IDENTITY_PROVIDER_ID` is set and `workloadidentity.Auto()` finds a token source.
+
+To revoke the cached access token, call `client.WorkloadIdentity.Revoke(ctx)`.
 
 ### Middleware
 
