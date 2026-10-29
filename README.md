@@ -30,7 +30,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/dodopayments/dodopayments-go@v1.124.0'
+go get -u 'github.com/dodopayments/dodopayments-go@v1.125.0'
 ```
 
 <!-- x-release-please-end -->
@@ -393,7 +393,9 @@ client := dodopayments.NewClient(
 )
 ```
 
-The `workloadidentity` package has these token sources: `GitHubActions`, `GitLab`, `TerraformCloud`, `GCP`, `Vercel`, `Kubernetes`, `File`, `AWS`, `Static` and `Auto`. You can also supply an `option.SubjectTokenProvider` or an `option.SubjectTokenProviderFunc`.
+The `workloadidentity` package has these token sources: `GitHubActions`, `GitLab`, `TerraformCloud`, `GCP`, `Vercel`, `VercelWithAudience`, `Kubernetes`, `File`, `AWS`, `Static` and `Auto`. You can also supply an `option.SubjectTokenProvider` or an `option.SubjectTokenProviderFunc`.
+
+`Vercel` reads `VERCEL_OIDC_TOKEN_FILE` or `VERCEL_OIDC_TOKEN`. It exchanges that token at Vercel for a token with the Dodo Payments audience. The Dodo Payments API accepts only that audience.
 
 Do not use `option.WithBearerToken` together with `option.WithWorkloadIdentity`. If you supply neither and `DODO_PAYMENTS_API_KEY` is not set, the client uses workload identity when `DODO_PAYMENTS_IDENTITY_PROVIDER_ID` is set and `workloadidentity.Auto()` finds a token source.
 
