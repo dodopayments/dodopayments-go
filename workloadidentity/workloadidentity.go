@@ -37,9 +37,17 @@ func GCP(audience string) option.SubjectTokenProvider {
 	return requestconfig.GCPSubjectTokenProvider(audience)
 }
 
-// Vercel reads VERCEL_OIDC_TOKEN.
+// Vercel exchanges the Vercel OIDC token for a token with the Dodo Payments
+// audience before each exchange. It reads VERCEL_OIDC_TOKEN_FILE or
+// VERCEL_OIDC_TOKEN. The audience is the origin of the client base URL.
 func Vercel() option.SubjectTokenProvider {
-	return requestconfig.EnvSubjectTokenProvider("VERCEL_OIDC_TOKEN")
+	return requestconfig.VercelSubjectTokenProvider("")
+}
+
+// VercelWithAudience is the same as [Vercel], but it uses the audience that you
+// supply. An empty audience uses the origin of the client base URL.
+func VercelWithAudience(audience string) option.SubjectTokenProvider {
+	return requestconfig.VercelSubjectTokenProvider(audience)
 }
 
 // Kubernetes reads a projected service account token before each exchange. An
