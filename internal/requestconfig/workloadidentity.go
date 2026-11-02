@@ -391,3 +391,74 @@ func FileSubjectTokenProvider(path string) SubjectTokenProvider {
 		return strings.TrimSpace(string(b)), nil
 	})
 }
+
+// vercelTokenExchangeURL is a variable so that tests can use a local server.
+var vercelTokenExchangeURL = "https://oidc.vercel.com/~token"
+
+// VercelSubjectTokenProvider exchanges the Vercel OIDC token for a Vercel OIDC
+// token with the Dodo Payments audience. It reads the token from the file in
+// VERCEL_OIDC_TOKEN_FILE or from VERCEL_OIDC_TOKEN. An empty audience uses the
+// origin of the client base URL.
+func VercelSubjectTokenProvider(audience string) SubjectTokenProvider {
+	return SubjectTokenProviderFunc(func(ctx context.Context, defaultAudience string) (string, error) {
+		if audience != "" {
+			defaultAudience = audience
+		}
+		base, err := vercelBaseToken()
+		if err != nil {
+			return "", err
+		}
+		body, err := json.Marshal(map[string]string{"token": base, "aud": defaultAudience})
+		if err != nil {
+			return "", err
+		}
+		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		defer cancel()
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, vercelTokenExchangeURL, bytes.NewReader(body))
+		if err != nil {
+			return "", err
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Accept", "application/json")
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return "", fmt.Errorf("the Vercel OIDC token exchange failed: %w", err)
+		}
+		defer res.Body.Close()
+		contents, err := io.ReadAll(io.LimitReader(res.Body, 1<<20))
+		if err != nil {
+			return "", fmt.Errorf("cannot read the Vercel OIDC token exchange response: %w", err)
+		}
+		if res.StatusCode < 200 || res.StatusCode > 299 {
+			excerpt := strings.ReplaceAll(strings.TrimSpace(string(contents)), base, "[redacted]")
+			if len(excerpt) > 200 {
+				excerpt = excerpt[:200]
+			}
+			return "", fmt.Errorf("the Vercel OIDC token exchange returned status %d: %s", res.StatusCode, excerpt)
+		}
+		var out struct {
+			Token string `json:"token"`
+		}
+		if err := json.Unmarshal(contents, &out); err != nil || out.Token == "" {
+			return "", fmt.Errorf("the Vercel OIDC token exchange response with status %d has no token", res.StatusCode)
+		}
+		return out.Token, nil
+	})
+}
+
+func vercelBaseToken() (string, error) {
+	if path := os.Getenv("VERCEL_OIDC_TOKEN_FILE"); path != "" {
+		b, err := os.ReadFile(path)
+		if err != nil {
+			return "", fmt.Errorf("cannot read the file in VERCEL_OIDC_TOKEN_FILE: %w", err)
+		}
+		if v := strings.TrimSpace(string(b)); v != "" {
+			return v, nil
+		}
+		return "", errors.New("the file in VERCEL_OIDC_TOKEN_FILE is empty")
+	}
+	if v := strings.TrimSpace(os.Getenv("VERCEL_OIDC_TOKEN")); v != "" {
+		return v, nil
+	}
+	return "", errors.New("VERCEL_OIDC_TOKEN_FILE or VERCEL_OIDC_TOKEN must be set")
+}
