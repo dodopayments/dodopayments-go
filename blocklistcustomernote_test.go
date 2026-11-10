@@ -30,7 +30,7 @@ func TestBlocklistCustomerNoteNew(t *testing.T) {
 		"entry_id",
 		dodopayments.BlocklistCustomerNoteNewParams{
 			NoteRequest: dodopayments.NoteRequestParam{
-				Note: dodopayments.F("note"),
+				Text: dodopayments.F("text"),
 			},
 		},
 	)
@@ -61,7 +61,7 @@ func TestBlocklistCustomerNoteUpdate(t *testing.T) {
 		"note_id",
 		dodopayments.BlocklistCustomerNoteUpdateParams{
 			NoteRequest: dodopayments.NoteRequestParam{
-				Note: dodopayments.F("note"),
+				Text: dodopayments.F("text"),
 			},
 		},
 	)
