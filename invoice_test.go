@@ -57,8 +57,8 @@ func TestInvoiceNewWithOptionalParams(t *testing.T) {
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": shared.UnionString("string"),
 		}),
-		PaymentTerms: dodopayments.F[dodopayments.InvoiceNewParamsPaymentTermsUnion](dodopayments.InvoiceNewParamsPaymentTermsType{
-			Type: dodopayments.F(dodopayments.InvoiceNewParamsPaymentTermsTypeTypeDueOnReceipt),
+		PaymentTerms: dodopayments.F[dodopayments.InvoiceNewParamsPaymentTermsUnion](dodopayments.InvoiceNewParamsPaymentTermsDueOnReceipt{
+			Type: dodopayments.F(dodopayments.InvoiceNewParamsPaymentTermsDueOnReceiptTypeDueOnReceipt),
 		}),
 		ReviewRequired: dodopayments.F(true),
 		TaxID:          dodopayments.F("tax_id"),
@@ -141,8 +141,8 @@ func TestInvoiceUpdateWithOptionalParams(t *testing.T) {
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": shared.UnionString("string"),
 			}),
-			PaymentTerms: dodopayments.F[dodopayments.InvoiceUpdateParamsPaymentTermsUnion](dodopayments.InvoiceUpdateParamsPaymentTermsType{
-				Type: dodopayments.F(dodopayments.InvoiceUpdateParamsPaymentTermsTypeTypeDueOnReceipt),
+			PaymentTerms: dodopayments.F[dodopayments.InvoiceUpdateParamsPaymentTermsUnion](dodopayments.InvoiceUpdateParamsPaymentTermsDueOnReceipt{
+				Type: dodopayments.F(dodopayments.InvoiceUpdateParamsPaymentTermsDueOnReceiptTypeDueOnReceipt),
 			}),
 			ReviewRequired: dodopayments.F(true),
 			TaxID:          dodopayments.F("tax_id"),
@@ -419,8 +419,8 @@ func TestInvoicePreviewWithOptionalParams(t *testing.T) {
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": shared.UnionString("string"),
 		}),
-		PaymentTerms: dodopayments.F[dodopayments.InvoicePreviewParamsPaymentTermsUnion](dodopayments.InvoicePreviewParamsPaymentTermsType{
-			Type: dodopayments.F(dodopayments.InvoicePreviewParamsPaymentTermsTypeTypeDueOnReceipt),
+		PaymentTerms: dodopayments.F[dodopayments.InvoicePreviewParamsPaymentTermsUnion](dodopayments.InvoicePreviewParamsPaymentTermsDueOnReceipt{
+			Type: dodopayments.F(dodopayments.InvoicePreviewParamsPaymentTermsDueOnReceiptTypeDueOnReceipt),
 		}),
 		ReviewRequired: dodopayments.F(true),
 		TaxID:          dodopayments.F("tax_id"),

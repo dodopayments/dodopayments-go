@@ -1013,59 +1013,59 @@ func (r UpdateSubscriptionPlanReqInvoicePaymentTermsParam) implementsUpdateSubsc
 
 // The terms of the plan-change invoice. The subscription terms apply when absent.
 //
-// Satisfied by [UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam],
-// [UpdateSubscriptionPlanReqInvoicePaymentTermsObjectParam],
+// Satisfied by [UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptParam],
+// [UpdateSubscriptionPlanReqInvoicePaymentTermsNetParam],
 // [UpdateSubscriptionPlanReqInvoicePaymentTermsParam].
 type UpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam interface {
 	implementsUpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam()
 }
 
-type UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam struct {
-	Type param.Field[UpdateSubscriptionPlanReqInvoicePaymentTermsTypeType] `json:"type" api:"required"`
+type UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptParam struct {
+	Type param.Field[UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptType] `json:"type" api:"required"`
 }
 
-func (r UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam) MarshalJSON() (data []byte, err error) {
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam) implementsUpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam() {
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptParam) implementsUpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam() {
 }
 
-type UpdateSubscriptionPlanReqInvoicePaymentTermsTypeType string
+type UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptType string
 
 const (
-	UpdateSubscriptionPlanReqInvoicePaymentTermsTypeTypeDueOnReceipt UpdateSubscriptionPlanReqInvoicePaymentTermsTypeType = "due_on_receipt"
+	UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptTypeDueOnReceipt UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptType = "due_on_receipt"
 )
 
-func (r UpdateSubscriptionPlanReqInvoicePaymentTermsTypeType) IsKnown() bool {
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptType) IsKnown() bool {
 	switch r {
-	case UpdateSubscriptionPlanReqInvoicePaymentTermsTypeTypeDueOnReceipt:
+	case UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptTypeDueOnReceipt:
 		return true
 	}
 	return false
 }
 
-type UpdateSubscriptionPlanReqInvoicePaymentTermsObjectParam struct {
-	Days param.Field[int64]                                                  `json:"days" api:"required"`
-	Type param.Field[UpdateSubscriptionPlanReqInvoicePaymentTermsObjectType] `json:"type" api:"required"`
+type UpdateSubscriptionPlanReqInvoicePaymentTermsNetParam struct {
+	Days param.Field[int64]                                               `json:"days" api:"required"`
+	Type param.Field[UpdateSubscriptionPlanReqInvoicePaymentTermsNetType] `json:"type" api:"required"`
 }
 
-func (r UpdateSubscriptionPlanReqInvoicePaymentTermsObjectParam) MarshalJSON() (data []byte, err error) {
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsNetParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r UpdateSubscriptionPlanReqInvoicePaymentTermsObjectParam) implementsUpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam() {
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsNetParam) implementsUpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam() {
 }
 
-type UpdateSubscriptionPlanReqInvoicePaymentTermsObjectType string
+type UpdateSubscriptionPlanReqInvoicePaymentTermsNetType string
 
 const (
-	UpdateSubscriptionPlanReqInvoicePaymentTermsObjectTypeNet UpdateSubscriptionPlanReqInvoicePaymentTermsObjectType = "net"
+	UpdateSubscriptionPlanReqInvoicePaymentTermsNetTypeNet UpdateSubscriptionPlanReqInvoicePaymentTermsNetType = "net"
 )
 
-func (r UpdateSubscriptionPlanReqInvoicePaymentTermsObjectType) IsKnown() bool {
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsNetType) IsKnown() bool {
 	switch r {
-	case UpdateSubscriptionPlanReqInvoicePaymentTermsObjectTypeNet:
+	case UpdateSubscriptionPlanReqInvoicePaymentTermsNetTypeNet:
 		return true
 	}
 	return false

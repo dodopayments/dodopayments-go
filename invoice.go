@@ -606,8 +606,8 @@ func (r *InvoiceFrequency) UnmarshalJSON(data []byte) (err error) {
 // AsUnion returns a [InvoiceFrequencyUnion] interface which you can cast to the
 // specific types for more type safety.
 //
-// Possible runtime types of the union are [InvoiceFrequencyType],
-// [InvoiceFrequencyObject], [InvoiceFrequencyType].
+// Possible runtime types of the union are [InvoiceFrequencyOneTime],
+// [InvoiceFrequencyRecurring], [InvoiceFrequencyMixed].
 func (r InvoiceFrequency) AsUnion() InvoiceFrequencyUnion {
 	return r.union
 }
@@ -615,8 +615,8 @@ func (r InvoiceFrequency) AsUnion() InvoiceFrequencyUnion {
 // How often the invoice lines bill. `mixed` covers several intervals, or one-time
 // lines next to a plan.
 //
-// Union satisfied by [InvoiceFrequencyType], [InvoiceFrequencyObject] or
-// [InvoiceFrequencyType].
+// Union satisfied by [InvoiceFrequencyOneTime], [InvoiceFrequencyRecurring] or
+// [InvoiceFrequencyMixed].
 type InvoiceFrequencyUnion interface {
 	implementsInvoiceFrequency()
 }
@@ -624,70 +624,73 @@ type InvoiceFrequencyUnion interface {
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*InvoiceFrequencyUnion)(nil)).Elem(),
-		"",
+		"type",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(InvoiceFrequencyType{}),
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceFrequencyOneTime{}),
+			DiscriminatorValue: "one_time",
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(InvoiceFrequencyObject{}),
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceFrequencyRecurring{}),
+			DiscriminatorValue: "recurring",
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(InvoiceFrequencyType{}),
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceFrequencyMixed{}),
+			DiscriminatorValue: "mixed",
 		},
 	)
 }
 
-type InvoiceFrequencyType struct {
-	Type InvoiceFrequencyTypeType `json:"type" api:"required"`
-	JSON invoiceFrequencyTypeJSON `json:"-"`
+type InvoiceFrequencyOneTime struct {
+	Type InvoiceFrequencyOneTimeType `json:"type" api:"required"`
+	JSON invoiceFrequencyOneTimeJSON `json:"-"`
 }
 
-// invoiceFrequencyTypeJSON contains the JSON metadata for the struct
-// [InvoiceFrequencyType]
-type invoiceFrequencyTypeJSON struct {
+// invoiceFrequencyOneTimeJSON contains the JSON metadata for the struct
+// [InvoiceFrequencyOneTime]
+type invoiceFrequencyOneTimeJSON struct {
 	Type        apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *InvoiceFrequencyType) UnmarshalJSON(data []byte) (err error) {
+func (r *InvoiceFrequencyOneTime) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r invoiceFrequencyTypeJSON) RawJSON() string {
+func (r invoiceFrequencyOneTimeJSON) RawJSON() string {
 	return r.raw
 }
 
-func (r InvoiceFrequencyType) implementsInvoiceFrequency() {}
+func (r InvoiceFrequencyOneTime) implementsInvoiceFrequency() {}
 
-type InvoiceFrequencyTypeType string
+type InvoiceFrequencyOneTimeType string
 
 const (
-	InvoiceFrequencyTypeTypeOneTime InvoiceFrequencyTypeType = "one_time"
+	InvoiceFrequencyOneTimeTypeOneTime InvoiceFrequencyOneTimeType = "one_time"
 )
 
-func (r InvoiceFrequencyTypeType) IsKnown() bool {
+func (r InvoiceFrequencyOneTimeType) IsKnown() bool {
 	switch r {
-	case InvoiceFrequencyTypeTypeOneTime:
+	case InvoiceFrequencyOneTimeTypeOneTime:
 		return true
 	}
 	return false
 }
 
-type InvoiceFrequencyObject struct {
+type InvoiceFrequencyRecurring struct {
 	Count int64 `json:"count" api:"required"`
 	// Unit of a duration count (e.g. license-key validity period).
-	Interval TimeInterval               `json:"interval" api:"required"`
-	Type     InvoiceFrequencyObjectType `json:"type" api:"required"`
-	JSON     invoiceFrequencyObjectJSON `json:"-"`
+	Interval TimeInterval                  `json:"interval" api:"required"`
+	Type     InvoiceFrequencyRecurringType `json:"type" api:"required"`
+	JSON     invoiceFrequencyRecurringJSON `json:"-"`
 }
 
-// invoiceFrequencyObjectJSON contains the JSON metadata for the struct
-// [InvoiceFrequencyObject]
-type invoiceFrequencyObjectJSON struct {
+// invoiceFrequencyRecurringJSON contains the JSON metadata for the struct
+// [InvoiceFrequencyRecurring]
+type invoiceFrequencyRecurringJSON struct {
 	Count       apijson.Field
 	Interval    apijson.Field
 	Type        apijson.Field
@@ -695,25 +698,78 @@ type invoiceFrequencyObjectJSON struct {
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *InvoiceFrequencyObject) UnmarshalJSON(data []byte) (err error) {
+func (r *InvoiceFrequencyRecurring) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r invoiceFrequencyObjectJSON) RawJSON() string {
+func (r invoiceFrequencyRecurringJSON) RawJSON() string {
 	return r.raw
 }
 
-func (r InvoiceFrequencyObject) implementsInvoiceFrequency() {}
+func (r InvoiceFrequencyRecurring) implementsInvoiceFrequency() {}
 
-type InvoiceFrequencyObjectType string
+type InvoiceFrequencyRecurringType string
 
 const (
-	InvoiceFrequencyObjectTypeRecurring InvoiceFrequencyObjectType = "recurring"
+	InvoiceFrequencyRecurringTypeRecurring InvoiceFrequencyRecurringType = "recurring"
 )
 
-func (r InvoiceFrequencyObjectType) IsKnown() bool {
+func (r InvoiceFrequencyRecurringType) IsKnown() bool {
 	switch r {
-	case InvoiceFrequencyObjectTypeRecurring:
+	case InvoiceFrequencyRecurringTypeRecurring:
+		return true
+	}
+	return false
+}
+
+type InvoiceFrequencyMixed struct {
+	Type InvoiceFrequencyMixedType `json:"type" api:"required"`
+	JSON invoiceFrequencyMixedJSON `json:"-"`
+}
+
+// invoiceFrequencyMixedJSON contains the JSON metadata for the struct
+// [InvoiceFrequencyMixed]
+type invoiceFrequencyMixedJSON struct {
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *InvoiceFrequencyMixed) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r invoiceFrequencyMixedJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r InvoiceFrequencyMixed) implementsInvoiceFrequency() {}
+
+type InvoiceFrequencyMixedType string
+
+const (
+	InvoiceFrequencyMixedTypeMixed InvoiceFrequencyMixedType = "mixed"
+)
+
+func (r InvoiceFrequencyMixedType) IsKnown() bool {
+	switch r {
+	case InvoiceFrequencyMixedTypeMixed:
+		return true
+	}
+	return false
+}
+
+type InvoiceFrequencyType string
+
+const (
+	InvoiceFrequencyTypeOneTime   InvoiceFrequencyType = "one_time"
+	InvoiceFrequencyTypeRecurring InvoiceFrequencyType = "recurring"
+	InvoiceFrequencyTypeMixed     InvoiceFrequencyType = "mixed"
+)
+
+func (r InvoiceFrequencyType) IsKnown() bool {
+	switch r {
+	case InvoiceFrequencyTypeOneTime, InvoiceFrequencyTypeRecurring, InvoiceFrequencyTypeMixed:
 		return true
 	}
 	return false
@@ -804,16 +860,16 @@ func (r *InvoiceReminderSettings) UnmarshalJSON(data []byte) (err error) {
 // AsUnion returns a [InvoiceReminderSettingsUnion] interface which you can cast to
 // the specific types for more type safety.
 //
-// Possible runtime types of the union are [InvoiceReminderSettingsObject],
-// [InvoiceReminderSettingsObject].
+// Possible runtime types of the union are [InvoiceReminderSettingsSnapshot],
+// [InvoiceReminderSettingsOverride].
 func (r InvoiceReminderSettings) AsUnion() InvoiceReminderSettingsUnion {
 	return r.union
 }
 
 // `null` on a draft that keeps all reminder settings of the business.
 //
-// Union satisfied by [InvoiceReminderSettingsObject] or
-// [InvoiceReminderSettingsObject].
+// Union satisfied by [InvoiceReminderSettingsSnapshot] or
+// [InvoiceReminderSettingsOverride].
 type InvoiceReminderSettingsUnion interface {
 	implementsInvoiceReminderSettings()
 }
@@ -821,30 +877,32 @@ type InvoiceReminderSettingsUnion interface {
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*InvoiceReminderSettingsUnion)(nil)).Elem(),
-		"",
+		"kind",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(InvoiceReminderSettingsObject{}),
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceReminderSettingsSnapshot{}),
+			DiscriminatorValue: "snapshot",
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(InvoiceReminderSettingsObject{}),
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceReminderSettingsOverride{}),
+			DiscriminatorValue: "override",
 		},
 	)
 }
 
 // The settings that finalise froze. The reminders run on them.
-type InvoiceReminderSettingsObject struct {
-	Kind             InvoiceReminderSettingsObjectKind `json:"kind" api:"required"`
-	OffsetsMinutes   []int64                           `json:"offsets_minutes" api:"required"`
-	Paused           bool                              `json:"paused" api:"required"`
-	RemindersEnabled bool                              `json:"reminders_enabled" api:"required"`
-	JSON             invoiceReminderSettingsObjectJSON `json:"-"`
+type InvoiceReminderSettingsSnapshot struct {
+	Kind             InvoiceReminderSettingsSnapshotKind `json:"kind" api:"required"`
+	OffsetsMinutes   []int64                             `json:"offsets_minutes" api:"required"`
+	Paused           bool                                `json:"paused" api:"required"`
+	RemindersEnabled bool                                `json:"reminders_enabled" api:"required"`
+	JSON             invoiceReminderSettingsSnapshotJSON `json:"-"`
 }
 
-// invoiceReminderSettingsObjectJSON contains the JSON metadata for the struct
-// [InvoiceReminderSettingsObject]
-type invoiceReminderSettingsObjectJSON struct {
+// invoiceReminderSettingsSnapshotJSON contains the JSON metadata for the struct
+// [InvoiceReminderSettingsSnapshot]
+type invoiceReminderSettingsSnapshotJSON struct {
 	Kind             apijson.Field
 	OffsetsMinutes   apijson.Field
 	Paused           apijson.Field
@@ -853,25 +911,69 @@ type invoiceReminderSettingsObjectJSON struct {
 	ExtraFields      map[string]apijson.Field
 }
 
-func (r *InvoiceReminderSettingsObject) UnmarshalJSON(data []byte) (err error) {
+func (r *InvoiceReminderSettingsSnapshot) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r invoiceReminderSettingsObjectJSON) RawJSON() string {
+func (r invoiceReminderSettingsSnapshotJSON) RawJSON() string {
 	return r.raw
 }
 
-func (r InvoiceReminderSettingsObject) implementsInvoiceReminderSettings() {}
+func (r InvoiceReminderSettingsSnapshot) implementsInvoiceReminderSettings() {}
 
-type InvoiceReminderSettingsObjectKind string
+type InvoiceReminderSettingsSnapshotKind string
 
 const (
-	InvoiceReminderSettingsObjectKindSnapshot InvoiceReminderSettingsObjectKind = "snapshot"
+	InvoiceReminderSettingsSnapshotKindSnapshot InvoiceReminderSettingsSnapshotKind = "snapshot"
 )
 
-func (r InvoiceReminderSettingsObjectKind) IsKnown() bool {
+func (r InvoiceReminderSettingsSnapshotKind) IsKnown() bool {
 	switch r {
-	case InvoiceReminderSettingsObjectKindSnapshot:
+	case InvoiceReminderSettingsSnapshotKindSnapshot:
+		return true
+	}
+	return false
+}
+
+// The changes of a draft. A `null` field keeps the business value at finalise.
+type InvoiceReminderSettingsOverride struct {
+	Kind             InvoiceReminderSettingsOverrideKind `json:"kind" api:"required"`
+	OffsetsMinutes   []int64                             `json:"offsets_minutes" api:"nullable"`
+	Paused           bool                                `json:"paused" api:"nullable"`
+	RemindersEnabled bool                                `json:"reminders_enabled" api:"nullable"`
+	JSON             invoiceReminderSettingsOverrideJSON `json:"-"`
+}
+
+// invoiceReminderSettingsOverrideJSON contains the JSON metadata for the struct
+// [InvoiceReminderSettingsOverride]
+type invoiceReminderSettingsOverrideJSON struct {
+	Kind             apijson.Field
+	OffsetsMinutes   apijson.Field
+	Paused           apijson.Field
+	RemindersEnabled apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *InvoiceReminderSettingsOverride) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r invoiceReminderSettingsOverrideJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r InvoiceReminderSettingsOverride) implementsInvoiceReminderSettings() {}
+
+type InvoiceReminderSettingsOverrideKind string
+
+const (
+	InvoiceReminderSettingsOverrideKindOverride InvoiceReminderSettingsOverrideKind = "override"
+)
+
+func (r InvoiceReminderSettingsOverrideKind) IsKnown() bool {
+	switch r {
+	case InvoiceReminderSettingsOverrideKindOverride:
 		return true
 	}
 	return false
@@ -1219,56 +1321,71 @@ func (r InvoiceNewParamsPaymentTerms) implementsInvoiceNewParamsPaymentTermsUnio
 
 // Do not send it with `due_at`.
 //
-// Satisfied by [InvoiceNewParamsPaymentTermsType],
-// [InvoiceNewParamsPaymentTermsObject], [InvoiceNewParamsPaymentTerms].
+// Satisfied by [InvoiceNewParamsPaymentTermsDueOnReceipt],
+// [InvoiceNewParamsPaymentTermsNet], [InvoiceNewParamsPaymentTerms].
 type InvoiceNewParamsPaymentTermsUnion interface {
 	implementsInvoiceNewParamsPaymentTermsUnion()
 }
 
-type InvoiceNewParamsPaymentTermsType struct {
-	Type param.Field[InvoiceNewParamsPaymentTermsTypeType] `json:"type" api:"required"`
+type InvoiceNewParamsPaymentTermsDueOnReceipt struct {
+	Type param.Field[InvoiceNewParamsPaymentTermsDueOnReceiptType] `json:"type" api:"required"`
 }
 
-func (r InvoiceNewParamsPaymentTermsType) MarshalJSON() (data []byte, err error) {
+func (r InvoiceNewParamsPaymentTermsDueOnReceipt) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r InvoiceNewParamsPaymentTermsType) implementsInvoiceNewParamsPaymentTermsUnion() {}
+func (r InvoiceNewParamsPaymentTermsDueOnReceipt) implementsInvoiceNewParamsPaymentTermsUnion() {}
 
-type InvoiceNewParamsPaymentTermsTypeType string
+type InvoiceNewParamsPaymentTermsDueOnReceiptType string
 
 const (
-	InvoiceNewParamsPaymentTermsTypeTypeDueOnReceipt InvoiceNewParamsPaymentTermsTypeType = "due_on_receipt"
+	InvoiceNewParamsPaymentTermsDueOnReceiptTypeDueOnReceipt InvoiceNewParamsPaymentTermsDueOnReceiptType = "due_on_receipt"
 )
 
-func (r InvoiceNewParamsPaymentTermsTypeType) IsKnown() bool {
+func (r InvoiceNewParamsPaymentTermsDueOnReceiptType) IsKnown() bool {
 	switch r {
-	case InvoiceNewParamsPaymentTermsTypeTypeDueOnReceipt:
+	case InvoiceNewParamsPaymentTermsDueOnReceiptTypeDueOnReceipt:
 		return true
 	}
 	return false
 }
 
-type InvoiceNewParamsPaymentTermsObject struct {
-	Days param.Field[int64]                                  `json:"days" api:"required"`
-	Type param.Field[InvoiceNewParamsPaymentTermsObjectType] `json:"type" api:"required"`
+type InvoiceNewParamsPaymentTermsNet struct {
+	Days param.Field[int64]                               `json:"days" api:"required"`
+	Type param.Field[InvoiceNewParamsPaymentTermsNetType] `json:"type" api:"required"`
 }
 
-func (r InvoiceNewParamsPaymentTermsObject) MarshalJSON() (data []byte, err error) {
+func (r InvoiceNewParamsPaymentTermsNet) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r InvoiceNewParamsPaymentTermsObject) implementsInvoiceNewParamsPaymentTermsUnion() {}
+func (r InvoiceNewParamsPaymentTermsNet) implementsInvoiceNewParamsPaymentTermsUnion() {}
 
-type InvoiceNewParamsPaymentTermsObjectType string
+type InvoiceNewParamsPaymentTermsNetType string
 
 const (
-	InvoiceNewParamsPaymentTermsObjectTypeNet InvoiceNewParamsPaymentTermsObjectType = "net"
+	InvoiceNewParamsPaymentTermsNetTypeNet InvoiceNewParamsPaymentTermsNetType = "net"
 )
 
-func (r InvoiceNewParamsPaymentTermsObjectType) IsKnown() bool {
+func (r InvoiceNewParamsPaymentTermsNetType) IsKnown() bool {
 	switch r {
-	case InvoiceNewParamsPaymentTermsObjectTypeNet:
+	case InvoiceNewParamsPaymentTermsNetTypeNet:
+		return true
+	}
+	return false
+}
+
+type InvoiceNewParamsPaymentTermsType string
+
+const (
+	InvoiceNewParamsPaymentTermsTypeDueOnReceipt InvoiceNewParamsPaymentTermsType = "due_on_receipt"
+	InvoiceNewParamsPaymentTermsTypeNet          InvoiceNewParamsPaymentTermsType = "net"
+)
+
+func (r InvoiceNewParamsPaymentTermsType) IsKnown() bool {
+	switch r {
+	case InvoiceNewParamsPaymentTermsTypeDueOnReceipt, InvoiceNewParamsPaymentTermsTypeNet:
 		return true
 	}
 	return false
@@ -1429,56 +1546,72 @@ func (r InvoiceUpdateParamsPaymentTerms) MarshalJSON() (data []byte, err error) 
 
 func (r InvoiceUpdateParamsPaymentTerms) implementsInvoiceUpdateParamsPaymentTermsUnion() {}
 
-// Satisfied by [InvoiceUpdateParamsPaymentTermsType],
-// [InvoiceUpdateParamsPaymentTermsObject], [InvoiceUpdateParamsPaymentTerms].
+// Satisfied by [InvoiceUpdateParamsPaymentTermsDueOnReceipt],
+// [InvoiceUpdateParamsPaymentTermsNet], [InvoiceUpdateParamsPaymentTerms].
 type InvoiceUpdateParamsPaymentTermsUnion interface {
 	implementsInvoiceUpdateParamsPaymentTermsUnion()
 }
 
-type InvoiceUpdateParamsPaymentTermsType struct {
-	Type param.Field[InvoiceUpdateParamsPaymentTermsTypeType] `json:"type" api:"required"`
+type InvoiceUpdateParamsPaymentTermsDueOnReceipt struct {
+	Type param.Field[InvoiceUpdateParamsPaymentTermsDueOnReceiptType] `json:"type" api:"required"`
 }
 
-func (r InvoiceUpdateParamsPaymentTermsType) MarshalJSON() (data []byte, err error) {
+func (r InvoiceUpdateParamsPaymentTermsDueOnReceipt) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r InvoiceUpdateParamsPaymentTermsType) implementsInvoiceUpdateParamsPaymentTermsUnion() {}
+func (r InvoiceUpdateParamsPaymentTermsDueOnReceipt) implementsInvoiceUpdateParamsPaymentTermsUnion() {
+}
 
-type InvoiceUpdateParamsPaymentTermsTypeType string
+type InvoiceUpdateParamsPaymentTermsDueOnReceiptType string
 
 const (
-	InvoiceUpdateParamsPaymentTermsTypeTypeDueOnReceipt InvoiceUpdateParamsPaymentTermsTypeType = "due_on_receipt"
+	InvoiceUpdateParamsPaymentTermsDueOnReceiptTypeDueOnReceipt InvoiceUpdateParamsPaymentTermsDueOnReceiptType = "due_on_receipt"
 )
 
-func (r InvoiceUpdateParamsPaymentTermsTypeType) IsKnown() bool {
+func (r InvoiceUpdateParamsPaymentTermsDueOnReceiptType) IsKnown() bool {
 	switch r {
-	case InvoiceUpdateParamsPaymentTermsTypeTypeDueOnReceipt:
+	case InvoiceUpdateParamsPaymentTermsDueOnReceiptTypeDueOnReceipt:
 		return true
 	}
 	return false
 }
 
-type InvoiceUpdateParamsPaymentTermsObject struct {
-	Days param.Field[int64]                                     `json:"days" api:"required"`
-	Type param.Field[InvoiceUpdateParamsPaymentTermsObjectType] `json:"type" api:"required"`
+type InvoiceUpdateParamsPaymentTermsNet struct {
+	Days param.Field[int64]                                  `json:"days" api:"required"`
+	Type param.Field[InvoiceUpdateParamsPaymentTermsNetType] `json:"type" api:"required"`
 }
 
-func (r InvoiceUpdateParamsPaymentTermsObject) MarshalJSON() (data []byte, err error) {
+func (r InvoiceUpdateParamsPaymentTermsNet) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r InvoiceUpdateParamsPaymentTermsObject) implementsInvoiceUpdateParamsPaymentTermsUnion() {}
+func (r InvoiceUpdateParamsPaymentTermsNet) implementsInvoiceUpdateParamsPaymentTermsUnion() {}
 
-type InvoiceUpdateParamsPaymentTermsObjectType string
+type InvoiceUpdateParamsPaymentTermsNetType string
 
 const (
-	InvoiceUpdateParamsPaymentTermsObjectTypeNet InvoiceUpdateParamsPaymentTermsObjectType = "net"
+	InvoiceUpdateParamsPaymentTermsNetTypeNet InvoiceUpdateParamsPaymentTermsNetType = "net"
 )
 
-func (r InvoiceUpdateParamsPaymentTermsObjectType) IsKnown() bool {
+func (r InvoiceUpdateParamsPaymentTermsNetType) IsKnown() bool {
 	switch r {
-	case InvoiceUpdateParamsPaymentTermsObjectTypeNet:
+	case InvoiceUpdateParamsPaymentTermsNetTypeNet:
+		return true
+	}
+	return false
+}
+
+type InvoiceUpdateParamsPaymentTermsType string
+
+const (
+	InvoiceUpdateParamsPaymentTermsTypeDueOnReceipt InvoiceUpdateParamsPaymentTermsType = "due_on_receipt"
+	InvoiceUpdateParamsPaymentTermsTypeNet          InvoiceUpdateParamsPaymentTermsType = "net"
+)
+
+func (r InvoiceUpdateParamsPaymentTermsType) IsKnown() bool {
+	switch r {
+	case InvoiceUpdateParamsPaymentTermsTypeDueOnReceipt, InvoiceUpdateParamsPaymentTermsTypeNet:
 		return true
 	}
 	return false
@@ -1786,56 +1919,72 @@ func (r InvoicePreviewParamsPaymentTerms) implementsInvoicePreviewParamsPaymentT
 
 // Do not send it with `due_at`.
 //
-// Satisfied by [InvoicePreviewParamsPaymentTermsType],
-// [InvoicePreviewParamsPaymentTermsObject], [InvoicePreviewParamsPaymentTerms].
+// Satisfied by [InvoicePreviewParamsPaymentTermsDueOnReceipt],
+// [InvoicePreviewParamsPaymentTermsNet], [InvoicePreviewParamsPaymentTerms].
 type InvoicePreviewParamsPaymentTermsUnion interface {
 	implementsInvoicePreviewParamsPaymentTermsUnion()
 }
 
-type InvoicePreviewParamsPaymentTermsType struct {
-	Type param.Field[InvoicePreviewParamsPaymentTermsTypeType] `json:"type" api:"required"`
+type InvoicePreviewParamsPaymentTermsDueOnReceipt struct {
+	Type param.Field[InvoicePreviewParamsPaymentTermsDueOnReceiptType] `json:"type" api:"required"`
 }
 
-func (r InvoicePreviewParamsPaymentTermsType) MarshalJSON() (data []byte, err error) {
+func (r InvoicePreviewParamsPaymentTermsDueOnReceipt) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r InvoicePreviewParamsPaymentTermsType) implementsInvoicePreviewParamsPaymentTermsUnion() {}
+func (r InvoicePreviewParamsPaymentTermsDueOnReceipt) implementsInvoicePreviewParamsPaymentTermsUnion() {
+}
 
-type InvoicePreviewParamsPaymentTermsTypeType string
+type InvoicePreviewParamsPaymentTermsDueOnReceiptType string
 
 const (
-	InvoicePreviewParamsPaymentTermsTypeTypeDueOnReceipt InvoicePreviewParamsPaymentTermsTypeType = "due_on_receipt"
+	InvoicePreviewParamsPaymentTermsDueOnReceiptTypeDueOnReceipt InvoicePreviewParamsPaymentTermsDueOnReceiptType = "due_on_receipt"
 )
 
-func (r InvoicePreviewParamsPaymentTermsTypeType) IsKnown() bool {
+func (r InvoicePreviewParamsPaymentTermsDueOnReceiptType) IsKnown() bool {
 	switch r {
-	case InvoicePreviewParamsPaymentTermsTypeTypeDueOnReceipt:
+	case InvoicePreviewParamsPaymentTermsDueOnReceiptTypeDueOnReceipt:
 		return true
 	}
 	return false
 }
 
-type InvoicePreviewParamsPaymentTermsObject struct {
-	Days param.Field[int64]                                      `json:"days" api:"required"`
-	Type param.Field[InvoicePreviewParamsPaymentTermsObjectType] `json:"type" api:"required"`
+type InvoicePreviewParamsPaymentTermsNet struct {
+	Days param.Field[int64]                                   `json:"days" api:"required"`
+	Type param.Field[InvoicePreviewParamsPaymentTermsNetType] `json:"type" api:"required"`
 }
 
-func (r InvoicePreviewParamsPaymentTermsObject) MarshalJSON() (data []byte, err error) {
+func (r InvoicePreviewParamsPaymentTermsNet) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-func (r InvoicePreviewParamsPaymentTermsObject) implementsInvoicePreviewParamsPaymentTermsUnion() {}
+func (r InvoicePreviewParamsPaymentTermsNet) implementsInvoicePreviewParamsPaymentTermsUnion() {}
 
-type InvoicePreviewParamsPaymentTermsObjectType string
+type InvoicePreviewParamsPaymentTermsNetType string
 
 const (
-	InvoicePreviewParamsPaymentTermsObjectTypeNet InvoicePreviewParamsPaymentTermsObjectType = "net"
+	InvoicePreviewParamsPaymentTermsNetTypeNet InvoicePreviewParamsPaymentTermsNetType = "net"
 )
 
-func (r InvoicePreviewParamsPaymentTermsObjectType) IsKnown() bool {
+func (r InvoicePreviewParamsPaymentTermsNetType) IsKnown() bool {
 	switch r {
-	case InvoicePreviewParamsPaymentTermsObjectTypeNet:
+	case InvoicePreviewParamsPaymentTermsNetTypeNet:
+		return true
+	}
+	return false
+}
+
+type InvoicePreviewParamsPaymentTermsType string
+
+const (
+	InvoicePreviewParamsPaymentTermsTypeDueOnReceipt InvoicePreviewParamsPaymentTermsType = "due_on_receipt"
+	InvoicePreviewParamsPaymentTermsTypeNet          InvoicePreviewParamsPaymentTermsType = "net"
+)
+
+func (r InvoicePreviewParamsPaymentTermsType) IsKnown() bool {
+	switch r {
+	case InvoicePreviewParamsPaymentTermsTypeDueOnReceipt, InvoicePreviewParamsPaymentTermsTypeNet:
 		return true
 	}
 	return false

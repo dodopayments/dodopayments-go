@@ -261,8 +261,8 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 				Invoice: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqInvoiceParam{
 					CollectionMethod: dodopayments.F(dodopayments.CollectionMethodAutoCharge),
 					Finalize:         dodopayments.F(true),
-					PaymentTerms: dodopayments.F[dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam](dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam{
-						Type: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsTypeTypeDueOnReceipt),
+					PaymentTerms: dodopayments.F[dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam](dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptParam{
+						Type: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptTypeDueOnReceipt),
 					}),
 				}),
 				Metadata: dodopayments.F(dodopayments.MetadataParam{
@@ -355,8 +355,8 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 				Invoice: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqInvoiceParam{
 					CollectionMethod: dodopayments.F(dodopayments.CollectionMethodAutoCharge),
 					Finalize:         dodopayments.F(true),
-					PaymentTerms: dodopayments.F[dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam](dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam{
-						Type: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsTypeTypeDueOnReceipt),
+					PaymentTerms: dodopayments.F[dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam](dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptParam{
+						Type: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsDueOnReceiptTypeDueOnReceipt),
 					}),
 				}),
 				Metadata: dodopayments.F(dodopayments.MetadataParam{
