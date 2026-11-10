@@ -65,10 +65,11 @@ func TestCheckoutSessionNewWithOptionalParams(t *testing.T) {
 			}),
 			CustomerBusinessName: dodopayments.F("customer_business_name"),
 			Customization: dodopayments.F(dodopayments.CheckoutSessionCustomizationParam{
-				ForceLanguage:    dodopayments.F("force_language"),
-				ShowOnDemandTag:  dodopayments.F(true),
-				ShowOrderDetails: dodopayments.F(true),
-				Theme:            dodopayments.F(dodopayments.CheckoutSessionCustomizationThemeDark),
+				ForceLanguage:       dodopayments.F("force_language"),
+				PaymentMethodLayout: dodopayments.F(dodopayments.CheckoutSessionCustomizationPaymentMethodLayoutAccordion),
+				ShowOnDemandTag:     dodopayments.F(true),
+				ShowOrderDetails:    dodopayments.F(true),
+				Theme:               dodopayments.F(dodopayments.CheckoutSessionCustomizationThemeDark),
 				ThemeConfig: dodopayments.F(dodopayments.ThemeConfigParam{
 					Dark: dodopayments.F(dodopayments.ThemeModeConfigParam{
 						BgPrimary:            dodopayments.F("bg_primary"),
@@ -244,10 +245,11 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 			}),
 			CustomerBusinessName: dodopayments.F("customer_business_name"),
 			Customization: dodopayments.F(dodopayments.CheckoutSessionCustomizationParam{
-				ForceLanguage:    dodopayments.F("force_language"),
-				ShowOnDemandTag:  dodopayments.F(true),
-				ShowOrderDetails: dodopayments.F(true),
-				Theme:            dodopayments.F(dodopayments.CheckoutSessionCustomizationThemeDark),
+				ForceLanguage:       dodopayments.F("force_language"),
+				PaymentMethodLayout: dodopayments.F(dodopayments.CheckoutSessionCustomizationPaymentMethodLayoutAccordion),
+				ShowOnDemandTag:     dodopayments.F(true),
+				ShowOrderDetails:    dodopayments.F(true),
+				Theme:               dodopayments.F(dodopayments.CheckoutSessionCustomizationThemeDark),
 				ThemeConfig: dodopayments.F(dodopayments.ThemeConfigParam{
 					Dark: dodopayments.F(dodopayments.ThemeModeConfigParam{
 						BgPrimary:            dodopayments.F("bg_primary"),
@@ -340,7 +342,6 @@ func TestCheckoutSessionPreviewWithOptionalParams(t *testing.T) {
 			}),
 			TaxID: dodopayments.F("tax_id"),
 		},
-		Locale: dodopayments.F("locale"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error
