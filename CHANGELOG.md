@@ -1,13 +1,5 @@
 # Changelog
 
-## [1.126.0](https://github.com/dodopayments/dodopayments-go/compare/v1.125.0...v1.126.0) (2026-11-10)
-
-
-### Features
-
-* **api:** billing invoices and upcoming invoice; sync spec to prod 1.122.7 ([718eec4](https://github.com/dodopayments/dodopayments-go/commit/718eec4d2dad8c8b0975b5b468986b0be5b39fb3))
-* **api:** billing invoices and upcoming invoice; sync spec to prod 1.122.7 ([9925eb8](https://github.com/dodopayments/dodopayments-go/commit/9925eb878a239659f01d157cebcac2b4db93b57e))
-
 ## [1.125.0](https://github.com/dodopayments/dodopayments-go/compare/v1.124.0...v1.125.0) (2026-10-28)
 
 
