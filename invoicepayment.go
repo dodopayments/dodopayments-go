@@ -87,8 +87,7 @@ func (r InvoicePaymentGetParams) URLQuery() (v url.Values) {
 }
 
 type InvoicePaymentGetPayoutParams struct {
-	// The signed link token. If the business asks for a credential on its invoice
-	// links, a valid token for this record replaces the credential.
+	// The signed link token. A valid token for this record replaces the credential.
 	Token param.Field[string] `query:"token"`
 }
 
