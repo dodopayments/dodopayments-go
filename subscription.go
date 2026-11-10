@@ -48,14 +48,14 @@ func (r *SubscriptionService) New(ctx context.Context, body SubscriptionNewParam
 	return res, err
 }
 
-func (r *SubscriptionService) Get(ctx context.Context, subscriptionID string, query SubscriptionGetParams, opts ...option.RequestOption) (res *Subscription, err error) {
+func (r *SubscriptionService) Get(ctx context.Context, subscriptionID string, opts ...option.RequestOption) (res *Subscription, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if subscriptionID == "" {
 		err = errors.New("missing required subscription_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("subscriptions/%s", subscriptionID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return res, err
 }
 
@@ -143,6 +143,20 @@ func (r *SubscriptionService) GetCreditUsage(ctx context.Context, subscriptionID
 		return nil, err
 	}
 	path := fmt.Sprintf("subscriptions/%s/credit-usage", subscriptionID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return res, err
+}
+
+// Prices the next cycle invoice of an invoice-led subscription. The invoice ID in
+// the response is not stored, so the response has no allowed actions and no
+// editable fields.
+func (r *SubscriptionService) GetUpcomingInvoice(ctx context.Context, subscriptionID string, opts ...option.RequestOption) (res *Invoice, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if subscriptionID == "" {
+		err = errors.New("missing required subscription_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("subscriptions/%s/upcoming-invoice", subscriptionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return res, err
 }
@@ -256,6 +270,8 @@ func (r *SubscriptionService) GetUsageHistoryAutoPaging(ctx context.Context, sub
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.GetUsageHistory(ctx, subscriptionID, query, opts...))
 }
 
+// For an invoice-led subscription, billing charges the open invoices after the
+// change, so the response has no payment.
 func (r *SubscriptionService) UpdatePaymentMethod(ctx context.Context, subscriptionID string, body SubscriptionUpdatePaymentMethodParams, opts ...option.RequestOption) (res *SubscriptionUpdatePaymentMethodResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if subscriptionID == "" {
@@ -554,6 +570,8 @@ type Subscription struct {
 	Addons []AddonCartResponseItem `json:"addons" api:"required"`
 	// Billing address details for payments
 	Billing BillingAddress `json:"billing" api:"required"`
+	// `invoice_led` when invoices bill the subscription. `normal` otherwise.
+	BillingMode SubscriptionBillingMode `json:"billing_mode" api:"required"`
 	// Brand id this subscription belongs to
 	BrandID string `json:"brand_id" api:"required"`
 	// Indicates if the subscription will cancel at the next billing date
@@ -614,6 +632,8 @@ type Subscription struct {
 	// The caller that cancelled the subscription or scheduled its cancel. `null` when
 	// no caller is known, for example when the system cancelled the subscription.
 	CancelledBy SubscriptionCancelledBy `json:"cancelled_by" api:"nullable"`
+	// How an invoice-led subscription collects each invoice. `null` for `normal`.
+	CollectionMethod CollectionMethod `json:"collection_method" api:"nullable"`
 	// Customer's responses to custom fields collected during checkout
 	CustomFieldResponses []CustomFieldResponse `json:"custom_field_responses" api:"nullable"`
 	// Business / legal name associated with the tax id (B2B). When set this is used on
@@ -632,6 +652,8 @@ type Subscription struct {
 	PausedAt time.Time `json:"paused_at" api:"nullable" format:"date-time"`
 	// Saved payment method id used for recurring charges
 	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
+	// Days from the invoice date to the due date. `null` for `normal`.
+	PaymentTermsDays int64 `json:"payment_terms_days" api:"nullable"`
 	// Scheduled plan change details, if any
 	ScheduledChange ScheduledPlanChange `json:"scheduled_change" api:"nullable"`
 	// Tax identifier provided for this subscription (if applicable)
@@ -647,6 +669,7 @@ type Subscription struct {
 type subscriptionJSON struct {
 	Addons                     apijson.Field
 	Billing                    apijson.Field
+	BillingMode                apijson.Field
 	BrandID                    apijson.Field
 	CancelAtNextBillingDate    apijson.Field
 	CreatedAt                  apijson.Field
@@ -675,6 +698,7 @@ type subscriptionJSON struct {
 	CancellationFeedback       apijson.Field
 	CancelledAt                apijson.Field
 	CancelledBy                apijson.Field
+	CollectionMethod           apijson.Field
 	CustomFieldResponses       apijson.Field
 	CustomerBusinessName       apijson.Field
 	DiscountCyclesRemaining    apijson.Field
@@ -683,6 +707,7 @@ type subscriptionJSON struct {
 	ExpiresAt                  apijson.Field
 	PausedAt                   apijson.Field
 	PaymentMethodID            apijson.Field
+	PaymentTermsDays           apijson.Field
 	ScheduledChange            apijson.Field
 	TaxID                      apijson.Field
 	TrialAmount                apijson.Field
@@ -696,6 +721,22 @@ func (r *Subscription) UnmarshalJSON(data []byte) (err error) {
 
 func (r subscriptionJSON) RawJSON() string {
 	return r.raw
+}
+
+// `invoice_led` when invoices bill the subscription. `normal` otherwise.
+type SubscriptionBillingMode string
+
+const (
+	SubscriptionBillingModeNormal     SubscriptionBillingMode = "normal"
+	SubscriptionBillingModeInvoiceLed SubscriptionBillingMode = "invoice_led"
+)
+
+func (r SubscriptionBillingMode) IsKnown() bool {
+	switch r {
+	case SubscriptionBillingModeNormal, SubscriptionBillingModeInvoiceLed:
+		return true
+	}
+	return false
 }
 
 // The caller that cancelled a subscription or scheduled its cancel.
@@ -834,6 +875,9 @@ type UpdateSubscriptionPlanReqParam struct {
 	//
 	// The preview route shares this request body and ignores this field.
 	CollectViaPaymentLink param.Field[bool] `json:"collect_via_payment_link"`
+	// Where a downgrade credit goes. Only invoice-led subscriptions read it. The
+	// default is `customer_balance`.
+	Credit param.Field[UpdateSubscriptionPlanReqCredit] `json:"credit"`
 	// DEPRECATED: Use discount_codes instead. Cannot be used together with
 	// discount_codes.
 	//
@@ -849,6 +893,8 @@ type UpdateSubscriptionPlanReqParam struct {
 	// - `immediately` (default): Apply the plan change right away
 	// - `next_billing_date`: Schedule the change for the next billing date
 	EffectiveAt param.Field[UpdateSubscriptionPlanReqEffectiveAt] `json:"effective_at"`
+	// The invoice of a plan change billed now. Only invoice-led subscriptions read it.
+	Invoice param.Field[UpdateSubscriptionPlanReqInvoiceParam] `json:"invoice"`
 	// Metadata for the payment. If not passed, the metadata of the subscription will
 	// be taken
 	Metadata param.Field[MetadataParam] `json:"metadata"`
@@ -901,6 +947,23 @@ func (r UpdateSubscriptionPlanReqProrationBillingMode) IsKnown() bool {
 	return false
 }
 
+// Where a downgrade credit goes. Only invoice-led subscriptions read it. The
+// default is `customer_balance`.
+type UpdateSubscriptionPlanReqCredit string
+
+const (
+	UpdateSubscriptionPlanReqCreditCustomerBalance UpdateSubscriptionPlanReqCredit = "customer_balance"
+	UpdateSubscriptionPlanReqCreditRefund          UpdateSubscriptionPlanReqCredit = "refund"
+)
+
+func (r UpdateSubscriptionPlanReqCredit) IsKnown() bool {
+	switch r {
+	case UpdateSubscriptionPlanReqCreditCustomerBalance, UpdateSubscriptionPlanReqCreditRefund:
+		return true
+	}
+	return false
+}
+
 // When to apply the plan change.
 //
 // - `immediately` (default): Apply the plan change right away
@@ -915,6 +978,109 @@ const (
 func (r UpdateSubscriptionPlanReqEffectiveAt) IsKnown() bool {
 	switch r {
 	case UpdateSubscriptionPlanReqEffectiveAtImmediately, UpdateSubscriptionPlanReqEffectiveAtNextBillingDate:
+		return true
+	}
+	return false
+}
+
+// The invoice of a plan change billed now. Only invoice-led subscriptions read it.
+type UpdateSubscriptionPlanReqInvoiceParam struct {
+	// The collection method of the invoice. The subscription value applies when
+	// absent.
+	CollectionMethod param.Field[CollectionMethod] `json:"collection_method"`
+	// `false` keeps the invoice as a draft for review. Default `true`.
+	Finalize param.Field[bool] `json:"finalize"`
+	// The terms of the plan-change invoice. The subscription terms apply when absent.
+	PaymentTerms param.Field[UpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam] `json:"payment_terms"`
+}
+
+func (r UpdateSubscriptionPlanReqInvoiceParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// The terms of the plan-change invoice. The subscription terms apply when absent.
+type UpdateSubscriptionPlanReqInvoicePaymentTermsParam struct {
+	Type param.Field[UpdateSubscriptionPlanReqInvoicePaymentTermsType] `json:"type" api:"required"`
+	Days param.Field[int64]                                            `json:"days"`
+}
+
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsParam) implementsUpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam() {
+}
+
+// The terms of the plan-change invoice. The subscription terms apply when absent.
+//
+// Satisfied by [UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam],
+// [UpdateSubscriptionPlanReqInvoicePaymentTermsObjectParam],
+// [UpdateSubscriptionPlanReqInvoicePaymentTermsParam].
+type UpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam interface {
+	implementsUpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam()
+}
+
+type UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam struct {
+	Type param.Field[UpdateSubscriptionPlanReqInvoicePaymentTermsTypeType] `json:"type" api:"required"`
+}
+
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam) implementsUpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam() {
+}
+
+type UpdateSubscriptionPlanReqInvoicePaymentTermsTypeType string
+
+const (
+	UpdateSubscriptionPlanReqInvoicePaymentTermsTypeTypeDueOnReceipt UpdateSubscriptionPlanReqInvoicePaymentTermsTypeType = "due_on_receipt"
+)
+
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsTypeType) IsKnown() bool {
+	switch r {
+	case UpdateSubscriptionPlanReqInvoicePaymentTermsTypeTypeDueOnReceipt:
+		return true
+	}
+	return false
+}
+
+type UpdateSubscriptionPlanReqInvoicePaymentTermsObjectParam struct {
+	Days param.Field[int64]                                                  `json:"days" api:"required"`
+	Type param.Field[UpdateSubscriptionPlanReqInvoicePaymentTermsObjectType] `json:"type" api:"required"`
+}
+
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsObjectParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsObjectParam) implementsUpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam() {
+}
+
+type UpdateSubscriptionPlanReqInvoicePaymentTermsObjectType string
+
+const (
+	UpdateSubscriptionPlanReqInvoicePaymentTermsObjectTypeNet UpdateSubscriptionPlanReqInvoicePaymentTermsObjectType = "net"
+)
+
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsObjectType) IsKnown() bool {
+	switch r {
+	case UpdateSubscriptionPlanReqInvoicePaymentTermsObjectTypeNet:
+		return true
+	}
+	return false
+}
+
+type UpdateSubscriptionPlanReqInvoicePaymentTermsType string
+
+const (
+	UpdateSubscriptionPlanReqInvoicePaymentTermsTypeDueOnReceipt UpdateSubscriptionPlanReqInvoicePaymentTermsType = "due_on_receipt"
+	UpdateSubscriptionPlanReqInvoicePaymentTermsTypeNet          UpdateSubscriptionPlanReqInvoicePaymentTermsType = "net"
+)
+
+func (r UpdateSubscriptionPlanReqInvoicePaymentTermsType) IsKnown() bool {
+	switch r {
+	case UpdateSubscriptionPlanReqInvoicePaymentTermsTypeDueOnReceipt, UpdateSubscriptionPlanReqInvoicePaymentTermsTypeNet:
 		return true
 	}
 	return false
@@ -1042,6 +1208,8 @@ func (r subscriptionNewResponseOneTimeProductCartJSON) RawJSON() string {
 type SubscriptionListResponse struct {
 	// Billing address details for payments
 	Billing BillingAddress `json:"billing" api:"required"`
+	// `invoice_led` when invoices bill the subscription. `normal` otherwise.
+	BillingMode SubscriptionListResponseBillingMode `json:"billing_mode" api:"required"`
 	// Indicates if the subscription will cancel at the next billing date
 	CancelAtNextBillingDate bool `json:"cancel_at_next_billing_date" api:"required"`
 	// Timestamp when the subscription was created
@@ -1092,6 +1260,8 @@ type SubscriptionListResponse struct {
 	// The caller that cancelled the subscription or scheduled its cancel. `null` when
 	// no caller is known, for example when the system cancelled the subscription.
 	CancelledBy SubscriptionCancelledBy `json:"cancelled_by" api:"nullable"`
+	// How an invoice-led subscription collects each invoice. `null` for `normal`.
+	CollectionMethod CollectionMethod `json:"collection_method" api:"nullable"`
 	// Business / legal name associated with the tax id (B2B). When set this is used on
 	// the invoice in place of the customer's personal name.
 	CustomerBusinessName string `json:"customer_business_name" api:"nullable"`
@@ -1104,6 +1274,8 @@ type SubscriptionListResponse struct {
 	PausedAt time.Time `json:"paused_at" api:"nullable" format:"date-time"`
 	// Saved payment method id used for recurring charges
 	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
+	// Days from the invoice date to the due date. `null` for `normal`.
+	PaymentTermsDays int64 `json:"payment_terms_days" api:"nullable"`
 	// Name of the product associated with this subscription
 	ProductName string `json:"product_name" api:"nullable"`
 	// Scheduled plan change details, if any
@@ -1121,6 +1293,7 @@ type SubscriptionListResponse struct {
 // [SubscriptionListResponse]
 type subscriptionListResponseJSON struct {
 	Billing                    apijson.Field
+	BillingMode                apijson.Field
 	CancelAtNextBillingDate    apijson.Field
 	CreatedAt                  apijson.Field
 	Currency                   apijson.Field
@@ -1144,11 +1317,13 @@ type subscriptionListResponseJSON struct {
 	TrialPeriodDays            apijson.Field
 	CancelledAt                apijson.Field
 	CancelledBy                apijson.Field
+	CollectionMethod           apijson.Field
 	CustomerBusinessName       apijson.Field
 	DiscountCyclesRemaining    apijson.Field
 	DiscountID                 apijson.Field
 	PausedAt                   apijson.Field
 	PaymentMethodID            apijson.Field
+	PaymentTermsDays           apijson.Field
 	ProductName                apijson.Field
 	ScheduledChange            apijson.Field
 	TaxID                      apijson.Field
@@ -1163,6 +1338,22 @@ func (r *SubscriptionListResponse) UnmarshalJSON(data []byte) (err error) {
 
 func (r subscriptionListResponseJSON) RawJSON() string {
 	return r.raw
+}
+
+// `invoice_led` when invoices bill the subscription. `normal` otherwise.
+type SubscriptionListResponseBillingMode string
+
+const (
+	SubscriptionListResponseBillingModeNormal     SubscriptionListResponseBillingMode = "normal"
+	SubscriptionListResponseBillingModeInvoiceLed SubscriptionListResponseBillingMode = "invoice_led"
+)
+
+func (r SubscriptionListResponseBillingMode) IsKnown() bool {
+	switch r {
+	case SubscriptionListResponseBillingModeNormal, SubscriptionListResponseBillingModeInvoiceLed:
+		return true
+	}
+	return false
 }
 
 // Lightweight discount info for list endpoints. Array order represents position
@@ -1202,11 +1393,16 @@ type SubscriptionChangePlanResponse struct {
 	ClientSecret string `json:"client_secret" api:"nullable"`
 	// When the link stops working.
 	ExpiresOn time.Time `json:"expires_on" api:"nullable" format:"date-time"`
+	// The invoice that bills the plan change. Set only for an invoice-led
+	// subscription.
+	InvoiceID string `json:"invoice_id" api:"nullable"`
 	// Id of the payment that settles the plan change.
 	PaymentID string `json:"payment_id" api:"nullable"`
 	// Checkout page URL. Give this to the customer.
-	PaymentLink string                             `json:"payment_link" api:"nullable"`
-	JSON        subscriptionChangePlanResponseJSON `json:"-"`
+	PaymentLink string `json:"payment_link" api:"nullable"`
+	// The refund of a downgrade with `credit: refund`.
+	RefundID string                             `json:"refund_id" api:"nullable"`
+	JSON     subscriptionChangePlanResponseJSON `json:"-"`
 }
 
 // subscriptionChangePlanResponseJSON contains the JSON metadata for the struct
@@ -1214,8 +1410,10 @@ type SubscriptionChangePlanResponse struct {
 type subscriptionChangePlanResponseJSON struct {
 	ClientSecret apijson.Field
 	ExpiresOn    apijson.Field
+	InvoiceID    apijson.Field
 	PaymentID    apijson.Field
 	PaymentLink  apijson.Field
+	RefundID     apijson.Field
 	raw          string
 	ExtraFields  map[string]apijson.Field
 }
@@ -1902,24 +2100,6 @@ func (r SubscriptionNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-type SubscriptionGetParams struct {
-	// Shows the translated name, description and unit of the catalog entities in this
-	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
-	// with no translation, an unknown code, or no code shows the base text.
-	//
-	// Do not send a text from a localized response back in a create or update request.
-	// The base text then changes to the translated text.
-	Locale param.Field[string] `query:"locale"`
-}
-
-// URLQuery serializes [SubscriptionGetParams]'s query parameters as `url.Values`.
-func (r SubscriptionGetParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
-}
-
 type SubscriptionUpdateParams struct {
 	Billing param.Field[BillingAddressParam] `json:"billing"`
 	// When set, the subscription will remain active until the end of billing period
@@ -2031,13 +2211,6 @@ type SubscriptionListParams struct {
 	CreatedAtLte param.Field[time.Time] `query:"created_at_lte" format:"date-time"`
 	// Filter by customer id
 	CustomerID param.Field[string] `query:"customer_id"`
-	// Shows the translated name, description and unit of the catalog entities in this
-	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
-	// with no translation, an unknown code, or no code shows the base text.
-	//
-	// Do not send a text from a localized response back in a create or update request.
-	// The base text then changes to the translated text.
-	Locale param.Field[string] `query:"locale"`
 	// Page number default is 0
 	PageNumber param.Field[int64] `query:"page_number"`
 	// Page size default is 10 max is 100

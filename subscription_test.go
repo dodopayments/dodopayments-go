@@ -85,7 +85,7 @@ func TestSubscriptionNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestSubscriptionGetWithOptionalParams(t *testing.T) {
+func TestSubscriptionGet(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -97,13 +97,7 @@ func TestSubscriptionGetWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Subscriptions.Get(
-		context.TODO(),
-		"sub_Iuaq622bbmmfOGrVTqdXv",
-		dodopayments.SubscriptionGetParams{
-			Locale: dodopayments.F("locale"),
-		},
-	)
+	_, err := client.Subscriptions.Get(context.TODO(), "sub_Iuaq622bbmmfOGrVTqdXv")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -196,7 +190,6 @@ func TestSubscriptionListWithOptionalParams(t *testing.T) {
 		CreatedAtGte:            dodopayments.F(time.Now()),
 		CreatedAtLte:            dodopayments.F(time.Now()),
 		CustomerID:              dodopayments.F("customer_id"),
-		Locale:                  dodopayments.F("locale"),
 		PageNumber:              dodopayments.F(int64(0)),
 		PageSize:                dodopayments.F(int64(0)),
 		ProductID:               dodopayments.F("product_id"),
@@ -261,9 +254,17 @@ func TestSubscriptionChangePlanWithOptionalParams(t *testing.T) {
 				CancelOlderPaymentLink:    dodopayments.F(true),
 				CancelScheduledChangePlan: dodopayments.F(true),
 				CollectViaPaymentLink:     dodopayments.F(true),
+				Credit:                    dodopayments.F(dodopayments.UpdateSubscriptionPlanReqCreditCustomerBalance),
 				DiscountCode:              dodopayments.F("discount_code"),
 				DiscountCodes:             dodopayments.F([]string{"string"}),
 				EffectiveAt:               dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
+				Invoice: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqInvoiceParam{
+					CollectionMethod: dodopayments.F(dodopayments.CollectionMethodAutoCharge),
+					Finalize:         dodopayments.F(true),
+					PaymentTerms: dodopayments.F[dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam](dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam{
+						Type: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsTypeTypeDueOnReceipt),
+					}),
+				}),
 				Metadata: dodopayments.F(dodopayments.MetadataParam{
 					"foo": shared.UnionString("string"),
 				}),
@@ -347,9 +348,17 @@ func TestSubscriptionPreviewChangePlanWithOptionalParams(t *testing.T) {
 				CancelOlderPaymentLink:    dodopayments.F(true),
 				CancelScheduledChangePlan: dodopayments.F(true),
 				CollectViaPaymentLink:     dodopayments.F(true),
+				Credit:                    dodopayments.F(dodopayments.UpdateSubscriptionPlanReqCreditCustomerBalance),
 				DiscountCode:              dodopayments.F("discount_code"),
 				DiscountCodes:             dodopayments.F([]string{"string"}),
 				EffectiveAt:               dodopayments.F(dodopayments.UpdateSubscriptionPlanReqEffectiveAtImmediately),
+				Invoice: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqInvoiceParam{
+					CollectionMethod: dodopayments.F(dodopayments.CollectionMethodAutoCharge),
+					Finalize:         dodopayments.F(true),
+					PaymentTerms: dodopayments.F[dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsUnionParam](dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsTypeParam{
+						Type: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqInvoicePaymentTermsTypeTypeDueOnReceipt),
+					}),
+				}),
 				Metadata: dodopayments.F(dodopayments.MetadataParam{
 					"foo": shared.UnionString("string"),
 				}),
@@ -380,6 +389,28 @@ func TestSubscriptionGetCreditUsage(t *testing.T) {
 		option.WithBearerToken("My Bearer Token"),
 	)
 	_, err := client.Subscriptions.GetCreditUsage(context.TODO(), "sub_Iuaq622bbmmfOGrVTqdXv")
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSubscriptionGetUpcomingInvoice(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Subscriptions.GetUpcomingInvoice(context.TODO(), "subscription_id")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
