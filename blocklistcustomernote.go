@@ -91,7 +91,7 @@ func (r blockedCustomerNoteJSON) RawJSON() string {
 }
 
 type NoteRequestParam struct {
-	Note param.Field[string] `json:"note" api:"required"`
+	Text param.Field[string] `json:"text" api:"required"`
 }
 
 func (r NoteRequestParam) MarshalJSON() (data []byte, err error) {

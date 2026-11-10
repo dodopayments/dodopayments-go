@@ -41,9 +41,7 @@ func NewPayoutBreakupDetailService(opts ...option.RequestOption) (r *PayoutBreak
 // Returns paginated individual balance ledger entries for a payout. Each entry is
 // converted into the payout's currency at the rate the payout settled at. Supports
 // pagination via `page_size` (default 10, max 100) and `page_number` (default 0)
-// query parameters. A settlement batch payout shows its rows in native amounts.
-// `unattributed` is the payout amount less the sum of its rows in the payout
-// currency.
+// query parameters.
 func (r *PayoutBreakupDetailService) List(ctx context.Context, payoutID string, query PayoutBreakupDetailListParams, opts ...option.RequestOption) (res *pagination.DefaultPageNumberPagination[PayoutBreakupDetailListResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -68,9 +66,7 @@ func (r *PayoutBreakupDetailService) List(ctx context.Context, payoutID string, 
 // Returns paginated individual balance ledger entries for a payout. Each entry is
 // converted into the payout's currency at the rate the payout settled at. Supports
 // pagination via `page_size` (default 10, max 100) and `page_number` (default 0)
-// query parameters. A settlement batch payout shows its rows in native amounts.
-// `unattributed` is the payout amount less the sum of its rows in the payout
-// currency.
+// query parameters.
 func (r *PayoutBreakupDetailService) ListAutoPaging(ctx context.Context, payoutID string, query PayoutBreakupDetailListParams, opts ...option.RequestOption) *pagination.DefaultPageNumberPaginationAutoPager[PayoutBreakupDetailListResponse] {
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.List(ctx, payoutID, query, opts...))
 }
@@ -78,8 +74,7 @@ func (r *PayoutBreakupDetailService) ListAutoPaging(ctx context.Context, payoutI
 // Downloads the complete payout breakup as a CSV file. Each row represents a
 // balance ledger entry with columns: Ledger ID, Event Type, Original Amount,
 // Original Currency, Reference Object ID, Description, Created At, USD Equivalent
-// Amount, and Payout Currency Amount. A settlement batch payout shows its rows in
-// native amounts.
+// Amount, and Payout Currency Amount.
 func (r *PayoutBreakupDetailService) DownloadCsv(ctx context.Context, payoutID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
@@ -110,9 +105,7 @@ type PayoutBreakupDetailListResponse struct {
 	// Amount in the payout's currency, in that currency's smallest unit (cents for
 	// USD, yen for JPY, fils for KWD). The entry is converted at the rate the payout
 	// settled at. These amounts sum to the value of the entries, which can be less
-	// than the payout: the grouped breakup reports the difference as `unattributed`. A
-	// settlement batch payout shows the native amount of a row in the payout's
-	// currency, and 0 for a row in a different currency.
+	// than the payout: the grouped breakup reports the difference as `unattributed`.
 	PayoutCurrencyAmount int64 `json:"payout_currency_amount" api:"required"`
 	// USD equivalent of the original amount (in cents).
 	UsdEquivalentAmount int64 `json:"usd_equivalent_amount" api:"required"`
