@@ -1738,6 +1738,414 @@ func (r EntitlementGrantRevokedWebhookEventType) IsKnown() bool {
 	return false
 }
 
+type InvoiceFinalizedWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// An invoice-led invoice. Every read and every `invoice.*` webhook uses this
+	// schema.
+	Data Invoice `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type InvoiceFinalizedWebhookEventType `json:"type" api:"required"`
+	JSON invoiceFinalizedWebhookEventJSON `json:"-"`
+}
+
+// invoiceFinalizedWebhookEventJSON contains the JSON metadata for the struct
+// [InvoiceFinalizedWebhookEvent]
+type invoiceFinalizedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *InvoiceFinalizedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r invoiceFinalizedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r InvoiceFinalizedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r InvoiceFinalizedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type InvoiceFinalizedWebhookEventType string
+
+const (
+	InvoiceFinalizedWebhookEventTypeInvoiceFinalized InvoiceFinalizedWebhookEventType = "invoice.finalized"
+)
+
+func (r InvoiceFinalizedWebhookEventType) IsKnown() bool {
+	switch r {
+	case InvoiceFinalizedWebhookEventTypeInvoiceFinalized:
+		return true
+	}
+	return false
+}
+
+type InvoiceMarkedUncollectableWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// An invoice-led invoice. Every read and every `invoice.*` webhook uses this
+	// schema.
+	Data Invoice `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type InvoiceMarkedUncollectableWebhookEventType `json:"type" api:"required"`
+	JSON invoiceMarkedUncollectableWebhookEventJSON `json:"-"`
+}
+
+// invoiceMarkedUncollectableWebhookEventJSON contains the JSON metadata for the
+// struct [InvoiceMarkedUncollectableWebhookEvent]
+type invoiceMarkedUncollectableWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *InvoiceMarkedUncollectableWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r invoiceMarkedUncollectableWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r InvoiceMarkedUncollectableWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r InvoiceMarkedUncollectableWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type InvoiceMarkedUncollectableWebhookEventType string
+
+const (
+	InvoiceMarkedUncollectableWebhookEventTypeInvoiceMarkedUncollectable InvoiceMarkedUncollectableWebhookEventType = "invoice.marked_uncollectable"
+)
+
+func (r InvoiceMarkedUncollectableWebhookEventType) IsKnown() bool {
+	switch r {
+	case InvoiceMarkedUncollectableWebhookEventTypeInvoiceMarkedUncollectable:
+		return true
+	}
+	return false
+}
+
+type InvoicePaidWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// An invoice-led invoice. Every read and every `invoice.*` webhook uses this
+	// schema.
+	Data Invoice `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type InvoicePaidWebhookEventType `json:"type" api:"required"`
+	JSON invoicePaidWebhookEventJSON `json:"-"`
+}
+
+// invoicePaidWebhookEventJSON contains the JSON metadata for the struct
+// [InvoicePaidWebhookEvent]
+type invoicePaidWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *InvoicePaidWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r invoicePaidWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r InvoicePaidWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r InvoicePaidWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type InvoicePaidWebhookEventType string
+
+const (
+	InvoicePaidWebhookEventTypeInvoicePaid InvoicePaidWebhookEventType = "invoice.paid"
+)
+
+func (r InvoicePaidWebhookEventType) IsKnown() bool {
+	switch r {
+	case InvoicePaidWebhookEventTypeInvoicePaid:
+		return true
+	}
+	return false
+}
+
+type InvoicePastDueWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// An invoice-led invoice. Every read and every `invoice.*` webhook uses this
+	// schema.
+	Data Invoice `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type InvoicePastDueWebhookEventType `json:"type" api:"required"`
+	JSON invoicePastDueWebhookEventJSON `json:"-"`
+}
+
+// invoicePastDueWebhookEventJSON contains the JSON metadata for the struct
+// [InvoicePastDueWebhookEvent]
+type invoicePastDueWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *InvoicePastDueWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r invoicePastDueWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r InvoicePastDueWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r InvoicePastDueWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type InvoicePastDueWebhookEventType string
+
+const (
+	InvoicePastDueWebhookEventTypeInvoicePastDue InvoicePastDueWebhookEventType = "invoice.past_due"
+)
+
+func (r InvoicePastDueWebhookEventType) IsKnown() bool {
+	switch r {
+	case InvoicePastDueWebhookEventTypeInvoicePastDue:
+		return true
+	}
+	return false
+}
+
+type InvoicePaymentFailedWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// An invoice-led invoice. Every read and every `invoice.*` webhook uses this
+	// schema.
+	Data Invoice `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type InvoicePaymentFailedWebhookEventType `json:"type" api:"required"`
+	JSON invoicePaymentFailedWebhookEventJSON `json:"-"`
+}
+
+// invoicePaymentFailedWebhookEventJSON contains the JSON metadata for the struct
+// [InvoicePaymentFailedWebhookEvent]
+type invoicePaymentFailedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *InvoicePaymentFailedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r invoicePaymentFailedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r InvoicePaymentFailedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r InvoicePaymentFailedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type InvoicePaymentFailedWebhookEventType string
+
+const (
+	InvoicePaymentFailedWebhookEventTypeInvoicePaymentFailed InvoicePaymentFailedWebhookEventType = "invoice.payment_failed"
+)
+
+func (r InvoicePaymentFailedWebhookEventType) IsKnown() bool {
+	switch r {
+	case InvoicePaymentFailedWebhookEventTypeInvoicePaymentFailed:
+		return true
+	}
+	return false
+}
+
+type InvoiceReopenedWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// An invoice-led invoice. Every read and every `invoice.*` webhook uses this
+	// schema.
+	Data Invoice `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type InvoiceReopenedWebhookEventType `json:"type" api:"required"`
+	JSON invoiceReopenedWebhookEventJSON `json:"-"`
+}
+
+// invoiceReopenedWebhookEventJSON contains the JSON metadata for the struct
+// [InvoiceReopenedWebhookEvent]
+type invoiceReopenedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *InvoiceReopenedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r invoiceReopenedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r InvoiceReopenedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r InvoiceReopenedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type InvoiceReopenedWebhookEventType string
+
+const (
+	InvoiceReopenedWebhookEventTypeInvoiceReopened InvoiceReopenedWebhookEventType = "invoice.reopened"
+)
+
+func (r InvoiceReopenedWebhookEventType) IsKnown() bool {
+	switch r {
+	case InvoiceReopenedWebhookEventTypeInvoiceReopened:
+		return true
+	}
+	return false
+}
+
+type InvoiceSentWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// An invoice-led invoice. Every read and every `invoice.*` webhook uses this
+	// schema.
+	Data Invoice `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type InvoiceSentWebhookEventType `json:"type" api:"required"`
+	JSON invoiceSentWebhookEventJSON `json:"-"`
+}
+
+// invoiceSentWebhookEventJSON contains the JSON metadata for the struct
+// [InvoiceSentWebhookEvent]
+type invoiceSentWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *InvoiceSentWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r invoiceSentWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r InvoiceSentWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r InvoiceSentWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type InvoiceSentWebhookEventType string
+
+const (
+	InvoiceSentWebhookEventTypeInvoiceSent InvoiceSentWebhookEventType = "invoice.sent"
+)
+
+func (r InvoiceSentWebhookEventType) IsKnown() bool {
+	switch r {
+	case InvoiceSentWebhookEventTypeInvoiceSent:
+		return true
+	}
+	return false
+}
+
+type InvoiceVoidedWebhookEvent struct {
+	// The business identifier
+	BusinessID string `json:"business_id" api:"required"`
+	// An invoice-led invoice. Every read and every `invoice.*` webhook uses this
+	// schema.
+	Data Invoice `json:"data" api:"required"`
+	// The timestamp of when the event occurred
+	Timestamp time.Time `json:"timestamp" api:"required" format:"date-time"`
+	// The event type
+	Type InvoiceVoidedWebhookEventType `json:"type" api:"required"`
+	JSON invoiceVoidedWebhookEventJSON `json:"-"`
+}
+
+// invoiceVoidedWebhookEventJSON contains the JSON metadata for the struct
+// [InvoiceVoidedWebhookEvent]
+type invoiceVoidedWebhookEventJSON struct {
+	BusinessID  apijson.Field
+	Data        apijson.Field
+	Timestamp   apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *InvoiceVoidedWebhookEvent) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r invoiceVoidedWebhookEventJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r InvoiceVoidedWebhookEvent) implementsUnsafeUnwrapWebhookEvent() {}
+
+func (r InvoiceVoidedWebhookEvent) implementsUnwrapWebhookEvent() {}
+
+// The event type
+type InvoiceVoidedWebhookEventType string
+
+const (
+	InvoiceVoidedWebhookEventTypeInvoiceVoided InvoiceVoidedWebhookEventType = "invoice.voided"
+)
+
+func (r InvoiceVoidedWebhookEventType) IsKnown() bool {
+	switch r {
+	case InvoiceVoidedWebhookEventTypeInvoiceVoided:
+		return true
+	}
+	return false
+}
+
 type LicenseKeyCreatedWebhookEvent struct {
 	// The business identifier
 	BusinessID string     `json:"business_id" api:"required"`
@@ -3826,13 +4234,14 @@ type UnsafeUnwrapWebhookEvent struct {
 	// [AbandonedCheckoutRecoveredWebhookEventData], [CreditLedgerEntry],
 	// [CreditBalanceLowWebhookEventData], [Dispute],
 	// [DunningRecoveredWebhookEventData], [DunningStartedWebhookEventData],
-	// [EntitlementGrant], [LicenseKey], [Payment], [PayoutCreatedWebhookEventData],
-	// [PayoutFailedWebhookEventData], [PayoutInProgressWebhookEventData],
-	// [PayoutOnHoldWebhookEventData], [PayoutSuccessWebhookEventData], [Refund],
-	// [SubscriptionActiveWebhookEventData], [SubscriptionCancelledWebhookEventData],
-	// [SubscriptionExpiredWebhookEventData], [SubscriptionFailedWebhookEventData],
-	// [SubscriptionOnHoldWebhookEventData], [SubscriptionPastDueWebhookEventData],
-	// [SubscriptionPausedWebhookEventData], [SubscriptionPlanChangedWebhookEventData],
+	// [EntitlementGrant], [Invoice], [LicenseKey], [Payment],
+	// [PayoutCreatedWebhookEventData], [PayoutFailedWebhookEventData],
+	// [PayoutInProgressWebhookEventData], [PayoutOnHoldWebhookEventData],
+	// [PayoutSuccessWebhookEventData], [Refund], [SubscriptionActiveWebhookEventData],
+	// [SubscriptionCancelledWebhookEventData], [SubscriptionExpiredWebhookEventData],
+	// [SubscriptionFailedWebhookEventData], [SubscriptionOnHoldWebhookEventData],
+	// [SubscriptionPastDueWebhookEventData], [SubscriptionPausedWebhookEventData],
+	// [SubscriptionPlanChangedWebhookEventData],
 	// [SubscriptionRenewedWebhookEventData], [SubscriptionUnpausedWebhookEventData],
 	// [SubscriptionUpdatePaymentMethodWebhookEventData],
 	// [SubscriptionUpdatedWebhookEventData].
@@ -3884,7 +4293,11 @@ func (r *UnsafeUnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [DisputeWonWebhookEvent], [DunningRecoveredWebhookEvent],
 // [DunningStartedWebhookEvent], [EntitlementGrantCreatedWebhookEvent],
 // [EntitlementGrantDeliveredWebhookEvent], [EntitlementGrantFailedWebhookEvent],
-// [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
+// [EntitlementGrantRevokedWebhookEvent], [InvoiceFinalizedWebhookEvent],
+// [InvoiceMarkedUncollectableWebhookEvent], [InvoicePaidWebhookEvent],
+// [InvoicePastDueWebhookEvent], [InvoicePaymentFailedWebhookEvent],
+// [InvoiceReopenedWebhookEvent], [InvoiceSentWebhookEvent],
+// [InvoiceVoidedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
 // [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
 // [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
 // [PayoutCreatedWebhookEvent], [PayoutFailedWebhookEvent],
@@ -3914,7 +4327,11 @@ func (r UnsafeUnwrapWebhookEvent) AsUnion() UnsafeUnwrapWebhookEventUnion {
 // [DisputeWonWebhookEvent], [DunningRecoveredWebhookEvent],
 // [DunningStartedWebhookEvent], [EntitlementGrantCreatedWebhookEvent],
 // [EntitlementGrantDeliveredWebhookEvent], [EntitlementGrantFailedWebhookEvent],
-// [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
+// [EntitlementGrantRevokedWebhookEvent], [InvoiceFinalizedWebhookEvent],
+// [InvoiceMarkedUncollectableWebhookEvent], [InvoicePaidWebhookEvent],
+// [InvoicePastDueWebhookEvent], [InvoicePaymentFailedWebhookEvent],
+// [InvoiceReopenedWebhookEvent], [InvoiceSentWebhookEvent],
+// [InvoiceVoidedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
 // [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
 // [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
 // [PayoutCreatedWebhookEvent], [PayoutFailedWebhookEvent],
@@ -4055,6 +4472,46 @@ func init() {
 			TypeFilter:         gjson.JSON,
 			Type:               reflect.TypeOf(EntitlementGrantRevokedWebhookEvent{}),
 			DiscriminatorValue: "entitlement_grant.revoked",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceFinalizedWebhookEvent{}),
+			DiscriminatorValue: "invoice.finalized",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceMarkedUncollectableWebhookEvent{}),
+			DiscriminatorValue: "invoice.marked_uncollectable",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoicePaidWebhookEvent{}),
+			DiscriminatorValue: "invoice.paid",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoicePastDueWebhookEvent{}),
+			DiscriminatorValue: "invoice.past_due",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoicePaymentFailedWebhookEvent{}),
+			DiscriminatorValue: "invoice.payment_failed",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceReopenedWebhookEvent{}),
+			DiscriminatorValue: "invoice.reopened",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceSentWebhookEvent{}),
+			DiscriminatorValue: "invoice.sent",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceVoidedWebhookEvent{}),
+			DiscriminatorValue: "invoice.voided",
 		},
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
@@ -4207,6 +4664,14 @@ const (
 	UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered       UnsafeUnwrapWebhookEventType = "entitlement_grant.delivered"
 	UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed          UnsafeUnwrapWebhookEventType = "entitlement_grant.failed"
 	UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked         UnsafeUnwrapWebhookEventType = "entitlement_grant.revoked"
+	UnsafeUnwrapWebhookEventTypeInvoiceFinalized                UnsafeUnwrapWebhookEventType = "invoice.finalized"
+	UnsafeUnwrapWebhookEventTypeInvoiceMarkedUncollectable      UnsafeUnwrapWebhookEventType = "invoice.marked_uncollectable"
+	UnsafeUnwrapWebhookEventTypeInvoicePaid                     UnsafeUnwrapWebhookEventType = "invoice.paid"
+	UnsafeUnwrapWebhookEventTypeInvoicePastDue                  UnsafeUnwrapWebhookEventType = "invoice.past_due"
+	UnsafeUnwrapWebhookEventTypeInvoicePaymentFailed            UnsafeUnwrapWebhookEventType = "invoice.payment_failed"
+	UnsafeUnwrapWebhookEventTypeInvoiceReopened                 UnsafeUnwrapWebhookEventType = "invoice.reopened"
+	UnsafeUnwrapWebhookEventTypeInvoiceSent                     UnsafeUnwrapWebhookEventType = "invoice.sent"
+	UnsafeUnwrapWebhookEventTypeInvoiceVoided                   UnsafeUnwrapWebhookEventType = "invoice.voided"
 	UnsafeUnwrapWebhookEventTypeLicenseKeyCreated               UnsafeUnwrapWebhookEventType = "license_key.created"
 	UnsafeUnwrapWebhookEventTypePaymentCancelled                UnsafeUnwrapWebhookEventType = "payment.cancelled"
 	UnsafeUnwrapWebhookEventTypePaymentFailed                   UnsafeUnwrapWebhookEventType = "payment.failed"
@@ -4235,7 +4700,7 @@ const (
 
 func (r UnsafeUnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected, UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditOverageReset, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeDunningRecovered, UnsafeUnwrapWebhookEventTypeDunningStarted, UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated, UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered, UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed, UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypePayoutCreated, UnsafeUnwrapWebhookEventTypePayoutFailed, UnsafeUnwrapWebhookEventTypePayoutInProgress, UnsafeUnwrapWebhookEventTypePayoutOnHold, UnsafeUnwrapWebhookEventTypePayoutSuccess, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPastDue, UnsafeUnwrapWebhookEventTypeSubscriptionPaused, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUnpaused, UnsafeUnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnsafeUnwrapWebhookEventTypeAbandonedCheckoutDetected, UnsafeUnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnsafeUnwrapWebhookEventTypeCreditAdded, UnsafeUnwrapWebhookEventTypeCreditBalanceLow, UnsafeUnwrapWebhookEventTypeCreditDeducted, UnsafeUnwrapWebhookEventTypeCreditExpired, UnsafeUnwrapWebhookEventTypeCreditManualAdjustment, UnsafeUnwrapWebhookEventTypeCreditOverageCharged, UnsafeUnwrapWebhookEventTypeCreditOverageReset, UnsafeUnwrapWebhookEventTypeCreditRolledOver, UnsafeUnwrapWebhookEventTypeCreditRolloverForfeited, UnsafeUnwrapWebhookEventTypeDisputeAccepted, UnsafeUnwrapWebhookEventTypeDisputeCancelled, UnsafeUnwrapWebhookEventTypeDisputeChallenged, UnsafeUnwrapWebhookEventTypeDisputeExpired, UnsafeUnwrapWebhookEventTypeDisputeLost, UnsafeUnwrapWebhookEventTypeDisputeOpened, UnsafeUnwrapWebhookEventTypeDisputeWon, UnsafeUnwrapWebhookEventTypeDunningRecovered, UnsafeUnwrapWebhookEventTypeDunningStarted, UnsafeUnwrapWebhookEventTypeEntitlementGrantCreated, UnsafeUnwrapWebhookEventTypeEntitlementGrantDelivered, UnsafeUnwrapWebhookEventTypeEntitlementGrantFailed, UnsafeUnwrapWebhookEventTypeEntitlementGrantRevoked, UnsafeUnwrapWebhookEventTypeInvoiceFinalized, UnsafeUnwrapWebhookEventTypeInvoiceMarkedUncollectable, UnsafeUnwrapWebhookEventTypeInvoicePaid, UnsafeUnwrapWebhookEventTypeInvoicePastDue, UnsafeUnwrapWebhookEventTypeInvoicePaymentFailed, UnsafeUnwrapWebhookEventTypeInvoiceReopened, UnsafeUnwrapWebhookEventTypeInvoiceSent, UnsafeUnwrapWebhookEventTypeInvoiceVoided, UnsafeUnwrapWebhookEventTypeLicenseKeyCreated, UnsafeUnwrapWebhookEventTypePaymentCancelled, UnsafeUnwrapWebhookEventTypePaymentFailed, UnsafeUnwrapWebhookEventTypePaymentProcessing, UnsafeUnwrapWebhookEventTypePaymentSucceeded, UnsafeUnwrapWebhookEventTypePayoutCreated, UnsafeUnwrapWebhookEventTypePayoutFailed, UnsafeUnwrapWebhookEventTypePayoutInProgress, UnsafeUnwrapWebhookEventTypePayoutOnHold, UnsafeUnwrapWebhookEventTypePayoutSuccess, UnsafeUnwrapWebhookEventTypeRefundFailed, UnsafeUnwrapWebhookEventTypeRefundSucceeded, UnsafeUnwrapWebhookEventTypeSubscriptionActive, UnsafeUnwrapWebhookEventTypeSubscriptionCancelled, UnsafeUnwrapWebhookEventTypeSubscriptionExpired, UnsafeUnwrapWebhookEventTypeSubscriptionFailed, UnsafeUnwrapWebhookEventTypeSubscriptionOnHold, UnsafeUnwrapWebhookEventTypeSubscriptionPastDue, UnsafeUnwrapWebhookEventTypeSubscriptionPaused, UnsafeUnwrapWebhookEventTypeSubscriptionPlanChanged, UnsafeUnwrapWebhookEventTypeSubscriptionRenewed, UnsafeUnwrapWebhookEventTypeSubscriptionUnpaused, UnsafeUnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnsafeUnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false
@@ -4249,13 +4714,14 @@ type UnwrapWebhookEvent struct {
 	// [AbandonedCheckoutRecoveredWebhookEventData], [CreditLedgerEntry],
 	// [CreditBalanceLowWebhookEventData], [Dispute],
 	// [DunningRecoveredWebhookEventData], [DunningStartedWebhookEventData],
-	// [EntitlementGrant], [LicenseKey], [Payment], [PayoutCreatedWebhookEventData],
-	// [PayoutFailedWebhookEventData], [PayoutInProgressWebhookEventData],
-	// [PayoutOnHoldWebhookEventData], [PayoutSuccessWebhookEventData], [Refund],
-	// [SubscriptionActiveWebhookEventData], [SubscriptionCancelledWebhookEventData],
-	// [SubscriptionExpiredWebhookEventData], [SubscriptionFailedWebhookEventData],
-	// [SubscriptionOnHoldWebhookEventData], [SubscriptionPastDueWebhookEventData],
-	// [SubscriptionPausedWebhookEventData], [SubscriptionPlanChangedWebhookEventData],
+	// [EntitlementGrant], [Invoice], [LicenseKey], [Payment],
+	// [PayoutCreatedWebhookEventData], [PayoutFailedWebhookEventData],
+	// [PayoutInProgressWebhookEventData], [PayoutOnHoldWebhookEventData],
+	// [PayoutSuccessWebhookEventData], [Refund], [SubscriptionActiveWebhookEventData],
+	// [SubscriptionCancelledWebhookEventData], [SubscriptionExpiredWebhookEventData],
+	// [SubscriptionFailedWebhookEventData], [SubscriptionOnHoldWebhookEventData],
+	// [SubscriptionPastDueWebhookEventData], [SubscriptionPausedWebhookEventData],
+	// [SubscriptionPlanChangedWebhookEventData],
 	// [SubscriptionRenewedWebhookEventData], [SubscriptionUnpausedWebhookEventData],
 	// [SubscriptionUpdatePaymentMethodWebhookEventData],
 	// [SubscriptionUpdatedWebhookEventData].
@@ -4307,7 +4773,11 @@ func (r *UnwrapWebhookEvent) UnmarshalJSON(data []byte) (err error) {
 // [DisputeWonWebhookEvent], [DunningRecoveredWebhookEvent],
 // [DunningStartedWebhookEvent], [EntitlementGrantCreatedWebhookEvent],
 // [EntitlementGrantDeliveredWebhookEvent], [EntitlementGrantFailedWebhookEvent],
-// [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
+// [EntitlementGrantRevokedWebhookEvent], [InvoiceFinalizedWebhookEvent],
+// [InvoiceMarkedUncollectableWebhookEvent], [InvoicePaidWebhookEvent],
+// [InvoicePastDueWebhookEvent], [InvoicePaymentFailedWebhookEvent],
+// [InvoiceReopenedWebhookEvent], [InvoiceSentWebhookEvent],
+// [InvoiceVoidedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
 // [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
 // [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
 // [PayoutCreatedWebhookEvent], [PayoutFailedWebhookEvent],
@@ -4337,7 +4807,11 @@ func (r UnwrapWebhookEvent) AsUnion() UnwrapWebhookEventUnion {
 // [DisputeWonWebhookEvent], [DunningRecoveredWebhookEvent],
 // [DunningStartedWebhookEvent], [EntitlementGrantCreatedWebhookEvent],
 // [EntitlementGrantDeliveredWebhookEvent], [EntitlementGrantFailedWebhookEvent],
-// [EntitlementGrantRevokedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
+// [EntitlementGrantRevokedWebhookEvent], [InvoiceFinalizedWebhookEvent],
+// [InvoiceMarkedUncollectableWebhookEvent], [InvoicePaidWebhookEvent],
+// [InvoicePastDueWebhookEvent], [InvoicePaymentFailedWebhookEvent],
+// [InvoiceReopenedWebhookEvent], [InvoiceSentWebhookEvent],
+// [InvoiceVoidedWebhookEvent], [LicenseKeyCreatedWebhookEvent],
 // [PaymentCancelledWebhookEvent], [PaymentFailedWebhookEvent],
 // [PaymentProcessingWebhookEvent], [PaymentSucceededWebhookEvent],
 // [PayoutCreatedWebhookEvent], [PayoutFailedWebhookEvent],
@@ -4478,6 +4952,46 @@ func init() {
 			TypeFilter:         gjson.JSON,
 			Type:               reflect.TypeOf(EntitlementGrantRevokedWebhookEvent{}),
 			DiscriminatorValue: "entitlement_grant.revoked",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceFinalizedWebhookEvent{}),
+			DiscriminatorValue: "invoice.finalized",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceMarkedUncollectableWebhookEvent{}),
+			DiscriminatorValue: "invoice.marked_uncollectable",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoicePaidWebhookEvent{}),
+			DiscriminatorValue: "invoice.paid",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoicePastDueWebhookEvent{}),
+			DiscriminatorValue: "invoice.past_due",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoicePaymentFailedWebhookEvent{}),
+			DiscriminatorValue: "invoice.payment_failed",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceReopenedWebhookEvent{}),
+			DiscriminatorValue: "invoice.reopened",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceSentWebhookEvent{}),
+			DiscriminatorValue: "invoice.sent",
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			Type:               reflect.TypeOf(InvoiceVoidedWebhookEvent{}),
+			DiscriminatorValue: "invoice.voided",
 		},
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
@@ -4630,6 +5144,14 @@ const (
 	UnwrapWebhookEventTypeEntitlementGrantDelivered       UnwrapWebhookEventType = "entitlement_grant.delivered"
 	UnwrapWebhookEventTypeEntitlementGrantFailed          UnwrapWebhookEventType = "entitlement_grant.failed"
 	UnwrapWebhookEventTypeEntitlementGrantRevoked         UnwrapWebhookEventType = "entitlement_grant.revoked"
+	UnwrapWebhookEventTypeInvoiceFinalized                UnwrapWebhookEventType = "invoice.finalized"
+	UnwrapWebhookEventTypeInvoiceMarkedUncollectable      UnwrapWebhookEventType = "invoice.marked_uncollectable"
+	UnwrapWebhookEventTypeInvoicePaid                     UnwrapWebhookEventType = "invoice.paid"
+	UnwrapWebhookEventTypeInvoicePastDue                  UnwrapWebhookEventType = "invoice.past_due"
+	UnwrapWebhookEventTypeInvoicePaymentFailed            UnwrapWebhookEventType = "invoice.payment_failed"
+	UnwrapWebhookEventTypeInvoiceReopened                 UnwrapWebhookEventType = "invoice.reopened"
+	UnwrapWebhookEventTypeInvoiceSent                     UnwrapWebhookEventType = "invoice.sent"
+	UnwrapWebhookEventTypeInvoiceVoided                   UnwrapWebhookEventType = "invoice.voided"
 	UnwrapWebhookEventTypeLicenseKeyCreated               UnwrapWebhookEventType = "license_key.created"
 	UnwrapWebhookEventTypePaymentCancelled                UnwrapWebhookEventType = "payment.cancelled"
 	UnwrapWebhookEventTypePaymentFailed                   UnwrapWebhookEventType = "payment.failed"
@@ -4658,7 +5180,7 @@ const (
 
 func (r UnwrapWebhookEventType) IsKnown() bool {
 	switch r {
-	case UnwrapWebhookEventTypeAbandonedCheckoutDetected, UnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditOverageReset, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeDunningRecovered, UnwrapWebhookEventTypeDunningStarted, UnwrapWebhookEventTypeEntitlementGrantCreated, UnwrapWebhookEventTypeEntitlementGrantDelivered, UnwrapWebhookEventTypeEntitlementGrantFailed, UnwrapWebhookEventTypeEntitlementGrantRevoked, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypePayoutCreated, UnwrapWebhookEventTypePayoutFailed, UnwrapWebhookEventTypePayoutInProgress, UnwrapWebhookEventTypePayoutOnHold, UnwrapWebhookEventTypePayoutSuccess, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPastDue, UnwrapWebhookEventTypeSubscriptionPaused, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUnpaused, UnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnwrapWebhookEventTypeSubscriptionUpdated:
+	case UnwrapWebhookEventTypeAbandonedCheckoutDetected, UnwrapWebhookEventTypeAbandonedCheckoutRecovered, UnwrapWebhookEventTypeCreditAdded, UnwrapWebhookEventTypeCreditBalanceLow, UnwrapWebhookEventTypeCreditDeducted, UnwrapWebhookEventTypeCreditExpired, UnwrapWebhookEventTypeCreditManualAdjustment, UnwrapWebhookEventTypeCreditOverageCharged, UnwrapWebhookEventTypeCreditOverageReset, UnwrapWebhookEventTypeCreditRolledOver, UnwrapWebhookEventTypeCreditRolloverForfeited, UnwrapWebhookEventTypeDisputeAccepted, UnwrapWebhookEventTypeDisputeCancelled, UnwrapWebhookEventTypeDisputeChallenged, UnwrapWebhookEventTypeDisputeExpired, UnwrapWebhookEventTypeDisputeLost, UnwrapWebhookEventTypeDisputeOpened, UnwrapWebhookEventTypeDisputeWon, UnwrapWebhookEventTypeDunningRecovered, UnwrapWebhookEventTypeDunningStarted, UnwrapWebhookEventTypeEntitlementGrantCreated, UnwrapWebhookEventTypeEntitlementGrantDelivered, UnwrapWebhookEventTypeEntitlementGrantFailed, UnwrapWebhookEventTypeEntitlementGrantRevoked, UnwrapWebhookEventTypeInvoiceFinalized, UnwrapWebhookEventTypeInvoiceMarkedUncollectable, UnwrapWebhookEventTypeInvoicePaid, UnwrapWebhookEventTypeInvoicePastDue, UnwrapWebhookEventTypeInvoicePaymentFailed, UnwrapWebhookEventTypeInvoiceReopened, UnwrapWebhookEventTypeInvoiceSent, UnwrapWebhookEventTypeInvoiceVoided, UnwrapWebhookEventTypeLicenseKeyCreated, UnwrapWebhookEventTypePaymentCancelled, UnwrapWebhookEventTypePaymentFailed, UnwrapWebhookEventTypePaymentProcessing, UnwrapWebhookEventTypePaymentSucceeded, UnwrapWebhookEventTypePayoutCreated, UnwrapWebhookEventTypePayoutFailed, UnwrapWebhookEventTypePayoutInProgress, UnwrapWebhookEventTypePayoutOnHold, UnwrapWebhookEventTypePayoutSuccess, UnwrapWebhookEventTypeRefundFailed, UnwrapWebhookEventTypeRefundSucceeded, UnwrapWebhookEventTypeSubscriptionActive, UnwrapWebhookEventTypeSubscriptionCancelled, UnwrapWebhookEventTypeSubscriptionExpired, UnwrapWebhookEventTypeSubscriptionFailed, UnwrapWebhookEventTypeSubscriptionOnHold, UnwrapWebhookEventTypeSubscriptionPastDue, UnwrapWebhookEventTypeSubscriptionPaused, UnwrapWebhookEventTypeSubscriptionPlanChanged, UnwrapWebhookEventTypeSubscriptionRenewed, UnwrapWebhookEventTypeSubscriptionUnpaused, UnwrapWebhookEventTypeSubscriptionUpdatePaymentMethod, UnwrapWebhookEventTypeSubscriptionUpdated:
 		return true
 	}
 	return false

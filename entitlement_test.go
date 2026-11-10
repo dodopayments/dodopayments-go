@@ -47,7 +47,7 @@ func TestEntitlementNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestEntitlementGetWithOptionalParams(t *testing.T) {
+func TestEntitlementGet(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -59,13 +59,7 @@ func TestEntitlementGetWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Entitlements.Get(
-		context.TODO(),
-		"ent_jt7jcvI79Xh8eehqgWdcm",
-		dodopayments.EntitlementGetParams{
-			Locale: dodopayments.F("locale"),
-		},
-	)
+	_, err := client.Entitlements.Get(context.TODO(), "ent_jt7jcvI79Xh8eehqgWdcm")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -125,7 +119,6 @@ func TestEntitlementListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Entitlements.List(context.TODO(), dodopayments.EntitlementListParams{
 		IntegrationType: dodopayments.F(dodopayments.EntitlementListParamsIntegrationTypeDiscord),
-		Locale:          dodopayments.F("locale"),
 		PageNumber:      dodopayments.F(int64(0)),
 		PageSize:        dodopayments.F(int64(0)),
 	})
