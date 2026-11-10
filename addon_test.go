@@ -41,7 +41,7 @@ func TestAddonNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestAddonGetWithOptionalParams(t *testing.T) {
+func TestAddonGet(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -53,13 +53,7 @@ func TestAddonGetWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Addons.Get(
-		context.TODO(),
-		"adn_NX1zdqW4Hbivsqz8vI9dc",
-		dodopayments.AddonGetParams{
-			Locale: dodopayments.F("locale"),
-		},
-	)
+	_, err := client.Addons.Get(context.TODO(), "adn_NX1zdqW4Hbivsqz8vI9dc")
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
@@ -116,7 +110,6 @@ func TestAddonListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Addons.List(context.TODO(), dodopayments.AddonListParams{
 		Archived:   dodopayments.F(true),
-		Locale:     dodopayments.F("locale"),
 		PageNumber: dodopayments.F(int64(0)),
 		PageSize:   dodopayments.F(int64(0)),
 	})
