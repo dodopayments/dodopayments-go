@@ -204,25 +204,25 @@ func (r *InvoiceService) MarkUncollectable(ctx context.Context, invoiceID string
 }
 
 // Prices the body as a draft and returns it. No row is saved.
-func (r *InvoiceService) Preview(ctx context.Context, params InvoicePreviewParams, opts ...option.RequestOption) (err error) {
+func (r *InvoiceService) Preview(ctx context.Context, params InvoicePreviewParams, opts ...option.RequestOption) (res *http.Response, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
 	path := "billing/invoices/preview"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
 }
 
 // Preview a draft invoice
-func (r *InvoiceService) PreviewExisting(ctx context.Context, invoiceID string, query InvoicePreviewExistingParams, opts ...option.RequestOption) (err error) {
+func (r *InvoiceService) PreviewExisting(ctx context.Context, invoiceID string, query InvoicePreviewExistingParams, opts ...option.RequestOption) (res *http.Response, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
 	if invoiceID == "" {
 		err = errors.New("missing required invoice_id parameter")
-		return err
+		return nil, err
 	}
 	path := fmt.Sprintf("billing/invoices/%s/preview", invoiceID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
 }
 
 // Charges the saved payment method of the invoice subscription now.
