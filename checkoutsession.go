@@ -7,12 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"slices"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go/internal/apijson"
-	"github.com/dodopayments/dodopayments-go/internal/apiquery"
 	"github.com/dodopayments/dodopayments-go/internal/param"
 	"github.com/dodopayments/dodopayments-go/internal/requestconfig"
 	"github.com/dodopayments/dodopayments-go/option"
@@ -55,10 +53,10 @@ func (r *CheckoutSessionService) Get(ctx context.Context, id string, opts ...opt
 	return res, err
 }
 
-func (r *CheckoutSessionService) Preview(ctx context.Context, params CheckoutSessionPreviewParams, opts ...option.RequestOption) (res *CheckoutSessionPreviewResponse, err error) {
+func (r *CheckoutSessionService) Preview(ctx context.Context, body CheckoutSessionPreviewParams, opts ...option.RequestOption) (res *CheckoutSessionPreviewResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "checkouts/preview"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return res, err
 }
 
@@ -82,6 +80,11 @@ func (r CheckoutSessionBillingAddressParam) MarshalJSON() (data []byte, err erro
 type CheckoutSessionCustomizationParam struct {
 	// Force the checkout interface to render in a specific language (e.g. `en`, `es`)
 	ForceLanguage param.Field[string] `json:"force_language"`
+	// How a single-page checkout shows the payment methods. You can set it only when
+	// `feature_flags.single_page` is true.
+	//
+	// Default is `accordion`.
+	PaymentMethodLayout param.Field[CheckoutSessionCustomizationPaymentMethodLayout] `json:"payment_method_layout"`
 	// Show on demand tag
 	//
 	// Default is true
@@ -100,6 +103,25 @@ type CheckoutSessionCustomizationParam struct {
 
 func (r CheckoutSessionCustomizationParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+// How a single-page checkout shows the payment methods. You can set it only when
+// `feature_flags.single_page` is true.
+//
+// Default is `accordion`.
+type CheckoutSessionCustomizationPaymentMethodLayout string
+
+const (
+	CheckoutSessionCustomizationPaymentMethodLayoutAccordion CheckoutSessionCustomizationPaymentMethodLayout = "accordion"
+	CheckoutSessionCustomizationPaymentMethodLayoutTabs      CheckoutSessionCustomizationPaymentMethodLayout = "tabs"
+)
+
+func (r CheckoutSessionCustomizationPaymentMethodLayout) IsKnown() bool {
+	switch r {
+	case CheckoutSessionCustomizationPaymentMethodLayoutAccordion, CheckoutSessionCustomizationPaymentMethodLayoutTabs:
+		return true
+	}
+	return false
 }
 
 // Theme of the page (determines which mode - light/dark/system - to use)
@@ -843,10 +865,13 @@ type CheckoutSessionPreviewResponseProductCartAddon struct {
 	AddonID         string   `json:"addon_id" api:"required"`
 	Currency        Currency `json:"currency" api:"required"`
 	DiscountedPrice int64    `json:"discounted_price" api:"required"`
-	Name            string   `json:"name" api:"required"`
-	OgCurrency      Currency `json:"og_currency" api:"required"`
-	OgPrice         int64    `json:"og_price" api:"required"`
-	Quantity        int64    `json:"quantity" api:"required"`
+	// True when one more unit of this addon puts the cart above the cart value limit
+	// of the business. False when the limit does not apply to the business.
+	MaxQuantityReached bool     `json:"max_quantity_reached" api:"required"`
+	Name               string   `json:"name" api:"required"`
+	OgCurrency         Currency `json:"og_currency" api:"required"`
+	OgPrice            int64    `json:"og_price" api:"required"`
+	Quantity           int64    `json:"quantity" api:"required"`
 	// Per-unit price in `currency`, converted and adaptive-priced but pre-tax and
 	// pre-discount (both depend on quantity and the rest of the cart). Set even when
 	// `quantity` is 0, so the checkout page can price the addon before the buyer has
@@ -871,6 +896,7 @@ type checkoutSessionPreviewResponseProductCartAddonJSON struct {
 	AddonID             apijson.Field
 	Currency            apijson.Field
 	DiscountedPrice     apijson.Field
+	MaxQuantityReached  apijson.Field
 	Name                apijson.Field
 	OgCurrency          apijson.Field
 	OgPrice             apijson.Field
@@ -978,24 +1004,8 @@ func (r CheckoutSessionNewParams) MarshalJSON() (data []byte, err error) {
 
 type CheckoutSessionPreviewParams struct {
 	CheckoutSessionRequest CheckoutSessionRequestParam `json:"checkout_session_request" api:"required"`
-	// Shows the translated name, description and unit of the catalog entities in this
-	// locale. The value must be a code from `GET /locales`, for example `fr`. A field
-	// with no translation, an unknown code, or no code shows the base text.
-	//
-	// Do not send a text from a localized response back in a create or update request.
-	// The base text then changes to the translated text.
-	Locale param.Field[string] `query:"locale"`
 }
 
 func (r CheckoutSessionPreviewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r.CheckoutSessionRequest)
-}
-
-// URLQuery serializes [CheckoutSessionPreviewParams]'s query parameters as
-// `url.Values`.
-func (r CheckoutSessionPreviewParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
 }
