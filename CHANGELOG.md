@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.127.0](https://github.com/dodopayments/dodopayments-go/compare/v1.126.0...v1.127.0) (2026-11-16)
+
+
+### Features
+
+* **api:** trial subscriptions and app installation settings; sync spec to prod 1.124.0 ([ae25eb4](https://github.com/dodopayments/dodopayments-go/commit/ae25eb4e32b2c7c620aa0e91db450244b729ed07))
+* **api:** trial subscriptions and app installation settings; sync spec to prod 1.124.0 ([553c1b8](https://github.com/dodopayments/dodopayments-go/commit/553c1b876f9aaa871aff87db0ff4effe235a848b))
+
 ## [1.126.0](https://github.com/dodopayments/dodopayments-go/compare/v1.125.0...v1.126.0) (2026-11-10)
 
 
