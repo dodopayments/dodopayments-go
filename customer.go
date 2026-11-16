@@ -163,14 +163,14 @@ func (r *CustomerService) ListEntitlements(ctx context.Context, customerID strin
 	return res, err
 }
 
-func (r *CustomerService) GetPaymentMethods(ctx context.Context, customerID string, opts ...option.RequestOption) (res *CustomerGetPaymentMethodsResponse, err error) {
+func (r *CustomerService) GetPaymentMethods(ctx context.Context, customerID string, query CustomerGetPaymentMethodsParams, opts ...option.RequestOption) (res *CustomerGetPaymentMethodsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if customerID == "" {
 		err = errors.New("missing required customer_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("customers/%s/payment-methods", customerID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -597,4 +597,19 @@ func (r CustomerListEntitlementGrantsParamsStatus) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+type CustomerGetPaymentMethodsParams struct {
+	// ISO country code alpha2 variant
+	BillingCountry param.Field[CountryCode] `query:"billing_country"`
+	Currency       param.Field[Currency]    `query:"currency"`
+}
+
+// URLQuery serializes [CustomerGetPaymentMethodsParams]'s query parameters as
+// `url.Values`.
+func (r CustomerGetPaymentMethodsParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
