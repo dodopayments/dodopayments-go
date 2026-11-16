@@ -44,6 +44,7 @@ type Client struct {
 	Entitlements        *EntitlementService
 	ProductCollections  *ProductCollectionService
 	Moderation          *ModerationService
+	AppInstallation     *AppInstallationService
 	WorkloadIdentity    *WorkloadIdentityService
 }
 
@@ -109,6 +110,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Entitlements = NewEntitlementService(opts...)
 	r.ProductCollections = NewProductCollectionService(opts...)
 	r.Moderation = NewModerationService(opts...)
+	r.AppInstallation = NewAppInstallationService(opts...)
 	r.WorkloadIdentity = NewWorkloadIdentityService(opts...)
 
 	return
