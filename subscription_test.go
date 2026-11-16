@@ -452,6 +452,49 @@ func TestSubscriptionGetUsageHistoryWithOptionalParams(t *testing.T) {
 	}
 }
 
+func TestSubscriptionStartTrialWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := dodopayments.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithBearerToken("My Bearer Token"),
+	)
+	_, err := client.Subscriptions.StartTrial(context.TODO(), dodopayments.SubscriptionStartTrialParams{
+		CollectionMethod: dodopayments.F(dodopayments.CollectionMethodAutoCharge),
+		Currency:         dodopayments.F(dodopayments.CurrencyAed),
+		CustomerID:       dodopayments.F("customer_id"),
+		ProductID:        dodopayments.F("product_id"),
+		BillingAddress: dodopayments.F(dodopayments.SubscriptionStartTrialParamsBillingAddress{
+			Country: dodopayments.F(dodopayments.CountryCodeAf),
+			City:    dodopayments.F("city"),
+			State:   dodopayments.F("state"),
+			Street:  dodopayments.F("street"),
+			Zipcode: dodopayments.F("zipcode"),
+		}),
+		PaymentMethodID: dodopayments.F("payment_method_id"),
+		PaymentTerms: dodopayments.F[dodopayments.SubscriptionStartTrialParamsPaymentTermsUnion](dodopayments.SubscriptionStartTrialParamsPaymentTermsDueOnReceipt{
+			Type: dodopayments.F(dodopayments.SubscriptionStartTrialParamsPaymentTermsDueOnReceiptTypeDueOnReceipt),
+		}),
+		Quantity:        dodopayments.F(int64(0)),
+		ReviewRequired:  dodopayments.F(true),
+		TaxID:           dodopayments.F("tax_id"),
+		TrialPeriodDays: dodopayments.F(int64(0)),
+		IdempotencyKey:  dodopayments.F("Idempotency-Key"),
+	})
+	if err != nil {
+		var apierr *dodopayments.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
 func TestSubscriptionUpdatePaymentMethodWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {

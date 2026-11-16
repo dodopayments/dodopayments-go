@@ -229,7 +229,7 @@ func TestCustomerListEntitlements(t *testing.T) {
 	}
 }
 
-func TestCustomerGetPaymentMethods(t *testing.T) {
+func TestCustomerGetPaymentMethodsWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -241,7 +241,14 @@ func TestCustomerGetPaymentMethods(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithBearerToken("My Bearer Token"),
 	)
-	_, err := client.Customers.GetPaymentMethods(context.TODO(), "cus_TV52uJWWXt2yIoBBxpjaa")
+	_, err := client.Customers.GetPaymentMethods(
+		context.TODO(),
+		"cus_TV52uJWWXt2yIoBBxpjaa",
+		dodopayments.CustomerGetPaymentMethodsParams{
+			BillingCountry: dodopayments.F(dodopayments.CountryCodeAf),
+			Currency:       dodopayments.F(dodopayments.CurrencyAed),
+		},
+	)
 	if err != nil {
 		var apierr *dodopayments.Error
 		if errors.As(err, &apierr) {
