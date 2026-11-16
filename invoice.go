@@ -134,8 +134,8 @@ func (r *InvoiceService) AddNote(ctx context.Context, invoiceID string, body Inv
 	return res, err
 }
 
-// Returns the page where the customer pays. A copied link counts as a send, so the
-// first call sets `sent_at`.
+// Returns the page where the customer pays. The first call sets `sent_at` and
+// records a `link_shared` event. It sends no email and no `invoice.sent` webhook.
 func (r *InvoiceService) NewHostedLink(ctx context.Context, invoiceID string, opts ...option.RequestOption) (res *InvoiceNewHostedLinkResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if invoiceID == "" {
@@ -352,6 +352,10 @@ type Invoice struct {
 	RefundIDs []string         `json:"refund_ids" api:"required"`
 	// The number of failed automatic charges.
 	RetryCount int64 `json:"retry_count" api:"required"`
+	// `true` when a subscription of the invoice has renewal review on now. The value
+	// follows the subscription, so it can change after finalise. `review_deadline`
+	// shows that this draft waits.
+	ReviewRequired bool `json:"review_required" api:"required"`
 	// Goes up by one on each change. Use it to ignore an older webhook delivery.
 	RowVersion int64 `json:"row_version" api:"required"`
 	// The `message` of each variant is the label of the invoice document.
@@ -377,6 +381,8 @@ type Invoice struct {
 	// date. `null` when no reminder email will go out.
 	NextReminderAt time.Time `json:"next_reminder_at" api:"nullable" format:"date-time"`
 	NextRetryAt    time.Time `json:"next_retry_at" api:"nullable" format:"date-time"`
+	// The saved card that an automatic charge of the invoice uses.
+	PaymentMethodID string `json:"payment_method_id" api:"nullable"`
 	// Days from finalise to the due date. `null` when the invoice has a custom due
 	// date.
 	PaymentTermsDays int64 `json:"payment_terms_days" api:"nullable"`
@@ -410,6 +416,7 @@ type invoiceJSON struct {
 	Metadata         apijson.Field
 	RefundIDs        apijson.Field
 	RetryCount       apijson.Field
+	ReviewRequired   apijson.Field
 	RowVersion       apijson.Field
 	Status           apijson.Field
 	SubscriptionIDs  apijson.Field
@@ -425,6 +432,7 @@ type invoiceJSON struct {
 	Memo             apijson.Field
 	NextReminderAt   apijson.Field
 	NextRetryAt      apijson.Field
+	PaymentMethodID  apijson.Field
 	PaymentTermsDays apijson.Field
 	Payments         apijson.Field
 	PdfURL           apijson.Field
@@ -552,6 +560,7 @@ const (
 	InvoiceEditableFieldBillingAddress   InvoiceEditableField = "billing_address"
 	InvoiceEditableFieldTaxID            InvoiceEditableField = "tax_id"
 	InvoiceEditableFieldReviewRequired   InvoiceEditableField = "review_required"
+	InvoiceEditableFieldPaymentMethod    InvoiceEditableField = "payment_method"
 	InvoiceEditableFieldDueAt            InvoiceEditableField = "due_at"
 	InvoiceEditableFieldCollectionMethod InvoiceEditableField = "collection_method"
 	InvoiceEditableFieldMemo             InvoiceEditableField = "memo"
@@ -563,7 +572,7 @@ const (
 
 func (r InvoiceEditableField) IsKnown() bool {
 	switch r {
-	case InvoiceEditableFieldCustomer, InvoiceEditableFieldItems, InvoiceEditableFieldDiscounts, InvoiceEditableFieldCurrency, InvoiceEditableFieldBillingAddress, InvoiceEditableFieldTaxID, InvoiceEditableFieldReviewRequired, InvoiceEditableFieldDueAt, InvoiceEditableFieldCollectionMethod, InvoiceEditableFieldMemo, InvoiceEditableFieldCustomerEmail, InvoiceEditableFieldCcEmails, InvoiceEditableFieldDunning, InvoiceEditableFieldMetadata:
+	case InvoiceEditableFieldCustomer, InvoiceEditableFieldItems, InvoiceEditableFieldDiscounts, InvoiceEditableFieldCurrency, InvoiceEditableFieldBillingAddress, InvoiceEditableFieldTaxID, InvoiceEditableFieldReviewRequired, InvoiceEditableFieldPaymentMethod, InvoiceEditableFieldDueAt, InvoiceEditableFieldCollectionMethod, InvoiceEditableFieldMemo, InvoiceEditableFieldCustomerEmail, InvoiceEditableFieldCcEmails, InvoiceEditableFieldDunning, InvoiceEditableFieldMetadata:
 		return true
 	}
 	return false
@@ -1181,6 +1190,8 @@ type InvoiceNewParams struct {
 	Memo    param.Field[string]                  `json:"memo"`
 	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
 	Metadata param.Field[MetadataParam] `json:"metadata"`
+	// A saved card of the customer. The new subscriptions of the invoice charge it.
+	PaymentMethodID param.Field[string] `json:"payment_method_id"`
 	// Do not send it with `due_at`.
 	PaymentTerms param.Field[InvoiceNewParamsPaymentTermsUnion] `json:"payment_terms"`
 	// `true` keeps a renewal draft for review before it finalises.
@@ -1411,10 +1422,12 @@ type InvoiceUpdateParams struct {
 	Items param.Field[[]InvoiceUpdateParamsItemUnion] `json:"items"`
 	Memo  param.Field[string]                         `json:"memo"`
 	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
-	Metadata       param.Field[MetadataParam]                        `json:"metadata"`
-	PaymentTerms   param.Field[InvoiceUpdateParamsPaymentTermsUnion] `json:"payment_terms"`
-	ReviewRequired param.Field[bool]                                 `json:"review_required"`
-	TaxID          param.Field[string]                               `json:"tax_id"`
+	Metadata param.Field[MetadataParam] `json:"metadata"`
+	// A saved card of the customer. `null` removes the card from the draft.
+	PaymentMethodID param.Field[string]                               `json:"payment_method_id"`
+	PaymentTerms    param.Field[InvoiceUpdateParamsPaymentTermsUnion] `json:"payment_terms"`
+	ReviewRequired  param.Field[bool]                                 `json:"review_required"`
+	TaxID           param.Field[string]                               `json:"tax_id"`
 }
 
 func (r InvoiceUpdateParams) MarshalJSON() (data []byte, err error) {
@@ -1753,6 +1766,8 @@ type InvoicePreviewParams struct {
 	Memo    param.Field[string]                      `json:"memo"`
 	// Arbitrary key-value metadata. Values can be string, integer, number, or boolean.
 	Metadata param.Field[MetadataParam] `json:"metadata"`
+	// A saved card of the customer. The new subscriptions of the invoice charge it.
+	PaymentMethodID param.Field[string] `json:"payment_method_id"`
 	// Do not send it with `due_at`.
 	PaymentTerms param.Field[InvoicePreviewParamsPaymentTermsUnion] `json:"payment_terms"`
 	// `true` keeps a renewal draft for review before it finalises.

@@ -270,6 +270,18 @@ func (r *SubscriptionService) GetUsageHistoryAutoPaging(ctx context.Context, sub
 	return pagination.NewDefaultPageNumberPaginationAutoPager(r.GetUsageHistory(ctx, subscriptionID, query, opts...))
 }
 
+// Creates an invoice-led subscription and a paid $0 invoice for the trial. The
+// first invoice after the trial bills at `trial_ends_at`.
+func (r *SubscriptionService) StartTrial(ctx context.Context, params SubscriptionStartTrialParams, opts ...option.RequestOption) (res *SubscriptionStartTrialResponse, err error) {
+	if params.IdempotencyKey.Present {
+		opts = append(opts, option.WithHeader("Idempotency-Key", fmt.Sprintf("%v", params.IdempotencyKey)))
+	}
+	opts = slices.Concat(r.Options, opts)
+	path := "billing/subscriptions"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
+}
+
 // For an invoice-led subscription, billing charges the open invoices after the
 // change, so the response has no payment.
 func (r *SubscriptionService) UpdatePaymentMethod(ctx context.Context, subscriptionID string, body SubscriptionUpdatePaymentMethodParams, opts ...option.RequestOption) (res *SubscriptionUpdatePaymentMethodResponse, err error) {
@@ -1996,6 +2008,33 @@ func (r subscriptionGetUsageHistoryResponseMeterJSON) RawJSON() string {
 	return r.raw
 }
 
+type SubscriptionStartTrialResponse struct {
+	// The paid $0 invoice of the trial.
+	InvoiceID      string `json:"invoice_id" api:"required"`
+	SubscriptionID string `json:"subscription_id" api:"required"`
+	// The first invoice after the trial bills at this time.
+	TrialEndsAt time.Time                          `json:"trial_ends_at" api:"required" format:"date-time"`
+	JSON        subscriptionStartTrialResponseJSON `json:"-"`
+}
+
+// subscriptionStartTrialResponseJSON contains the JSON metadata for the struct
+// [SubscriptionStartTrialResponse]
+type subscriptionStartTrialResponseJSON struct {
+	InvoiceID      apijson.Field
+	SubscriptionID apijson.Field
+	TrialEndsAt    apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
+}
+
+func (r *SubscriptionStartTrialResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r subscriptionStartTrialResponseJSON) RawJSON() string {
+	return r.raw
+}
+
 type SubscriptionUpdatePaymentMethodResponse struct {
 	ClientSecret string                                      `json:"client_secret" api:"nullable"`
 	ExpiresOn    time.Time                                   `json:"expires_on" api:"nullable" format:"date-time"`
@@ -2324,6 +2363,134 @@ func (r SubscriptionGetUsageHistoryParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type SubscriptionStartTrialParams struct {
+	CollectionMethod param.Field[CollectionMethod] `json:"collection_method" api:"required"`
+	Currency         param.Field[Currency]         `json:"currency" api:"required"`
+	CustomerID       param.Field[string]           `json:"customer_id" api:"required"`
+	// A recurring product.
+	ProductID param.Field[string] `json:"product_id" api:"required"`
+	// The billing address of an invoice request.
+	BillingAddress param.Field[SubscriptionStartTrialParamsBillingAddress] `json:"billing_address"`
+	// A saved card of the customer. Automatic charge needs it.
+	PaymentMethodID param.Field[string] `json:"payment_method_id"`
+	// The terms of the invoices after the trial.
+	PaymentTerms param.Field[SubscriptionStartTrialParamsPaymentTermsUnion] `json:"payment_terms"`
+	Quantity     param.Field[int64]                                         `json:"quantity"`
+	// `true` keeps each renewal draft for review before it finalises.
+	ReviewRequired param.Field[bool]   `json:"review_required"`
+	TaxID          param.Field[string] `json:"tax_id"`
+	// 1 to 730 days. When this is not set, the product trial applies and the trial
+	// misuse check runs.
+	TrialPeriodDays param.Field[int64]  `json:"trial_period_days"`
+	IdempotencyKey  param.Field[string] `header:"Idempotency-Key"`
+}
+
+func (r SubscriptionStartTrialParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// The billing address of an invoice request.
+type SubscriptionStartTrialParamsBillingAddress struct {
+	// Two-letter ISO country code (ISO 3166-1 alpha-2)
+	Country param.Field[CountryCode] `json:"country" api:"required"`
+	City    param.Field[string]      `json:"city"`
+	State   param.Field[string]      `json:"state"`
+	Street  param.Field[string]      `json:"street"`
+	Zipcode param.Field[string]      `json:"zipcode"`
+}
+
+func (r SubscriptionStartTrialParamsBillingAddress) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// The terms of the invoices after the trial.
+type SubscriptionStartTrialParamsPaymentTerms struct {
+	Type param.Field[SubscriptionStartTrialParamsPaymentTermsType] `json:"type" api:"required"`
+	Days param.Field[int64]                                        `json:"days"`
+}
+
+func (r SubscriptionStartTrialParamsPaymentTerms) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r SubscriptionStartTrialParamsPaymentTerms) implementsSubscriptionStartTrialParamsPaymentTermsUnion() {
+}
+
+// The terms of the invoices after the trial.
+//
+// Satisfied by [SubscriptionStartTrialParamsPaymentTermsDueOnReceipt],
+// [SubscriptionStartTrialParamsPaymentTermsNet],
+// [SubscriptionStartTrialParamsPaymentTerms].
+type SubscriptionStartTrialParamsPaymentTermsUnion interface {
+	implementsSubscriptionStartTrialParamsPaymentTermsUnion()
+}
+
+type SubscriptionStartTrialParamsPaymentTermsDueOnReceipt struct {
+	Type param.Field[SubscriptionStartTrialParamsPaymentTermsDueOnReceiptType] `json:"type" api:"required"`
+}
+
+func (r SubscriptionStartTrialParamsPaymentTermsDueOnReceipt) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r SubscriptionStartTrialParamsPaymentTermsDueOnReceipt) implementsSubscriptionStartTrialParamsPaymentTermsUnion() {
+}
+
+type SubscriptionStartTrialParamsPaymentTermsDueOnReceiptType string
+
+const (
+	SubscriptionStartTrialParamsPaymentTermsDueOnReceiptTypeDueOnReceipt SubscriptionStartTrialParamsPaymentTermsDueOnReceiptType = "due_on_receipt"
+)
+
+func (r SubscriptionStartTrialParamsPaymentTermsDueOnReceiptType) IsKnown() bool {
+	switch r {
+	case SubscriptionStartTrialParamsPaymentTermsDueOnReceiptTypeDueOnReceipt:
+		return true
+	}
+	return false
+}
+
+type SubscriptionStartTrialParamsPaymentTermsNet struct {
+	Days param.Field[int64]                                           `json:"days" api:"required"`
+	Type param.Field[SubscriptionStartTrialParamsPaymentTermsNetType] `json:"type" api:"required"`
+}
+
+func (r SubscriptionStartTrialParamsPaymentTermsNet) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r SubscriptionStartTrialParamsPaymentTermsNet) implementsSubscriptionStartTrialParamsPaymentTermsUnion() {
+}
+
+type SubscriptionStartTrialParamsPaymentTermsNetType string
+
+const (
+	SubscriptionStartTrialParamsPaymentTermsNetTypeNet SubscriptionStartTrialParamsPaymentTermsNetType = "net"
+)
+
+func (r SubscriptionStartTrialParamsPaymentTermsNetType) IsKnown() bool {
+	switch r {
+	case SubscriptionStartTrialParamsPaymentTermsNetTypeNet:
+		return true
+	}
+	return false
+}
+
+type SubscriptionStartTrialParamsPaymentTermsType string
+
+const (
+	SubscriptionStartTrialParamsPaymentTermsTypeDueOnReceipt SubscriptionStartTrialParamsPaymentTermsType = "due_on_receipt"
+	SubscriptionStartTrialParamsPaymentTermsTypeNet          SubscriptionStartTrialParamsPaymentTermsType = "net"
+)
+
+func (r SubscriptionStartTrialParamsPaymentTermsType) IsKnown() bool {
+	switch r {
+	case SubscriptionStartTrialParamsPaymentTermsTypeDueOnReceipt, SubscriptionStartTrialParamsPaymentTermsTypeNet:
+		return true
+	}
+	return false
 }
 
 type SubscriptionUpdatePaymentMethodParams struct {
