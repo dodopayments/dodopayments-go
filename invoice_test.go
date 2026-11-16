@@ -61,6 +61,7 @@ func TestInvoiceNewWithOptionalParams(t *testing.T) {
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": shared.UnionString("string"),
 		}),
+		PaymentMethodID: dodopayments.F("payment_method_id"),
 		PaymentTerms: dodopayments.F[dodopayments.InvoiceNewParamsPaymentTermsUnion](dodopayments.InvoiceNewParamsPaymentTermsDueOnReceipt{
 			Type: dodopayments.F(dodopayments.InvoiceNewParamsPaymentTermsDueOnReceiptTypeDueOnReceipt),
 		}),
@@ -145,6 +146,7 @@ func TestInvoiceUpdateWithOptionalParams(t *testing.T) {
 			Metadata: dodopayments.F(dodopayments.MetadataParam{
 				"foo": shared.UnionString("string"),
 			}),
+			PaymentMethodID: dodopayments.F("payment_method_id"),
 			PaymentTerms: dodopayments.F[dodopayments.InvoiceUpdateParamsPaymentTermsUnion](dodopayments.InvoiceUpdateParamsPaymentTermsDueOnReceipt{
 				Type: dodopayments.F(dodopayments.InvoiceUpdateParamsPaymentTermsDueOnReceiptTypeDueOnReceipt),
 			}),
@@ -422,6 +424,7 @@ func TestInvoicePreviewWithOptionalParams(t *testing.T) {
 		Metadata: dodopayments.F(dodopayments.MetadataParam{
 			"foo": shared.UnionString("string"),
 		}),
+		PaymentMethodID: dodopayments.F("payment_method_id"),
 		PaymentTerms: dodopayments.F[dodopayments.InvoicePreviewParamsPaymentTermsUnion](dodopayments.InvoicePreviewParamsPaymentTermsDueOnReceipt{
 			Type: dodopayments.F(dodopayments.InvoicePreviewParamsPaymentTermsDueOnReceiptTypeDueOnReceipt),
 		}),
