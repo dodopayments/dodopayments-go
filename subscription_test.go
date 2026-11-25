@@ -484,7 +484,6 @@ func TestSubscriptionStartTrialWithOptionalParams(t *testing.T) {
 		ReviewRequired:  dodopayments.F(true),
 		TaxID:           dodopayments.F("tax_id"),
 		TrialPeriodDays: dodopayments.F(int64(0)),
-		IdempotencyKey:  dodopayments.F("Idempotency-Key"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

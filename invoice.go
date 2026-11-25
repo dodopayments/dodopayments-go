@@ -44,13 +44,10 @@ func NewInvoiceService(opts ...option.RequestOption) (r *InvoiceService) {
 
 // Creates a draft. A repeat with the same `Idempotency-Key` returns the first
 // draft.
-func (r *InvoiceService) New(ctx context.Context, params InvoiceNewParams, opts ...option.RequestOption) (res *Invoice, err error) {
-	if params.IdempotencyKey.Present {
-		opts = append(opts, option.WithHeader("Idempotency-Key", fmt.Sprintf("%v", params.IdempotencyKey)))
-	}
+func (r *InvoiceService) New(ctx context.Context, body InvoiceNewParams, opts ...option.RequestOption) (res *Invoice, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "billing/invoices"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return res, err
 }
 
@@ -1197,7 +1194,6 @@ type InvoiceNewParams struct {
 	// `true` keeps a renewal draft for review before it finalises.
 	ReviewRequired param.Field[bool]   `json:"review_required"`
 	TaxID          param.Field[string] `json:"tax_id"`
-	IdempotencyKey param.Field[string] `header:"Idempotency-Key"`
 }
 
 func (r InvoiceNewParams) MarshalJSON() (data []byte, err error) {

@@ -67,7 +67,6 @@ func TestInvoiceNewWithOptionalParams(t *testing.T) {
 		}),
 		ReviewRequired: dodopayments.F(true),
 		TaxID:          dodopayments.F("tax_id"),
-		IdempotencyKey: dodopayments.F("Idempotency-Key"),
 	})
 	if err != nil {
 		var apierr *dodopayments.Error

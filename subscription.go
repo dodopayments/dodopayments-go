@@ -272,13 +272,10 @@ func (r *SubscriptionService) GetUsageHistoryAutoPaging(ctx context.Context, sub
 
 // Creates an invoice-led subscription and a paid $0 invoice for the trial. The
 // first invoice after the trial bills at `trial_ends_at`.
-func (r *SubscriptionService) StartTrial(ctx context.Context, params SubscriptionStartTrialParams, opts ...option.RequestOption) (res *SubscriptionStartTrialResponse, err error) {
-	if params.IdempotencyKey.Present {
-		opts = append(opts, option.WithHeader("Idempotency-Key", fmt.Sprintf("%v", params.IdempotencyKey)))
-	}
+func (r *SubscriptionService) StartTrial(ctx context.Context, body SubscriptionStartTrialParams, opts ...option.RequestOption) (res *SubscriptionStartTrialResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "billing/subscriptions"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return res, err
 }
 
@@ -2383,8 +2380,7 @@ type SubscriptionStartTrialParams struct {
 	TaxID          param.Field[string] `json:"tax_id"`
 	// 1 to 730 days. When this is not set, the product trial applies and the trial
 	// misuse check runs.
-	TrialPeriodDays param.Field[int64]  `json:"trial_period_days"`
-	IdempotencyKey  param.Field[string] `header:"Idempotency-Key"`
+	TrialPeriodDays param.Field[int64] `json:"trial_period_days"`
 }
 
 func (r SubscriptionStartTrialParams) MarshalJSON() (data []byte, err error) {

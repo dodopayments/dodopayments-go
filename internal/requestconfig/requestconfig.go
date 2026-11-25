@@ -23,6 +23,7 @@ import (
 	"github.com/dodopayments/dodopayments-go/internal/apiform"
 	"github.com/dodopayments/dodopayments-go/internal/apiquery"
 	"github.com/dodopayments/dodopayments-go/internal/param"
+	"github.com/google/uuid"
 )
 
 func getDefaultHeaders() map[string]string {
@@ -155,7 +156,10 @@ func NewRequestConfig(ctx context.Context, method string, u string, body interfa
 	if reader != nil {
 		req.Header.Set("Content-Type", contentType)
 	}
-
+	if method != http.MethodGet {
+		// Note this can be overridden with `WithHeader("Idempotency-Key", myIdempotencyKey)`
+		req.Header.Set("Idempotency-Key", "stainless-go-"+uuid.New().String())
+	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("X-Stainless-Retry-Count", "0")
 	req.Header.Set("X-Stainless-Timeout", "0")
@@ -614,7 +618,7 @@ func (cfg *RequestConfig) Clone(ctx context.Context) *RequestConfig {
 		WorkloadIdentity:    cfg.WorkloadIdentity,
 		ExplicitBearerToken: cfg.ExplicitBearerToken,
 	}
-
+	new.Request.Header.Set("Idempotency-Key", "stainless-go-"+uuid.New().String())
 	return new
 }
 
